@@ -41,11 +41,6 @@ code_quality:
 
 build_dev:
   stage: build
-  only:
-    changes:
-      - api/**/*
-      - backend/**/*
-      - "*.yml"
   script:
     - docker-compose -f docker-compose.dev.yml build
     - docker images
@@ -53,10 +48,6 @@ build_dev:
 
 test_api:
   stage: test
-  only:
-    changes:
-      - api/**/*
-      - "*.yml"
   script:
     - docker-compose -f docker-compose.dev.yml pull
     - docker images
@@ -67,21 +58,6 @@ test_api:
     - docker-compose -f docker-compose.dev.yml exec -T api php yii seeder
     - docker-compose -f docker-compose.dev.yml exec -T api composer run test
 
-test_backend:
-  stage: test
-  only:
-    changes:
-      - backend/**/*
-      - "*.yml"
-  script:
-    - docker-compose -f docker-compose.dev.yml pull
-    - docker images
-    - COMPOSE_HTTP_TIMEOUT=500 docker-compose -f docker-compose.dev.yml up -d
-    - sleep 60
-    - docker ps
-    - docker-compose -f docker-compose.dev.yml exec -T backend npm run lint
-    - docker-compose -f docker-compose.dev.yml exec -T backend npm run test:unit
-
 release_all:
   stage: release
   only: 
@@ -91,8 +67,6 @@ release_all:
     - docker images
     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:latest
     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:latest
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend:latest
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend:latest
     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:latest
     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:latest
 
