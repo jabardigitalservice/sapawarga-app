@@ -4,7 +4,7 @@ services:
     # build:
     #   context: ./nginx
     #   dockerfile: Dockerfile
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-backend-nginx:latest
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-nginx:latest
     networks:
       - internal
     # volumes:
@@ -19,7 +19,7 @@ services:
   api:
     # build:
     #   context: ./api
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-backend-api:latest
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
     networks:
       - internal
     depends_on:
