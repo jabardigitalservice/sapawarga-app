@@ -4,7 +4,7 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:${IMAGETAG}
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-backend-nginx:${IMAGETAG}
     networks:
       - internal
     volumes:
@@ -13,13 +13,13 @@ services:
       - api
       - memcached
     ports:
-      - 80:80
+      - 81:80
       - 443:443
 
   api:
     build:
       context: ./api
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:${IMAGETAG}
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-backend-api:${IMAGETAG}
     networks:
       - internal
     depends_on:
