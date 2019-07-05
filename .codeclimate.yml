@@ -1,6 +1,5 @@
 version: "2"
 exclude_patterns:
-  - nginx/
   - assets/
   - api/vendor/
   - api/tests/
