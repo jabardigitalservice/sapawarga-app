@@ -41,11 +41,6 @@ code_quality:
 
 build_dev:
   stage: build
-  only:
-    changes:
-      - api/**/*
-      - backend/**/*
-      - "*.yml"
   script:
     - docker-compose -f docker-compose.dev.yml build
     - docker images
@@ -53,10 +48,6 @@ build_dev:
 
 test_api:
   stage: test
-  only:
-    changes:
-      - api/**/*
-      - "*.yml"
   script:
     - docker-compose -f docker-compose.dev.yml pull
     - docker images
@@ -67,39 +58,20 @@ test_api:
     - docker-compose -f docker-compose.dev.yml exec -T api php yii seeder
     - docker-compose -f docker-compose.dev.yml exec -T api composer run test
 
-test_backend:
-  stage: test
-  only:
-    changes:
-      - backend/**/*
-      - "*.yml"
-  script:
-    - docker-compose -f docker-compose.dev.yml pull
-    - docker images
-    - COMPOSE_HTTP_TIMEOUT=500 docker-compose -f docker-compose.dev.yml up -d
-    - sleep 60
-    - docker ps
-    - docker-compose -f docker-compose.dev.yml exec -T backend npm run lint
-    - docker-compose -f docker-compose.dev.yml exec -T backend npm run test:unit
-
 release_all:
   stage: release
-  only: 
-    - master
+  # only: 
+  #   - master
   script:
     - docker-compose -f docker-compose.dev.yml pull
     - docker images
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:latest
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-api:latest
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend:latest
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend:latest
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:latest
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-nginx:latest
+    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
 
 deploy_staging:
   stage: deploy
-  only: 
-    - master
+  # only: 
+  #   - master
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
@@ -107,5 +79,5 @@ deploy_staging:
     - chmod 400 $SSH_STAGING_KEY_PRIVATE
     - ssh-add $SSH_STAGING_KEY_PRIVATE
   script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-app && git pull && sudo docker-compose pull && sudo docker-compose down && sudo docker-compose up -d"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker-compose pull && sudo docker-compose down && sudo docker-compose up -d"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"

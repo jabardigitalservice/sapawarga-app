@@ -1,18 +1,6 @@
 version: "2"
 exclude_patterns:
-  - frontend/
-  - mock-server/
-  - nginx/
   - assets/
-  - backend/.github/
-  - backend/build/
-  - backend/dist/
-  - backend/mock/
-  - backend/node_modules/
-  - backend/plop-templates/
-  - backend/public/
-  - backend/tests/
-  - backend/src/vendor/
   - api/vendor/
   - api/tests/
   - api/web/
