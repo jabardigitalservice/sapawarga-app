@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\NewsChannel;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
+use app\models\NewsChannelSearch;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -75,5 +76,19 @@ class NewsChannelController extends ActiveController
         ];
 
         return $behaviors;
+    }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+        return $actions;
+    }
+
+    public function prepareDataProvider()
+    {
+        $search = new NewsChannelSearch();
+
+        return $search->search(\Yii::$app->request->getQueryParams());
     }
 }
