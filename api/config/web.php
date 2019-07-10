@@ -228,7 +228,6 @@ $config = [
                 [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/news-channel',
-                    'pluralize' => false,
                     'tokens' => [
                         '{id}' => '<id:\d+>',
                     ],

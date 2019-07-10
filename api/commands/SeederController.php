@@ -4,10 +4,6 @@ namespace app\commands;
 
 use app\models\Area;
 use app\models\PhoneBook;
-use app\models\Broadcast;
-use app\models\category\PhoneBookCategory;
-use app\models\category\BroadcastCategory;
-use tebazil\yii2seeder\Seeder;
 use Yii;
 use yii\console\Controller;
 use yii\db\JsonExpression;
@@ -44,6 +40,9 @@ class SeederController extends Controller
 
         echo 'Seeding Survey...' . PHP_EOL;
         $this->actionSurvey();
+
+        echo 'Seeding News Channels and News...' . PHP_EOL;
+        $this->actionNews();
 
         Yii::$app->db->createCommand()->checkIntegrity(true)->execute();
     }
@@ -169,6 +168,14 @@ class SeederController extends Controller
     public function actionSurvey()
     {
         Yii::$app->db->createCommand('TRUNCATE survey')->execute();
+    }
+
+    public function actionNews()
+    {
+        Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/news_newschannel.sql');
+        Yii::$app->db->createCommand($sql)->execute();
     }
 
     protected function setRandomKecamatan()

@@ -21,7 +21,7 @@ class NewsSearch extends News
      */
     public function search($params)
     {
-        $query = News::find()->with('channel');
+        $query = News::find()->joinWith('channel');
 
         // grid filtering conditions
         $query->andFilterWhere(['id' => $this->id]);
@@ -34,7 +34,7 @@ class NewsSearch extends News
         $query->andFilterWhere(['like', 'title', $searchKeyword]);
         $query->orFilterWhere(['like', 'content', $searchKeyword]);
 
-        $query->andFilterWhere(['<>', 'status', News::STATUS_DELETED]);
+        $query->andFilterWhere(['<>', 'news.status', News::STATUS_DELETED]);
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
@@ -45,11 +45,11 @@ class NewsSearch extends News
 
     public function featuredList($params)
     {
-        $query = News::find()->with('channel');
+        $query = News::find()->joinWith('channel');
 
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['featured' => true]);
-        $query->andFilterWhere(['status' => News::STATUS_ACTIVE]);
+        $query->andFilterWhere(['news.status' => News::STATUS_ACTIVE]);
 
         $params['sort_by']    = 'seq';
         $params['sort_order'] = 'ascending';
@@ -63,7 +63,7 @@ class NewsSearch extends News
             News::STATUS_ACTIVE,
         ];
 
-        $query->andFilterWhere(['in', 'status', $filterStatusList]);
+        $query->andFilterWhere(['in', 'news.status', $filterStatusList]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -77,7 +77,20 @@ class NewsSearch extends News
 
         return new ActiveDataProvider([
             'query'      => $query,
-            'sort'       => ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort'       => [
+                'defaultOrder' => [$sortBy => $sortOrder],
+                'attributes' => [
+                    'title',
+                    'source_date',
+                    'featured',
+                    'seq',
+                    'status',
+                    'channel.name' => [
+                        'asc' => ['news_channels.name' => SORT_ASC],
+                        'desc' => ['news_channels.name' => SORT_DESC],
+                    ],
+                ],
+            ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],

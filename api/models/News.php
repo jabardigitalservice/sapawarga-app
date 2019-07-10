@@ -110,6 +110,7 @@ class News extends ActiveRecord
                 ];
             },
             'meta',
+            'seq',
             'status',
             'status_label' => function () {
                 return $this->getStatusLabel();
