@@ -65,8 +65,10 @@ class NewsChannelSearch extends NewsChannel
             return $dataProvider;
         }
 
-        $query->andFilterWhere(['like', 'name', Arr::get($params, $searchKeyword)]);
-        $query->orFilterWhere(['like', 'website', Arr::get($params, $searchKeyword)]);
+        if ($searchKeyword) {
+            $query->andFilterWhere(['like', 'name', $searchKeyword]);
+            $query->orFilterWhere(['like', 'website', $searchKeyword]);
+        }
 
         $query->andFilterWhere(['<>', 'status', NewsChannel::STATUS_DELETED]);
 

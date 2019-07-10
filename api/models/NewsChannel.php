@@ -37,7 +37,8 @@ class NewsChannel extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'string', 'max' => 100],
+            ['name', 'string', 'max' => 100],
+            ['name',  'unique'],
             [['name', 'website', 'icon_url'], 'trim'],
             [['name', 'website', 'icon_url'], 'safe'],
 
@@ -94,7 +95,7 @@ class NewsChannel extends ActiveRecord
             'id'       => 'ID',
             'website'  => 'Website',
             'icon_url' => 'Icon URL',
-            'name'     => 'Name',
+            'name'     => 'Nama',
             'meta'     => 'Meta',
             'status'   => 'Status',
         ];
