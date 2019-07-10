@@ -21,6 +21,4 @@ class NewsViewer extends ActiveRecord
     {
         return 'news_viewers';
     }
-
-
 }

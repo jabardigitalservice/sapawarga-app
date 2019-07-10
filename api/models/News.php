@@ -162,7 +162,7 @@ class News extends ActiveRecord
     /** @inheritdoc */
     public function behaviors()
     {
-        return [  
+        return [
             [
                 'class'              => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',

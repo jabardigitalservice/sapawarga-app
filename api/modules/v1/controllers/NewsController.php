@@ -212,16 +212,13 @@ class NewsController extends ActiveController
       
         // New when not exist, update if exist
         if ($newsViewer === null) {
-
             $model = new NewsViewer();
 
             $model->news_id = $newsId;
             $model->user_id = $userId;
             $model->read_count = 1;
             $model->save(false);
-
         } else {
-
             $newsViewer->news_id = $newsId;
             $newsViewer->user_id = $userId;
             $newsViewer->read_count = $newsViewer->read_count + 1;
