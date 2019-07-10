@@ -9,7 +9,7 @@ class AspirasiCest
         //
     }
 
-    public function getListTest(ApiTester $I)
+    public function getUserListTest(ApiTester $I)
     {
         $I->amUser('user');
 
@@ -23,8 +23,195 @@ class AspirasiCest
         ]);
     }
 
+    public function getUserListDefaultSortTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9, // INFRASTRUKTUR
+            'author_id'   => 36,
+            'created_at'  => 1553010000,
+            'updated_at'  => 1553010000,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 2,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 10, // SUMBER DAYA MANUSIA
+            'author_id'   => 36,
+            'created_at'  => 1553020000,
+            'updated_at'  => 1553020000,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 3,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 11, // EKONOMI
+            'author_id'   => 36,
+            'created_at'  => 1553030000,
+            'updated_at'  => 1553030000,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendGET('/v1/aspirasi');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(3, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(1, $data[0][2]['id']);
+    }
+
+    public function getUserListOrderByCategoryNameAscendingTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9, // INFRASTRUKTUR
+            'author_id'   => 36,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 2,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 10, // SUMBER DAYA MANUSIA
+            'author_id'   => 36,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 3,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 11, // EKONOMI
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendGET('/v1/aspirasi?sort_by=category.name&sort_order=ascending');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(3, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][1]['id']);
+        $I->assertEquals(2, $data[0][2]['id']);
+    }
+
+    public function getUserListOrderByCategoryNameDescendingTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9, // INFRASTRUKTUR
+            'author_id'   => 36,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 2,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 10, // SUMBER DAYA MANUSIA
+            'author_id'   => 36,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 3,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 11, // EKONOMI
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendGET('/v1/aspirasi?sort_by=category.name&sort_order=descending');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(2, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+    }
+
     public function getShowTest(ApiTester $I)
     {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
         $I->amUser('user');
 
         $I->sendGET('/v1/aspirasi/1');
@@ -42,6 +229,7 @@ class AspirasiCest
         $I->amUser('user');
 
         $data = [
+            'id'          => 1,
             'title'       => 'Lorem ipsum',
             'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
             sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
@@ -50,7 +238,7 @@ class AspirasiCest
             'kel_id'      => 6082,
             'status'      => 0,
             'category_id' => 9,
-            'attachments' => [],
+            'author_id'   => 36,
         ];
 
         $I->sendPOST('/v1/aspirasi', $data);
@@ -65,11 +253,20 @@ class AspirasiCest
 
     public function postUpdateTest(ApiTester $I)
     {
-        $I->amUser('user');
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
 
-        // @TODO find better way
-        $createdIds = $I->grabColumnFromDatabase('aspirasi', 'id', ['author_id' => 36]);
-        $latestId   = last($createdIds);
+        $I->amUser('user');
 
         $data = [
             'title'       => 'Lorem ipsum',
@@ -80,10 +277,10 @@ class AspirasiCest
             'kel_id'      => 6082,
             'status'      => 0,
             'category_id' => 9,
-            'attachments' => [],
+            'author_id'   => 36,
         ];
 
-        $I->sendPUT('/v1/aspirasi/' . $latestId, $data);
+        $I->sendPUT('/v1/aspirasi/1', $data);
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -93,8 +290,42 @@ class AspirasiCest
         ]);
     }
 
-    public function deleteTest(ApiTester $I)
+    public function userCanDeleteTest(ApiTester $I)
     {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendDELETE('/v1/aspirasi/1');
+        $I->canSeeResponseCodeIs(204);
+    }
+
+    public function userCannotDeleteUnauthorizedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 1,
+        ]);
+
         $I->amUser('user');
 
         $I->sendDELETE('/v1/aspirasi/1');
@@ -124,6 +355,19 @@ class AspirasiCest
 
     public function postLikeAspirasi(ApiTester $I)
     {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
         $I->amUser('user');
 
         $I->sendPOST('/v1/aspirasi/likes/1');
@@ -140,6 +384,24 @@ class AspirasiCest
 
     public function postDislikeAspirasi(ApiTester $I)
     {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->haveInDatabase('aspirasi_likes', [
+            'aspirasi_id' => 1,
+            'user_id'     => 36,
+        ]);
+
         $I->amUser('user');
 
         $I->sendPOST('/v1/aspirasi/likes/1');
