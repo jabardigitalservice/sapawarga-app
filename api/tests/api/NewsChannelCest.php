@@ -6,8 +6,18 @@ class NewsChannelCest
 
     public function createNewNewsChannelNameExist(ApiTester $I)
     {
-        $I->amStaff();
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE news')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
 
+        $I->haveInDatabase('news_channels', [
+            'id'         => 1,
+            'name'       => 'Detik',
+            'status'     => 10,
+        ]);
+
+
+        $I->amStaff();
         $I->sendPOST($this->endpointNewsChannel, [
             'name'      => 'Detik',
             'status'    => 10,
@@ -27,7 +37,7 @@ class NewsChannelCest
         $I->amStaff();
 
         $I->sendPOST($this->endpointNewsChannel, [
-            'name'      => 'Detik',
+            'name'      => 'Kompas',
             'status'    => 10,
         ]);
 
@@ -42,7 +52,22 @@ class NewsChannelCest
 
     public function getNewsChannelListAll(ApiTester $I)
     {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE news')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+
         $I->amStaff();
+
+        $I->sendPOST($this->endpointNewsChannel, [
+            'id'        => 1,
+            'name'      => 'Detik',
+            'status'    => 10,
+        ]);
+        $I->sendPOST($this->endpointNewsChannel, [
+            'id'        => 2,
+            'name'      => 'Kompas',
+            'status'    => 10,
+        ]);
 
         $I->sendGET($this->endpointNewsChannel);
         $I->canSeeResponseCodeIs(200);
@@ -53,13 +78,9 @@ class NewsChannelCest
             'status'  => 200,
         ]);
 
-        $I->seeResponseContainsJson([
-            'name' => 'Detik',
-        ]);
-
-        $I->seeResponseContainsJson([
-            'name' => 'Kompas',
-        ]);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Detik', $data[0][0]['name']);
+        $I->assertEquals('Kompas', $data[0][1]['name']);
     }
 
     public function getNewsChannelItemNotFound(ApiTester $I)
@@ -97,7 +118,19 @@ class NewsChannelCest
 
     public function updateNewsChannelNameExist(ApiTester $I)
     {
+        $I->amStaff();
+        
+        $I->sendPUT ("{$this->endpointNewsChannel}/1", [
+            'name' => 'Kompas',
+        ]);
+        
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseIsJson();
 
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
+        ]);
     }
 
     public function updateNewsChannel(ApiTester $I)
@@ -114,6 +147,12 @@ class NewsChannelCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('news_channels', [
+            'id'        => 1,
+            'name'      => 'Detik Edited',
+            'status'    => 10,
         ]);
     }
 
