@@ -47,6 +47,8 @@ class AspirasiSearch extends Aspirasi
     {
         $query = Aspirasi::find();
 
+        $query->joinWith(['category']);
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
@@ -60,7 +62,7 @@ class AspirasiSearch extends Aspirasi
         // grid filtering conditions
         $query->andFilterWhere(['id' => $this->id]);
 
-        $query->andFilterWhere(['<>', 'status', Aspirasi::STATUS_DELETED]);
+        $query->andFilterWhere(['<>', 'aspirasi.status', Aspirasi::STATUS_DELETED]);
 
         if (Arr::has($params, 'title')) {
             $query->andWhere(['like', 'title', Arr::get($params, 'title')]);
@@ -89,7 +91,7 @@ class AspirasiSearch extends Aspirasi
             Aspirasi::STATUS_PUBLISHED,
         ];
 
-        $query->andFilterWhere(['in', 'status', $statuses]);
+        $query->andFilterWhere(['in', 'aspirasi.status', $statuses]);
 
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
@@ -126,7 +128,7 @@ class AspirasiSearch extends Aspirasi
         }
 
         if (count($filterStatusList) > 0) {
-            $query->andFilterWhere(['in', 'status', $filterStatusList]);
+            $query->andFilterWhere(['in', 'aspirasi.status', $filterStatusList]);
         }
 
         $pageLimit = Arr::get($params, 'limit');
@@ -134,13 +136,22 @@ class AspirasiSearch extends Aspirasi
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = $this->getSortOrder($sortOrder);
 
-        return new ActiveDataProvider([
+        $provider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort'=> [
+                'defaultOrder' => [$sortBy => $sortOrder],
+            ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        $provider->sort->attributes['category.name'] = [
+            'asc'  => ['categories.name' => SORT_ASC],
+            'desc' => ['categories.name' => SORT_DESC],
+        ];
+
+        return $provider;
     }
 
     protected function getSortOrder($sortOrder)
