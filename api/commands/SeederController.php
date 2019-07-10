@@ -143,6 +143,7 @@ class SeederController extends Controller
     {
         Yii::$app->db->createCommand('TRUNCATE aspirasi')->execute();
 
+        // Jika dibutuhkan Seeder, hapus komentar di bawah
         // $sql = file_get_contents(__DIR__ . '/../migrations/seeder/aspirasi.sql');
         // Yii::$app->db->createCommand($sql)->execute();
     }
