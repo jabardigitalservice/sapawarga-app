@@ -162,7 +162,7 @@ class News extends ActiveRecord
     /** @inheritdoc */
     public function behaviors()
     {
-        return [
+        return [  
             [
                 'class'              => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
@@ -182,7 +182,7 @@ class News extends ActiveRecord
     {
         if ($insert) { // Model is created
             $this->meta = [
-                'read_count' => 0
+                'read_count' => 0,
             ];
         }
         
