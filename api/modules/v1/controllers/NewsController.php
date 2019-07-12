@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
+use app\models\NewsViewer;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -183,17 +184,42 @@ class NewsController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        // Increment read_count by 1
-        $meta = $model->meta;
-        if (!$meta) {
-            $meta = News::META_DEFAULT;
-        }
-        $meta['read_count']++;
-        $model->meta = $meta;
+        // Increment total_viewers
+        $totalViewers = $model->total_viewers + 1;
+
+        // Save news viewer per user
+        $this->saveNewsViewerPerUser($id);
+
+        $model->total_viewers = $totalViewers;
         $model->save(false);
 
         return $model;
     }
+
+    private function saveNewsViewerPerUser($newsId)
+    {
+        $userId = Yii::$app->user->id;
+
+        $newsViewer = NewsViewer::find()
+                ->where(['news_id' => $newsId, 'user_id' => $userId ])
+                ->one();
+      
+        // New when not exist, update if exist
+        if ($newsViewer === null) {
+            $model = new NewsViewer();
+
+            $model->news_id = $newsId;
+            $model->user_id = $userId;
+            $model->read_count = 1;
+            $model->save(false);
+        } else {
+            $newsViewer->news_id = $newsId;
+            $newsViewer->user_id = $userId;
+            $newsViewer->read_count = $newsViewer->read_count + 1;
+            $newsViewer->save(false);
+        }
+    }
+
 
     public function prepareDataProvider()
     {
