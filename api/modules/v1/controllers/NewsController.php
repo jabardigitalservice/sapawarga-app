@@ -184,19 +184,13 @@ class NewsController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        // Increment read_count by 1
-        $meta = $model->meta;
-        if (!$meta) {
-            $meta = News::META_DEFAULT;
-        }
-
-        // Increment read_count
-        $meta['read_count']++;
+        // Increment total_viewers
+        $totalViewers = $model->total_viewers + 1;
 
         // Save news viewer per user
         $this->saveNewsViewerPerUser($id);
 
-        $model->meta = $meta;
+        $model->total_viewers = $totalViewers;
         $model->save(false);
 
         return $model;

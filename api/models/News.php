@@ -109,6 +109,7 @@ class News extends ActiveRecord
                     'icon_url' => $this->channel->icon_url,
                 ];
             },
+            'total_viewers',
             'meta',
             'seq',
             'status',
@@ -182,9 +183,7 @@ class News extends ActiveRecord
     public function beforeSave($insert)
     {
         if ($insert) { // Model is created
-            $this->meta = [
-                'read_count' => 0,
-            ];
+            $this->total_viewers = 0;
         }
         
         return parent::beforeSave($insert);

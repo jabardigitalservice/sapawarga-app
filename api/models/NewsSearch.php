@@ -82,6 +82,7 @@ class NewsSearch extends News
                 'attributes' => [
                     'title',
                     'source_date',
+                    'total_viewers',
                     'featured',
                     'seq',
                     'status',
