@@ -6,7 +6,6 @@ use app\models\Area;
 use app\models\PhoneBook;
 use Yii;
 use yii\console\Controller;
-use yii\db\JsonExpression;
 
 class SeederController extends Controller
 {
