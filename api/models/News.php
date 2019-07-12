@@ -183,7 +183,7 @@ class News extends ActiveRecord
     {
         if ($insert) { // Model is created
             $this->meta = [
-                'read_count' => 0
+                'read_count' => 0,
             ];
         }
         
