@@ -60,7 +60,7 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
         $auth->addChild($this->roleStaffRW, $aspirasiMobilePermission);
         $auth->addChild($this->roleUser, $aspirasiMobilePermission);
 
-        // $this->removeStaffChildRole($auth);
+        $this->removeStaffChildRole($auth);
     }
 
     /**
@@ -69,6 +69,9 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
     public function safeDown()
     {
         $auth = Yii::$app->authManager;
+
+        $this->addStaffChildRole($auth);
+
         $aspirasiMobilePermission           = $auth->getPermission('aspirasiMobile');
         $aspirasiWebadminViewPermission     = $auth->getPermission('aspirasiWebadminView');
         $aspirasiWebadminManagePermission   = $auth->getPermission('aspirasiWebadminManage');
@@ -90,7 +93,17 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
 
     private function removeStaffChildRole($auth)
     {
-        // $auth->addChild($staffKel, $staffRW);
+        $auth->removeChild($this->roleStaffProv, $this->roleStaffKabkota);
+        $auth->removeChild($this->roleStaffKabkota, $this->roleStaffKec);
+        $auth->removeChild($this->roleStaffKec, $this->roleStaffKel);
+        $auth->removeChild($this->roleStaffKel, $this->roleStaffRW);
     }
-    
+
+    private function addStaffChildRole($auth)
+    {
+        $auth->addChild($this->roleStaffKel, $this->roleStaffRW);
+        $auth->addChild($this->roleStaffKec, $this->roleStaffKel);
+        $auth->addChild($this->roleStaffKabkota, $this->roleStaffKec);
+        $auth->addChild($this->roleStaffProv, $this->roleStaffKabkota);
+    }
 }
