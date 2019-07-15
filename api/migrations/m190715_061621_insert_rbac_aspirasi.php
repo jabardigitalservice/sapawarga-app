@@ -6,6 +6,31 @@ use app\components\CustomMigration;
  * Class m190715_061621_insert_rbac_aspirasi */
 class m190715_061621_insert_rbac_aspirasi extends CustomMigration
 {
+    private $auth;
+
+    private $roleAdmin;
+    private $roleStaffProv;
+    private $roleStaffKabkota;
+    private $roleStaffKec;
+    private $roleStaffKel;
+    private $roleStaffRW;
+    private $roleUser;
+
+    public function init()
+    {
+        $this->auth = Yii::$app->authManager;
+
+        $this->roleAdmin = $this->auth->getRole('admin');
+        $this->roleStaffProv = $this->auth->getRole('staffProv');
+        $this->roleStaffKabkota = $this->auth->getRole('staffKabkota');
+        $this->roleStaffKec = $this->auth->getRole('staffKec');
+        $this->roleStaffKel = $this->auth->getRole('staffKel');
+        $this->roleStaffRW = $this->auth->getRole('staffRW');
+        $this->roleUser = $this->auth->getRole('user');
+
+        parent::init();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -25,26 +50,17 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
         $aspirasiWebadminManagePermission->description = 'Manage Aspirasi (Full privileges)';
         $auth->add($aspirasiWebadminManagePermission);
 
-        $role = $auth->getRole('admin');
-        $auth->addChild($role, $aspirasiWebadminManagePermission);
+        $auth->addChild($this->roleAdmin, $aspirasiWebadminManagePermission);
+        $auth->addChild($this->roleStaffProv, $aspirasiWebadminManagePermission);
 
-        $role = $auth->getRole('staffProv');
-        $auth->addChild($role, $aspirasiWebadminManagePermission);
+        $auth->addChild($this->roleStaffKabkota, $aspirasiWebadminViewPermission);
+        $auth->addChild($this->roleStaffKec, $aspirasiWebadminViewPermission);
+        $auth->addChild($this->roleStaffKel, $aspirasiWebadminViewPermission);
 
-        $role = $auth->getRole('staffKabkota');
-        $auth->addChild($role, $aspirasiWebadminViewPermission);
+        $auth->addChild($this->roleStaffRW, $aspirasiMobilePermission);
+        $auth->addChild($this->roleUser, $aspirasiMobilePermission);
 
-        $role = $auth->getRole('staffKec');
-        $auth->addChild($role, $aspirasiWebadminViewPermission);
-
-        $role = $auth->getRole('staffKel');
-        $auth->addChild($role, $aspirasiWebadminViewPermission);
-
-        $role = $auth->getRole('staffRW');
-        $auth->addChild($role, $aspirasiMobilePermission);
-
-        $role = $auth->getRole('user');
-        $auth->addChild($role, $aspirasiMobilePermission);
+        // $this->removeStaffChildRole($auth);
     }
 
     /**
@@ -57,29 +73,24 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
         $aspirasiWebadminViewPermission     = $auth->getPermission('aspirasiWebadminView');
         $aspirasiWebadminManagePermission   = $auth->getPermission('aspirasiWebadminManage');
 
-        $role = $auth->getRole('user');
-        $auth->removeChild($role, $aspirasiMobilePermission); 
+        $auth->removeChild($this->roleUser, $aspirasiMobilePermission); 
+        $auth->removeChild($this->roleStaffRW, $aspirasiMobilePermission);
+
+        $auth->removeChild($this->roleStaffKel, $aspirasiWebadminViewPermission);
+        $auth->removeChild($this->roleStaffKec, $aspirasiWebadminViewPermission);
+        $auth->removeChild($this->roleStaffKabkota, $aspirasiWebadminViewPermission);
         
-        $role = $auth->getRole('staffRW');
-        $auth->removeChild($role, $aspirasiMobilePermission);
-
-        $role = $auth->getRole('staffKel');
-        $auth->removeChild($role, $aspirasiWebadminViewPermission);
-
-        $role = $auth->getRole('staffKec');
-        $auth->removeChild($role, $aspirasiWebadminViewPermission);
-
-        $role = $auth->getRole('staffKabkota');
-        $auth->removeChild($role, $aspirasiWebadminViewPermission);
-
-        $role = $auth->getRole('staffProv');
-        $auth->removeChild($role, $aspirasiWebadminManagePermission);
-
-        $role = $auth->getRole('admin');
-        $auth->removeChild($role, $aspirasiWebadminManagePermission);
+        $auth->removeChild($this->roleStaffProv, $aspirasiWebadminManagePermission);
+        $auth->removeChild($this->roleAdmin, $aspirasiWebadminManagePermission);
 
         $auth->remove($aspirasiWebadminManagePermission);
         $auth->remove($aspirasiWebadminViewPermission);           
         $auth->remove($aspirasiMobilePermission);
     }
+
+    private function removeStaffChildRole($auth)
+    {
+        // $auth->addChild($staffKel, $staffRW);
+    }
+    
 }
