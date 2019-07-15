@@ -73,12 +73,17 @@ class AspirasiController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'me', 'likes', 'approval'],
-                    'roles'   => ['admin', 'manageSettings'],
+                    'roles'   => ['aspirasiWebadminManage'],
+                ],
+                [
+                    'allow'   => true,
+                    'actions' => ['index', 'view'],
+                    'roles'   => ['aspirasiWebadminView'],
                 ],
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'me', 'likes'],
-                    'roles'   => ['user', 'staffRW'],
+                    'roles'   => ['aspirasiMobile'],
                 ],
             ],
         ];
