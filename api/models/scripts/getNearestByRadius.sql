@@ -31,3 +31,4 @@ SELECT id, category, name, description, address, phone_numbers,
  ) AS d
  WHERE distance <= radius
  ORDER BY distance
+ LIMIT :result_limit

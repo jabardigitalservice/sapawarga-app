@@ -101,6 +101,9 @@ class PhoneBookSearch extends PhoneBook
         // Radius in kilometers
         $radius = 3.0;
 
+        // Number of displayed results
+        $limit = 20;
+
         $sql = file_get_contents(__DIR__ . '/scripts/getNearestByRadius.sql');
         $provider = new SqlDataProvider([
             'sql' => $sql,
@@ -108,6 +111,7 @@ class PhoneBookSearch extends PhoneBook
                 ':latitude' => Arr::get($params, 'latitude'),
                 ':longitude' => Arr::get($params, 'longitude'),
                 ':radius' => $radius,
+                ':result_limit' => $limit,
             ],
         ]);
         $provider->setPagination(false);
@@ -124,6 +128,8 @@ class PhoneBookSearch extends PhoneBook
 
     protected function getQueryRoleUser($user, $query, $params)
     {
+        $query->andFilterWhere(['<>', 'status', PhoneBook::STATUS_DISABLED]);
+
         // Jika memilih custom filter, akan override semua parameter default
         if ($this->isCustomFilter($params) === true) {
             $this->filterByArea($query, $params);
