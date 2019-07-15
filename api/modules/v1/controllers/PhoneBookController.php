@@ -186,7 +186,7 @@ class PhoneBookController extends ActiveController
         $userDetail = User::findIdentity(Yii::$app->user->getId());
 
         if ($userDetail === null) {
-            throw new NotFoundHttpException("User detail not found");
+            throw new NotFoundHttpException('User detail not found');
         }
 
         $params = Yii::$app->request->getQueryParams();
@@ -199,13 +199,12 @@ class PhoneBookController extends ActiveController
             return 'Query Params instansi is required.';
         }
 
-        $model = PhoneBook::find()
+        $model = PhoneBookSearch::find()
             ->select(['id', 'name', 'address', 'phone_numbers'])
             ->where(['kabkota_id' => $userDetail->kabkota_id, 'kec_id' => $userDetail->kec_id, 'kel_id' => $userDetail->kel_id])
             ->andWhere(['like', 'name', $instansi])
-            ->andWhere(['!=', 'status', PhoneBook::STATUS_DELETED])
-            ->one()
-            ;
+            ->andWhere(['!=', 'status', PhoneBookSearch::STATUS_DELETED])
+            ->one();
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
