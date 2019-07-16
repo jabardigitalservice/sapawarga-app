@@ -45,7 +45,7 @@ class PhoneBookController extends ActiveController
                 'delete' => ['delete'],
                 'public' => ['get'],
                 'check-exist' => ['get'],
-                'user-location' => ['get'],
+                'by-user-location' => ['get'],
             ],
         ];
 
@@ -71,11 +71,11 @@ class PhoneBookController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only'  => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'user-location'], //only be applied to
+            'only'  => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'by-user-location'], //only be applied to
             'rules' => [
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'user-location'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'by-user-location'],
                     'roles'   => ['admin', 'manageSettings'],
                 ],
                 [
@@ -181,7 +181,10 @@ class PhoneBookController extends ActiveController
         return ['exist' => false];
     }
 
-    public function actionUserLocation()
+    /**
+     *  Filter phone book by user location (kabkota_id)
+     */
+    public function actionByUserLocation()
     {
         $userDetail = User::findIdentity(Yii::$app->user->getId());
 
@@ -199,11 +202,10 @@ class PhoneBookController extends ActiveController
             return 'Query Params instansi is required.';
         }
 
-        $model = PhoneBookSearch::find()
-            ->select(['id', 'name', 'address', 'phone_numbers'])
-            ->where(['kabkota_id' => $userDetail->kabkota_id, 'kec_id' => $userDetail->kec_id, 'kel_id' => $userDetail->kel_id])
+        $model = PhoneBook::find()
+            ->where(['kabkota_id' => $userDetail->kabkota_id])
             ->andWhere(['like', 'name', $instansi])
-            ->andWhere(['!=', 'status', PhoneBookSearch::STATUS_DELETED])
+            ->andWhere(['!=', 'status', PhoneBook::STATUS_DELETED])
             ->one();
 
         $response = Yii::$app->getResponse();
