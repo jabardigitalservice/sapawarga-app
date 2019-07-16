@@ -157,15 +157,6 @@ $config = [
                     'extraPatterns' => [
                         'GET check-exist' => 'check-exist',
                         'OPTIONS check-exist' => 'options',
-                    ]
-                ],
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/phone-book',
-                    'tokens' => [
-                        '{id}' => '<id:\d+>',
-                    ],
-                    'extraPatterns' => [
                         'GET user-location' => 'user-location',
                         'OPTIONS user-location' => 'options',
                     ]
