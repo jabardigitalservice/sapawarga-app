@@ -79,7 +79,7 @@ class PhoneBookSearch extends PhoneBook
         }
 
         // Jika User
-        if ($user->role === User::ROLE_USER) {
+        if ($user->role <= User::ROLE_STAFF_RW) {
             return $this->getQueryRoleUser($user, $query, $params);
         }
 
