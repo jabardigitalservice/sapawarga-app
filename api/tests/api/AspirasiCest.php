@@ -521,8 +521,8 @@ class AspirasiCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
         $I->assertEquals(2, count($data[0]));
-        $I->assertEquals(4, $data[0][1]['id']);
-        $I->assertEquals(1, $data[0][2]['id']);
+        $I->assertEquals(4, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][1]['id']);
 
         // Login as Staff Kelurahan
         $I->amStaff('staffkel');
@@ -539,6 +539,6 @@ class AspirasiCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
         $I->assertEquals(1, count($data[0]));
-        $I->assertEquals(1, $data[0][1]['id']);
+        $I->assertEquals(1, $data[0][0]['id']);
     }        
 }
