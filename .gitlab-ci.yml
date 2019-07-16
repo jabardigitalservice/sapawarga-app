@@ -16,7 +16,7 @@ stages:
   - build
   - test
   - release
-  # - deploy
+  - deploy
 
 code_quality:
   image: docker:stable
@@ -68,16 +68,16 @@ release_all:
     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
 
-# deploy_staging:
-#   stage: deploy
-#   # only: 
-#   #   - master
-#   before_script:
-#     - 'which ssh-agent || ( apk update && apk add openssh-client )'
-#     - mkdir -p ~/.ssh
-#     - eval $(ssh-agent -s)
-#     - chmod 400 $SSH_STAGING_KEY_PRIVATE
-#     - ssh-add $SSH_STAGING_KEY_PRIVATE
-#   script:
-#     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker-compose pull && sudo docker-compose down && sudo docker-compose up -d"
-#     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
+deploy_staging:
+  stage: deploy
+  # only: 
+  #   - master
+  before_script:
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - chmod 400 $SSH_STAGING_KEY_PRIVATE
+    - ssh-add $SSH_STAGING_KEY_PRIVATE
+  script:
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker-compose pull && sudo docker-compose down && sudo docker-compose up -d"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
