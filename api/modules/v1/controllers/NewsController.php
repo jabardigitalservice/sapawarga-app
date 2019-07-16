@@ -3,6 +3,7 @@
 namespace app\modules\v1\controllers;
 
 use app\filters\auth\HttpBearerAuth;
+use app\models\User;
 use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
@@ -184,14 +185,17 @@ class NewsController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        // Increment total_viewers
-        $totalViewers = $model->total_viewers + 1;
+        $userDetail = User::findIdentity(Yii::$app->user->getId());
 
-        // Save news viewer per user
-        $this->saveNewsViewerPerUser($id);
+        // Increment total views for specific role
+        if ($userDetail->role === User::ROLE_USER || $userDetail->role === User::ROLE_STAFF_RW) {
+            $totalViewers = $model->total_viewers + 1;
 
-        $model->total_viewers = $totalViewers;
-        $model->save(false);
+            $this->saveNewsViewerPerUser($id);
+
+            $model->total_viewers = $totalViewers;
+            $model->save(false);
+        }
 
         return $model;
     }
@@ -203,7 +207,7 @@ class NewsController extends ActiveController
         $newsViewer = NewsViewer::find()
                 ->where(['news_id' => $newsId, 'user_id' => $userId ])
                 ->one();
-      
+
         // New when not exist, update if exist
         if ($newsViewer === null) {
             $model = new NewsViewer();

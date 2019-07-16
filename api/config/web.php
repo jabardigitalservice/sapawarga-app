@@ -157,6 +157,8 @@ $config = [
                     'extraPatterns' => [
                         'GET check-exist' => 'check-exist',
                         'OPTIONS check-exist' => 'options',
+                        'GET user-location' => 'user-location',
+                        'OPTIONS user-location' => 'options',
                     ]
                 ],
                 [
