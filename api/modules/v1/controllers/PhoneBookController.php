@@ -44,7 +44,8 @@ class PhoneBookController extends ActiveController
                 'update' => ['put'],
                 'delete' => ['delete'],
                 'public' => ['get'],
-                'check-exist' => ['get']
+                'check-exist' => ['get'],
+                'user-location' => ['get'],
             ],
         ];
 
@@ -70,11 +71,11 @@ class PhoneBookController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only'  => ['index', 'view', 'create', 'update', 'delete', 'check-exist'], //only be applied to
+            'only'  => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'user-location'], //only be applied to
             'rules' => [
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-exist'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'user-location'],
                     'roles'   => ['admin', 'manageSettings'],
                 ],
                 [
@@ -178,6 +179,37 @@ class PhoneBookController extends ActiveController
         }
 
         return ['exist' => false];
+    }
+
+    public function actionUserLocation()
+    {
+        $userDetail = User::findIdentity(Yii::$app->user->getId());
+
+        if ($userDetail === null) {
+            throw new NotFoundHttpException('User detail not found');
+        }
+
+        $params = Yii::$app->request->getQueryParams();
+        $instansi = Arr::get($params, 'instansi');
+
+        if (empty($instansi)) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return 'Query Params instansi is required.';
+        }
+
+        $model = PhoneBookSearch::find()
+            ->select(['id', 'name', 'address', 'phone_numbers'])
+            ->where(['kabkota_id' => $userDetail->kabkota_id, 'kec_id' => $userDetail->kec_id, 'kel_id' => $userDetail->kel_id])
+            ->andWhere(['like', 'name', $instansi])
+            ->andWhere(['!=', 'status', PhoneBookSearch::STATUS_DELETED])
+            ->one();
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return $model;
     }
 
     /**
