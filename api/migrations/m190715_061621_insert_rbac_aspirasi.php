@@ -6,27 +6,27 @@ use app\components\CustomMigration;
  * Class m190715_061621_insert_rbac_aspirasi */
 class m190715_061621_insert_rbac_aspirasi extends CustomMigration
 {
-    private $auth;
+    private $_auth;
 
-    private $roleAdmin;
-    private $roleStaffProv;
-    private $roleStaffKabkota;
-    private $roleStaffKec;
-    private $roleStaffKel;
-    private $roleStaffRW;
-    private $roleUser;
+    private $_roleAdmin;
+    private $_roleStaffProv;
+    private $_roleStaffKabkota;
+    private $_roleStaffKec;
+    private $_roleStaffKel;
+    private $_roleStaffRW;
+    private $_roleUser;
 
     public function init()
     {
-        $this->auth = Yii::$app->authManager;
+        $this->_auth = Yii::$app->authManager;
 
-        $this->roleAdmin = $this->auth->getRole('admin');
-        $this->roleStaffProv = $this->auth->getRole('staffProv');
-        $this->roleStaffKabkota = $this->auth->getRole('staffKabkota');
-        $this->roleStaffKec = $this->auth->getRole('staffKec');
-        $this->roleStaffKel = $this->auth->getRole('staffKel');
-        $this->roleStaffRW = $this->auth->getRole('staffRW');
-        $this->roleUser = $this->auth->getRole('user');
+        $this->_roleAdmin = $this->_auth->getRole('admin');
+        $this->_roleStaffProv = $this->_auth->getRole('staffProv');
+        $this->_roleStaffKabkota = $this->_auth->getRole('staffKabkota');
+        $this->_roleStaffKec = $this->_auth->getRole('staffKec');
+        $this->_roleStaffKel = $this->_auth->getRole('staffKel');
+        $this->_roleStaffRW = $this->_auth->getRole('staffRW');
+        $this->_roleUser = $this->_auth->getRole('user');
 
         parent::init();
     }
@@ -36,31 +36,29 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
      */
     public function safeUp()
     {
-        $auth = Yii::$app->authManager;
-
-        $aspirasiMobilePermission              = $auth->createPermission('aspirasiMobile');
+        $aspirasiMobilePermission              = $this->_auth->createPermission('aspirasiMobile');
         $aspirasiMobilePermission->description = 'View Published and My Aspirasi. Create, Update and Delete My Aspirasi Draft. Give Likes to Published Aspirasi.';
-        $auth->add($aspirasiMobilePermission);
+        $this->_auth->add($aspirasiMobilePermission);
 
-        $aspirasiWebadminViewPermission              = $auth->createPermission('aspirasiWebadminView');
+        $aspirasiWebadminViewPermission              = $this->_auth->createPermission('aspirasiWebadminView');
         $aspirasiWebadminViewPermission->description = 'View Pending, Rejected, and Published Aspirasi.';
-        $auth->add($aspirasiWebadminViewPermission);
+        $this->_auth->add($aspirasiWebadminViewPermission);
 
-        $aspirasiWebadminManagePermission              = $auth->createPermission('aspirasiWebadminManage');
+        $aspirasiWebadminManagePermission              = $this->_auth->createPermission('aspirasiWebadminManage');
         $aspirasiWebadminManagePermission->description = 'Manage Aspirasi (Full privileges)';
-        $auth->add($aspirasiWebadminManagePermission);
+        $this->_auth->add($aspirasiWebadminManagePermission);
 
-        $auth->addChild($this->roleAdmin, $aspirasiWebadminManagePermission);
-        $auth->addChild($this->roleStaffProv, $aspirasiWebadminManagePermission);
+        $this->_auth->addChild($this->_roleAdmin, $aspirasiWebadminManagePermission);
+        $this->_auth->addChild($this->_roleStaffProv, $aspirasiWebadminManagePermission);
 
-        $auth->addChild($this->roleStaffKabkota, $aspirasiWebadminViewPermission);
-        $auth->addChild($this->roleStaffKec, $aspirasiWebadminViewPermission);
-        $auth->addChild($this->roleStaffKel, $aspirasiWebadminViewPermission);
+        $this->_auth->addChild($this->_roleStaffKabkota, $aspirasiWebadminViewPermission);
+        $this->_auth->addChild($this->_roleStaffKec, $aspirasiWebadminViewPermission);
+        $this->_auth->addChild($this->_roleStaffKel, $aspirasiWebadminViewPermission);
 
-        $auth->addChild($this->roleStaffRW, $aspirasiMobilePermission);
-        $auth->addChild($this->roleUser, $aspirasiMobilePermission);
+        $this->_auth->addChild($this->_roleStaffRW, $aspirasiMobilePermission);
+        $this->_auth->addChild($this->_roleUser, $aspirasiMobilePermission);
 
-        $this->removeStaffChildRole($auth);
+        $this->removeStaffChildRole($this->_auth);
     }
 
     /**
@@ -68,42 +66,40 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
      */
     public function safeDown()
     {
-        $auth = Yii::$app->authManager;
+        $this->addStaffChildRole($this->_auth);
 
-        $this->addStaffChildRole($auth);
+        $aspirasiMobilePermission           = $this->_auth->getPermission('aspirasiMobile');
+        $aspirasiWebadminViewPermission     = $this->_auth->getPermission('aspirasiWebadminView');
+        $aspirasiWebadminManagePermission   = $this->_auth->getPermission('aspirasiWebadminManage');
 
-        $aspirasiMobilePermission           = $auth->getPermission('aspirasiMobile');
-        $aspirasiWebadminViewPermission     = $auth->getPermission('aspirasiWebadminView');
-        $aspirasiWebadminManagePermission   = $auth->getPermission('aspirasiWebadminManage');
+        $this->_auth->removeChild($this->_roleUser, $aspirasiMobilePermission);
+        $this->_auth->removeChild($this->_roleStaffRW, $aspirasiMobilePermission);
 
-        $auth->removeChild($this->roleUser, $aspirasiMobilePermission); 
-        $auth->removeChild($this->roleStaffRW, $aspirasiMobilePermission);
-
-        $auth->removeChild($this->roleStaffKel, $aspirasiWebadminViewPermission);
-        $auth->removeChild($this->roleStaffKec, $aspirasiWebadminViewPermission);
-        $auth->removeChild($this->roleStaffKabkota, $aspirasiWebadminViewPermission);
+        $this->_auth->removeChild($this->_roleStaffKel, $aspirasiWebadminViewPermission);
+        $this->_auth->removeChild($this->_roleStaffKec, $aspirasiWebadminViewPermission);
+        $this->_auth->removeChild($this->_roleStaffKabkota, $aspirasiWebadminViewPermission);
         
-        $auth->removeChild($this->roleStaffProv, $aspirasiWebadminManagePermission);
-        $auth->removeChild($this->roleAdmin, $aspirasiWebadminManagePermission);
+        $this->_auth->removeChild($this->_roleStaffProv, $aspirasiWebadminManagePermission);
+        $this->_auth->removeChild($this->_roleAdmin, $aspirasiWebadminManagePermission);
 
-        $auth->remove($aspirasiWebadminManagePermission);
-        $auth->remove($aspirasiWebadminViewPermission);           
-        $auth->remove($aspirasiMobilePermission);
+        $this->_auth->remove($aspirasiWebadminManagePermission);
+        $this->_auth->remove($aspirasiWebadminViewPermission);
+        $this->_auth->remove($aspirasiMobilePermission);
     }
 
     private function removeStaffChildRole($auth)
     {
-        $auth->removeChild($this->roleStaffProv, $this->roleStaffKabkota);
-        $auth->removeChild($this->roleStaffKabkota, $this->roleStaffKec);
-        $auth->removeChild($this->roleStaffKec, $this->roleStaffKel);
-        $auth->removeChild($this->roleStaffKel, $this->roleStaffRW);
+        $auth->removeChild($this->_roleStaffProv, $this->_roleStaffKabkota);
+        $auth->removeChild($this->_roleStaffKabkota, $this->_roleStaffKec);
+        $auth->removeChild($this->_roleStaffKec, $this->_roleStaffKel);
+        $auth->removeChild($this->_roleStaffKel, $this->_roleStaffRW);
     }
 
     private function addStaffChildRole($auth)
     {
-        $auth->addChild($this->roleStaffKel, $this->roleStaffRW);
-        $auth->addChild($this->roleStaffKec, $this->roleStaffKel);
-        $auth->addChild($this->roleStaffKabkota, $this->roleStaffKec);
-        $auth->addChild($this->roleStaffProv, $this->roleStaffKabkota);
+        $auth->addChild($this->_roleStaffKel, $this->_roleStaffRW);
+        $auth->addChild($this->_roleStaffKec, $this->_roleStaffKel);
+        $auth->addChild($this->_roleStaffKabkota, $this->_roleStaffKec);
+        $auth->addChild($this->_roleStaffProv, $this->_roleStaffKabkota);
     }
 }
