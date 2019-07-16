@@ -43,13 +43,22 @@ class ApiTester extends \Codeception\Actor
         $I->amBearerAuthenticated($accessToken);
     }
 
-    public function amStaff()
+    public function amStaff($username = null)
     {
+        if ($username === null) {
+            $username = 'admin';
+        }
+
         $I = $this;
 
         $I->haveHttpHeader('Content-Type', 'application/json');
 
-        $I->sendPOST('/v1/staff/login', '{"LoginForm":{"username": "admin","password": "123456"}}');
+        $I->sendPOST('/v1/staff/login', [
+            'LoginForm' => [
+                'username' => $username,
+                'password' => '123456',
+            ]
+        ]);
 
         $accessToken = $I->grabDataFromResponseByJsonPath('$.data.access_token');
         $accessToken = $accessToken[0];
