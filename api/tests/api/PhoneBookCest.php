@@ -157,6 +157,31 @@ class PhoneBookCest
         ]);
     }
 
+    public function getPolrestabesByUserLocation(ApiTester $I)
+    {
+        $I->amUser('user.tasik');
+        $I->sendGET('/v1/phone-books/by-user-location?instansi=polres');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'kabkota_id' => 26,
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'name' => 'POLRES TASIK MALAYA KOTA',
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'kabkota_id' => 23,
+        ]);
+    }
+
     public function getListAdminTest(ApiTester $I)
     {
         $I->amStaff();
