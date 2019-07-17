@@ -37,6 +37,7 @@ class BroadcastSearch extends Broadcast
     /**
      * Creates data provider instance with search query applied
      *
+     * @param \app\models\User $user
      * @param array $params
      *
      * @return ActiveDataProvider

@@ -66,6 +66,19 @@ class BroadcastCest
             'updated_at'  => '1554706345',
         ]);
 
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 3,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff('staffkabkota');
 
         $I->sendGET($this->endpointBroadcast);
@@ -77,11 +90,12 @@ class BroadcastCest
             'status'  => 200,
         ]);
 
-        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(1, $data[0]['id']);
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
     }
 
     public function userCannotCreateNewTest(ApiTester $I)
@@ -156,6 +170,30 @@ class BroadcastCest
 
     public function getBroadcastListAll(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendGET($this->endpointBroadcast);
@@ -178,6 +216,42 @@ class BroadcastCest
 
     public function getBroadcastListFilterCategory(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 6,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 3,
+            'category_id' => 7,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendGET("{$this->endpointBroadcast}?category_id=5");
@@ -204,6 +278,30 @@ class BroadcastCest
 
     public function getBroadcastListFilterStatus(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 0,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendGET("{$this->endpointBroadcast}?status=10");
@@ -214,8 +312,6 @@ class BroadcastCest
             'success' => true,
             'status'  => 200,
         ]);
-
-        $accessToken = $I->grabDataFromResponseByJsonPath('$.data.items');
 
         $I->seeResponseContainsJson([
             'data' => [
@@ -240,6 +336,30 @@ class BroadcastCest
 
     public function getBroadcastListSearchTitle(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Kegiatan Gubernur.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 6,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendGET("{$this->endpointBroadcast}?search=Kegiatan");
@@ -250,6 +370,12 @@ class BroadcastCest
             'success' => true,
             'status'  => 200,
         ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+
+        $I->assertEquals(1, $data[0]['id']);
     }
 
     public function getBroadcastItemNotFound(ApiTester $I)
@@ -268,6 +394,18 @@ class BroadcastCest
 
     public function getBroadcastItem(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Kegiatan Gubernur.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendGET("{$this->endpointBroadcast}/1");
@@ -285,6 +423,18 @@ class BroadcastCest
 
     public function updateBroadcast(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Kegiatan Gubernur.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendPUT("{$this->endpointBroadcast}/1", [
@@ -302,6 +452,18 @@ class BroadcastCest
 
     public function deleteBroadcast(ApiTester $I)
     {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Kegiatan Gubernur.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff();
 
         $I->sendDELETE("{$this->endpointBroadcast}/1");

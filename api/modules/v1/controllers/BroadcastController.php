@@ -218,10 +218,15 @@ class BroadcastController extends ActiveController
 
     public function prepareDataProvider()
     {
-        $search = new BroadcastSearch();
+        $search   = new BroadcastSearch();
+        $user     = User::findIdentity(Yii::$app->user->getId());
+        $authUser = Yii::$app->user;
+        $params   = Yii::$app->request->getQueryParams();
 
-        $user = User::findIdentity(Yii::$app->user->getId());
+        if ($authUser->can('staffKabkota')) {
+            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+        }
 
-        return $search->search($user, Yii::$app->request->getQueryParams());
+        return $search->search($user, $params);
     }
 }
