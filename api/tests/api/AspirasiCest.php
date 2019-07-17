@@ -416,8 +416,59 @@ class AspirasiCest
         $I->dontSeeInDatabase('aspirasi_likes', ['user_id' => 36, 'aspirasi_id' => 1]);
     }
 
+    public function staffKabkotaKecKelApproveUnauthorizedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'title',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => 5,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 1,
+        ]);
+
+        $I->amStaff('staffkabkota');
+        $I->sendPOST('/v1/aspirasi/approval/1');
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+
+        $I->amStaff('staffkec');
+        $I->sendPOST('/v1/aspirasi/approval/1');
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+
+        $I->amStaff('staffkel');
+        $I->sendPOST('/v1/aspirasi/approval/1');
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+    
     public function getStaffList(ApiTester $I)
     {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+
+        Yii::$app->db->createCommand('TRUNCATE aspirasi_likes')->execute();
+        Yii::$app->db->createCommand('TRUNCATE aspirasi')->execute();
+
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
             'title'       => 'kabkota_id 22, kec_id 431, kel_id 6093',
@@ -426,7 +477,7 @@ class AspirasiCest
             'kec_id'      => 431,
             'kel_id'      => 6093,
             'status'      => 10,
-            'category_id' => 9, // INFRASTRUKTUR
+            'category_id' => 9,
             'author_id'   => 1,
             'created_at'  => 1,
         ]);
@@ -540,5 +591,5 @@ class AspirasiCest
 
         $I->assertEquals(1, count($data[0]));
         $I->assertEquals(1, $data[0][0]['id']);
-    }        
+    }    
 }
