@@ -73,12 +73,17 @@ class AspirasiController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'me', 'likes', 'approval'],
-                    'roles'   => ['admin', 'manageSettings'],
+                    'roles'   => ['aspirasiWebadminManage'],
+                ],
+                [
+                    'allow'   => true,
+                    'actions' => ['index', 'view'],
+                    'roles'   => ['aspirasiWebadminView'],
                 ],
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'me', 'likes'],
-                    'roles'   => ['user', 'staffRW'],
+                    'roles'   => ['aspirasiMobile'],
                 ],
             ],
         ];
@@ -270,7 +275,7 @@ class AspirasiController extends ActiveController
     public function checkAccess($action, $model = null, $params = [])
     {
         if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
-            throw new ForbiddenHttpException();
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
     }
 

@@ -3,6 +3,7 @@
 namespace app\components;
 
 use Yii;
+use Illuminate\Support\Arr;
 use app\models\Category;
 
 class ModelHelper
@@ -44,5 +45,28 @@ class ModelHelper
                 return $model->status == $model::STATUS_PUBLISHED;
             }
         }
+    }
+
+    /**
+     * Add 
+     *
+     * @param &$query
+     * @param $params
+     */
+    public static function filterByArea(&$query, $params)
+    {
+        if (Arr::has($params, 'kabkota_id')) {
+            $query->andFilterWhere(['kabkota_id' => $params['kabkota_id']]);
+        }
+
+        if (Arr::has($params, 'kec_id')) {
+            $query->andFilterWhere(['kec_id' => $params['kec_id']]);
+        }
+
+        if (Arr::has($params, 'kel_id')) {
+            $query->andFilterWhere(['kel_id' => $params['kel_id']]);
+        }
+
+        return $query;
     }
 }

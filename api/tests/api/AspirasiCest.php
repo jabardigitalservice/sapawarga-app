@@ -415,4 +415,181 @@ class AspirasiCest
 
         $I->dontSeeInDatabase('aspirasi_likes', ['user_id' => 36, 'aspirasi_id' => 1]);
     }
+
+    public function staffKabkotaKecKelApproveUnauthorizedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'title',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => 5,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 1,
+        ]);
+
+        $I->amStaff('staffkabkota');
+        $I->sendPOST('/v1/aspirasi/approval/1');
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+
+        $I->amStaff('staffkec');
+        $I->sendPOST('/v1/aspirasi/approval/1');
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+
+        $I->amStaff('staffkel');
+        $I->sendPOST('/v1/aspirasi/approval/1');
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+    
+    public function getStaffList(ApiTester $I)
+    {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+
+        Yii::$app->db->createCommand('TRUNCATE aspirasi_likes')->execute();
+        Yii::$app->db->createCommand('TRUNCATE aspirasi')->execute();
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'kabkota_id 22, kec_id 431, kel_id 6093',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 1,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 2,
+            'title'       => 'kabkota_id 23, kec_id 450, kel_id 6214',
+            'description' => 'description',
+            'kabkota_id'  => 23,
+            'kec_id'      => 450,
+            'kel_id'      => 6214,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 2,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 3,
+            'title'       => 'kabkota_id 22, kec_id 432, kel_id 6101',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 432,
+            'kel_id'      => 6101,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 3,
+        ]);
+
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 4,
+            'title'       => 'kabkota_id 22, kec_id 431, kel_id 6094',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6094,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 4,
+        ]);
+
+        // Login as Staff Provinsi
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/aspirasi');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(4, count($data[0]));
+        $I->assertEquals(4, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
+
+        // Login as Staff Kab/Kota
+        $I->amStaff('staffkabkota');
+
+        $I->sendGET('/v1/aspirasi');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(3, count($data[0]));
+        $I->assertEquals(3, $data[0][1]['id']);
+        $I->assertEquals(1, $data[0][2]['id']);
+
+        // Login as Staff Kecamatan
+        $I->amStaff('staffkec');
+
+        $I->sendGET('/v1/aspirasi');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(2, count($data[0]));
+        $I->assertEquals(4, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][1]['id']);
+
+        // Login as Staff Kelurahan
+        $I->amStaff('staffkel');
+
+        $I->sendGET('/v1/aspirasi');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, count($data[0]));
+        $I->assertEquals(1, $data[0][0]['id']);
+    }    
 }
