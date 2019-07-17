@@ -113,6 +113,8 @@ class AspirasiSearch extends Aspirasi
     {
         $filterStatusList = [];
 
+        // Filter status
+
         // Jika User, hanya bisa melihat yang status published
         if (in_array($this->user->role, [User::ROLE_USER, User::ROLE_STAFF_RW])) {
             $filterStatusList = [
@@ -120,27 +122,41 @@ class AspirasiSearch extends Aspirasi
             ];
         }
 
-        // Jika Admin, bisa melihat status berikut ini
-        if ($this->user->role === User::ROLE_ADMIN) {
-            $filterStatusList = [
-                Aspirasi::STATUS_APPROVAL_PENDING,
-                Aspirasi::STATUS_APPROVAL_REJECTED,
-                Aspirasi::STATUS_PUBLISHED,
-            ];
+        // Filter status untuk role Admin hingga staffKel
+        if ($this->user->role <= User::ROLE_ADMIN && $this->user->role >= User::ROLE_STAFF_KEL) {
+            if (Arr::has($params, 'status')) {
+                $filterStatusList = [ $params['status'] ];
+            } else {
+                $filterStatusList = [
+                    Aspirasi::STATUS_APPROVAL_PENDING,
+                    Aspirasi::STATUS_APPROVAL_REJECTED,
+                    Aspirasi::STATUS_PUBLISHED,
+                ];
+            }
         }
 
         if (count($filterStatusList) > 0) {
             $query->andFilterWhere(['in', 'aspirasi.status', $filterStatusList]);
         }
 
-        // Jika Staf Kab/Kota, Staf Kec, dan Staf Kel, filter berdasarkan area
-        if (Yii::$app->user->can('aspirasiWebadminView') === true) {
-            $areaParams = [
-              'kabkota_id' => $this->user->kabkota_id ?? null,
-              'kec_id' => $this->user->kec_id ?? null,
-              'kel_id' => $this->user->kel_id ?? null,
-            ];
-            ModelHelper::filterByArea($query, $areaParams);
+        // Filter area
+        if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
+            ModelHelper::filterByArea($query, $params);
+        } else {
+            // Jika Staf Kab/Kota, Staf Kec, dan Staf Kel, default filter berdasarkan area Staf tersebut
+            if (Yii::$app->user->can('aspirasiWebadminView') === true) {
+                $areaParams = [
+                'kabkota_id' => $this->user->kabkota_id ?? null,
+                'kec_id' => $this->user->kec_id ?? null,
+                'kel_id' => $this->user->kel_id ?? null,
+                ];
+                ModelHelper::filterByArea($query, $areaParams);
+            }
+        }
+
+        // Filter category_id
+        if (Arr::has($params, 'category_id')) {
+            $query->andFilterWhere(['category_id' => $params['category_id']]);
         }
 
         $pageLimit = Arr::get($params, 'limit');
