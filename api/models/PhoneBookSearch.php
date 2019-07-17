@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -130,13 +131,13 @@ class PhoneBookSearch extends PhoneBook
 
         // Jika memilih custom filter, akan override semua parameter default
         if ($this->isCustomFilter($params) === true) {
-            $this->filterByArea($query, $params);
+            ModelHelper::filterByArea($query, $params);
         } else {
             // Jika tidak memilih custom filter,
             // by default tampilkan daftar instansi di Kab/Kota dimana user tersebut tinggal
             $params['kabkota_id'] = Arr::get($user, 'kabkota_id');
 
-            $this->filterByArea($query, $params);
+            ModelHelper::filterByArea($query, $params);
         }
 
         if (Arr::has($params, ['search']) === false) {
@@ -164,7 +165,7 @@ class PhoneBookSearch extends PhoneBook
 
     protected function getQueryAll($query, $params)
     {
-        $this->filterByArea($query, $params);
+        ModelHelper::filterByArea($query, $params);
 
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'seq');
@@ -183,23 +184,6 @@ class PhoneBookSearch extends PhoneBook
     protected function isCustomFilter($params)
     {
         return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
-    }
-
-    protected function filterByArea(&$query, $params)
-    {
-        if (Arr::has($params, 'kabkota_id')) {
-            $query->andFilterWhere(['kabkota_id' => $params['kabkota_id']]);
-        }
-
-        if (Arr::has($params, 'kec_id')) {
-            $query->andFilterWhere(['kec_id' => $params['kec_id']]);
-        }
-
-        if (Arr::has($params, 'kel_id')) {
-            $query->andFilterWhere(['kel_id' => $params['kel_id']]);
-        }
-
-        return $query;
     }
 
     protected function getSortOrder($sortOrder)
