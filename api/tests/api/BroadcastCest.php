@@ -4,6 +4,13 @@ class BroadcastCest
 {
     private $endpointBroadcast = '/v1/broadcasts';
 
+    public function _before(ApiTester $I)
+    {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+
+        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
+    }
+
     // Test cases for users
     public function getBroadcastListBandung(ApiTester $I)
     {
@@ -31,6 +38,50 @@ class BroadcastCest
             'success' => true,
             'status'  => 200,
         ]);
+    }
+
+    public function getBroadcastStaffKabkotaList(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amStaff('staffkabkota');
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+
+        $I->assertEquals(1, $data[0]['id']);
     }
 
     public function userCannotCreateNewTest(ApiTester $I)
