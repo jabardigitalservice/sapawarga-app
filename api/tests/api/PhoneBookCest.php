@@ -157,7 +157,72 @@ class PhoneBookCest
         ]);
     }
 
-    public function getPolrestabesByUserLocation(ApiTester $I)
+    public function getListAdminTest(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendGET('/v1/phone-books');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function getListStaffKabKotaBekasiTest(ApiTester $I)
+    {
+        $I->amStaff('staffkabkota2');
+
+        $I->sendGET('/v1/phone-books');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'kabkota_id' => 23,
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'kabkota_id' => 22,
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'kabkota_id' => 26,
+        ]);
+    }
+
+    public function getSearchStaffKabKotaBekasiOverideKabKotaIdTest(ApiTester $I)
+    {
+        $I->amStaff('staffkabkota2');
+        $I->sendGET('/v1/phone-books?search=koperasi&kabkota_id=22');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'kabkota_id' => 23,
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'kabkota_id' => 22,
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'kabkota_id' => 26,
+        ]);
+    }
+
+    public function getPolresByUserLocation(ApiTester $I)
     {
         $I->amUser('user.tasik');
         $I->sendGET('/v1/phone-books/by-user-location?instansi=polres');
@@ -179,20 +244,6 @@ class PhoneBookCest
 
         $I->cantSeeResponseContainsJson([
             'kabkota_id' => 23,
-        ]);
-    }
-
-    public function getListAdminTest(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $I->sendGET('/v1/phone-books');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
         ]);
     }
 
