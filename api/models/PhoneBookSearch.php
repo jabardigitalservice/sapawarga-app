@@ -154,18 +154,7 @@ class PhoneBookSearch extends PhoneBook
             ]);
         }
 
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'seq');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
-
-        return new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
+        return $this->getActiveDataProvider($query, $params);
     }
 
     protected function getQueryRoleKabKotaKecKel($user, $query, $params)
@@ -175,24 +164,18 @@ class PhoneBookSearch extends PhoneBook
 
         ModelHelper::filterByArea($query, $params);
 
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'seq');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
-
-        return new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
+        return $this->getActiveDataProvider($query, $params);
     }
 
     protected function getQueryAll($query, $params)
     {
         ModelHelper::filterByArea($query, $params);
 
+        return $this->getActiveDataProvider($query, $params);
+    }
+
+    protected function getActiveDataProvider($query, $params)
+    {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'seq');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
