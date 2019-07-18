@@ -79,43 +79,43 @@ class NotificationCest
     // Test cases for staffKabkota, staffKec, staffKel
     public function staffKabkotaUnauthorized(ApiTester $I)
     {
-        $I->amStaff('staffKabkota');
+        $I->amStaff('staffkabkota');
 
         $I->sendGET($this->endpointNotification);
         $I->canSeeResponseCodeIs(403);
         $I->sendPOST($this->endpointNotification);
         $I->canSeeResponseCodeIs(403);
-        $I->sendPUT($this->endpointNotification);
+        $I->sendPUT("{$this->endpointNotification}/1");
         $I->canSeeResponseCodeIs(403);
-        $I->sendDELETE($this->endpointNotification);
+        $I->sendDELETE("{$this->endpointNotification}/1");
         $I->canSeeResponseCodeIs(403);
     }
 
     public function staffKecUnauthorized(ApiTester $I)
     {
-        $I->amStaff('staffKec');
+        $I->amStaff('staffkec');
 
         $I->sendGET($this->endpointNotification);
         $I->canSeeResponseCodeIs(403);
         $I->sendPOST($this->endpointNotification);
         $I->canSeeResponseCodeIs(403);
-        $I->sendPUT($this->endpointNotification);
+        $I->sendPUT("{$this->endpointNotification}/1");
         $I->canSeeResponseCodeIs(403);
-        $I->sendDELETE($this->endpointNotification);
+        $I->sendDELETE("{$this->endpointNotification}/1");
         $I->canSeeResponseCodeIs(403);
     }
 
     public function staffKelUnauthorized(ApiTester $I)
     {
-        $I->amStaff('staffKel');
+        $I->amStaff('staffkel');
 
         $I->sendGET($this->endpointNotification);
         $I->canSeeResponseCodeIs(403);
         $I->sendPOST($this->endpointNotification);
         $I->canSeeResponseCodeIs(403);
-        $I->sendPUT($this->endpointNotification);
+        $I->sendPUT("{$this->endpointNotification}/1");
         $I->canSeeResponseCodeIs(403);
-        $I->sendDELETE($this->endpointNotification);
+        $I->sendDELETE("{$this->endpointNotification}/1");
         $I->canSeeResponseCodeIs(403);
     }
 
