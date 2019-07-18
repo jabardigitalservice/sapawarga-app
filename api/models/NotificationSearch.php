@@ -3,11 +3,8 @@
 namespace app\models;
 
 use Illuminate\Support\Arr;
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use yii\data\SqlDataProvider;
-use yii\db\JsonExpression;
 
 /**
  * NotificationSearch represents the model behind the search form of `app\models\Notification`.
@@ -110,7 +107,7 @@ class NotificationSearch extends Notification
         // Filter berdasarkan area (jika ada)
         $this->filterByArea($query, $params);
 
-        // Filter berdasarkan status dam kategori
+        // Filter berdasarkan status dan kategori
         $query->andFilterWhere(['status' => Arr::get($params, 'status')])
               ->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
 

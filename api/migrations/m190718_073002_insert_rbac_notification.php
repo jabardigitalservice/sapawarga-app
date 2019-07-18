@@ -10,11 +10,6 @@ class m190718_073002_insert_rbac_notification extends CustomMigration
 
     private $_roleAdmin;
     private $_roleStaffProv;
-    private $_roleStaffKabkota;
-    private $_roleStaffKec;
-    private $_roleStaffKel;
-    private $_roleStaffRW;
-    private $_roleUser;
 
     public function init()
     {
@@ -22,11 +17,6 @@ class m190718_073002_insert_rbac_notification extends CustomMigration
 
         $this->_roleAdmin = $this->_auth->getRole('admin');
         $this->_roleStaffProv = $this->_auth->getRole('staffProv');
-        $this->_roleStaffKabkota = $this->_auth->getRole('staffKabkota');
-        $this->_roleStaffKec = $this->_auth->getRole('staffKec');
-        $this->_roleStaffKel = $this->_auth->getRole('staffKel');
-        $this->_roleStaffRW = $this->_auth->getRole('staffRW');
-        $this->_roleUser = $this->_auth->getRole('user');
 
         parent::init();
     }
