@@ -231,16 +231,23 @@ class BroadcastController extends ActiveController
         $authUser = Yii::$app->user;
         $params   = Yii::$app->request->getQueryParams();
 
+        if ($authUser->can('staffProv')) {
+            // show all
+        }
+
         if ($authUser->can('staffKabkota')) {
             $params['kabkota_id'] = $authUser->identity->kabkota_id;
         }
 
         if ($authUser->can('staffKec')) {
-            $params['kec_id'] = $authUser->identity->kec_id;
+            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+            $params['kec_id']     = $authUser->identity->kec_id;
         }
 
         if ($authUser->can('staffKel')) {
-            $params['kel_id'] = $authUser->identity->kel_id;
+            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+            $params['kec_id']     = $authUser->identity->kec_id;
+            $params['kel_id']     = $authUser->identity->kel_id;
         }
 
         return $search->search($user, $params);

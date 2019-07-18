@@ -157,6 +157,79 @@ class BroadcastCest
         $I->assertEquals(3, $data[0][1]['id']);
     }
 
+    public function getBroadcastStaffKecamatanList(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'kec_id'      => null,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 3,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 4,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 432,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amStaff('staffkec');
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
+    }
+
     public function userCannotCreateNewTest(ApiTester $I)
     {
         $I->amUser();
