@@ -70,7 +70,7 @@ class NotificationController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles'   => ['admin', 'manageStaffs'],
+                    'roles'   => ['admin', 'notificationManage'],
                 ],
                 [
                     'allow'   => true,

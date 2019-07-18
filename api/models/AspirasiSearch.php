@@ -111,9 +111,36 @@ class AspirasiSearch extends Aspirasi
 
     protected function getQueryAll($query, $params)
     {
-        $filterStatusList = [];
+        $this->filterByStatus($query, $params);
+        $this->filterByArea($query, $params);
+        $this->filterByCategory($query, $params);
 
-        // Filter status
+        $pageLimit = Arr::get($params, 'limit');
+        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortOrder = Arr::get($params, 'sort_order', 'descending');
+        $sortOrder = $this->getSortOrder($sortOrder);
+
+        $provider = new ActiveDataProvider([
+            'query' => $query,
+            'sort'=> [
+                'defaultOrder' => [$sortBy => $sortOrder],
+            ],
+            'pagination' => [
+                'pageSize' => $pageLimit,
+            ],
+        ]);
+
+        $provider->sort->attributes['category.name'] = [
+            'asc'  => ['categories.name' => SORT_ASC],
+            'desc' => ['categories.name' => SORT_DESC],
+        ];
+
+        return $provider;
+    }
+
+    protected function filterByStatus(&$query, $params)
+    {
+        $filterStatusList = [];
 
         // Jika User, hanya bisa melihat yang status published
         if (in_array($this->user->role, [User::ROLE_USER, User::ROLE_STAFF_RW])) {
@@ -138,8 +165,10 @@ class AspirasiSearch extends Aspirasi
         if (count($filterStatusList) > 0) {
             $query->andFilterWhere(['in', 'aspirasi.status', $filterStatusList]);
         }
+    }
 
-        // Filter area
+    protected function filterByArea(&$query, $params)
+    {
         if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
             ModelHelper::filterByArea($query, $params);
         } else {
@@ -153,33 +182,13 @@ class AspirasiSearch extends Aspirasi
                 ModelHelper::filterByArea($query, $areaParams);
             }
         }
+    }
 
-        // Filter category_id
+    protected function filterByCategory(&$query, $params)
+    {
         if (Arr::has($params, 'category_id')) {
             $query->andFilterWhere(['category_id' => $params['category_id']]);
         }
-
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
-
-        $provider = new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> [
-                'defaultOrder' => [$sortBy => $sortOrder],
-            ],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
-
-        $provider->sort->attributes['category.name'] = [
-            'asc'  => ['categories.name' => SORT_ASC],
-            'desc' => ['categories.name' => SORT_DESC],
-        ];
-
-        return $provider;
     }
 
     protected function getSortOrder($sortOrder)
