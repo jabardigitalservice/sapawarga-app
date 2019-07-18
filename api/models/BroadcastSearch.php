@@ -137,25 +137,25 @@ class BroadcastSearch extends Broadcast
     protected function filterByArea(&$query, $params)
     {
         if (Arr::has($params, 'kabkota_id')) {
-            $query->andWhere(['or',
+            $query->andFilterWhere(['or',
                 ['kabkota_id' => $params['kabkota_id']],
                 ['kabkota_id' => null]]);
         }
 
         if (Arr::has($params, 'kec_id')) {
-            $query->andWhere(['or',
+            $query->andFilterWhere(['or',
                 ['kec_id' => $params['kec_id']],
                 ['kec_id' => null]]);
         }
 
         if (Arr::has($params, 'kel_id')) {
-            $query->andWhere(['or',
+            $query->andFilterWhere(['or',
                 ['kel_id' => $params['kel_id']],
                 ['kel_id' => null]]);
         }
 
         if (Arr::has($params, 'rw')) {
-            $query->andWhere(['or',
+            $query->andFilterWhere(['or',
                 ['rw' => $params['rw']],
                 ['rw' => null]]);
         }

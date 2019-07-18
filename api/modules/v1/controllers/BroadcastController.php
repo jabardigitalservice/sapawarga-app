@@ -71,7 +71,7 @@ class BroadcastController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles'   => ['admin', 'manageUsers'],
+                    'roles'   => ['broadcastManage'],
                 ],
                 [
                     'allow'   => true,
@@ -225,6 +225,14 @@ class BroadcastController extends ActiveController
 
         if ($authUser->can('staffKabkota')) {
             $params['kabkota_id'] = $authUser->identity->kabkota_id;
+        }
+
+        if ($authUser->can('staffKec')) {
+            $params['kec_id'] = $authUser->identity->kec_id;
+        }
+
+        if ($authUser->can('staffKel')) {
+            $params['kel_id'] = $authUser->identity->kel_id;
         }
 
         return $search->search($user, $params);
