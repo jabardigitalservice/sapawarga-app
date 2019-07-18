@@ -202,20 +202,128 @@ class BroadcastCest
 
     // Test cases for admins
 
+    public function staffProvCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 2,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
+    public function staffKabkotaCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffkabkota');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 3,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
+    public function staffKecamatanCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffkec');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 5,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
     public function createNewBroadcastCategoryInvalid(ApiTester $I)
     {
         $I->amStaff();
 
         $I->sendPOST($this->endpointBroadcast, [
-            'author_id' => 1,
+            'author_id'   => 1,
             'category_id' => 0,
-            'title' => 'Broadcast Title',
+            'title'       => 'Broadcast Title',
             'description' => 'Broadcast Description',
-            'kabkota_id' => null,
-            'kec_id' => null,
-            'kel_id' => null,
-            'rw' => null,
-            'status' => 10,
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
         ]);
 
         $I->canSeeResponseCodeIs(422);
@@ -472,11 +580,11 @@ class BroadcastCest
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success'   => true,
-            'status'    => 200,
-            'data'      => [
+            'success' => true,
+            'status'  => 200,
+            'data'    => [
                 'id' => 1,
-            ]
+            ],
         ]);
     }
 

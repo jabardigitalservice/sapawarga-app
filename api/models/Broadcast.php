@@ -38,6 +38,11 @@ class Broadcast extends \yii\db\ActiveRecord
     public $data;
 
     /**
+     * @var bool
+     */
+    protected $enableSendPush = true;
+
+    /**
      * {@inheritdoc}
      */
     public static function tableName()
@@ -202,7 +207,7 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
+        if ($this->enableSendPush) {
             $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
             if ($isSendNotification) {
@@ -242,6 +247,10 @@ class Broadcast extends \yii\db\ActiveRecord
         return parent::afterSave($insert, $changedAttributes);
     }
 
+    public function setEnableSendPush($boolean)
+    {
+        $this->enableSendPush = $boolean;
+    }
     /**
      * Checks if category type is broadcast
      *
