@@ -76,7 +76,51 @@ class NotificationCest
     }
 
 
-    // Test cases for admins
+    // Test cases for staffKabkota, staffKec, staffKel
+    public function staffKabkotaUnauthorized(ApiTester $I)
+    {
+        $I->amStaff('staffKabkota');
+
+        $I->sendGET($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendPOST($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendPUT($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendDELETE($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    public function staffKecUnauthorized(ApiTester $I)
+    {
+        $I->amStaff('staffKec');
+
+        $I->sendGET($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendPOST($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendPUT($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendDELETE($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    public function staffKelUnauthorized(ApiTester $I)
+    {
+        $I->amStaff('staffKel');
+
+        $I->sendGET($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendPOST($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendPUT($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+        $I->sendDELETE($this->endpointNotification);
+        $I->canSeeResponseCodeIs(403);
+    }
+
+
+    // Test cases for admin and staffProv
 
     public function createNewNotificationCategoryInvalid(ApiTester $I)
     {
@@ -181,6 +225,64 @@ class NotificationCest
                 'items' => [
                     [
                         'status' => 0,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function getNotificationListFilterArea(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendGET("{$this->endpointNotification}?kabkota_id=22");
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $accessToken = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->seeResponseContainsJson([
+            'data' => [ 'items' => [ [ 'kabkota_id' => 22, ], ], ],
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'data' => [ 'items' => [ [ 'kabkota_id' => 23, ], ],
+            ],
+        ]);
+
+        $I->sendGET("{$this->endpointNotification}?kabkota_id=22&kec_id=431");
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $accessToken = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->seeResponseContainsJson([
+            'data' => [
+                'items' => [
+                    [
+                        'kabkota_id' => 22,
+                        'kec_id'     => 431,
+                    ],
+                ],
+            ],
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'data' => [
+                'items' => [
+                    [
+                        'kabkota_id' => 22,
+                        'kec_id'     => 447,
                     ],
                 ],
             ],
