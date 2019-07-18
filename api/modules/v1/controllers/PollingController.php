@@ -98,7 +98,7 @@ class PollingController extends ActiveController
                         'answer-update',
                         'answer-delete',
                     ],
-                    'roles'   => ['admin', 'managePolling'],
+                    'roles'   => ['admin', 'pollingManage'],
                 ],
                 [
                     'allow'   => true,
