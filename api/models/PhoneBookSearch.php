@@ -84,6 +84,11 @@ class PhoneBookSearch extends PhoneBook
             return $this->getQueryRoleUser($user, $query, $params);
         }
 
+        // For user kabkota, kec, kel
+        if ($user->role >= User::ROLE_STAFF_KEL && $user->role <= User::ROLE_STAFF_KABKOTA) {
+            return $this->getQueryRoleKabKotaKecKel($user, $query, $params);
+        }
+
         // Else Has Admin Role, tampilkan semua
         return $this->getQueryAll($query, $params);
     }
@@ -149,24 +154,28 @@ class PhoneBookSearch extends PhoneBook
             ]);
         }
 
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'seq');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        return $this->getActiveDataProvider($query, $params);
+    }
 
-        return new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
+    protected function getQueryRoleKabKotaKecKel($user, $query, $params)
+    {
+        //Override kabkota_id must from their own city
+        $params['kabkota_id'] = Arr::get($user, 'kabkota_id');
+
+        ModelHelper::filterByArea($query, $params);
+
+        return $this->getActiveDataProvider($query, $params);
     }
 
     protected function getQueryAll($query, $params)
     {
         ModelHelper::filterByArea($query, $params);
 
+        return $this->getActiveDataProvider($query, $params);
+    }
+
+    protected function getActiveDataProvider($query, $params)
+    {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'seq');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
