@@ -87,7 +87,7 @@ class BroadcastSearch extends Broadcast
         $params['kel_id'] = Arr::get($user, 'kel_id');
         $params['rw'] = Arr::get($user, 'rw');
 
-        $this->filterByArea($query, $params);
+        $this->filterByArea($query, $params); // @TODO Refactor pakai ModelHelper
 
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
@@ -109,7 +109,7 @@ class BroadcastSearch extends Broadcast
         $query->andFilterWhere(['<>', 'status', Broadcast::STATUS_DELETED]);
 
         // Filter berdasarkan area (jika ada)
-        $this->filterByArea($query, $params);
+        $this->filterByArea($query, $params); // @TODO Refactor pakai ModelHelper
 
         // Filter berdasarkan status dam kategori
         $query->andFilterWhere(['status' => Arr::get($params, 'status')])
