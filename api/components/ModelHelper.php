@@ -108,4 +108,17 @@ class ModelHelper
 
         return $query;
     }
+
+    public static function getSortOrder($sortOrder)
+    {
+        switch ($sortOrder) {
+            case 'descending':
+                return SORT_DESC;
+                break;
+            case 'ascending':
+            default:
+                return SORT_ASC;
+                break;
+        }
+    }
 }

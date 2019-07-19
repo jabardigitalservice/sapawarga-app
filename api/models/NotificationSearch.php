@@ -115,7 +115,7 @@ class NotificationSearch extends Notification
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query' => $query,
@@ -124,18 +124,5 @@ class NotificationSearch extends Notification
                 'pageSize' => $pageLimit,
             ],
         ]);
-    }
-
-    protected function getSortOrder($sortOrder)
-    {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
-        }
     }
 }
