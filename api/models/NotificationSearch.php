@@ -87,18 +87,7 @@ class NotificationSearch extends Notification
 
         ModelHelper::filterByArea($query, $params);
 
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
-
-        return new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
+        return $this->getActiveDataProvider($query, $params);
     }
 
     protected function getQueryAll($query, $params)
@@ -113,6 +102,16 @@ class NotificationSearch extends Notification
         $query->andFilterWhere(['status' => Arr::get($params, 'status')])
               ->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
 
+        return $this->getActiveDataProvider($query, $params);
+    }
+
+    protected function isCustomFilter($params)
+    {
+        return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
+    }
+
+    protected function getActiveDataProvider($query, $params)
+    {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
@@ -125,11 +124,6 @@ class NotificationSearch extends Notification
                 'pageSize' => $pageLimit,
             ],
         ]);
-    }
-
-    protected function isCustomFilter($params)
-    {
-        return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
     }
 
     protected function getSortOrder($sortOrder)
