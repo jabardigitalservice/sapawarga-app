@@ -1,3 +1,3 @@
-# Sapa Warga API & Web Admin 
+# Sapawarga API & Web Admin 
 
-To be described.
+- Program Specification on [GitBook](https://jabardigitalservice.gitbook.io/sapawarga)
