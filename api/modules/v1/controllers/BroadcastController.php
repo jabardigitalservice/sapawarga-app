@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\Broadcast;
 use app\models\BroadcastSearch;
 use app\models\User;
+use Illuminate\Support\Arr;
 use Yii;
 use yii\base\Model;
 use yii\filters\AccessControl;
@@ -71,7 +72,7 @@ class BroadcastController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles'   => ['admin', 'manageUsers'],
+                    'roles'   => ['broadcastManage'],
                 ],
                 [
                     'allow'   => true,
@@ -100,12 +101,19 @@ class BroadcastController extends ActiveController
 
     public function actionCreate()
     {
-        /* @var $model \yii\db\ActiveRecord */
+        /* @var $model \yii\db\ActiveRecord|Broadcast */
         $model = new $this->modelClass([
             'scenario' => Model::SCENARIO_DEFAULT,
         ]);
 
+        $params = Yii::$app->request->getQueryParams();
+
+        if (Arr::has($params, 'test')) {
+            $model->setEnableSendPush(false);
+        }
+
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
         if ($model->validate() && $model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
@@ -223,8 +231,23 @@ class BroadcastController extends ActiveController
         $authUser = Yii::$app->user;
         $params   = Yii::$app->request->getQueryParams();
 
+        if ($authUser->can('staffProv')) {
+            // show all
+        }
+
         if ($authUser->can('staffKabkota')) {
             $params['kabkota_id'] = $authUser->identity->kabkota_id;
+        }
+
+        if ($authUser->can('staffKec')) {
+            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+            $params['kec_id']     = $authUser->identity->kec_id;
+        }
+
+        if ($authUser->can('staffKel')) {
+            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+            $params['kec_id']     = $authUser->identity->kec_id;
+            $params['kel_id']     = $authUser->identity->kel_id;
         }
 
         return $search->search($user, $params);

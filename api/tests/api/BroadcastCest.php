@@ -40,6 +40,65 @@ class BroadcastCest
         ]);
     }
 
+    public function getBroadcastStaffProvList(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 3,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+    }
+
     public function getBroadcastStaffKabkotaList(ApiTester $I)
     {
         $I->haveInDatabase('broadcasts', [
@@ -79,6 +138,17 @@ class BroadcastCest
             'updated_at'  => '1554706345',
         ]);
 
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 4,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
         $I->amStaff('staffkabkota');
 
         $I->sendGET($this->endpointBroadcast);
@@ -90,12 +160,227 @@ class BroadcastCest
             'status'  => 200,
         ]);
 
-        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(3, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+    }
+
+    public function getBroadcastStaffKecamatanList(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'kec_id'      => null,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 3,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 4,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 432,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 5,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 6,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amStaff('staffkec');
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
+        $I->assertEquals(5, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
+    }
+
+    public function getBroadcastStaffKelurahanList(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 2,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 23,
+            'kec_id'      => null,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 3,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 4,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 432,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 5,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 6,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 7,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6094,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amStaff('staffkel');
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
+        $I->assertEquals(5, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
     }
 
     public function userCannotCreateNewTest(ApiTester $I)
@@ -143,20 +428,164 @@ class BroadcastCest
 
     // Test cases for admins
 
+    public function staffProvCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 2,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
+    public function staffKabkotaCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffkabkota');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 3,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
+    public function staffKecamatanCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffkec');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 5,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
+    public function staffKelurahanCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffkel');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'   => 9,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+    }
+
     public function createNewBroadcastCategoryInvalid(ApiTester $I)
     {
         $I->amStaff();
 
         $I->sendPOST($this->endpointBroadcast, [
-            'author_id' => 1,
+            'author_id'   => 1,
             'category_id' => 0,
-            'title' => 'Broadcast Title',
+            'title'       => 'Broadcast Title',
             'description' => 'Broadcast Description',
-            'kabkota_id' => null,
-            'kec_id' => null,
-            'kel_id' => null,
-            'rw' => null,
-            'status' => 10,
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'rw'          => null,
+            'status'      => 10,
         ]);
 
         $I->canSeeResponseCodeIs(422);
@@ -413,11 +842,11 @@ class BroadcastCest
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success'   => true,
-            'status'    => 200,
-            'data'      => [
+            'success' => true,
+            'status'  => 200,
+            'data'    => [
                 'id' => 1,
-            ]
+            ],
         ]);
     }
 
