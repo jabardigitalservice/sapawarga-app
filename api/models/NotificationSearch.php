@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -84,7 +85,7 @@ class NotificationSearch extends Notification
         $params['kel_id'] = Arr::get($user, 'kel_id');
         $params['rw'] = Arr::get($user, 'rw');
 
-        $this->filterByArea($query, $params);
+        ModelHelper::filterByArea($query, $params);
 
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
@@ -106,7 +107,7 @@ class NotificationSearch extends Notification
         $query->andFilterWhere(['<>', 'status', Notification::STATUS_DELETED]);
 
         // Filter berdasarkan area (jika ada)
-        $this->filterByArea($query, $params);
+        ModelHelper::filterByArea($query, $params);
 
         // Filter berdasarkan status dan kategori
         $query->andFilterWhere(['status' => Arr::get($params, 'status')])
@@ -129,35 +130,6 @@ class NotificationSearch extends Notification
     protected function isCustomFilter($params)
     {
         return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
-    }
-
-    protected function filterByArea(&$query, $params)
-    {
-        if (Arr::has($params, 'kabkota_id')) {
-            $query->andWhere(['or',
-                ['kabkota_id' => $params['kabkota_id']],
-                ['kabkota_id' => null]]);
-        }
-
-        if (Arr::has($params, 'kec_id')) {
-            $query->andWhere(['or',
-                ['kec_id' => $params['kec_id']],
-                ['kec_id' => null]]);
-        }
-
-        if (Arr::has($params, 'kel_id')) {
-            $query->andWhere(['or',
-                ['kel_id' => $params['kel_id']],
-                ['kel_id' => null]]);
-        }
-
-        if (Arr::has($params, 'rw')) {
-            $query->andWhere(['or',
-                ['rw' => $params['rw']],
-                ['rw' => null]]);
-        }
-
-        return $query;
     }
 
     protected function getSortOrder($sortOrder)
