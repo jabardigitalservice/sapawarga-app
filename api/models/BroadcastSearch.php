@@ -7,6 +7,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
+use yii\db\ActiveQuery;
 use yii\db\JsonExpression;
 
 /**
@@ -14,113 +15,89 @@ use yii\db\JsonExpression;
  */
 class BroadcastSearch extends Broadcast
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['id'], 'integer'],
-            [['title'], 'safe'],
-        ];
-    }
+    const SCENARIO_LIST_USER_DEFAULT  = 'list-user-default';
+    const SCENARIO_LIST_STAFF_DEFAULT = 'list-staff-default';
+    const SCENARIO_LIST_STAFF_FILTER  = 'list-staff-filter';
+
 
     /**
-     * {@inheritdoc}
+     * Creates data provider instance with search query applied
+     *
+     * @param array $params
+     *
+     * @return ActiveDataProvider
      */
-    public function scenarios()
+    public function searchUser(array $params)
     {
-        // bypass scenarios() implementation in the parent class
-        return Model::scenarios();
+        $query = Broadcast::find();
+
+        // Hanya menampilkan pesan broadcast yang masih aktif
+        $query->andFilterWhere(['status' => Broadcast::STATUS_PUBLISHED]);
+
+        // Hanya menampilkan pesan broadcast yang di-publish setelah user melakukan login
+        $startDatetime = Arr::get($params, 'start_datetime');
+
+        $query->andFilterWhere(['>=', 'updated_at', $startDatetime]);
+
+        // Filter berdasarkan area pengguna
+        $params['kabkota_id'] = Arr::get($params, 'kabkota_id');
+        $params['kec_id']     = Arr::get($params, 'kec_id');
+        $params['kel_id']     = Arr::get($params, 'kel_id');
+        $params['rw']         = Arr::get($params, 'rw');
+
+        $query = $this->filterByUserArea($query, $params); // @TODO Refactor pakai ModelHelper
+
+        return $this->createActiveDataProvider($query, $params);
     }
 
     /**
      * Creates data provider instance with search query applied
      *
-     * @param \app\models\User $user
      * @param array $params
-     * @param array $queryParams
      *
      * @return ActiveDataProvider
      */
-    public function search(User $user, $params, $queryParams = [])
+    public function searchStaff($params)
     {
         $query = Broadcast::find();
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
-
         // Filter berdasarkan query pencarian
-        $search = $queryParams['search'] ?? null;
+        $search = Arr::get($params, 'search');
+
         $query->andFilterWhere([
             'or',
             ['like', 'title', $search],
             ['like', 'description', $search],
         ]);
 
-        // Jika User
-        if ($user->role <= User::ROLE_STAFF_RW) {
-            return $this->getQueryRoleUser($user, $query, $params);
-        }
-
-        // Else Has Admin Role, tampilkan semua
-        return $this->getQueryAll($query, $params, $queryParams);
-    }
-
-    protected function getQueryRoleUser($user, $query, $params)
-    {
-        // Hanya menampilkan pesan broadcast yang masih aktif
-        $query->andFilterWhere(['status' => Broadcast::STATUS_PUBLISHED]);
-
-        // Hanya menampilkan pesan broadcast yang di-publish setelah user melakukan login
-        $query->andFilterWhere(['>=', 'updated_at', $user->last_login_at]);
-
-        // Filter berdasarkan area pengguna
-        $params['kabkota_id'] = Arr::get($user, 'kabkota_id');
-        $params['kec_id'] = Arr::get($user, 'kec_id');
-        $params['kel_id'] = Arr::get($user, 'kel_id');
-        $params['rw'] = Arr::get($user, 'rw');
-
-        $this->filterByArea($query, $params); // @TODO Refactor pakai ModelHelper
-
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
-
-        return new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
-    }
-
-    protected function getQueryAll($query, $params, $queryParams)
-    {
         // Hanya menampilkan pesan broadcast dengan status aktif dan draft
         $query->andFilterWhere(['<>', 'status', Broadcast::STATUS_DELETED]);
 
-        if ($this->isCustomFilter($queryParams)) {
-            $query->andFilterWhere(['kabkota_id' => Arr::get($queryParams, 'kabkota_id')]);
-            $query->andFilterWhere(['kec_id' => Arr::get($queryParams, 'kec_id')]);
-            $query->andFilterWhere(['kel_id' => Arr::get($queryParams, 'kel_id')]);
-        } else {
-            $this->filterByArea($query, $params); // @TODO Refactor pakai ModelHelper
+        if ($this->scenario === self::SCENARIO_LIST_STAFF_FILTER) {
+            return $this->searchStaffWithFilter($query, $params);
         }
 
-        // Filter berdasarkan status dam kategori
-        $query->andFilterWhere(['status' => Arr::get($queryParams, 'status')])
-              ->andFilterWhere(['category_id' => Arr::get($queryParams, 'category_id')]);
+        $query = $this->filterByUserArea($query, $params); // @TODO Refactor pakai ModelHelper
 
+        return $this->createActiveDataProvider($query, $params);
+    }
+
+    protected function searchStaffWithFilter(ActiveQuery $query, $params)
+    {
+        // Filter berdasarkan status dan kategori
+        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+
+        // Filter berdasarkan area/dropdown yang dipilih
+        $query->andFilterWhere(['kabkota_id' => Arr::get($params, 'kabkota_id')]);
+        $query->andFilterWhere(['kec_id' => Arr::get($params, 'kec_id')]);
+        $query->andFilterWhere(['kel_id' => Arr::get($params, 'kel_id')]);
+
+        return $this->createActiveDataProvider($query, $params);
+    }
+
+    protected function createActiveDataProvider(ActiveQuery $query, array $params)
+    {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
@@ -128,19 +105,14 @@ class BroadcastSearch extends Broadcast
 
         return new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort'  => ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
         ]);
     }
 
-    protected function isCustomFilter($queryParams)
-    {
-        return Arr::has($queryParams, 'kabkota_id') || Arr::has($queryParams, 'kec_id') || Arr::has($queryParams, 'kel_id');
-    }
-
-    protected function filterByArea(&$query, $params)
+    protected function filterByUserArea(ActiveQuery $query, $params)
     {
         if (Arr::has($params, 'kabkota_id')) {
             $query->andWhere(['or',

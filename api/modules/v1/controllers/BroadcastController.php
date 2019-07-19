@@ -226,18 +226,64 @@ class BroadcastController extends ActiveController
 
     public function prepareDataProvider()
     {
-        $search      = new BroadcastSearch();
-        $user        = User::findIdentity(Yii::$app->user->getId());
-        $authUser    = Yii::$app->user;
-        $queryParams = Yii::$app->request->getQueryParams();
+        $authUser = Yii::$app->user;
 
-        $authKabKotaId = $authUser->identity->kabkota_id;
-        $authKecId     = $authUser->identity->kec_id;
-        $authKelId     = $authUser->identity->kel_id;
+        if ($authUser->can('staffRW')) {
+            return $this->dataProviderUser();
+        }
+
+        return $this->dataProviderStaff();
+    }
+
+    protected function dataProviderUser()
+    {
+        /**
+         * @var \app\models\User $authUserModel
+         */
+        $authUser      = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+
+        $authKabKotaId = $authUserModel->kabkota_id;
+        $authKecId     = $authUserModel->kec_id;
+        $authKelId     = $authUserModel->kel_id;
+
+        $search           = new BroadcastSearch();
+        $search->scenario = BroadcastSearch::SCENARIO_LIST_USER_DEFAULT;
+
+        return $search->searchUser([
+            'start_datetime' => $authUserModel->last_login_at,
+            'kabkota_id'     => $authKabKotaId,
+            'kec_id'         => $authKecId,
+            'kel_id'         => $authKelId,
+        ]);
+    }
+
+    protected function dataProviderStaff()
+    {
+        $queryParams   = Yii::$app->request->getQueryParams();
+
+        /**
+         * @var \app\models\User $authUserModel
+         */
+        $authUser      = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+
+        $authKabKotaId = $authUserModel->kabkota_id;
+        $authKecId     = $authUserModel->kec_id;
+        $authKelId     = $authUserModel->kel_id;
+
+        $search           = new BroadcastSearch();
+        $search->scenario = BroadcastSearch::SCENARIO_LIST_STAFF_DEFAULT;
 
         $params = [];
 
-        if ($authUser->can('staffProv')) {
+        if ($this->isCustomFilter($queryParams)) {
+            $search->scenario = BroadcastSearch::SCENARIO_LIST_STAFF_FILTER;
+
+            return $search->searchStaff($queryParams);
+        }
+
+        if ($authUser->can('admin') || $authUser->can('staffProv')) {
             // show all
         }
 
@@ -256,6 +302,11 @@ class BroadcastController extends ActiveController
             $params['kel_id']     = $authKelId;
         }
 
-        return $search->search($user, $params, $queryParams);
+        return $search->searchStaff($params);
+    }
+
+    protected function isCustomFilter($params)
+    {
+        return count($params) > 0;
     }
 }
