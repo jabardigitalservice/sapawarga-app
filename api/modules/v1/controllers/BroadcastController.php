@@ -226,30 +226,36 @@ class BroadcastController extends ActiveController
 
     public function prepareDataProvider()
     {
-        $search   = new BroadcastSearch();
-        $user     = User::findIdentity(Yii::$app->user->getId());
-        $authUser = Yii::$app->user;
-        $params   = Yii::$app->request->getQueryParams();
+        $search      = new BroadcastSearch();
+        $user        = User::findIdentity(Yii::$app->user->getId());
+        $authUser    = Yii::$app->user;
+        $queryParams = Yii::$app->request->getQueryParams();
+
+        $authKabKotaId = $authUser->identity->kabkota_id;
+        $authKecId     = $authUser->identity->kec_id;
+        $authKelId     = $authUser->identity->kel_id;
+
+        $params = [];
 
         if ($authUser->can('staffProv')) {
             // show all
         }
 
         if ($authUser->can('staffKabkota')) {
-            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+            $params['kabkota_id'] = $authKabKotaId;
         }
 
         if ($authUser->can('staffKec')) {
-            $params['kabkota_id'] = $authUser->identity->kabkota_id;
-            $params['kec_id']     = $authUser->identity->kec_id;
+            $params['kabkota_id'] = $authKabKotaId;
+            $params['kec_id']     = $authKecId;
         }
 
         if ($authUser->can('staffKel')) {
-            $params['kabkota_id'] = $authUser->identity->kabkota_id;
-            $params['kec_id']     = $authUser->identity->kec_id;
-            $params['kel_id']     = $authUser->identity->kel_id;
+            $params['kabkota_id'] = $authKabKotaId;
+            $params['kec_id']     = $authKecId;
+            $params['kel_id']     = $authKelId;
         }
 
-        return $search->search($user, $params);
+        return $search->search($user, $params, $queryParams);
     }
 }

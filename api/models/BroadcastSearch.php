@@ -39,10 +39,11 @@ class BroadcastSearch extends Broadcast
      *
      * @param \app\models\User $user
      * @param array $params
+     * @param array $queryParams
      *
      * @return ActiveDataProvider
      */
-    public function search(User $user, $params)
+    public function search(User $user, $params, $queryParams = [])
     {
         $query = Broadcast::find();
 
@@ -57,7 +58,7 @@ class BroadcastSearch extends Broadcast
         }
 
         // Filter berdasarkan query pencarian
-        $search = $params['search'] ?? null;
+        $search = $queryParams['search'] ?? null;
         $query->andFilterWhere([
             'or',
             ['like', 'title', $search],
@@ -70,7 +71,7 @@ class BroadcastSearch extends Broadcast
         }
 
         // Else Has Admin Role, tampilkan semua
-        return $this->getQueryAll($query, $params);
+        return $this->getQueryAll($query, $params, $queryParams);
     }
 
     protected function getQueryRoleUser($user, $query, $params)
@@ -103,17 +104,22 @@ class BroadcastSearch extends Broadcast
         ]);
     }
 
-    protected function getQueryAll($query, $params)
+    protected function getQueryAll($query, $params, $queryParams)
     {
         // Hanya menampilkan pesan broadcast dengan status aktif dan draft
         $query->andFilterWhere(['<>', 'status', Broadcast::STATUS_DELETED]);
 
-        // Filter berdasarkan area (jika ada)
-        $this->filterByArea($query, $params); // @TODO Refactor pakai ModelHelper
+        if ($this->isCustomFilter($queryParams)) {
+            $query->andFilterWhere(['kabkota_id' => Arr::get($queryParams, 'kabkota_id')]);
+            $query->andFilterWhere(['kec_id' => Arr::get($queryParams, 'kec_id')]);
+            $query->andFilterWhere(['kel_id' => Arr::get($queryParams, 'kel_id')]);
+        } else {
+            $this->filterByArea($query, $params); // @TODO Refactor pakai ModelHelper
+        }
 
         // Filter berdasarkan status dam kategori
-        $query->andFilterWhere(['status' => Arr::get($params, 'status')])
-              ->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $query->andFilterWhere(['status' => Arr::get($queryParams, 'status')])
+              ->andFilterWhere(['category_id' => Arr::get($queryParams, 'category_id')]);
 
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
@@ -129,9 +135,9 @@ class BroadcastSearch extends Broadcast
         ]);
     }
 
-    protected function isCustomFilter($params)
+    protected function isCustomFilter($queryParams)
     {
-        return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
+        return Arr::has($queryParams, 'kabkota_id') || Arr::has($queryParams, 'kec_id') || Arr::has($queryParams, 'kel_id');
     }
 
     protected function filterByArea(&$query, $params)
