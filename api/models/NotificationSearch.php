@@ -18,7 +18,7 @@ class NotificationSearch extends Notification
     {
         return [
             [['id'], 'integer'],
-            [['title'], 'safe'],
+            [['title', 'description'], 'safe'],
         ];
     }
 
@@ -53,12 +53,13 @@ class NotificationSearch extends Notification
         }
 
         // Filter berdasarkan query pencarian
-        $search = $params['search'] ?? null;
-        $query->andFilterWhere([
-            'or',
-            ['like', 'title', $search],
-            ['like', 'description', $search],
-        ]);
+        if (Arr::has($params, 'title')) {
+            $query->andWhere(['like', 'title', Arr::get($params, 'title')]);
+        }
+
+        if (Arr::has($params, 'description')) {
+            $query->andWhere(['like', 'description', Arr::get($params, 'description')]);
+        }
 
         // Jika User
         if ($user->role <= User::ROLE_STAFF_RW) {
