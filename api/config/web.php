@@ -40,7 +40,7 @@ $config = [
             'class' => 'yii\rbac\DbManager',
         ],
         'assetManager' => [
-            'baseUrl' => '/api/assets',
+            'baseUrl' => '/assets',
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -72,7 +72,7 @@ $config = [
         'db' => include __DIR__ . '/db.php',
 
         'urlManager' => [
-            'baseUrl' => '/api',    // Added for
+            'baseUrl' => '/',    // Added for
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'enableStrictParsing' => true,
