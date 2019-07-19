@@ -170,7 +170,7 @@ class AspirasiSearch extends Aspirasi
     protected function filterByArea(&$query, $params)
     {
         if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
-            ModelHelper::filterByArea($query, $params);
+            ModelHelper::filterByAreaTopDown($query, $params);
         } else {
             // Jika Staf Kab/Kota, Staf Kec, dan Staf Kel, default filter berdasarkan area Staf tersebut
             if (Yii::$app->user->can('aspirasiWebadminView') === true) {
@@ -179,7 +179,7 @@ class AspirasiSearch extends Aspirasi
                 'kec_id' => $this->user->kec_id ?? null,
                 'kel_id' => $this->user->kel_id ?? null,
                 ];
-                ModelHelper::filterByArea($query, $areaParams);
+                ModelHelper::filterByAreaTopDown($query, $areaParams);
             }
         }
     }

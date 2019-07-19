@@ -81,4 +81,31 @@ class ModelHelper
 
         return $query;
     }
+
+    /**
+     * Filters query by area ids, using 'top-down' approach
+     *
+     * @param &$query
+     * @param $params
+     */
+    public static function filterByAreaTopDown(&$query, $params)
+    {
+        if (Arr::has($params, 'kabkota_id')) {
+            $query->andFilterWhere(['kabkota_id' => $params['kabkota_id']]);
+        }
+
+        if (Arr::has($params, 'kec_id')) {
+            $query->andFilterWhere(['kec_id' => $params['kec_id']]);
+        }
+
+        if (Arr::has($params, 'kel_id')) {
+            $query->andFilterWhere(['kel_id' => $params['kel_id']]);
+        }
+
+        if (Arr::has($params, 'rw')) {
+            $query->andFilterWhere(['rw' => $params['rw']]);
+        }
+
+        return $query;
+    }
 }
