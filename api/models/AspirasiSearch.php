@@ -82,6 +82,14 @@ class AspirasiSearch extends Aspirasi
         return $this->getQueryAll($query, $params);
     }
 
+    public function searchMobile(&$params, $onlyMe = false)
+    {
+    }
+
+    public function searchWebadmin(&$params, $onlyMe = false)
+    {
+    }
+
     protected function getQueryMe($query, $params)
     {
         $query->andFilterWhere(['author_id' => $this->author_id]);

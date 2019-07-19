@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -18,7 +19,7 @@ class NotificationSearch extends Notification
     {
         return [
             [['id'], 'integer'],
-            [['title'], 'safe'],
+            [['title', 'description'], 'safe'],
         ];
     }
 
@@ -53,12 +54,13 @@ class NotificationSearch extends Notification
         }
 
         // Filter berdasarkan query pencarian
-        $search = $params['search'] ?? null;
-        $query->andFilterWhere([
-            'or',
-            ['like', 'title', $search],
-            ['like', 'description', $search],
-        ]);
+        if (Arr::has($params, 'title')) {
+            $query->andWhere(['like', 'title', Arr::get($params, 'title')]);
+        }
+
+        if (Arr::has($params, 'description')) {
+            $query->andWhere(['like', 'description', Arr::get($params, 'description')]);
+        }
 
         // Jika User
         if ($user->role <= User::ROLE_STAFF_RW) {
@@ -83,20 +85,9 @@ class NotificationSearch extends Notification
         $params['kel_id'] = Arr::get($user, 'kel_id');
         $params['rw'] = Arr::get($user, 'rw');
 
-        $this->filterByArea($query, $params);
+        ModelHelper::filterByArea($query, $params);
 
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
-
-        return new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
+        return $this->getActiveDataProvider($query, $params);
     }
 
     protected function getQueryAll($query, $params)
@@ -105,16 +96,26 @@ class NotificationSearch extends Notification
         $query->andFilterWhere(['<>', 'status', Notification::STATUS_DELETED]);
 
         // Filter berdasarkan area (jika ada)
-        $this->filterByArea($query, $params);
+        ModelHelper::filterByArea($query, $params);
 
         // Filter berdasarkan status dan kategori
         $query->andFilterWhere(['status' => Arr::get($params, 'status')])
               ->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
 
+        return $this->getActiveDataProvider($query, $params);
+    }
+
+    protected function isCustomFilter($params)
+    {
+        return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
+    }
+
+    protected function getActiveDataProvider($query, $params)
+    {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query' => $query,
@@ -123,52 +124,5 @@ class NotificationSearch extends Notification
                 'pageSize' => $pageLimit,
             ],
         ]);
-    }
-
-    protected function isCustomFilter($params)
-    {
-        return Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id');
-    }
-
-    protected function filterByArea(&$query, $params)
-    {
-        if (Arr::has($params, 'kabkota_id')) {
-            $query->andWhere(['or',
-                ['kabkota_id' => $params['kabkota_id']],
-                ['kabkota_id' => null]]);
-        }
-
-        if (Arr::has($params, 'kec_id')) {
-            $query->andWhere(['or',
-                ['kec_id' => $params['kec_id']],
-                ['kec_id' => null]]);
-        }
-
-        if (Arr::has($params, 'kel_id')) {
-            $query->andWhere(['or',
-                ['kel_id' => $params['kel_id']],
-                ['kel_id' => null]]);
-        }
-
-        if (Arr::has($params, 'rw')) {
-            $query->andWhere(['or',
-                ['rw' => $params['rw']],
-                ['rw' => null]]);
-        }
-
-        return $query;
-    }
-
-    protected function getSortOrder($sortOrder)
-    {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
-        }
     }
 }
