@@ -222,6 +222,56 @@ class BroadcastListCest
         $I->assertEquals(7, $data[0][5]['id']);
 
         // Filter & Search
+        $I->sendGET('/v1/broadcasts?kabkota_id=22');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 6);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(5, $data[0][3]['id']);
+        $I->assertEquals(6, $data[0][4]['id']);
+        $I->assertEquals(7, $data[0][5]['id']);
+
+        // ----
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 5);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
+        $I->assertEquals(7, $data[0][4]['id']);
+
+        // ----
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=432');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(5, $data[0][2]['id']);
+
+        // ----
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431&kel_id=6093');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
+
+        // ----
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431&kel_id=6094');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(7, $data[0][3]['id']);
     }
 
     public function getBroadcastStaffKecamatanList(ApiTester $I)
@@ -247,6 +297,35 @@ class BroadcastListCest
         $I->assertEquals(7, $data[0][4]['id']);
 
         // Filter & Search
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 5);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
+        $I->assertEquals(7, $data[0][4]['id']);
+
+        // ----
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431&kel_id=6093');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
+
+        // ----
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431&kel_id=6094');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(7, $data[0][3]['id']);
     }
 
     public function getBroadcastStaffKelurahanList(ApiTester $I)
@@ -271,5 +350,13 @@ class BroadcastListCest
         $I->assertEquals(6, $data[0][3]['id']);
 
         // Filter & Search
+        $I->sendGET('/v1/broadcasts?kabkota_id=22&kec_id=431&kel_id=6093');
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(6, $data[0][3]['id']);
     }
 }
