@@ -277,16 +277,6 @@ class BroadcastController extends ActiveController
 
         $params = [];
 
-        if ($this->isCustomFilter($queryParams)) {
-            $search->scenario = BroadcastSearch::SCENARIO_LIST_STAFF_FILTER;
-
-            return $search->searchStaff($queryParams);
-        }
-
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            // show all
-        }
-
         if ($authUser->can('staffKabkota')) {
             $params['kabkota_id'] = $authKabKotaId;
         }
@@ -300,6 +290,12 @@ class BroadcastController extends ActiveController
             $params['kabkota_id'] = $authKabKotaId;
             $params['kec_id']     = $authKecId;
             $params['kel_id']     = $authKelId;
+        }
+
+        if ($this->isCustomFilter($queryParams)) {
+            // Pastikan parameter pencarian sesuai scope area yang dimiliki user
+            // Replace input query params dengan data dari authentication di atas, sehingga tidak bisa dioverride
+            $params = array_replace($queryParams, $params);
         }
 
         return $search->searchStaff($params);
