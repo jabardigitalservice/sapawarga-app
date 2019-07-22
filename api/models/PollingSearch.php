@@ -2,10 +2,9 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use phpDocumentor\Reflection\Types\Array_;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -61,7 +60,7 @@ class PollingSearch extends Polling
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query'      => $query,
@@ -72,19 +71,6 @@ class PollingSearch extends Polling
         ]);
     }
 
-    protected function getSortOrder($sortOrder)
-    {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
-        }
-    }
-
     protected function filterByUserArea(&$query, $params)
     {
         $kabKotaId = Arr::get($params, 'kabkota_id');
@@ -93,8 +79,8 @@ class PollingSearch extends Polling
         $rw        = Arr::get($params, 'rw');
 
         $query->andWhere('
-            (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL AND rw IS NULL) OR 
-            (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id IS NULL AND rw IS NULL) OR 
+            (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL AND rw IS NULL) OR
+            (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id IS NULL AND rw IS NULL) OR
             (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id = :kel_id AND rw IS NULL) OR
             (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id = :kel_id AND rw = :rw)', [
 
