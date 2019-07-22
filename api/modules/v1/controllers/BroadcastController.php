@@ -226,30 +226,83 @@ class BroadcastController extends ActiveController
 
     public function prepareDataProvider()
     {
-        $search   = new BroadcastSearch();
-        $user     = User::findIdentity(Yii::$app->user->getId());
         $authUser = Yii::$app->user;
-        $params   = Yii::$app->request->getQueryParams();
 
-        if ($authUser->can('staffProv')) {
-            // show all
+        if ($authUser->can('staffRW')) {
+            return $this->dataProviderUser();
         }
 
+        return $this->dataProviderStaff();
+    }
+
+    protected function dataProviderUser()
+    {
+        /**
+         * @var \app\models\User $authUserModel
+         */
+        $authUser      = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+
+        $authKabKotaId = $authUserModel->kabkota_id;
+        $authKecId     = $authUserModel->kec_id;
+        $authKelId     = $authUserModel->kel_id;
+
+        $search           = new BroadcastSearch();
+        $search->scenario = BroadcastSearch::SCENARIO_LIST_USER_DEFAULT;
+
+        return $search->searchUser([
+            'start_datetime' => $authUserModel->last_login_at,
+            'kabkota_id'     => $authKabKotaId,
+            'kec_id'         => $authKecId,
+            'kel_id'         => $authKelId,
+        ]);
+    }
+
+    protected function dataProviderStaff()
+    {
+        $queryParams   = Yii::$app->request->getQueryParams();
+
+        /**
+         * @var \app\models\User $authUserModel
+         */
+        $authUser      = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+
+        $authKabKotaId = $authUserModel->kabkota_id;
+        $authKecId     = $authUserModel->kec_id;
+        $authKelId     = $authUserModel->kel_id;
+
+        $search           = new BroadcastSearch();
+        $search->scenario = BroadcastSearch::SCENARIO_LIST_STAFF_DEFAULT;
+
+        $params = [];
+
         if ($authUser->can('staffKabkota')) {
-            $params['kabkota_id'] = $authUser->identity->kabkota_id;
+            $params['kabkota_id'] = $authKabKotaId;
         }
 
         if ($authUser->can('staffKec')) {
-            $params['kabkota_id'] = $authUser->identity->kabkota_id;
-            $params['kec_id']     = $authUser->identity->kec_id;
+            $params['kabkota_id'] = $authKabKotaId;
+            $params['kec_id']     = $authKecId;
         }
 
         if ($authUser->can('staffKel')) {
-            $params['kabkota_id'] = $authUser->identity->kabkota_id;
-            $params['kec_id']     = $authUser->identity->kec_id;
-            $params['kel_id']     = $authUser->identity->kel_id;
+            $params['kabkota_id'] = $authKabKotaId;
+            $params['kec_id']     = $authKecId;
+            $params['kel_id']     = $authKelId;
         }
 
-        return $search->search($user, $params);
+        if ($this->isCustomFilter($queryParams)) {
+            // Pastikan parameter pencarian sesuai scope area yang dimiliki user
+            // Replace input query params dengan data dari authentication di atas, sehingga tidak bisa dioverride
+            $params = array_replace($queryParams, $params);
+        }
+
+        return $search->searchStaff($params);
+    }
+
+    protected function isCustomFilter($params)
+    {
+        return count($params) > 0;
     }
 }
