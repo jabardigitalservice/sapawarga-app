@@ -14,6 +14,7 @@ use yii\data\ActiveDataProvider;
 class PollingSearch extends Polling
 {
     const SCENARIO_LIST_USER = 'list-user';
+    const SCENARIO_LIST_KABKOTA_KEC_KEL = 'list-kabkota-kec-kel';
 
     /**
      * Creates data provider instance with search query applied
@@ -63,6 +64,11 @@ class PollingSearch extends Polling
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = $this->getSortOrder($sortOrder);
 
+        // Role kabkota, kec, kel
+        if ($this->scenario === self::SCENARIO_LIST_KABKOTA_KEC_KEL) {
+            $this->filterByStaffkabKotaKecKel($query, $params);
+        }
+
         return new ActiveDataProvider([
             'query'      => $query,
             'sort'       => ['defaultOrder' => [$sortBy => $sortOrder]],
@@ -85,6 +91,44 @@ class PollingSearch extends Polling
         }
     }
 
+    protected function filterByStaffkabKotaKecKel(&$query, $params)
+    {
+        $kabKotaId = Arr::get($params, 'kabkota_id');
+        $kecId = Arr::get($params, 'kec_id');
+        $kelId = Arr::get($params, 'kel_id');
+
+        // List query for staff kab kota
+        if ($kabKotaId !== null && $kecId === null && $kelId === null) {
+            $query->andWhere(['kabkota_id' => $kabKotaId]);
+        }
+
+        // List query for staff kab kec
+        if ($kabKotaId !== null && $kecId !== null && $kelId === null) {
+            $query->andWhere('
+                (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL) OR
+                (kabkota_id = :kabkota_id AND kec_id = :kec_id)', [
+
+                ':kabkota_id' => $kabKotaId,
+                ':kec_id'     => $kecId,
+            ]);
+        }
+
+         // List query for staff kel
+        if ($kabKotaId !== null && $kecId !== null && $kelId !== null) {
+            $query->andWhere('
+                (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL) OR
+                (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id IS NULL) OR
+                (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id = :kel_id)', [
+
+                ':kabkota_id' => $kabKotaId,
+                ':kec_id'     => $kecId,
+                ':kel_id'     => $kelId,
+            ]);
+        }
+
+        return $query;
+    }
+
     protected function filterByUserArea(&$query, $params)
     {
         $kabKotaId = Arr::get($params, 'kabkota_id');
@@ -93,8 +137,8 @@ class PollingSearch extends Polling
         $rw        = Arr::get($params, 'rw');
 
         $query->andWhere('
-            (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL AND rw IS NULL) OR 
-            (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id IS NULL AND rw IS NULL) OR 
+            (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL AND rw IS NULL) OR
+            (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id IS NULL AND rw IS NULL) OR
             (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id = :kel_id AND rw IS NULL) OR
             (kabkota_id = :kabkota_id AND kec_id = :kec_id AND kel_id = :kel_id AND rw = :rw)', [
 
