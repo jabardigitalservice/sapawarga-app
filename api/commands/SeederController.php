@@ -63,6 +63,18 @@ class SeederController extends Controller
         Yii::$app->db->createCommand($sql)->execute();
     }
 
+    // Seed data untuk table User dengan username yang menggunakan kode BPS
+    public function actionUserBps()
+    {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+
+        Yii::$app->db->createCommand('TRUNCATE auth_assignment')->execute();
+        Yii::$app->db->createCommand('TRUNCATE user')->execute();
+
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/user_and_permission_bps.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+    }
+
     public function actionCategory()
     {
         Yii::$app->db->createCommand('TRUNCATE categories')->execute();
