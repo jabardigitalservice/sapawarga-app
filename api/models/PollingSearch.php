@@ -132,5 +132,4 @@ class PollingSearch extends Polling
 
         return $query;
     }
-
 }
