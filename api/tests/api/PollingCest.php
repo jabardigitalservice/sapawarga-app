@@ -535,7 +535,14 @@ class PollingCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(22, $data[0][0]['kabkota_id']);
+        $I->assertEquals(null, $data[0][0]['kabkota_id']);
+        $I->assertEquals(null, $data[0][0]['kec_id']);
+        $I->assertEquals(null, $data[0][0]['kel_id']);
+
+        $I->assertEquals(22, $data[0][1]['kabkota_id']);
+        $I->assertEquals(null, $data[0][1]['kec_id']);
+        $I->assertEquals(null, $data[0][1]['kel_id']);
+
     }
 
     public function getAdminKecListTest(ApiTester $I)
@@ -638,11 +645,17 @@ class PollingCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(22, $data[0][0]['kabkota_id']);
+        $I->assertEquals(null, $data[0][0]['kabkota_id']);
+        $I->assertEquals(null, $data[0][0]['kec_id']);
+        $I->assertEquals(null, $data[0][0]['kel_id']);
 
         $I->assertEquals(22, $data[0][1]['kabkota_id']);
-        $I->assertEquals(431, $data[0][1]['kec_id']);
+        $I->assertEquals(null, $data[0][1]['kec_id']);
         $I->assertEquals(null, $data[0][1]['kel_id']);
+
+        $I->assertEquals(22, $data[0][2]['kabkota_id']);
+        $I->assertEquals(431, $data[0][2]['kec_id']);
+        $I->assertEquals(null, $data[0][2]['kel_id']);
     }
 
     public function getAdminKelListTest(ApiTester $I)
@@ -763,17 +776,21 @@ class PollingCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(22, $data[0][0]['kabkota_id']);
+        $I->assertEquals(null, $data[0][0]['kabkota_id']);
         $I->assertEquals(null, $data[0][0]['kec_id']);
         $I->assertEquals(null, $data[0][0]['kel_id']);
 
         $I->assertEquals(22, $data[0][1]['kabkota_id']);
-        $I->assertEquals(431, $data[0][1]['kec_id']);
+        $I->assertEquals(null, $data[0][1]['kec_id']);
         $I->assertEquals(null, $data[0][1]['kel_id']);
 
         $I->assertEquals(22, $data[0][2]['kabkota_id']);
         $I->assertEquals(431, $data[0][2]['kec_id']);
-        $I->assertEquals(6093, $data[0][2]['kel_id']);
+        $I->assertEquals(null, $data[0][2]['kel_id']);
+
+        $I->assertEquals(22, $data[0][3]['kabkota_id']);
+        $I->assertEquals(431, $data[0][3]['kec_id']);
+        $I->assertEquals(6093, $data[0][3]['kel_id']);
     }
 
     public function getListByUserAreaKabkota(ApiTester $I)
