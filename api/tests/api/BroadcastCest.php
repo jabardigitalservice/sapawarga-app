@@ -29,7 +29,7 @@ class BroadcastCest
     }
 
     // Test cases for RW/users
-    public function getBroadcastListSameKelurahan(ApiTester $I)
+    public function rwGetBroadcastListSameKelurahan(ApiTester $I)
     {
         $area = [
             'kabkota_id'  => 22,
@@ -74,7 +74,7 @@ class BroadcastCest
         $I->assertEquals(2, $data[0]['id']);
     }
 
-    public function getBroadcastListSameKelurahanDifferentRW(ApiTester $I)
+    public function rwGetBroadcastListSameKelurahanDifferentRW(ApiTester $I)
     {
         $area = [
             'kabkota_id'  => 22,
@@ -539,6 +539,51 @@ class BroadcastCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
+        $I->assertEquals(1, $data[0]['id']);
+    }
+
+    public function getBroadcastListAllCannotSeeOtherUserDraft(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 2,
+            'title'       => 'Lorem.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 0,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amStaff();
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(0, count($data));
+
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
         $I->assertEquals(1, $data[0]['id']);
     }
 
