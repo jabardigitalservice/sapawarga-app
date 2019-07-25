@@ -11,24 +11,36 @@ class BroadcastCest
         Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
     }
 
-    // Test cases for users
-    public function getBroadcastListBandung(ApiTester $I)
-    {
-        $I->amUser('user.bandung');
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+    private function addNewBroadcast(ApiTester $I, $id, $area) {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => $id,
+            'author_id'   => 1,
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => $area['kabkota_id'],
+            'kec_id'      => $area['kec_id'],
+            'kel_id'      => $area['kel_id'],
+            'rw'          => $area['rw'],
+            'status'      => 10,
+            'created_at'  => time(),
+            'updated_at'  => time(),
         ]);
     }
 
-    public function getBroadcastListBekasi(ApiTester $I)
+    // Test cases for RW/users
+    public function getBroadcastListSameKelurahan(ApiTester $I)
     {
-        $I->amUser('user.bekasi');
+        $area = [
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => null,
+        ];
+
+        $I->amUser('staffrw');
+
+        $this->addNewBroadcast($I, 1, $area);
 
         $I->sendGET($this->endpointBroadcast);
         $I->canSeeResponseCodeIs(200);
@@ -38,6 +50,72 @@ class BroadcastCest
             'success' => true,
             'status'  => 200,
         ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
+        $I->assertEquals(1, $data[0]['id']);
+
+
+        $I->amUser('staffrw2');
+
+        $this->addNewBroadcast($I, 2, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
+        $I->assertEquals(2, $data[0]['id']);
+    }
+
+    public function getBroadcastListSameKelurahanDifferentRW(ApiTester $I)
+    {
+        $area = [
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => '001',
+        ];
+
+        $I->amUser('staffrw');
+
+        $this->addNewBroadcast($I, 1, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
+        $I->assertEquals(1, $data[0]['id']);
+
+
+        $I->amUser('staffrw2');
+
+        $this->addNewBroadcast($I, 2, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(0, count($data));
     }
 
     public function userCannotCreateNewTest(ApiTester $I)

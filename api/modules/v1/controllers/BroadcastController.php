@@ -228,7 +228,7 @@ class BroadcastController extends ActiveController
     {
         $authUser = Yii::$app->user;
 
-        if ($authUser->can('staffRW')) {
+        if ($authUser->can('staffRW') || $authUser->can('user')) {
             return $this->dataProviderUser();
         }
 
@@ -246,6 +246,7 @@ class BroadcastController extends ActiveController
         $authKabKotaId = $authUserModel->kabkota_id;
         $authKecId     = $authUserModel->kec_id;
         $authKelId     = $authUserModel->kel_id;
+        $authRW        = $authUserModel->rw;
 
         $search           = new BroadcastSearch();
         $search->scenario = BroadcastSearch::SCENARIO_LIST_USER_DEFAULT;
@@ -255,6 +256,7 @@ class BroadcastController extends ActiveController
             'kabkota_id'     => $authKabKotaId,
             'kec_id'         => $authKecId,
             'kel_id'         => $authKelId,
+            'rw'             => $authRW,
         ]);
     }
 
