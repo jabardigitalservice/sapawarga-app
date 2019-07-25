@@ -382,13 +382,26 @@ class PollingController extends ActiveController
             $params['rw'] = $user->rw;
         }
 
-        // Get data for kabkota, kec, kel
-        if ($user->role >= User::ROLE_STAFF_KEL && $user->role <= User::ROLE_STAFF_KABKOTA) {
+        // Override location data for staf kabkota, kec, kel
+        if ($user->role >= User::ROLE_STAFF_KEL && $user->role <= User::ROLE_ADMIN) {
             $search->scenario = PollingSearch::SCENARIO_LIST_STAFF;
 
-            $params['kabkota_id'] = $user->kabkota_id;
-            $params['kec_id'] = $user->kec_id;
-            $params['kel_id'] = $user->kel_id;
+            if ($user->role <= User::ROLE_STAFF_KABKOTA) {
+                $params['kabkota_id'] = $user->kabkota_id;
+            }
+
+            if ($user->role <= User::ROLE_STAFF_KEC) {
+                $params['kec_id'] = $user->kec_id;
+            }
+
+            if ($user->role <= User::ROLE_STAFF_KEL) {
+                $params['kel_id'] = $user->kel_id;
+            }
+        }
+
+        // For staff prov and admin
+        if ($user->role >= User::ROLE_STAFF_PROV && $user->role <= User::ROLE_ADMIN) {
+            $search->scenario = PollingSearch::SCENARIO_LIST_STAFF;
         }
 
         return $search->search($params);
