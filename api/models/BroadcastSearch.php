@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -41,7 +42,7 @@ class BroadcastSearch extends Model
         $params['kel_id']     = Arr::get($params, 'kel_id');
         $params['rw']         = Arr::get($params, 'rw');
 
-        $query = $this->filterByUserArea($query, $params); // @TODO Refactor pakai ModelHelper
+        $query = ModelHelper::filterByArea($query, $params);
 
         return $this->createActiveDataProvider($query, $params);
     }
@@ -69,7 +70,7 @@ class BroadcastSearch extends Model
         // Hanya menampilkan pesan broadcast dengan status aktif dan draft
         $query->andFilterWhere(['<>', 'status', Broadcast::STATUS_DELETED]);
 
-        $query = $this->filterByUserArea($query, $params); // @TODO Refactor pakai ModelHelper
+        $query = ModelHelper::filterByArea($query, $params);
 
         return $this->createActiveDataProvider($query, $params);
     }
@@ -79,7 +80,7 @@ class BroadcastSearch extends Model
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query' => $query,
@@ -88,47 +89,5 @@ class BroadcastSearch extends Model
                 'pageSize' => $pageLimit,
             ],
         ]);
-    }
-
-    protected function filterByUserArea(ActiveQuery $query, $params)
-    {
-        if (Arr::has($params, 'kabkota_id')) {
-            $query->andWhere(['or',
-                ['kabkota_id' => $params['kabkota_id']],
-                ['kabkota_id' => null]]);
-        }
-
-        if (Arr::has($params, 'kec_id')) {
-            $query->andWhere(['or',
-                ['kec_id' => $params['kec_id']],
-                ['kec_id' => null]]);
-        }
-
-        if (Arr::has($params, 'kel_id')) {
-            $query->andWhere(['or',
-                ['kel_id' => $params['kel_id']],
-                ['kel_id' => null]]);
-        }
-
-        if (Arr::has($params, 'rw')) {
-            $query->andWhere(['or',
-                ['rw' => $params['rw']],
-                ['rw' => null]]);
-        }
-
-        return $query;
-    }
-
-    protected function getSortOrder($sortOrder)
-    {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
-        }
     }
 }
