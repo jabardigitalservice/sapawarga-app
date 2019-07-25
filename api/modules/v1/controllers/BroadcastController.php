@@ -228,7 +228,7 @@ class BroadcastController extends ActiveController
     {
         $authUser = Yii::$app->user;
 
-        if ($authUser->can('staffRW')) {
+        if ($authUser->can('staffRW') || $authUser->can('user')) {
             return $this->dataProviderUser();
         }
 
