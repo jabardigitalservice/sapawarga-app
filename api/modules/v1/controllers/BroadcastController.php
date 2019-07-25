@@ -252,7 +252,7 @@ class BroadcastController extends ActiveController
         $search->scenario = BroadcastSearch::SCENARIO_LIST_USER_DEFAULT;
 
         return $search->searchUser([
-            'start_datetime' => $authUserModel->last_login_at,
+            'start_datetime' => $authUserModel->created_at,
             'kabkota_id'     => $authKabKotaId,
             'kec_id'         => $authKecId,
             'kel_id'         => $authKelId,
