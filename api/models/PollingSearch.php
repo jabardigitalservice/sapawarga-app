@@ -6,6 +6,7 @@ use app\components\ModelHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 
 /**
  * PollingSearch represents the model behind the search form of `app\models\Polling`.
@@ -13,6 +14,7 @@ use yii\data\ActiveDataProvider;
 class PollingSearch extends Polling
 {
     const SCENARIO_LIST_USER = 'list-user';
+    const SCENARIO_LIST_STAFF = 'list-staff';
 
     /**
      * Creates data provider instance with search query applied
@@ -34,7 +36,9 @@ class PollingSearch extends Polling
             return $this->getQueryListUser($query, $params);
         }
 
-        return $this->getQueryAll($query, $params);
+        if ($this->scenario === self::SCENARIO_LIST_STAFF) {
+            return $this->getQueryListStaff($query, $params);
+        }
     }
 
     protected function getQueryListUser($query, $params)
@@ -52,19 +56,26 @@ class PollingSearch extends Polling
 
         $this->filterByUserArea($query, $params);
 
-        return $this->getQueryAll($query, $params);
+        return $this->createActiveDataProvider($query, $params);
     }
 
-    protected function getQueryAll($query, $params)
+    protected function getQueryListStaff($query, $params)
+    {
+        $query = $this->filterByStaffArea($query, $params);
+
+        return $this->createActiveDataProvider($query, $params);
+    }
+
+    protected function createActiveDataProvider(ActiveQuery $query, array $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortBy    = Arr::get($params, 'sort_by', 'updated_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
-            'query'      => $query,
-            'sort'       => ['defaultOrder' => [$sortBy => $sortOrder]],
+            'query' => $query,
+            'sort'  => ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
@@ -89,6 +100,35 @@ class PollingSearch extends Polling
             ':kel_id'     => $kelId,
             ':rw'         => $rw,
         ]);
+
+        return $query;
+    }
+
+    protected function filterByStaffArea(ActiveQuery $query, $params)
+    {
+        if (Arr::has($params, 'kabkota_id')) {
+            $query->andWhere(['or',
+                ['kabkota_id' => $params['kabkota_id']],
+                ['kabkota_id' => null]]);
+        }
+
+        if (Arr::has($params, 'kec_id')) {
+            $query->andWhere(['or',
+                ['kec_id' => $params['kec_id']],
+                ['kec_id' => null]]);
+        }
+
+        if (Arr::has($params, 'kel_id')) {
+            $query->andWhere(['or',
+                ['kel_id' => $params['kel_id']],
+                ['kel_id' => null]]);
+        }
+
+        if (Arr::has($params, 'rw')) {
+            $query->andWhere(['or',
+                ['rw' => $params['rw']],
+                ['rw' => null]]);
+        }
 
         return $query;
     }
