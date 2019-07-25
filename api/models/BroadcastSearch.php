@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -64,11 +65,9 @@ class BroadcastSearch extends Model
         $query->andFilterWhere(['like', 'title', $title]);
 
         // Filter berdasarkan status dan kategori
-        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
-        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $this->filterByStatus($query, $params);
 
-        // Hanya menampilkan pesan broadcast dengan status aktif dan draft
-        $query->andFilterWhere(['<>', 'status', Broadcast::STATUS_DELETED]);
+        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
 
         $query = ModelHelper::filterByArea($query, $params);
 
@@ -89,5 +88,44 @@ class BroadcastSearch extends Model
                 'pageSize' => $pageLimit,
             ],
         ]);
+    }
+
+    /**
+     * Filters query by status
+     *
+     * @param &$query
+     * @param $params
+     */
+    private function filterByStatus(&$query, $params)
+    {
+        $model = Broadcast::class;
+
+        // Tidak mengikutsertakan STATUS_DELETED
+        $query->andFilterWhere(['<>', 'status', $model::STATUS_DELETED]);
+
+        $userId = Yii::$app->user->getId();
+        if (Arr::has($params, 'status')) {
+            if ($params['status'] == $model::STATUS_DRAFT) {
+                $query->andFilterWhere([
+                    'and',
+                    ['status' => $params['status']],
+                    ['author_id' => $userId],
+                ]);
+            } else {
+                $query->andFilterWhere(['status' => $params['status']]);
+            }
+        } else {
+            $query->andFilterWhere([
+                'or',
+                ['status' => $model::STATUS_PUBLISHED],
+                [
+                    'and',
+                    ['status' => $model::STATUS_DRAFT],
+                    ['author_id' => $userId],
+                ]
+            ]);
+        }
+
+        return $query;
     }
 }
