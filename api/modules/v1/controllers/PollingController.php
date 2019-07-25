@@ -399,11 +399,6 @@ class PollingController extends ActiveController
             }
         }
 
-        // For staff prov and admin
-        if ($user->role >= User::ROLE_STAFF_PROV && $user->role <= User::ROLE_ADMIN) {
-            $search->scenario = PollingSearch::SCENARIO_LIST_STAFF;
-        }
-
         return $search->search($params);
     }
 }
