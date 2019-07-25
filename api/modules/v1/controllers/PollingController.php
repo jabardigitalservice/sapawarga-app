@@ -384,7 +384,7 @@ class PollingController extends ActiveController
 
         // Get data for kabkota, kec, kel
         if ($user->role >= User::ROLE_STAFF_KEL && $user->role <= User::ROLE_STAFF_KABKOTA) {
-            $search->scenario = PollingSearch::SCENARIO_LIST_KABKOTA_KEC_KEL;
+            $search->scenario = PollingSearch::SCENARIO_LIST_STAFF;
 
             $params['kabkota_id'] = $user->kabkota_id;
             $params['kec_id'] = $user->kec_id;
