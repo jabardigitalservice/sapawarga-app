@@ -2,10 +2,9 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use phpDocumentor\Reflection\Types\Array_;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -62,7 +61,7 @@ class PollingSearch extends Polling
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         // Role kabkota, kec, kel
         if ($this->scenario === self::SCENARIO_LIST_KABKOTA_KEC_KEL) {
@@ -78,31 +77,18 @@ class PollingSearch extends Polling
         ]);
     }
 
-    protected function getSortOrder($sortOrder)
-    {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
-        }
-    }
-
     protected function filterByStaffkabKotaKecKel(&$query, $params)
     {
         $kabKotaId = Arr::get($params, 'kabkota_id');
         $kecId = Arr::get($params, 'kec_id');
         $kelId = Arr::get($params, 'kel_id');
 
-        // List query for staff kab kota
+        // List for staff kab kota
         if ($kabKotaId !== null && $kecId === null && $kelId === null) {
             $query->andWhere(['kabkota_id' => $kabKotaId]);
         }
 
-        // List query for staff kab kec
+        // List for staff kab kec
         if ($kabKotaId !== null && $kecId !== null && $kelId === null) {
             $query->andWhere('
                 (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL) OR
@@ -113,7 +99,7 @@ class PollingSearch extends Polling
             ]);
         }
 
-         // List query for staff kel
+         // List for staff kel
         if ($kabKotaId !== null && $kecId !== null && $kelId !== null) {
             $query->andWhere('
                 (kabkota_id = :kabkota_id AND kec_id IS NULL AND kel_id IS NULL) OR

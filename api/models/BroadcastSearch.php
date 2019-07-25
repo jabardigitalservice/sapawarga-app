@@ -58,13 +58,9 @@ class BroadcastSearch extends Model
         $query = Broadcast::find();
 
         // Filter berdasarkan query pencarian
-        $search = Arr::get($params, 'search');
+        $title = Arr::get($params, 'title');
 
-        $query->andFilterWhere([
-            'or',
-            ['like', 'title', $search],
-            ['like', 'description', $search],
-        ]);
+        $query->andFilterWhere(['like', 'title', $title]);
 
         // Filter berdasarkan status dan kategori
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);

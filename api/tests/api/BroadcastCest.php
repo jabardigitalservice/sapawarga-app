@@ -440,15 +440,15 @@ class BroadcastCest
             'author_id'   => 1,
             'title'       => 'Lorem.',
             'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 23,
+            'kabkota_id'  => 22,
             'status'      => 10,
             'created_at'  => '1554706345',
             'updated_at'  => '1554706345',
         ]);
 
-        $I->amStaff();
+        $I->amStaff('staffkabkota');
 
-        $I->sendGET("{$this->endpointBroadcast}?search=Kegiatan");
+        $I->sendGET("{$this->endpointBroadcast}?title=Kegiatan");
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
