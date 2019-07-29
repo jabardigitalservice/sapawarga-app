@@ -13,9 +13,19 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $title
+ * @property int $category_id
+ * @property string $source
+ * @property string $video_url
+ * @property int $kabkota_id
+ * @property int $total_likes
  * @property int $seq
  * @property int $status
+ * @property int $created_by
+ * @property int $updated_by
+ * @property int $created_at
+ * @property int $updated_at
  */
+
 class Video extends ActiveRecord
 {
     const STATUS_DELETED = -1;
@@ -84,8 +94,8 @@ class Video extends ActiveRecord
 
         $userId = Yii::$app->user->getId();
 
-        $checkExistUserLike = VideoLike::find()
-                ->where(['video_id' => $id, 'user_id' => $userId])
+        $checkExistUserLike = Like::find()
+                ->where(['type' => Like::TYPE_VIDEO, 'video_id' => $id, 'user_id' => $userId])
                 ->one();
 
         if (! empty($checkExistUserLike)) {

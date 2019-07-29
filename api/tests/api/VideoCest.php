@@ -8,7 +8,7 @@ class VideoCest
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
 
-        Yii::$app->db->createCommand('TRUNCATE video_likes')->execute();
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
         Yii::$app->db->createCommand('TRUNCATE videos')->execute();
     }
 

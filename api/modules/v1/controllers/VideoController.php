@@ -6,7 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\Video;
 use app\models\VideoSearch;
-use app\models\VideoLike;
+use app\models\Like;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -190,9 +190,9 @@ class VideoController extends ActiveController
          */
         $model = $this->findModel($id);
 
-        $model = VideoLike::find()
+        $model = Like::find()
             ->where(['id' => $id])
-            ->where(['user_id' => $userId, 'video_id' => $id])
+            ->where(['type' => Like::TYPE_VIDEO,  'user_id' => $userId, 'video_id' => $id])
             ->one();
 
         $alreadyLiked = (int) $count > 0;
