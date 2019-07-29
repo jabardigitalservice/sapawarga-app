@@ -13,28 +13,28 @@ class m190726_065452_create_table_videos extends CustomMigration
     {
         $this->createTable('videos', [
             'id' => $this->primaryKey(),
-            'category_id' => $this->integer()->null(),
-            'title' => $this->string()->null(),
-            'source' => $this->string()->null(),
-            'video_url' => $this->string()->null(),
+            'category_id' => $this->integer()->notNull(),
+            'title' => $this->string()->notNull(),
+            'source' => $this->string()->notNull(),
+            'video_url' => $this->string()->notNull(),
             'kabkota_id' => $this->integer()->null(),
-            'total_likes' => $this->integer()->null(),
-            'seq' => $this->integer(3)->null(),
-            'status' => $this->integer()->null(),
-            'created_by' => $this->integer()->null(),
-            'updated_by' => $this->integer()->null(),
-            'created_at' => $this->integer()->null(),
-            'updated_at' => $this->integer()->null(),
+            'total_likes' => $this->integer()->defaultValue(0),
+            'seq' => $this->integer()->null(),
+            'status' => $this->integer()->notNull(),
+            'created_by' => $this->integer()->notNull(),
+            'updated_by' => $this->integer()->notNull(),
+            'created_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
         ]);
 
-        $this->createTable('video_likes', [
-            'user_id' => $this->integer()->null(),
-            'video_id' => $this->integer()->null(),
-            'created_at'  => $this->integer()->null(),
-            'updated_at' => $this->integer()->null(),
+        $this->createTable('likes', [
+            'id' => $this->primaryKey(),
+            'type' => $this->string()->notNull(),
+            'user_id' => $this->integer()->notNull(),
+            'entity_id' => $this->integer()->notNull(),
+            'created_at'  => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
         ]);
-
-        $this->addPrimaryKey('user_video_likes_pk', 'video_likes', ['user_id', 'video_id']);
     }
 
     /**
@@ -43,6 +43,6 @@ class m190726_065452_create_table_videos extends CustomMigration
     public function safeDown()
     {
         $this->dropTable('videos');
-        $this->dropTable('video_likes');
+        $this->dropTable('likes');
     }
 }
