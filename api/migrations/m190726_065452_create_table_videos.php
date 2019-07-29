@@ -35,6 +35,33 @@ class m190726_065452_create_table_videos extends CustomMigration
             'created_at'  => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
         ]);
+
+        $this->addForeignKey(
+            'fk-videos-category_id',
+            'videos',
+            'category_id',
+            'categories',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-likes-user_id',
+            'likes',
+            'user_id',
+            'user',
+            'id',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            'fk-videos-kabkota_id',
+            'videos',
+            'kabkota_id',
+            'areas',
+            'id',
+            'CASCADE'
+        );
     }
 
     /**
