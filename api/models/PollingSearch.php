@@ -49,7 +49,7 @@ class PollingSearch extends Polling
 
         $query->andFilterWhere(['in', 'status', $filterStatusList]);
 
-        $this->filterIsStarted($query);
+        $this->filterCurrentActiveNow($query);
 
         $this->filterByUserArea($query, $params);
 
@@ -65,6 +65,8 @@ class PollingSearch extends Polling
 
         if (Arr::get($params, 'status') == Polling::STATUS_STARTED) {
             $this->filterIsStarted($query);
+        } elseif (Arr::get($params, 'status') == Polling::STATUS_ENDED) {
+            $this->filterIsEnded($query);
         } else {
             $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
         }
@@ -91,11 +93,19 @@ class PollingSearch extends Polling
         ]);
     }
 
-    protected function filterIsStarted($query)
+    protected function filterCurrentActiveNow($query)
     {
         $today = new Carbon();
         $query->andFilterWhere(['<=', 'start_date', $today->toDateString()]);
         $query->andFilterWhere(['>=', 'end_date', $today->toDateString()]);
+
+        return $query;
+    }
+
+    protected function filterIsEnded($query)
+    {
+        $today = new Carbon();
+        $query->andFilterWhere(['<', 'end_date', $today->toDateString()]);
 
         return $query;
     }
