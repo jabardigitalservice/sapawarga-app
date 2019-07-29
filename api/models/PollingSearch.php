@@ -64,7 +64,7 @@ class PollingSearch extends Polling
         $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
 
         if (Arr::get($params, 'status') == Polling::STATUS_STARTED) {
-            $this->filterIsStarted($query);
+            $this->filterCurrentActiveNow($query);
         } elseif (Arr::get($params, 'status') == Polling::STATUS_ENDED) {
             $this->filterIsEnded($query);
         } else {
