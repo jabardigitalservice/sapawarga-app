@@ -253,6 +253,20 @@ $config = [
                 ],
                 [
                     'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/video',
+                    'pluralize' => false,
+                    'tokens' => [
+                        '{id}' => '<id:\d+>',
+                    ],
+                    'extraPatterns' => [
+                        'GET featured' => 'featured',
+                        'OPTIONS featured' => 'options',
+                        'POST likes/{id}' => 'likes',
+                        'OPTIONS likes/{id}' => 'options',
+                    ]
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/notification',
                     'tokens' => [
                         '{id}' => '<id:\d+>',
