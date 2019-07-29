@@ -49,10 +49,7 @@ class PollingSearch extends Polling
 
         $query->andFilterWhere(['in', 'status', $filterStatusList]);
 
-        $today = new Carbon();
-
-        $query->andFilterWhere(['<=', 'start_date', $today->toDateString()]);
-        $query->andFilterWhere(['>=', 'end_date', $today->toDateString()]);
+        $this->filterCurrentActiveNow($query);
 
         $this->filterByUserArea($query, $params);
 
@@ -61,6 +58,20 @@ class PollingSearch extends Polling
 
     protected function getQueryListStaff($query, $params)
     {
+        // Filtering
+        $query->andFilterWhere(['like', 'name', Arr::get($params, 'title')]);
+
+        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+
+        if (Arr::get($params, 'status') == Polling::STATUS_STARTED) {
+            $this->filterCurrentActiveNow($query);
+        } elseif (Arr::get($params, 'status') == Polling::STATUS_ENDED) {
+            $this->filterIsEnded($query);
+        } else {
+            $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        }
+
+        // Filtering by role staff
         $query = $this->filterByStaffArea($query, $params);
 
         return $this->createActiveDataProvider($query, $params);
@@ -80,6 +91,23 @@ class PollingSearch extends Polling
                 'pageSize' => $pageLimit,
             ],
         ]);
+    }
+
+    protected function filterCurrentActiveNow($query)
+    {
+        $today = new Carbon();
+        $query->andFilterWhere(['<=', 'start_date', $today->toDateString()]);
+        $query->andFilterWhere(['>=', 'end_date', $today->toDateString()]);
+
+        return $query;
+    }
+
+    protected function filterIsEnded($query)
+    {
+        $today = new Carbon();
+        $query->andFilterWhere(['<', 'end_date', $today->toDateString()]);
+
+        return $query;
     }
 
     protected function filterByUserArea(&$query, $params)

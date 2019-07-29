@@ -33,6 +33,8 @@ class Polling extends ActiveRecord
     const STATUS_DRAFT = 0;
     const STATUS_DISABLED = 1;
     const STATUS_PUBLISHED = 10;
+    const STATUS_STARTED = 15;
+    const STATUS_ENDED = 20;
 
     const CATEGORY_TYPE = 'polling';
 

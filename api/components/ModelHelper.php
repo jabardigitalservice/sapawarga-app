@@ -121,4 +121,8 @@ class ModelHelper
                 break;
         }
     }
+
+    public static function getLoggedInUserId() {
+        return Yii::$app->user->getId();
+    }
 }
