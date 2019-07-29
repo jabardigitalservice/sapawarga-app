@@ -11,9 +11,12 @@ use yii\db\ActiveQuery;
 
 /**
  * BroadcastSearch represents the model behind the search form of `app\models\Broadcast`.
+ * @property int $user_id
  */
 class BroadcastSearch extends Model
 {
+    public $user_id;
+
     const SCENARIO_LIST_USER_DEFAULT  = 'list-user-default';
     const SCENARIO_LIST_STAFF_DEFAULT = 'list-staff-default';
 
@@ -103,13 +106,12 @@ class BroadcastSearch extends Model
         // Tidak mengikutsertakan STATUS_DELETED
         $query->andFilterWhere(['<>', 'status', $model::STATUS_DELETED]);
 
-        $userId = Yii::$app->user->getId();
         if (Arr::has($params, 'status')) {
             if ($params['status'] == $model::STATUS_DRAFT) {
                 $query->andFilterWhere([
                     'and',
                     ['status' => $params['status']],
-                    ['author_id' => $userId],
+                    ['author_id' => $this->user_id],
                 ]);
             } else {
                 $query->andFilterWhere(['status' => $params['status']]);
@@ -121,7 +123,7 @@ class BroadcastSearch extends Model
                 [
                     'and',
                     ['status' => $model::STATUS_DRAFT],
-                    ['author_id' => $userId],
+                    ['author_id' => $this->user_id],
                 ]
             ]);
         }

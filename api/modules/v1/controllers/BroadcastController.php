@@ -11,9 +11,9 @@ use Yii;
 use yii\base\Model;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use app\components\ModelHelper;
 
 /**
  * BroadcastController implements the CRUD actions for Broadcast model.
@@ -252,7 +252,7 @@ class BroadcastController extends ActiveController
         $search->scenario = BroadcastSearch::SCENARIO_LIST_USER_DEFAULT;
 
         return $search->searchUser([
-            'start_datetime' => $authUserModel->created_at,
+            'start_datetime' => $authUserModel->last_login_at,
             'kabkota_id'     => $authKabKotaId,
             'kec_id'         => $authKecId,
             'kel_id'         => $authKelId,
@@ -276,6 +276,7 @@ class BroadcastController extends ActiveController
 
         $search           = new BroadcastSearch();
         $search->scenario = BroadcastSearch::SCENARIO_LIST_STAFF_DEFAULT;
+        $search->user_id = ModelHelper::getLoggedInUserId();
 
         $params = $queryParams;
 
