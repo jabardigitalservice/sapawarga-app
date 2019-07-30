@@ -78,7 +78,7 @@ class Video extends ActiveRecord
             'status_label' => function () {
                 return $this->getStatusLabel();
             },
-            'user_like' => function () {
+            'is_user_like' => function () {
                 return $this->getIsUserLikes($this->id);
             },
             'created_at',
@@ -95,7 +95,7 @@ class Video extends ActiveRecord
         $userId = Yii::$app->user->getId();
 
         $checkExistUserLike = Like::find()
-                ->where(['type' => Like::TYPE_VIDEO, 'video_id' => $id, 'user_id' => $userId])
+                ->where(['type' => Like::TYPE_VIDEO, 'entity_id' => $id, 'user_id' => $userId])
                 ->one();
 
         if (! empty($checkExistUserLike)) {

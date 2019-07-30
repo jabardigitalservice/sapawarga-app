@@ -5,6 +5,7 @@ namespace app\models;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
 use app\components\ModelHelper;
+use yii\db\ActiveQuery;
 
 /**
  * VideoSearch represents the model behind the search form of `app\models\Video`.
@@ -35,17 +36,15 @@ class VideoSearch extends Video
 
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
 
-        $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
-
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
 
         $query->andFilterWhere(['<>', 'status', Video::STATUS_DELETED]);
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
+        } else {
+            return $this->getQueryListStaff($query, $params);
         }
-
-        return $this->getQueryAll($query, $params);
     }
 
     protected function getQueryListUser($query, $params)
@@ -56,10 +55,19 @@ class VideoSearch extends Video
 
         $query->andFilterWhere(['in', 'status', $filterStatusList]);
 
-        return $this->getQueryAll($query, $params);
+        $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
+
+        return $this->createActiveDataProvider($query, $params);
     }
 
-    protected function getQueryAll($query, $params)
+    protected function getQueryListStaff($query, $params)
+    {
+        $query = $this->filterByStaffArea($query, $params);
+
+        return $this->createActiveDataProvider($query, $params);
+    }
+
+    protected function createActiveDataProvider($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
@@ -84,5 +92,16 @@ class VideoSearch extends Video
                 'pageSize' => $pageLimit,
             ],
         ]);
+    }
+
+    protected function filterByStaffArea(ActiveQuery $query, $params)
+    {
+        if (Arr::has($params, 'kabkota_id')) {
+            $query->andWhere(['or',
+                ['kabkota_id' => $params['kabkota_id']],
+                ['kabkota_id' => null]]);
+        }
+
+        return $query;
     }
 }

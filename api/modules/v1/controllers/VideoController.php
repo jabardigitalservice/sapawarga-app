@@ -42,7 +42,7 @@ class VideoController extends ActiveController
                 'delete' => ['delete'],
                 'public' => ['get'],
                 'statistics' => ['get'],
-                'likes'    => ['post'],
+                'likes' => ['post'],
             ],
         ];
 
@@ -180,45 +180,21 @@ class VideoController extends ActiveController
         return $model;
     }
 
-    public function actionLikes($id)
-    {
-        $userId = Yii::$app->user->getId();
-        $user = User::findIdentity($userId);
-
-        /**
-         * @var Aspirasi $model
-         */
-        $model = $this->findModel($id);
-
-        $model = Like::find()
-            ->where(['id' => $id])
-            ->where(['type' => Like::TYPE_VIDEO,  'user_id' => $userId, 'video_id' => $id])
-            ->one();
-
-        $alreadyLiked = (int) $count > 0;
-
-        if ($alreadyLiked > 0) {
-            $model->unlink('likes', $user, true);
-        } else {
-            $model->link('likes', $user);
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
-    }
-
     public function prepareDataProvider()
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $user   = Yii::$app->user;
+        $userId = Yii::$app->user->getId();
+        $user = User::findIdentity($userId);
 
         $search = new VideoSearch();
 
-        if ($user->can('videoManage') === false) {
+        if ($user->role <= User::ROLE_STAFF_RW) {
             $search->scenario = VideoSearch::SCENARIO_LIST_USER;
+        }
+
+        if ($user->role == User::ROLE_STAFF_KABKOTA) {
+            $params['kabkota_id'] = $user->kabkota_id;
         }
 
         return $search->search($params);
