@@ -133,7 +133,7 @@ class Video extends ActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Judul',
-            'category_id' => 'categori',
+            'category_id' => 'Kategori',
             'source' => 'Sumber Video',
             'url' => 'URL',
             'kabkota_id' => 'KAB / KOTA',

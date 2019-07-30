@@ -136,13 +136,6 @@ class VideoController extends ActiveController
         return 'ok';
     }
 
-    public function actionStatistics()
-    {
-        $params = Yii::$app->request->getQueryParams();
-        $statistics = new NewsStatistics();
-        return $statistics->getStatistics($params);
-    }
-
     /**
      * Checks the privilege of the current user.
      *
