@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
 
@@ -29,6 +30,8 @@ class NewsSearch extends News
         $filterChannelId = Arr::get($params, 'channel_id');
         $searchKeyword   = Arr::get($params, 'search');
 
+        $this->filterByKabkota($query, $params);
+
         $query->andFilterWhere(['channel_id' => $filterChannelId]);
 
         $query->andFilterWhere(['like', 'title', $searchKeyword]);
@@ -50,6 +53,8 @@ class NewsSearch extends News
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['featured' => true]);
         $query->andFilterWhere(['news.status' => News::STATUS_ACTIVE]);
+
+        $this->filterByKabkota($query, $params);
 
         $params['sort_by']    = 'seq';
         $params['sort_order'] = 'ascending';
@@ -73,7 +78,7 @@ class NewsSearch extends News
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'source_date');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query'      => $query,
@@ -98,16 +103,13 @@ class NewsSearch extends News
         ]);
     }
 
-    protected function getSortOrder($sortOrder)
+    protected function filterByKabkota($query, $params)
     {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId) {
+            $query->andWhere(['kabkota_id' => $kabkotaId]);
+        } else {
+            $query->andWhere(['kabkota_id' => null]);
         }
     }
 }
