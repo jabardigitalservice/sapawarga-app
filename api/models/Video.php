@@ -50,7 +50,7 @@ class Video extends ActiveRecord
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
             ['title', 'trim'],
-            [['title', 'video_url'], 'safe'],
+            [['source','title', 'video_url'], 'safe'],
             [
                 ['title', 'category_id', 'source', 'video_url', 'status'],
                 'required'
@@ -59,6 +59,7 @@ class Video extends ActiveRecord
                 ['category_id', 'kabkota_id', 'status','seq'],
                  'integer'
             ],
+            ['source', 'in', 'range' => ['youtube']],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
@@ -133,7 +134,7 @@ class Video extends ActiveRecord
             'id' => 'ID',
             'title' => 'Judul',
             'category_id' => 'categori',
-            'source' => 'Video Channel',
+            'source' => 'Sumber Video',
             'url' => 'URL',
             'kabkota_id' => 'KAB / KOTA',
             'seq' => 'Proiritas',

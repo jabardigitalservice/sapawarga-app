@@ -197,7 +197,7 @@ class VideoCest
         $I->seeHttpHeader('X-Pagination-Total-Count', 0);
     }
 
-    public function getStaffProvListDeletedDontShowTest(ApiTester $I)
+    public function getStaffKabKotaListDeletedDontShowTest(ApiTester $I)
     {
         $I->haveInDatabase('videos', [
             'id' => 1,
@@ -215,7 +215,7 @@ class VideoCest
             'updated_at' => 1557803314,
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amStaff('staffkabkota');
 
         $I->sendGET('/v1/video');
         $I->canSeeResponseCodeIs(200);
@@ -410,9 +410,9 @@ class VideoCest
         $I->assertEquals(10, $data[0]['status']);
     }
 
-    public function postStaffProvCreateTest(ApiTester $I)
+    public function postStaffKabKotaCreateTest(ApiTester $I)
     {
-        $I->amStaff('staffprov');
+        $I->amStaff('staffkabkota');
 
         $data = [
             'id' => 1,
@@ -420,7 +420,7 @@ class VideoCest
             'category_id' => 22,
             'source' => 'youtube',
             'video_url' => 'https://www.youtube.com/watch?v=lorem',
-            'kabkota_id' => null,
+            'kabkota_id' => 22,
             'seq' => null,
             'status' => 10
         ];
@@ -499,51 +499,6 @@ class VideoCest
             'title' => 'Lorem ipsum updated',
             'video_url' => 'https://www.youtube.com/watch?v=update',
             'category_id' => 23,
-        ]);
-    }
-
-    public function postStaffProvUpdateTest(ApiTester $I)
-    {
-        $I->haveInDatabase('videos', [
-            'id' => 1,
-            'category_id' => 22,
-            'title' => 'Lorem ipsum.',
-            'source' => 'youtube',
-            'video_url' => 'https://www.youtube.com/watch?v=YvG6D0qJflk',
-            'kabkota_id' => null,
-            'total_likes' => 0,
-            'seq' => null,
-            'status' => 10,
-            'created_by' => 1,
-            'updated_by' => 1,
-            'created_at' => 1557803314,
-            'updated_at' => 1557803314,
-        ]);
-
-        $I->amStaff('staffprov');
-
-        $data = [
-            'title' => 'Lorem ipsum updated',
-            'video_url' => 'https://www.youtube.com/watch?v=update',
-            'category_id' => 23,
-            'seq' => 2,
-            'status' => 0,
-        ];
-
-        $I->sendPUT('/v1/video/1', $data);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status' => 200,
-        ]);
-
-        $I->seeInDatabase('videos', [
-            'title' => 'Lorem ipsum updated',
-            'video_url'=> 'https://www.youtube.com/watch?v=update',
-            'category_id' => 23,
-            'seq' => 2,
         ]);
     }
 
