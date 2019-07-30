@@ -79,31 +79,11 @@ class Video extends ActiveRecord
             'status_label' => function () {
                 return $this->getStatusLabel();
             },
-            'is_user_like' => function () {
-                return $this->getIsUserLikes($this->id);
-            },
             'created_at',
             'updated_at',
         ];
 
         return $fields;
-    }
-
-    protected function getIsUserLikes($id)
-    {
-        $isUserLikes = false;
-
-        $userId = Yii::$app->user->getId();
-
-        $checkExistUserLike = Like::find()
-                ->where(['type' => Like::TYPE_VIDEO, 'entity_id' => $id, 'user_id' => $userId])
-                ->one();
-
-        if (! empty($checkExistUserLike)) {
-            $isUserLikes = true;
-        }
-
-        return $isUserLikes;
     }
 
     protected function getStatusLabel()
