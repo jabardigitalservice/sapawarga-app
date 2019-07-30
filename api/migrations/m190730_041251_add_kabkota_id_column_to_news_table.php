@@ -12,7 +12,7 @@ class m190730_041251_add_kabkota_id_column_to_news_table extends CustomMigration
      */
     public function safeUp()
     {
-        $this->addColumn('news', 'kabkota_id', $this->integer()->null());
+        $this->addColumn('news', 'kabkota_id', $this->integer()->after('featured')->null());
 
         $this->addForeignKey(
             'fk-news-kabkota_id',

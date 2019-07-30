@@ -143,6 +143,7 @@ class SeederController extends Controller
     public function actionNews()
     {
         Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news')->execute();
 
         $sql = file_get_contents(__DIR__ . '/../migrations/seeder/news_newschannel.sql');
         Yii::$app->db->createCommand($sql)->execute();
