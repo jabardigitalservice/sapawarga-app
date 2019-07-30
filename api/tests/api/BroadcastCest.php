@@ -55,6 +55,8 @@ class BroadcastCest
         $I->assertEquals(1, count($data));
         $I->assertEquals(1, $data[0]['id']);
 
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
 
         $I->amUser('staffrw2');
 
@@ -100,6 +102,8 @@ class BroadcastCest
         $I->assertEquals(1, count($data));
         $I->assertEquals(1, $data[0]['id']);
 
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
 
         $I->amUser('staffrw2');
 
