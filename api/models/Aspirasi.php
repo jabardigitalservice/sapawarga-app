@@ -146,6 +146,7 @@ class Aspirasi extends \yii\db\ActiveRecord
                 return [
                     'id'         => $this->author->id,
                     'name'       => $this->author->name,
+                    'photo_url'  => $this->author->photo_url,
                     'role_label' => $this->author->getRoleLabel(),
                     'email'      => $this->author->email,
                     'phone'      => $this->author->phone,
