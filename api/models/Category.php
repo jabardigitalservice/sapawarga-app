@@ -20,6 +20,17 @@ class Category extends \yii\db\ActiveRecord
     const STATUS_DISABLED = 0;
     const STATUS_ACTIVE = 10;
 
+    // Memetakan category type id ke category type name
+    const TYPE_MAP = [
+        Aspirasi::CATEGORY_TYPE     => 'Aspirasi',
+        Broadcast::CATEGORY_TYPE    => 'Pesan',
+        Notification::CATEGORY_TYPE => 'Notifikasi',
+        PhoneBook::CATEGORY_TYPE    => 'Nomor Penting',
+        Polling::CATEGORY_TYPE      => 'Polling',
+        Survey::CATEGORY_TYPE       => 'Survei',
+        'video'                     => 'Video',
+    ];
+
     /**
      * {@inheritdoc}
      */

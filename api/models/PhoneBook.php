@@ -31,6 +31,8 @@ class PhoneBook extends \yii\db\ActiveRecord
     const STATUS_DISABLED = 0;
     const STATUS_ACTIVE = 10;
 
+    const CATEGORY_TYPE = 'phonebook';
+
     /**
      * {@inheritdoc}
      */

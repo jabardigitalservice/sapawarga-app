@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\filters\auth\HttpBearerAuth;
 use app\models\Category;
 use app\models\CategorySearch;
+use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 
@@ -88,7 +89,22 @@ class CategoryController extends ActiveController
 
     public function actionTypes()
     {
-        return '';
+        $model = Category::find()
+            ->select('type as id')
+            ->groupBy('type')
+            ->asArray()
+            ->all();
+
+        foreach ($model as &$type) {
+            $type['name'] = Category::TYPE_MAP[$type['id']];
+        }
+
+        $name = array_column($model, 'name');
+        array_multisort($name, SORT_ASC, $model);
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+        return $model;
     }
 
     public function prepareDataProvider()
