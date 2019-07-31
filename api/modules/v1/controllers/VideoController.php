@@ -177,17 +177,19 @@ class VideoController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $userId = Yii::$app->user->getId();
-        $user = User::findIdentity($userId);
+        $authUser = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+
+        $authKabKotaId = $authUserModel->kabkota_id;
 
         $search = new VideoSearch();
 
-        if ($user->role <= User::ROLE_STAFF_RW) {
+        if ($authUser->can('user') || $authUser->can('staffRW')) {
             $search->scenario = VideoSearch::SCENARIO_LIST_USER;
         }
 
-        if ($user->role == User::ROLE_STAFF_KABKOTA) {
-            $params['kabkota_id'] = $user->kabkota_id;
+        if ($authUser->can('staffKabkota')) {
+            $params['kabkota_id'] = $authKabKotaId;
         }
 
         return $search->search($params);

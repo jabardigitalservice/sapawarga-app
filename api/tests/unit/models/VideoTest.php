@@ -67,6 +67,52 @@ class VideoTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('title'));
     }
 
+    public function testTitleMaxCharactersShouldFail()
+    {
+        $model = new Video();
+
+        // 101 chars should fail
+        $model->title = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean ma';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('title'));
+    }
+
+    public function testTitleMaxCharactersSuccess()
+    {
+        $model = new Video();
+
+        // 100 chars should success
+        $model->title = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('title'));
+    }
+
+    public function testVideoYoutubeUrlShouldFail()
+    {
+        $model = new Video();
+
+        $model->video_url = 'https://www.google.com/watch?v=iE3az5S27Wk';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('video_url'));
+    }
+
+    public function testVideoYoutubeUrlSuccess()
+    {
+        $model = new Video();
+
+        $model->video_url = 'https://www.youtube.com/watch?v=iE3az5S27Wk';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('video_url'));
+    }
+
     public function testTitleNotSafe()
     {
         $model = new Video();
@@ -139,17 +185,6 @@ class VideoTest extends \Codeception\Test\Unit
         $model = new Video();
 
         $model->status = 'OK';
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('status'));
-    }
-
-    public function testStatusInputEmpty()
-    {
-        $model = new Video();
-
-        $model->status = '';
 
         $model->validate();
 

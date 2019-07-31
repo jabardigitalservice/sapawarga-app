@@ -254,7 +254,7 @@ $config = [
                 [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/video',
-                    'pluralize' => false,
+                    'pluralize' => true,
                     'tokens' => [
                         '{id}' => '<id:\d+>',
                     ],

@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
 use app\components\ModelHelper;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * VideoSearch represents the model behind the search form of `app\models\Video`.
@@ -38,7 +39,7 @@ class VideoSearch extends Video
 
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
 
-        $query->andFilterWhere(['<>', 'status', Video::STATUS_DELETED]);
+        $query->andFilterWhere(['<>', 'videos.status', Video::STATUS_DELETED]);
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
@@ -53,7 +54,7 @@ class VideoSearch extends Video
             Video::STATUS_ACTIVE,
         ];
 
-        $query->andFilterWhere(['in', 'status', $filterStatusList]);
+        $query->andFilterWhere(['in', 'videos.status', $filterStatusList]);
 
         $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
 
@@ -62,6 +63,8 @@ class VideoSearch extends Video
 
     protected function getQueryListStaff($query, $params)
     {
+        $query->joinWith(['category']);
+
         $query = $this->filterByStaffArea($query, $params);
 
         return $this->createActiveDataProvider($query, $params);
@@ -74,7 +77,7 @@ class VideoSearch extends Video
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
-        return new ActiveDataProvider([
+        $provider = new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
                 'defaultOrder' => [$sortBy => $sortOrder],
@@ -83,15 +86,24 @@ class VideoSearch extends Video
                     'category_id',
                     'created_at',
                     'total_likes',
-                    'seq',
                     'source',
                     'status',
+                    'seq' => [
+                        'asc' => [new Expression('seq IS NULL ASC, seq ASC')],
+                    ]
                 ],
             ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        $provider->sort->attributes['category.name'] = [
+            'asc'  => ['categories.name' => SORT_ASC],
+            'desc' => ['categories.name' => SORT_DESC],
+        ];
+
+        return $provider;
     }
 
     protected function filterByStaffArea(ActiveQuery $query, $params)

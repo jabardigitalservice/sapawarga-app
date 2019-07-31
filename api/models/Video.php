@@ -7,6 +7,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use app\components\ModelHelper;
 
 /**
  * This is the model class for table "video".
@@ -32,12 +33,19 @@ class Video extends ActiveRecord
     const STATUS_DISABLED = 0;
     const STATUS_ACTIVE = 10;
 
+    const CATEGORY_TYPE = 'video';
+
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
         return 'videos';
+    }
+
+    public function getCategory()
+    {
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**
@@ -59,8 +67,11 @@ class Video extends ActiveRecord
                 ['category_id', 'kabkota_id', 'status','seq'],
                  'integer'
             ],
+            ['video_url', 'match', 'pattern' => '/^(https:\/\/www.youtube.com)\/.+$/'],
+            ['category_id', 'validateCategoryID'],
             ['source', 'in', 'range' => ['youtube']],
             ['status', 'in', 'range' => [-1, 0, 10]],
+            ['seq', 'in', 'range' => [1, 2, 3, 4, 5]],
         ];
     }
 
@@ -70,6 +81,12 @@ class Video extends ActiveRecord
             'id',
             'title',
             'category_id',
+            'category' => function () {
+                return [
+                    'id'   => $this->category->id,
+                    'name' => $this->category->name,
+                ];
+            },
             'source',
             'video_url',
             'kabkota_id',
@@ -117,7 +134,7 @@ class Video extends ActiveRecord
             'source' => 'Sumber Video',
             'url' => 'URL',
             'kabkota_id' => 'KAB / KOTA',
-            'seq' => 'Proiritas',
+            'seq' => 'Prioritas',
             'status' => 'Status',
         ];
     }
@@ -134,5 +151,15 @@ class Video extends ActiveRecord
             ],
             BlameableBehavior::class,
         ];
+    }
+    /**
+     * Checks if category type is broadcast
+     *
+     * @param $attribute
+     * @param $params
+     */
+    public function validateCategoryID($attribute, $params)
+    {
+        ModelHelper::validateCategoryID($this, $attribute);
     }
 }
