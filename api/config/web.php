@@ -173,7 +173,10 @@ $config = [
                     'tokens' => [
                         '{id}' => '<id:\d+>',
                     ],
-                    'extraPatterns' => []
+                    'extraPatterns' => [
+                        'GET types' => 'types',
+                        'OPTIONS types' => 'options',
+                    ]
                 ],
                 [
                     'class' => 'yii\rest\UrlRule',

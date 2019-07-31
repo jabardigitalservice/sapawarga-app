@@ -5,12 +5,8 @@ namespace app\modules\v1\controllers;
 use app\filters\auth\HttpBearerAuth;
 use app\models\Category;
 use app\models\CategorySearch;
-use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -39,6 +35,7 @@ class CategoryController extends ActiveController
                 'update' => ['put'],
                 'delete' => ['delete'],
                 'public' => ['get'],
+                'types'  => ['get'],
             ],
         ];
 
@@ -64,11 +61,11 @@ class CategoryController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only'  => ['index', 'view', 'create', 'update', 'delete'], //only be applied to
+            'only'  => ['index', 'view', 'create', 'update', 'delete', 'types'], //only be applied to
             'rules' => [
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'types'],
                     'roles'   => ['admin', 'manageUsers'],
                 ],
                 [
@@ -87,6 +84,11 @@ class CategoryController extends ActiveController
         $actions = parent::actions();
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         return $actions;
+    }
+
+    public function actionTypes()
+    {
+        return '';
     }
 
     public function prepareDataProvider()
