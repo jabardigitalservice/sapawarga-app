@@ -23,6 +23,7 @@ use yii\db\ActiveRecord;
  * @property string $featured
  * @property string $channel_id
  * @property \app\models\NewsChannel $channel
+ * @property int $kabkota_id
  * @property array $meta
  * @property int $seq
  * @property int $status
@@ -48,6 +49,11 @@ class News extends ActiveRecord
     public function getChannel()
     {
         return $this->hasOne(NewsChannel::class, ['id' => 'channel_id']);
+    }
+
+    public function getKabkota()
+    {
+        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
     /**
@@ -77,6 +83,7 @@ class News extends ActiveRecord
 
             ['featured', 'boolean'],
 
+            ['kabkota_id', 'integer'],
             ['channel_id', 'integer'],
             ['status', 'integer'],
             ['seq', 'integer'],
@@ -108,6 +115,17 @@ class News extends ActiveRecord
                     'website'  => $this->channel->website,
                     'icon_url' => $this->channel->icon_url,
                 ];
+            },
+            'kabkota_id',
+            'kabkota'      => function () {
+                if ($this->kabkota) {
+                    return [
+                        'id'   => $this->kabkota->id,
+                        'name' => $this->kabkota->name,
+                    ];
+                } else {
+                    return null;
+                }
             },
             'total_viewers',
             'meta',
@@ -185,7 +203,7 @@ class News extends ActiveRecord
         if ($insert) { // Model is created
             $this->total_viewers = 0;
         }
-        
+
         return parent::beforeSave($insert);
     }
 }

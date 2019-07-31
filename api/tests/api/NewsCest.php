@@ -13,7 +13,7 @@ class NewsCest
             'id'         => 1,
             'name'       => 'Detik',
             'created_at' => '1554706345',
-            'updated_at' => '1554706345',           
+            'updated_at' => '1554706345',
         ]);
     }
 
@@ -209,6 +209,65 @@ class NewsCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
         $I->assertEquals(1, $data[0]['id']);
+    }
+
+    public function getUserListFilterKabkotaTest(ApiTester $I)
+    {
+        $I->haveInDatabase('news_channels', [
+            'id'         => 2,
+            'name'       => 'Kompas',
+            'created_at' => '1554706345',
+            'updated_at' => '1554706345',
+        ]);
+
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'kabkota_id'  => null,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('news', [
+            'id'          => 2,
+            'channel_id'  => 2,
+            'kabkota_id'  => 22,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/news?kabkota_id=22');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+
+        $I->assertEquals(2, $data[0]['id']);
     }
 
     public function getUserListFilterChannelNotFoundTest(ApiTester $I)
@@ -487,6 +546,94 @@ class NewsCest
         $I->assertEquals(1, $data[0]['id']);
     }
 
+    public function getUserListFeaturedFilterKabkotaTest(ApiTester $I)
+    {
+        // FEATURED JABAR
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'kabkota_id'  => null,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => true,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        // NOT FEATURED JABAR
+        $I->haveInDatabase('news', [
+            'id'          => 2,
+            'channel_id'  => 1,
+            'kabkota_id'  => null,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        // FEATURED KOTA BANDUNG
+        $I->haveInDatabase('news', [
+            'id'          => 3,
+            'channel_id'  => 1,
+            'kabkota_id'  => 22,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => true,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        // NOT FEATURED KOTA BANDUNG
+        $I->haveInDatabase('news', [
+            'id'          => 4,
+            'channel_id'  => 1,
+            'kabkota_id'  => 22,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/news/featured?kabkota_id=22');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+
+        $I->assertEquals(3, $data[0]['id']);
+    }
+
     public function getAdminCanShowTest(ApiTester $I)
     {
         // ACTIVE
@@ -710,7 +857,7 @@ class NewsCest
     }
 
     public function getUserIncrementReadCountTest(ApiTester $I)
-    {   
+    {
         $read_count = 0;
         $I->haveInDatabase('news', [
             'id'          => 1,
@@ -745,7 +892,7 @@ class NewsCest
     }
 
     public function getUserIncrementReadCountPerUserForNewUserTest(ApiTester $I)
-    {   
+    {
         $I->seeNumRecords(0, 'news_viewers');
 
         $read_count = 0;
@@ -786,7 +933,7 @@ class NewsCest
     }
 
     public function getUserIncrementReadCountPerUserForExistUserTest(ApiTester $I)
-    {   
+    {
         $read_count = 10;
 
         $I->haveInDatabase('news', [
@@ -847,7 +994,7 @@ class NewsCest
             'created_at' => '1554706345',
             'updated_at' => '1554706345',
         ]);
-        
+
 
         $I->haveInDatabase('news', [
             'id'          => 1,
