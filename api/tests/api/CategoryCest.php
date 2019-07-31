@@ -4,6 +4,7 @@ class CategoryCest
 {
     private $endpointCategory = '/v1/categories';
 
+    // /v1/categories
     public function createNewCategoryNameExist(ApiTester $I)
     {
         $I->amStaff();
@@ -165,5 +166,28 @@ class CategoryCest
 
         $I->sendDELETE("{$this->endpointCategory}/1");
         $I->canSeeResponseCodeIs(204);
+    }
+
+    // /v1/categories/types
+    public function getCategoryTypeList(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendGET("{$this->endpointCategory}/types");
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'id' => 'phonebook',
+        ]);
+
+        $I->seeResponseContainsJson([
+            'id' => 'broadcast',
+        ]);
     }
 }
