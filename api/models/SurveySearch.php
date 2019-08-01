@@ -90,7 +90,7 @@ class SurveySearch extends Survey
     protected function filterByArea(&$query, $params)
     {
         if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
-            ModelHelper::filterByAreaTopDown($query, $params);
+            ModelHelper::filterByArea($query, $params);
         } else {
             // By default filter berdasarkan area Staf tersebut
             $areaParams = [
@@ -98,7 +98,7 @@ class SurveySearch extends Survey
             'kec_id' => $this->user->kec_id ?? null,
             'kel_id' => $this->user->kel_id ?? null,
             ];
-            ModelHelper::filterByAreaTopDown($query, $areaParams);
+            ModelHelper::filterByArea($query, $areaParams);
         }
     }
 }
