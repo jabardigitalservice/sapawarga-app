@@ -11,6 +11,17 @@ class SurveyCest
         Yii::$app->db->createCommand('TRUNCATE survey')->execute();
     }
 
+    public function getListUnauthorizedTest(ApiTester $I)
+    {
+        $I->amStaff('staffkec');
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amStaff('staffkel');
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(403);
+    }
+
     public function getListTest(ApiTester $I)
     {
         $I->amUser('user');
@@ -405,18 +416,27 @@ class SurveyCest
 
     public function postCreateUnauthorizedTest(ApiTester $I)
     {
-        $I->amUser('user');
-
         $data = [];
 
+        $I->amStaff('staffkabkota');
         $I->sendPOST('/v1/survey', $data);
         $I->canSeeResponseCodeIs(403);
-        $I->seeResponseIsJson();
 
-        $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
-        ]);
+        $I->amStaff('staffkec');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amStaff('staffkel');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('staffrw');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('user');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function postCreateTest(ApiTester $I)
