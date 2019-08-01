@@ -63,8 +63,6 @@ class VideoSearch extends Video
 
     protected function getQueryListStaff($query, $params)
     {
-        $query->joinWith(['category']);
-
         $query = $this->filterByStaffArea($query, $params);
 
         return $this->createActiveDataProvider($query, $params);
@@ -72,6 +70,8 @@ class VideoSearch extends Video
 
     protected function createActiveDataProvider($query, $params)
     {
+        $query->joinWith(['category']);
+
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
@@ -89,7 +89,11 @@ class VideoSearch extends Video
                     'source',
                     'status',
                     'seq' => [
-                        'asc' => [new Expression('seq IS NULL ASC, seq ASC')],
+                        'asc' => [new Expression('seq IS NULL ASC, seq ASC')]
+                    ],
+                    'category.name' => [
+                        'asc'  => ['categories.name' => SORT_ASC],
+                        'desc' => ['categories.name' => SORT_DESC]
                     ]
                 ],
             ],
@@ -97,11 +101,6 @@ class VideoSearch extends Video
                 'pageSize' => $pageLimit,
             ],
         ]);
-
-        $provider->sort->attributes['category.name'] = [
-            'asc'  => ['categories.name' => SORT_ASC],
-            'desc' => ['categories.name' => SORT_DESC],
-        ];
 
         return $provider;
     }

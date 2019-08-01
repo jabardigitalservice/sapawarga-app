@@ -258,12 +258,7 @@ $config = [
                     'tokens' => [
                         '{id}' => '<id:\d+>',
                     ],
-                    'extraPatterns' => [
-                        'GET featured' => 'featured',
-                        'OPTIONS featured' => 'options',
-                        'POST likes/{id}' => 'likes',
-                        'OPTIONS likes/{id}' => 'options',
-                    ]
+                    'extraPatterns' => []
                 ],
                 [
                     'class' => 'yii\rest\UrlRule',
