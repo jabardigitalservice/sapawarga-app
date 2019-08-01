@@ -209,4 +209,47 @@ class VideoCest
 
         $I->seeInDatabase('videos', ['id' => 1, 'status' => -1]);
     }
+
+    public function getUserCategoryVideoStatisticsUnauthorizedTest(ApiTester $I)
+    {
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/videos/statistics');
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    public function getAdminCategoryVideoStatisticsTest(ApiTester $I)
+    {
+        $I->haveInDatabase('videos', [
+            'id' => 1,
+            'category_id' => 25,
+            'title' => 'Lorem ipsum.',
+            'source' => 'youtube',
+            'video_url' => 'https://www.youtube.com/watch?v=YvG6D0qJflk',
+            'kabkota_id' => null,
+            'total_likes' => 0,
+            'seq' => null,
+            'status' => 10,
+            'created_by' => 1,
+            'updated_by' => 1,
+            'created_at' => 1557803314,
+            'updated_at' => 1557803314,
+        ]);
+
+        $I->amStaff('admin');
+
+        $I->sendGET('/v1/videos/statistics');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['count']);
+        $I->assertEquals(0, $data[0][1]['count']);
+        $I->assertEquals(0, $data[0][2]['count']);
+        $I->assertEquals(0, $data[0][3]['count']);
+        $I->assertEquals(0, $data[0][4]['count']);
+    }
 }

@@ -261,7 +261,10 @@ $config = [
                     'tokens' => [
                         '{id}' => '<id:\d+>',
                     ],
-                    'extraPatterns' => []
+                    'extraPatterns' => [
+                        'GET statistics' => 'statistics',
+                        'OPTIONS statistics' => 'options',
+                    ]
                 ],
                 [
                     'class' => 'yii\rest\UrlRule',
