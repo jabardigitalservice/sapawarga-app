@@ -163,7 +163,7 @@ class SurveyController extends ActiveController
 
         $search = new SurveySearch();
 
-        if ($user->role !== User::ROLE_ADMIN) {
+        if ($user->role <= User::ROLE_STAFF_RW) {
             $search->scenario = SurveySearch::SCENARIO_LIST_USER;
         }
 
