@@ -22,7 +22,7 @@ class Category extends \yii\db\ActiveRecord
 
     // Memetakan category type id ke category type name
     const TYPE_MAP = [
-        Aspirasi::CATEGORY_TYPE     => 'Aspirasi',
+        Aspirasi::CATEGORY_TYPE     => 'Usulan Masyarakat',
         Broadcast::CATEGORY_TYPE    => 'Pesan',
         Notification::CATEGORY_TYPE => 'Notifikasi',
         PhoneBook::CATEGORY_TYPE    => 'Nomor Penting',
