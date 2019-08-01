@@ -162,6 +162,7 @@ class SurveyController extends ActiveController
         $user   = User::findIdentity($userId);
 
         $search = new SurveySearch();
+        $search->user = $user;
 
         if ($user->role <= User::ROLE_STAFF_RW) {
             $search->scenario = SurveySearch::SCENARIO_LIST_USER;

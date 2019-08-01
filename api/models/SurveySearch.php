@@ -12,6 +12,11 @@ use yii\data\ActiveDataProvider;
  */
 class SurveySearch extends Survey
 {
+    /**
+     * @var \app\models\User
+     */
+    public $user;
+
     const SCENARIO_LIST_USER = 'list-user';
 
     /**
@@ -59,6 +64,7 @@ class SurveySearch extends Survey
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
         $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $this->filterByArea($query, $params);
 
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
@@ -79,5 +85,20 @@ class SurveySearch extends Survey
         ];
 
         return $provider;
+    }
+
+    protected function filterByArea(&$query, $params)
+    {
+        if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
+            ModelHelper::filterByAreaTopDown($query, $params);
+        } else {
+            // By default filter berdasarkan area Staf tersebut
+            $areaParams = [
+            'kabkota_id' => $this->user->kabkota_id ?? null,
+            'kec_id' => $this->user->kec_id ?? null,
+            'kel_id' => $this->user->kel_id ?? null,
+            ];
+            ModelHelper::filterByAreaTopDown($query, $areaParams);
+        }
     }
 }

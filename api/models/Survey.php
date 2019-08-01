@@ -130,6 +130,40 @@ class Survey extends ActiveRecord
                 }
                 return $statusLabel;
             },
+            'kabkota_id',
+            'kabkota'      => function () {
+                if ($this->kabkota) {
+                    return [
+                        'id'   => $this->kabkota->id,
+                        'name' => $this->kabkota->name,
+                    ];
+                } else {
+                    return null;
+                }
+            },
+            'kec_id',
+            'kecamatan'    => function () {
+                if ($this->kecamatan) {
+                    return [
+                        'id'   => $this->kecamatan->id,
+                        'name' => $this->kecamatan->name,
+                    ];
+                } else {
+                    return null;
+                }
+            },
+            'kel_id',
+            'kelurahan'    => function () {
+                if ($this->kelurahan) {
+                    return [
+                        'id'   => $this->kelurahan->id,
+                        'name' => $this->kelurahan->name,
+                    ];
+                } else {
+                    return null;
+                }
+            },
+            'rw',
             'created_at',
             'updated_at',
         ];
