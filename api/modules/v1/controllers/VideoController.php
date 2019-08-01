@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\Video;
 use app\models\VideoSearch;
+use app\models\VideoStatistics;
 use app\models\Like;
 use Yii;
 use yii\filters\AccessControl;
@@ -134,6 +135,13 @@ class VideoController extends ActiveController
         $response->setStatusCode(204);
 
         return 'ok';
+    }
+
+    public function actionStatistics()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $statistics = new VideoStatistics();
+        return $statistics->getStatistics($params);
     }
 
     /**
