@@ -8,9 +8,6 @@ use app\models\CategorySearch;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -39,6 +36,7 @@ class CategoryController extends ActiveController
                 'update' => ['put'],
                 'delete' => ['delete'],
                 'public' => ['get'],
+                'types'  => ['get'],
             ],
         ];
 
@@ -64,11 +62,11 @@ class CategoryController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only'  => ['index', 'view', 'create', 'update', 'delete'], //only be applied to
+            'only'  => ['index', 'view', 'create', 'update', 'delete', 'types'], //only be applied to
             'rules' => [
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'types'],
                     'roles'   => ['admin', 'manageUsers'],
                 ],
                 [
@@ -87,6 +85,26 @@ class CategoryController extends ActiveController
         $actions = parent::actions();
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         return $actions;
+    }
+
+    public function actionTypes()
+    {
+        $model = Category::find()
+            ->select('type as id')
+            ->groupBy('type')
+            ->asArray()
+            ->all();
+
+        foreach ($model as &$type) {
+            $type['name'] = Category::TYPE_MAP[$type['id']];
+        }
+
+        $name = array_column($model, 'name');
+        array_multisort($name, SORT_ASC, $model);
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+        return $model;
     }
 
     public function prepareDataProvider()
