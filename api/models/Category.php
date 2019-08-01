@@ -28,7 +28,7 @@ class Category extends \yii\db\ActiveRecord
         PhoneBook::CATEGORY_TYPE    => 'Nomor Penting',
         Polling::CATEGORY_TYPE      => 'Polling',
         Survey::CATEGORY_TYPE       => 'Survei',
-        'video'                     => 'Video',
+        Video::CATEGORY_TYPE        => 'Video',
     ];
 
     /**
