@@ -11,7 +11,7 @@ return [
     'app.name' => 'Nama Lengkap',
     'app.rt' => 'RT',
     'app.rw' => 'RW',
-    'app.kel_id' => 'Kelurahan',
+    'app.kel_id' => 'Desa/Kelurahan',
     'app.kec_id' => 'Kecamatan',
     'app.kabkota_id' => 'Kabupaten/Kota',
 
@@ -29,7 +29,7 @@ return [
     'role.staffProv' => 'Staf Provinsi',
     'role.staffKabkota' => 'Staf Kabupaten/Kota',
     'role.staffKec' => 'Staf Kecamatan',
-    'role.staffKel' => 'Staf Kelurahan',
+    'role.staffKel' => 'Staf Desa/Kelurahan',
     'role.staffRW' => 'RW',
     'role.user' => 'Pengguna',
 
