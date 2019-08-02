@@ -375,7 +375,7 @@ class StaffController extends ActiveController
             User::ROLE_STAFF_PROV => ['level' => 'prov', 'name' => 'Provinsi'],
             User::ROLE_STAFF_KABKOTA => ['level' => 'kabkota', 'name' => 'Kabupaten/Kota'],
             User::ROLE_STAFF_KEC => ['level' => 'kec', 'name' => 'Kecamatan'],
-            User::ROLE_STAFF_KEL => ['level' => 'kel', 'name' => 'Kelurahan'],
+            User::ROLE_STAFF_KEL => ['level' => 'kel', 'name' => 'Desa/Kelurahan'],
             User::ROLE_STAFF_RW => ['level' => 'rw', 'name' => 'RW'],
         ];
 

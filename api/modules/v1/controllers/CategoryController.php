@@ -104,7 +104,7 @@ class CategoryController extends ActiveController
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
-        return $model;
+        return [ 'items' => $model ];
     }
 
     public function prepareDataProvider()
