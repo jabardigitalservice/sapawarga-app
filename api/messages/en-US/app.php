@@ -21,7 +21,7 @@ return [
     'error.username.pattern' => 'Username can only contain lowercase alphanumeric characters, underscores, and periods.',
     'error.category.taken' => 'This category name has already been taken.',
     'error.role.permission' => 'You are not allowed to perform this action.',
-    'error.rw.pattern' => 'RW must be exactly 3 characters long dan can only contain numeric characters (0-9).',
+    'error.rw.pattern' => 'RW must be exactly 3 characters long and can only contain numeric characters (0-9).',
     'error.id.invalid' => 'Invalid id.',
     'error.approvalnote.exist' => 'Notes must be empty',
 
@@ -37,5 +37,8 @@ return [
     'status.inactive' => 'Not Active',
     'status.deleted'  => 'Deleted',
     'status.draft'  => 'Draft',
+    'status.sent'   => 'Sent',
     'status.published'   => 'Published',
+    'status.approval-pending'  => 'Sent',
+    'status.approval-rejected' => 'Rejected',
 ];
