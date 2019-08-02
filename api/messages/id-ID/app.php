@@ -39,6 +39,6 @@ return [
     'status.draft'  => 'Draft',
     'status.sent'   => 'Terkirim',
     'status.published'   => 'Dipublikasikan',
-    'status.approval-pending'  => 'Menunggu Persetujuan',
+    'status.approval-pending'  => 'Terkirim',
     'status.approval-rejected' => 'Ditolak',
 ];
