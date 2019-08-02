@@ -11,6 +11,17 @@ class SurveyCest
         Yii::$app->db->createCommand('TRUNCATE survey')->execute();
     }
 
+    public function getListUnauthorizedTest(ApiTester $I)
+    {
+        $I->amStaff('staffkec');
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amStaff('staffkel');
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(403);
+    }
+
     public function getListTest(ApiTester $I)
     {
         $I->amUser('user');
@@ -87,6 +98,177 @@ class SurveyCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
         $I->assertEquals(1, $data[0]['id']);
+    }
+
+    public function getAdminListSearchTitleTest(ApiTester $I)
+    {
+        $I->haveInDatabase('survey', [
+            'id'           => 1,
+            'title'        => 'Jajak Pendapat',
+            'status'       => 0,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 2,
+            'title'        => 'Survei',
+            'status'       => 0,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->amStaff();
+
+        $I->sendGET('/v1/survey?title=Survei');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'title' => 'Survei',
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'title' => 'Jajak Pendapat',
+        ]);
+    }
+
+    public function getAdminListFilterStatusTest(ApiTester $I)
+    {
+        $I->haveInDatabase('survey', [
+            'id'           => 1,
+            'title'        => 'Survei',
+            'status'       => 1,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 2,
+            'title'        => 'Survei',
+            'status'       => 10,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->amStaff();
+
+        $I->sendGET('/v1/survey?status=10');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'data' => [
+                'items' => [
+                    [
+                        'status' => 10,
+                    ],
+                ],
+            ],
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'data' => [
+                'items' => [
+                    [
+                        'status' => 1,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function getAdminListFilterCategoryTest(ApiTester $I)
+    {
+        $I->haveInDatabase('survey', [
+            'id'           => 1,
+            'title'        => 'Survei',
+            'status'       => 10,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 2,
+            'title'        => 'Survei',
+            'status'       => 10,
+            'category_id'  => 21,
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->amStaff();
+
+        $I->sendGET('/v1/survey?category_id=20');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'category_id' => '20',
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'category_id' => '21',
+        ]);
+    }
+
+    public function getAdminListFilterAreaTest(ApiTester $I)
+    {
+        $I->haveInDatabase('survey', [
+            'id'           => 1,
+            'title'        => 'Survei',
+            'status'       => 10,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'kabkota_id'   => 22,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 2,
+            'title'        => 'Survei',
+            'status'       => 10,
+            'category_id'  => 20,
+            'external_url' => 'http://google.com',
+            'kabkota_id'   => 23,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->amStaff();
+
+        $I->sendGET('/v1/survey?kabkota_id=22');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeResponseContainsJson([
+            'data' => [ 'items' => [ [ 'kabkota_id' => 22, ], ], ],
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'data' => [ 'items' => [ [ 'kabkota_id' => 23, ], ],
+            ],
+        ]);
     }
 
 
@@ -405,18 +587,27 @@ class SurveyCest
 
     public function postCreateUnauthorizedTest(ApiTester $I)
     {
-        $I->amUser('user');
-
         $data = [];
 
+        $I->amStaff('staffkabkota');
         $I->sendPOST('/v1/survey', $data);
         $I->canSeeResponseCodeIs(403);
-        $I->seeResponseIsJson();
 
-        $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
-        ]);
+        $I->amStaff('staffkec');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amStaff('staffkel');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('staffrw');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('user');
+        $I->sendPOST('/v1/survey', $data);
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function postCreateTest(ApiTester $I)

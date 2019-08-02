@@ -2,9 +2,9 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -12,6 +12,11 @@ use yii\data\ActiveDataProvider;
  */
 class SurveySearch extends Survey
 {
+    /**
+     * @var \app\models\User
+     */
+    public $user;
+
     const SCENARIO_LIST_USER = 'list-user';
 
     /**
@@ -55,30 +60,45 @@ class SurveySearch extends Survey
 
     protected function getQueryAll($query, $params)
     {
+        // Filter berdasarkan judul, status, dan kategori
+        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
+        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $this->filterByArea($query, $params);
+
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'created_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
-        return new ActiveDataProvider([
+        $provider = new ActiveDataProvider([
             'query' => $query,
             'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        $provider->sort->attributes['category.name'] = [
+            'asc'  => ['categories.name' => SORT_ASC],
+            'desc' => ['categories.name' => SORT_DESC],
+        ];
+
+        return $provider;
     }
 
-    protected function getSortOrder($sortOrder)
+    protected function filterByArea(&$query, $params)
     {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
+        if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
+            ModelHelper::filterByArea($query, $params);
+        } else {
+            // By default filter berdasarkan area Staf tersebut
+            $areaParams = [
+            'kabkota_id' => $this->user->kabkota_id ?? null,
+            'kec_id' => $this->user->kec_id ?? null,
+            'kel_id' => $this->user->kel_id ?? null,
+            ];
+            ModelHelper::filterByArea($query, $areaParams);
         }
     }
 }
