@@ -132,6 +132,8 @@ class Aspirasi extends \yii\db\ActiveRecord
             ['approval_note', 'default'],
             ['approved_by', 'default'],
             ['approved_at', 'default'],
+
+            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
         ];
     }
 

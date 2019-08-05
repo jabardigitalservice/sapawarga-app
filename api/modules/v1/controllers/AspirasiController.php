@@ -108,7 +108,7 @@ class AspirasiController extends ActiveController
 
     public function actionCreate()
     {
-        $model            = new Aspirasi();
+        $model            = new Aspirasi(['scenario' => Aspirasi::SCENARIO_USER_CREATE]);
         $model->author_id = Yii::$app->user->getId();
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
