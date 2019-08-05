@@ -344,17 +344,53 @@ class AspirasiTest extends \Codeception\Test\Unit
     /**
      * Make sure regular user cannot override certain protected attributes
      */
-//    public function testCreateScenarioUser()
-//    {
-//        $model           = new Aspirasi();
-//        $model->scenario = Aspirasi::SCENARIO_USER_CREATE;
-//
-//        $model->status = 10;
-//
-//        $model->validate();
-//
-//        $this->assertNull($model->status);
-//    }
+    public function testUserCanCreateDraftStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_CREATE;
+
+        $model->status = 0;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('status'));
+    }
+
+    public function testUserCanCreatePendingStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_CREATE;
+
+        $model->status = 5;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('status'));
+    }
+
+    public function testUserCannotCreatePublishedStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_CREATE;
+
+        $model->status = 10;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('status'));
+    }
+
+    public function testUserCannotCreateRejectedStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_CREATE;
+
+        $model->status = 3;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('status'));
+    }
 
     public function testCreateScenarioStaff()
     {
