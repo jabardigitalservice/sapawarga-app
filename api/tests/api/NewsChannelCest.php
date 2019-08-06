@@ -32,6 +32,36 @@ class NewsChannelCest
         ]);
     }
 
+    public function createNewNewsChannelWebsiteExist(ApiTester $I)
+    {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE news')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+
+        $I->haveInDatabase('news_channels', [
+            'id'         => 1,
+            'name'       => 'Detik',
+            'website'    => 'https://www.detik.com',
+            'status'     => 10,
+        ]);
+
+
+        $I->amStaff();
+        $I->sendPOST($this->endpointNewsChannel, [
+            'name'      => 'Detik2',
+            'website'    => 'https://www.detik.com',
+            'status'    => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
+        ]);
+    }
+
     public function createNewNewsChannel(ApiTester $I)
     {
         $I->amStaff();
@@ -119,11 +149,11 @@ class NewsChannelCest
     public function updateNewsChannelNameExist(ApiTester $I)
     {
         $I->amStaff();
-        
+
         $I->sendPUT ("{$this->endpointNewsChannel}/1", [
             'name' => 'Kompas',
         ]);
-        
+
         $I->canSeeResponseCodeIs(422);
         $I->seeResponseIsJson();
 

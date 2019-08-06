@@ -16,26 +16,36 @@ class NewsChannelTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('status'));
     }
 
-    public function testNameMaxCharactersValid()
+    public function testNameCharacterLengthValid()
     {
         $model       = new NewsChannel();
-        $model->name = 'My Name';
+        $model->name = '6h03T';
 
         $model->validate();
 
         $this->assertFalse($model->hasErrors('name'));
 
-        $model->name = '6h03Tr0NROAOJaXr9pWsiS5ICrO6mr60J6jCg5ZADhwk8QDNb1InlCpjsKfDYGKmYdAy8CTldO3V2vYSkgZ780w7JZ5pjICwcc7i';
+        $model->name = '6h03Tr0NROAOJaXr9pWsiS5IC';
 
         $model->validate();
 
         $this->assertFalse($model->hasErrors('name'));
     }
 
+    public function testNameTooShort()
+    {
+        $model       = new NewsChannel();
+        $model->name = '6h03';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('name'));
+    }
+
     public function testNameTooLong()
     {
         $model       = new NewsChannel();
-        $model->name = '6h03Tr0NROAOJaXr9pWsiS5ICrO6mr60J6jCg5ZADhwk8QDNb1InlCpjsKfDYGKmYdAy8CTldO3V2vYSkgZ780w7JZ5pjICwcc7i7';
+        $model->name = '6h03Tr0NROAOJaXr9pWsiS5ICr';
 
         $model->validate();
 
