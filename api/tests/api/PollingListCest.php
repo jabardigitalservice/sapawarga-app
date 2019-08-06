@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 
-class PollingCest
+class PollingListCest
 {
     public function _before(ApiTester $I)
     {
