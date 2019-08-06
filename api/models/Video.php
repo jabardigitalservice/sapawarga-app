@@ -48,6 +48,11 @@ class Video extends ActiveRecord
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
+    public function getKabkota()
+    {
+        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -90,6 +95,16 @@ class Video extends ActiveRecord
             'source',
             'video_url',
             'kabkota_id',
+            'kabkota' => function () {
+                if ($this->kabkota) {
+                    return [
+                        'id'   => $this->kabkota->id,
+                        'name' => $this->kabkota->name,
+                    ];
+                } else {
+                    return null;
+                }
+            },
             'total_likes',
             'seq',
             'status',
