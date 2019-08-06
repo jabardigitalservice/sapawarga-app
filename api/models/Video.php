@@ -95,7 +95,7 @@ class Video extends ActiveRecord
             'source',
             'video_url',
             'kabkota_id',
-            'kabkota'      => function () {
+            'kabkota' => function () {
                 if ($this->kabkota) {
                     return [
                         'id'   => $this->kabkota->id,
