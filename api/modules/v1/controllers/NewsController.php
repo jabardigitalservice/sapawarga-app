@@ -230,11 +230,18 @@ class NewsController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         $user   = Yii::$app->user;
+        $authUserModel = $user->identity;
+        $authKabKotaId = $authUserModel->kabkota_id;
 
         $search = new NewsSearch();
+        $search->userRole = $authUserModel->role;
 
         if ($user->can('newsManage') === false) {
             $search->scenario = NewsSearch::SCENARIO_LIST_USER;
+        }
+
+        if ($user->can('staffKabkota')) {
+            $params['kabkota_id'] = $authKabKotaId;
         }
 
         return $search->search($params);

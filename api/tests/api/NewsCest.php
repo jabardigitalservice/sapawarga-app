@@ -104,7 +104,7 @@ class NewsCest
             'updated_at'  => '1554706345',
         ]);
 
-        // ACTIVE, KABKOTA_ID NOT NULL
+        // ACTIVE, KABKOTA_ID 22
         $I->haveInDatabase('news', [
             'id'          => 2,
             'channel_id'  => 1,
@@ -121,9 +121,26 @@ class NewsCest
             'updated_at'  => '1554706345',
         ]);
 
-        // DELETED
+        // ACTIVE, KABKOTA_ID 14
         $I->haveInDatabase('news', [
             'id'          => 3,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'kabkota_id'  => 14,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        // DELETED
+        $I->haveInDatabase('news', [
+            'id'          => 4,
             'channel_id'  => 1,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
@@ -140,7 +157,7 @@ class NewsCest
 
         // DISABLED
         $I->haveInDatabase('news', [
-            'id'          => 4,
+            'id'          => 5,
             'channel_id'  => 1,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
@@ -166,13 +183,14 @@ class NewsCest
             'status'  => 200,
         ]);
 
-        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(2, $data[0][1]['id']);
-        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+        $I->assertEquals(5, $data[0][3]['id']);
 
 
         $I->amStaff('staffkabkota');
@@ -192,7 +210,7 @@ class NewsCest
 
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(2, $data[0][1]['id']);
-        $I->assertEquals(4, $data[0][2]['id']);
+        $I->assertEquals(5, $data[0][2]['id']);
     }
 
     public function getUserListFilterChannelTest(ApiTester $I)

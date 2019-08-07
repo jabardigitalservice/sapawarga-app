@@ -13,6 +13,8 @@ class NewsSearch extends News
 {
     const SCENARIO_LIST_USER = 'list-user';
 
+    public $userRole;
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -107,7 +109,14 @@ class NewsSearch extends News
     {
         $kabkotaId = Arr::get($params, 'kabkota_id');
         if ($kabkotaId) {
-            $query->andFilterWhere(['kabkota_id' => $kabkotaId]);
+            if ($this->userRole == User::ROLE_STAFF_KABKOTA) {
+                // staffKabkota dapat melihat berita Jabar dan berita wilayahnya
+                $query->andWhere(['or',
+                    ['kabkota_id' => $kabkotaId],
+                    ['kabkota_id' => null]]);
+            } else {
+                $query->andFilterWhere(['kabkota_id' => $kabkotaId]);
+            }
         } else {
             if ($this->scenario === self::SCENARIO_LIST_USER) {
                 $query->andWhere(['kabkota_id' => null]);
