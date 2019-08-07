@@ -107,9 +107,11 @@ class NewsSearch extends News
     {
         $kabkotaId = Arr::get($params, 'kabkota_id');
         if ($kabkotaId) {
-            $query->andWhere(['kabkota_id' => $kabkotaId]);
+            $query->andFilterWhere(['kabkota_id' => $kabkotaId]);
         } else {
-            $query->andWhere(['kabkota_id' => null]);
+            if ($this->scenario === self::SCENARIO_LIST_USER) {
+                $query->andWhere(['kabkota_id' => null]);
+            }
         }
     }
 }
