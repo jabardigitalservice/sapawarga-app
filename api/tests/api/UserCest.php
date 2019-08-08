@@ -3,7 +3,7 @@
 class UserCest
 {
     private $endpointLogin = '/v1/user/login';
-    private $endpointViewProfile = '/v1/user/me';
+    private $endpointProfile = '/v1/user/me';
 
     protected function login(ApiTester $I)
     {
@@ -104,7 +104,7 @@ class UserCest
      */
     public function userGetProfile(ApiTester $I)
     {
-        $I->sendGET($this->endpointViewProfile);
+        $I->sendGET($this->endpointProfile);
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -133,5 +133,19 @@ class UserCest
 
     public function userUpdateProfile(ApiTester $I)
     {
+        $I->amUser();
+
+        $I->sendPOST("{$this->endpointProfile}", [
+            'username' => 'user',
+            'name' => 'Name Edited',
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
     }
 }

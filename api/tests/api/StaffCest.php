@@ -302,8 +302,27 @@ class StaffCest
     {
         $I->amStaff();
 
-        $I->sendPUT($this->endpointStaff . '/1', [
-            'email' => 'admin@example.com'
+        $I->sendPUT($this->endpointStaff . '/2', [
+            'username' => 'staffprov',
+            'name' => 'Name Edited'
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+            'data' => [],
+        ]);
+    }
+
+    public function staffUpdateOwnProfile(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendPUT($this->endpointStaff . '/me', [
+            'username' => 'admin',
+            'name' => 'Name Edited'
         ]);
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
