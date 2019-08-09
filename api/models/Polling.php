@@ -229,16 +229,22 @@ class Polling extends ActiveRecord
     /** @inheritdoc */
     public function behaviors()
     {
-        return [
+        $behaviors = [
             [
                 'class'              => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
-            ],
-            BlameableBehavior::class,
+            ]
         ];
+
+        if (!YII_ENV_TEST) {
+            $behaviors[] = [BlameableBehavior::class];
+        }
+
+        return $behaviors;
     }
+
 
     /**
      * Checks if category type is notification
