@@ -516,6 +516,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = null;
         $model->kel_id     = null;
         $model->rw         = null;
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 
@@ -532,6 +534,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = 431;
         $model->kel_id     = null;
         $model->rw         = null;
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 
@@ -548,6 +552,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = 431;
         $model->kel_id     = 6093;
         $model->rw         = null;
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 
@@ -564,6 +570,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = 431;
         $model->kel_id     = 6093;
         $model->rw         = '001';
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 
@@ -580,6 +588,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = 431;
         $model->kel_id     = 6093;
         $model->rw         = '001';
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 
@@ -596,6 +606,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = null;
         $model->kel_id     = 6093;
         $model->rw         = '001';
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 
@@ -612,6 +624,8 @@ class PollingTest extends \Codeception\Test\Unit
         $model->kec_id     = 431;
         $model->kel_id     = null;
         $model->rw         = '001';
+        $model->created_by = 1;
+        $model->updated_by = 1;
 
         $model->save(false);
 

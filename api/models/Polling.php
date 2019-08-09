@@ -235,11 +235,12 @@ class Polling extends ActiveRecord
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
-            ]
+            ],
+            AreaBehavior::class,
         ];
 
         if (!YII_ENV_TEST) {
-            $behaviors[] = [BlameableBehavior::class];
+            $behaviors[] = BlameableBehavior::class;
         }
 
         return $behaviors;
