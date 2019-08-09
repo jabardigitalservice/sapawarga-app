@@ -152,13 +152,19 @@ class UserTest extends \Codeception\Test\Unit
         });
 
         // Tests for 'phone' field
-        $this->specify('phone must be less than 255 characters', function () {
+        $this->specify('phone must be between 3 and 13 characters', function () {
             $user = new User();
 
-            $user->phone = '081234567890';
+            $user->phone = '08';
+            $this->assertFalse($user->validate($this->_phone));
+
+            $user->phone = '081';
             $this->assertTrue($user->validate($this->_phone));
 
-            $user->phone = 'GOAFNj6Mm8tA45zzngttdWBfhBy20TicdkpecjbfF33OdkrbrL9FhPiJdvQVu2nBzIZgpETcLRXINqOttlpi1V9P2cJWYQ7mvR7a0lrvl69XzMMS9AGMlfx7ISn0ubnIaRyJOb8iIFKe2DFbraX4D8gffIp4kUbIE2pKdj7AOB05l8XBHs805wYAQtW2sYJDKg2hhCtqAAUts7HwCCIZtsh0gYWOF6KEaXk2VUlTiQ7xXCvpF5qtUCJUrqRBvat6';
+            $user->phone = '0812345678901';
+            $this->assertTrue($user->validate($this->_phone));
+
+            $user->phone = '08123456789012';
             $this->assertFalse($user->validate($this->_phone));
         });
     }
