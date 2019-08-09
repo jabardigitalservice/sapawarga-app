@@ -318,9 +318,9 @@ class StaffCest
 
     public function staffUpdateOwnProfile(ApiTester $I)
     {
-        $I->amStaff();
+        $I->amStaff('staffprov');
 
-        $I->sendPUT($this->endpointStaff . '/me', [
+        $I->sendPOST($this->endpointStaff . '/me', [
             'username' => 'admin',
             'name' => 'Name Edited'
         ]);
@@ -330,7 +330,6 @@ class StaffCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
-            'data' => [],
         ]);
     }
 

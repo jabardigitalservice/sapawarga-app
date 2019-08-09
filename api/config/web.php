@@ -126,6 +126,9 @@ $config = [
                         'OPTIONS get-permissions' => 'options',
                         'POST photo' => 'photo-upload',
                         'OPTIONS photo' => 'options',
+                        'GET me' => 'me',
+                        'POST me' => 'me-update',
+                        'OPTIONS me' => 'options',
                     ]
                 ],
                 [
