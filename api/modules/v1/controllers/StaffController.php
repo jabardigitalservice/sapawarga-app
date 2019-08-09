@@ -232,7 +232,10 @@ class StaffController extends ActiveController
     }
 
     /**
+     * Update logged in user information
+     *
      * @return array|null|\yii\db\ActiveRecord
+     *
      */
     public function actionMeUpdate()
     {
@@ -300,6 +303,17 @@ class StaffController extends ActiveController
         } else {
             throw new NotFoundHttpException("Object not found: $id");
         }
+    }
+
+    /**
+     * Return logged in user information
+     *
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionMe()
+    {
+        return ControllerHelper::getCurrentUser();
     }
 
     /**

@@ -13,7 +13,6 @@ use app\models\SignupForm;
 use app\models\User;
 use app\models\UserPhotoUploadForm;
 use app\models\UserSearch;
-use Illuminate\Support\Arr;
 use Intervention\Image\ImageManager;
 use Yii;
 use yii\filters\AccessControl;
@@ -454,24 +453,7 @@ class UserController extends ActiveController
      */
     public function actionMe()
     {
-        $user = User::findIdentity(\Yii::$app->user->getId());
-
-        if ($user) {
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(200);
-
-            $userArray = $user->toArray();
-
-            return Arr::only($userArray, [
-                'id', 'username', 'email', 'role_id', 'role_label', 'last_login_at', 'last_login_ip',
-                'name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kelurahan',
-                'kec_id', 'kecamatan', 'kabkota_id', 'kabkota', 'lat', 'lon',
-                'facebook', 'twitter', 'instagram', 'photo_url',
-            ]);
-        } else {
-            // Validation error
-            throw new NotFoundHttpException('Object not found');
-        }
+        return ControllerHelper::getCurrentUser();
     }
 
     /**
