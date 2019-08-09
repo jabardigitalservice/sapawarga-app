@@ -13,6 +13,9 @@ class UserTest extends \Codeception\Test\Unit
     private $_username = 'username';
     private $_email = 'email';
     private $_password = 'password';
+    private $_name = 'name';
+    private $_address = 'address';
+    private $_phone = 'phone';
 
     public function testValidateUserFields()
     {
@@ -126,14 +129,37 @@ class UserTest extends \Codeception\Test\Unit
             $this->assertTrue($user->validate($this->_password));
         });
 
-        $this->specify('status must be Active or Disabled', function () {
+        // Tests for 'name' field
+        $this->specify('name must be less than 255 characters', function () {
+            $user = new User();
+
+            $user->name = 'User';
+            $this->assertTrue($user->validate($this->_name));
+
+            $user->name = 'GOAFNj6Mm8tA45zzngttdWBfhBy20TicdkpecjbfF33OdkrbrL9FhPiJdvQVu2nBzIZgpETcLRXINqOttlpi1V9P2cJWYQ7mvR7a0lrvl69XzMMS9AGMlfx7ISn0ubnIaRyJOb8iIFKe2DFbraX4D8gffIp4kUbIE2pKdj7AOB05l8XBHs805wYAQtW2sYJDKg2hhCtqAAUts7HwCCIZtsh0gYWOF6KEaXk2VUlTiQ7xXCvpF5qtUCJUrqRBvat6';
+            $this->assertFalse($user->validate($this->_name));
         });
 
-        $this->specify('role must be User, Staff or Admin', function () {
+        // Tests for 'address' field
+        $this->specify('address must be less than 255 characters', function () {
+            $user = new User();
+
+            $user->address = 'Jl. Sangkuriang No.2';
+            $this->assertTrue($user->validate($this->_address));
+
+            $user->address = 'GOAFNj6Mm8tA45zzngttdWBfhBy20TicdkpecjbfF33OdkrbrL9FhPiJdvQVu2nBzIZgpETcLRXINqOttlpi1V9P2cJWYQ7mvR7a0lrvl69XzMMS9AGMlfx7ISn0ubnIaRyJOb8iIFKe2DFbraX4D8gffIp4kUbIE2pKdj7AOB05l8XBHs805wYAQtW2sYJDKg2hhCtqAAUts7HwCCIZtsh0gYWOF6KEaXk2VUlTiQ7xXCvpF5qtUCJUrqRBvat6';
+            $this->assertFalse($user->validate($this->_address));
         });
 
+        // Tests for 'phone' field
+        $this->specify('phone must be less than 255 characters', function () {
+            $user = new User();
 
-        $this->specify('permission must be valid', function () {
+            $user->phone = '081234567890';
+            $this->assertTrue($user->validate($this->_phone));
+
+            $user->phone = 'GOAFNj6Mm8tA45zzngttdWBfhBy20TicdkpecjbfF33OdkrbrL9FhPiJdvQVu2nBzIZgpETcLRXINqOttlpi1V9P2cJWYQ7mvR7a0lrvl69XzMMS9AGMlfx7ISn0ubnIaRyJOb8iIFKe2DFbraX4D8gffIp4kUbIE2pKdj7AOB05l8XBHs805wYAQtW2sYJDKg2hhCtqAAUts7HwCCIZtsh0gYWOF6KEaXk2VUlTiQ7xXCvpF5qtUCJUrqRBvat6';
+            $this->assertFalse($user->validate($this->_phone));
         });
     }
 }
