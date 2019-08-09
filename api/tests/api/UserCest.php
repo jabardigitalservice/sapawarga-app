@@ -133,10 +133,10 @@ class UserCest
 
     public function userUpdateProfile(ApiTester $I)
     {
-        $I->amUser();
+        $I->amUser('staffrw2');
 
         $I->sendPOST("{$this->endpointProfile}", [
-            'username' => 'user',
+            'username' => 'staffrw2',
             'name' => 'Name Edited',
         ]);
 

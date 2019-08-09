@@ -2,10 +2,10 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\ControllerHelper;
 use app\filters\auth\HttpBearerAuth;
 use app\models\LoginForm;
 use app\models\User;
-use app\models\UserEditForm;
 use app\models\UserPhotoUploadForm;
 use app\models\UserSearch;
 use Intervention\Image\ImageManager;
@@ -236,31 +236,7 @@ class StaffController extends ActiveController
      */
     public function actionMeUpdate()
     {
-        $user = User::findIdentity(\Yii::$app->user->getId());
-
-        if ($user) {
-            $model = new UserEditForm();
-            $model->load(Yii::$app->request->post());
-            $model->id = $user->id;
-
-            if ($model->validate() && $model->save()) {
-                $response = \Yii::$app->getResponse();
-                $response->setStatusCode(200);
-
-                $responseData = 'true';
-
-                return $responseData;
-            } else {
-                // Validation error
-                $response = \Yii::$app->getResponse();
-                $response->setStatusCode(422);
-
-                return $model->getErrors();
-            }
-        } else {
-            // Validation error
-            throw new NotFoundHttpException('Object not found');
-        }
+        return ControllerHelper::updateCurrentUser();
     }
 
     /**
