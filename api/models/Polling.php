@@ -6,6 +6,7 @@ use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Yii;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -228,16 +229,23 @@ class Polling extends ActiveRecord
     /** @inheritdoc */
     public function behaviors()
     {
-        return [
+        $behaviors = [
             [
-                'class'              => TimestampBehavior::className(),
+                'class'              => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
             AreaBehavior::class,
         ];
+
+        if (!YII_ENV_TEST) {
+            $behaviors[] = BlameableBehavior::class;
+        }
+
+        return $behaviors;
     }
+
 
     /**
      * Checks if category type is notification

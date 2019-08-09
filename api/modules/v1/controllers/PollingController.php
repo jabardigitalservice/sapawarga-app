@@ -16,6 +16,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use app\components\ModelHelper;
 
 /**
  * PollingController implements the CRUD actions for Polling model.
@@ -365,40 +366,49 @@ class PollingController extends ActiveController
 
     public function prepareDataProvider()
     {
-        $params = Yii::$app->request->getQueryParams();
+        /**
+         * @var \app\models\User $authUserModel
+         */
+        $authUser      = Yii::$app->user;
+        $authUserModel = $authUser->identity;
 
-        $userId = Yii::$app->user->getId();
-        $user   = User::findIdentity($userId);
+        $authUserId    = $authUserModel->id;
+        $authKabKotaId = $authUserModel->kabkota_id;
+        $authKecId     = $authUserModel->kec_id;
+        $authKelId     = $authUserModel->kel_id;
+        $authRW        = $authUserModel->rw;
 
         $search = new PollingSearch();
 
-        // Get data for user
-        if ($user->role <= User::ROLE_STAFF_RW) {
-            $search->scenario = PollingSearch::SCENARIO_LIST_USER;
+        $params = Yii::$app->request->getQueryParams();
 
-            $params['kabkota_id'] = $user->kabkota_id;
-            $params['kec_id'] = $user->kec_id;
-            $params['kel_id'] = $user->kel_id;
-            $params['rw'] = $user->rw;
+        if ($authUser->can('staffRW') || $authUser->can('user')) {
+            return $search->searchUser([
+                'start_datetime' => $authUserModel->last_login_at,
+                'kabkota_id'     => $authKabKotaId,
+                'kec_id'         => $authKecId,
+                'kel_id'         => $authKelId,
+                'rw'             => $authRW,
+            ]);
+        } else {
+            $params['user_id'] = $authUserId;
+
+            if ($authUser->can('staffKabkota')) {
+                $params['kabkota_id'] = $authKabKotaId;
+            }
+
+            if ($authUser->can('staffKec')) {
+                $params['kabkota_id'] = $authKabKotaId;
+                $params['kec_id']     = $authKecId;
+            }
+
+            if ($authUser->can('staffKel')) {
+                $params['kabkota_id'] = $authKabKotaId;
+                $params['kec_id']     = $authKecId;
+                $params['kel_id']     = $authKelId;
+            }
+
+            return $search->searchStaff($params);
         }
-
-        // Override location data for staf kabkota, kec, kel
-        if ($user->role >= User::ROLE_STAFF_KEL && $user->role <= User::ROLE_ADMIN) {
-            $search->scenario = PollingSearch::SCENARIO_LIST_STAFF;
-
-            if ($user->role <= User::ROLE_STAFF_KABKOTA) {
-                $params['kabkota_id'] = $user->kabkota_id;
-            }
-
-            if ($user->role <= User::ROLE_STAFF_KEC) {
-                $params['kec_id'] = $user->kec_id;
-            }
-
-            if ($user->role <= User::ROLE_STAFF_KEL) {
-                $params['kel_id'] = $user->kel_id;
-            }
-        }
-
-        return $search->search($params);
     }
 }
