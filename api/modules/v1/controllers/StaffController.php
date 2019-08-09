@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\ControllerHelper;
 use app\filters\auth\HttpBearerAuth;
 use app\models\LoginForm;
 use app\models\User;
@@ -58,6 +59,7 @@ class StaffController extends ActiveController
                 'count' => ['get'],
                 'getPermissions' => ['get'],
                 'photo-upload' => ['post'],
+                'me' => ['get', 'post'],
             ],
         ];
 
@@ -89,7 +91,7 @@ class StaffController extends ActiveController
                     'allow' => true,
                     'actions' => [
                         'index', 'view', 'create',
-                        'update', 'delete', 'count', 'photo-upload',
+                        'update', 'delete', 'me', 'count', 'photo-upload',
                         'getPermissions'
                     ],
                     'roles' => ['admin', 'manageStaffs'],
@@ -208,8 +210,6 @@ class StaffController extends ActiveController
      * @param $id
      *
      * @return array|null|\yii\db\ActiveRecord
-     * @throws HttpException
-     * @throws InvalidConfigException
      */
     public function actionUpdate($id)
     {
@@ -229,6 +229,17 @@ class StaffController extends ActiveController
         }
 
         return $model;
+    }
+
+    /**
+     * Update logged in user information
+     *
+     * @return array|null|\yii\db\ActiveRecord
+     *
+     */
+    public function actionMeUpdate()
+    {
+        return ControllerHelper::updateCurrentUser();
     }
 
     /**
@@ -292,6 +303,17 @@ class StaffController extends ActiveController
         } else {
             throw new NotFoundHttpException("Object not found: $id");
         }
+    }
+
+    /**
+     * Return logged in user information
+     *
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionMe()
+    {
+        return ControllerHelper::getCurrentUser();
     }
 
     /**
