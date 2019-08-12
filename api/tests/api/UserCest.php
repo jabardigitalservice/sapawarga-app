@@ -108,7 +108,7 @@ class UserCest
             'success' => false,
             'status' => 422,
             'data' => [
-                'username' => []
+                'status' => []
             ]
         ]);
     }

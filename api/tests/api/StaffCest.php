@@ -80,7 +80,7 @@ class StaffCest
             'success' => false,
             'status' => 422,
             'data' => [
-                'username' => []
+                'status' => []
             ]
         ]);
     }

@@ -53,7 +53,6 @@ class LoginForm extends Model
             [['username', 'password'], 'required'],
             // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
-            ['username', 'validateUser'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
             ['push_token', 'safe'],
@@ -66,15 +65,10 @@ class LoginForm extends Model
      * @param string $attribute the attribute currently being validated
      * @param array $params the additional name-value pairs given in the rule
      */
-    public function validateUser($attribute, $params)
+    public function validateUser($user)
     {
-        $user = User::findOne(['username' => $this->username]);
-        if ($user) {
-            if ($user->status === User::STATUS_DISABLED || $user->status === User::STATUS_PENDING) {
-                $this->addError($attribute, \Yii::t('app', 'error.login.inactive'));
-            }
-        } else {
-            $this->addError($attribute, \Yii::t('app', 'error.login.incorrect'));
+        if ($user->status === User::STATUS_DISABLED || $user->status === User::STATUS_PENDING) {
+            $this->addError('status', \Yii::t('app', 'error.login.inactive'));
         }
     }
 
@@ -92,6 +86,8 @@ class LoginForm extends Model
 
             if (!$user || !$user->validatePassword($this->password)) {
                 $this->addError($attribute, \Yii::t('app', 'error.login.incorrect'));
+            } else {
+                $this->validateUser($user);
             }
         }
     }
