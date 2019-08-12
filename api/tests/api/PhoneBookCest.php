@@ -107,7 +107,7 @@ class PhoneBookCest
 
     public function getListFilterBandungTest(ApiTester $I)
     {
-        $I->amUser('user.tasik');
+        $I->amUser('user.bandung');
 
         $I->sendGET('/v1/phone-books?kabkota_id=22');
         $I->canSeeResponseCodeIs(200);
@@ -116,10 +116,6 @@ class PhoneBookCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
-        ]);
-
-        $I->seeResponseContainsJson([
-            'kabkota_id' => 22,
         ]);
 
         $I->cantSeeResponseContainsJson([
@@ -133,7 +129,7 @@ class PhoneBookCest
 
     public function getListFilterBekasiTest(ApiTester $I)
     {
-        $I->amUser('user.tasik');
+        $I->amUser('user.bandung');
 
         $I->sendGET('/v1/phone-books?kabkota_id=23');
         $I->canSeeResponseCodeIs(200);
@@ -144,12 +140,8 @@ class PhoneBookCest
             'status'  => 200,
         ]);
 
-        $I->seeResponseContainsJson([
-            'kabkota_id' => 23,
-        ]);
-
         $I->cantSeeResponseContainsJson([
-            'kabkota_id' => 22,
+            'kabkota_id' => 23,
         ]);
 
         $I->cantSeeResponseContainsJson([
