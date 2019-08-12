@@ -64,6 +64,27 @@ class StaffCest
         ]);
     }
 
+    public function staffLoginInactiveUsername(ApiTester $I)
+    {
+        $I->sendPOST($this->endpointLogin, [
+            'LoginForm' => [
+                'username' => 'staff.inactive',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->seeResponseCodeIs(422);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status' => 422,
+            'data' => [
+                'username' => []
+            ]
+        ]);
+    }
+
     public function staffLogin(ApiTester $I)
     {
         $I->amStaff();
