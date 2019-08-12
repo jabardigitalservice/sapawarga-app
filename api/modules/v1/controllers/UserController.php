@@ -4,7 +4,6 @@ namespace app\modules\v1\controllers;
 
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
-use app\models\LoginForm;
 use app\models\PasswordResetForm;
 use app\models\PasswordResetRequestForm;
 use app\models\PasswordResetTokenVerificationForm;
@@ -257,36 +256,11 @@ class UserController extends ActiveController
      */
     public function actionLogin()
     {
-        $model = new LoginForm();
-        $model->scenario = LoginForm::SCENARIO_LOGIN;
-        $model->roles = [
+        $roles = [
             User::ROLE_STAFF_RW,
             User::ROLE_USER,
         ];
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            $user = $model->getUser();
-            if ($model->push_token) {
-                $user->updatePushToken($model->push_token);
-            }
-            $user->generateAccessTokenAfterUpdatingClientInfo(true);
-
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(200);
-            $id = implode(',', array_values($user->getPrimaryKey(true)));
-
-            $responseData = [
-                'id' => (int)$id,
-                'access_token' => $user->access_token,
-            ];
-
-            return $responseData;
-        } else {
-            // Validation error
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
-        }
+        return $this->login($roles);
     }
 
     public function actionLogout()

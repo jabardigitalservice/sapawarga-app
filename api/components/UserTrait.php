@@ -3,12 +3,50 @@
 namespace app\components;
 
 use Yii;
+use app\models\LoginForm;
 use app\models\User;
 use app\models\UserEditForm;
 use Illuminate\Support\Arr;
 
 trait UserTrait
 {
+    /**
+     * Process login
+     *
+     * @return array
+     * @throws HttpException
+     */
+    public function login($roles)
+    {
+        $model = new LoginForm();
+        $model->scenario = LoginForm::SCENARIO_LOGIN;
+        $model->roles = $roles;
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            $user = $model->getUser();
+            if ($model->push_token) {
+                $user->updatePushToken($model->push_token);
+            }
+            $user->generateAccessTokenAfterUpdatingClientInfo(true);
+
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $id = implode(',', array_values($user->getPrimaryKey(true)));
+
+            $responseData = [
+                'id' => (int)$id,
+                'access_token' => $user->access_token,
+            ];
+
+            return $responseData;
+        } else {
+            // Validation error
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+    }
+
     /**
      * Return logged in user information
      *

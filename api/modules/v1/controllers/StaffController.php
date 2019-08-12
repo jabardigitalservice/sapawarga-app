@@ -4,7 +4,6 @@ namespace app\modules\v1\controllers;
 
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
-use app\models\LoginForm;
 use app\models\User;
 use app\models\UserPhotoUploadForm;
 use app\models\UserSearch;
@@ -355,36 +354,14 @@ class StaffController extends ActiveController
      */
     public function actionLogin()
     {
-        $model = new LoginForm();
-        $model->scenario = LoginForm::SCENARIO_LOGIN;
-        $model->roles = [
+        $roles = [
             User::ROLE_ADMIN,
             User::ROLE_STAFF_PROV,
             User::ROLE_STAFF_KABKOTA,
             User::ROLE_STAFF_KEC,
             User::ROLE_STAFF_KEL,
         ];
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            $user = $model->getUser();
-            $user->generateAccessTokenAfterUpdatingClientInfo(true);
-
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(200);
-            $id = implode(',', array_values($user->getPrimaryKey(true)));
-
-            $responseData = [
-                'id' => (int)$id,
-                'access_token' => $user->access_token,
-            ];
-
-            return $responseData;
-        } else {
-            // Validation error
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
-        }
+        return $this->login($roles);
     }
 
     /**
