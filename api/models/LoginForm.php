@@ -53,10 +53,29 @@ class LoginForm extends Model
             [['username', 'password'], 'required'],
             // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
+            ['username', 'validateUser'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
             ['push_token', 'safe'],
         ];
+    }
+
+    /**
+     * Validates user by status.
+     *
+     * @param string $attribute the attribute currently being validated
+     * @param array $params the additional name-value pairs given in the rule
+     */
+    public function validateUser($attribute, $params)
+    {
+        $user = User::findOne(['username' => $this->username]);
+        if ($user) {
+            if ($user->status === User::STATUS_DISABLED || $user->status === User::STATUS_PENDING) {
+                $this->addError($attribute, \Yii::t('app', 'error.login.inactive'));
+            }
+        } else {
+            $this->addError($attribute, \Yii::t('app', 'error.login.incorrect'));
+        }
     }
 
     /**
