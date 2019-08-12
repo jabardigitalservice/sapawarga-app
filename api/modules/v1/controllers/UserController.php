@@ -2,7 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
-use app\components\ControllerHelper;
+use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\LoginForm;
 use app\models\PasswordResetForm;
@@ -26,6 +26,8 @@ use yii\web\UploadedFile;
 
 class UserController extends ActiveController
 {
+    use UserTrait;
+
     public $modelClass = 'app\models\User';
 
     public function __construct($id, $module, $config = [])
@@ -453,7 +455,7 @@ class UserController extends ActiveController
      */
     public function actionMe()
     {
-        return ControllerHelper::getCurrentUser();
+        return $this->getCurrentUser();
     }
 
     /**
@@ -464,7 +466,7 @@ class UserController extends ActiveController
      */
     public function actionMeUpdate()
     {
-        return ControllerHelper::updateCurrentUser();
+        return $this->updateCurrentUser();
     }
 
     public function actionMePhoto()

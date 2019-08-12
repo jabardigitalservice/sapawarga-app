@@ -7,7 +7,7 @@ use app\models\User;
 use app\models\UserEditForm;
 use Illuminate\Support\Arr;
 
-class ControllerHelper
+trait UserTrait
 {
     /**
      * Return logged in user information
@@ -15,7 +15,7 @@ class ControllerHelper
      * @return array
      * @throws NotFoundHttpException
      */
-    public static function getCurrentUser()
+    public function getCurrentUser()
     {
         $user = User::findIdentity(\Yii::$app->user->getId());
 
@@ -43,7 +43,7 @@ class ControllerHelper
      * @return array|null|\yii\db\ActiveRecord
      *
      */
-    public static function updateCurrentUser()
+    public function updateCurrentUser()
     {
         $user = User::findIdentity(\Yii::$app->user->getId());
 
