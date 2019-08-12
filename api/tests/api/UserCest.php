@@ -92,6 +92,27 @@ class UserCest
         ]);
     }
 
+    public function userLoginInactiveUsername(ApiTester $I)
+    {
+        $I->sendPOST($this->endpointLogin, [
+            'LoginForm' => [
+                'username' => 'user.inactive',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->seeResponseCodeIs(422);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status' => 422,
+            'data' => [
+                'status' => []
+            ]
+        ]);
+    }
+
     /**
      * @before login
      */

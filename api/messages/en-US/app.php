@@ -16,6 +16,7 @@ return [
     'app.kabkota_id' => 'Kabupaten/Kota',
 
     'error.login.incorrect' => 'Incorrect username or password.',
+    'error.login.inactive' => 'Account is inactive. Please contact 082315192724 (SMS or WhatsApp) and email sapawarga@jabarprov.go.id to activate your account.',
     'error.email.taken' => 'This email address has already been taken.',
     'error.username.taken' => 'This username has already been taken.',
     'error.username.pattern' => 'Username can only contain lowercase alphanumeric characters, underscores, and periods.',
