@@ -307,22 +307,11 @@ class NewsTest extends Unit
         $this->assertFalse($model->hasErrors('content'));
     }
 
-    public function testContentMaxCharactersShouldFail()
+    public function testContentLongCharactersShouldFail()
     {
         $model = new News();
 
         $model->content = file_get_contents(__DIR__ . '/../../data/5572chars_html.txt');
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('content'));
-    }
-
-    public function testContentMaxCharactersSuccess()
-    {
-        $model = new News();
-
-        $model->content = file_get_contents(__DIR__ . '/../../data/5000chars_html.txt');
 
         $model->validate();
 
