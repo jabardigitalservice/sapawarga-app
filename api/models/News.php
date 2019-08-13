@@ -74,7 +74,7 @@ class News extends ActiveRecord
                 'required',
             ],
 
-            ['content', 'string', 'max' => 5000],
+            ['content', 'string', 'max' => 65000],
 
             ['source_date', 'date', 'format' => 'php:Y-m-d'],
             ['source_url', 'url'],

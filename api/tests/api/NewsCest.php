@@ -776,6 +776,7 @@ class NewsCest
         $data = [
             'title'       => 'Lorem ipsum',
             'channel_id'  => 1,
+            'kabkota_id'  => 22,
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'featured'    => false,
             'source_date' => '2019-06-20',
@@ -796,6 +797,7 @@ class NewsCest
         $I->seeInDatabase('news', [
             'title'       => 'Lorem ipsum',
             'channel_id'  => 1,
+            'kabkota_id'  => 22,
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'featured'    => false,
             'source_date' => '2019-06-20',
