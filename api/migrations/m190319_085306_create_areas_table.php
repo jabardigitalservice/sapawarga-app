@@ -28,7 +28,7 @@ class m190319_085306_create_areas_table extends Migration
             'updated_at' => $this->integer()->null(),
         ]);
 
-        $sql = file_get_contents(__DIR__ . '/seeder/jawabarat_kabkota_20190320.sql');
+        $sql = file_get_contents(__DIR__ . '/seeder/area.sql');
         Yii::$app->db->createCommand($sql)->execute();
     }
 

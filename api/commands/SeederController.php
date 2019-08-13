@@ -53,7 +53,7 @@ class SeederController extends Controller
     {
         Yii::$app->db->createCommand('TRUNCATE areas')->execute();
 
-        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/jawabarat_kabkota_20190320.sql');
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/area.sql');
         Yii::$app->db->createCommand($sql)->execute();
     }
 
