@@ -143,6 +143,8 @@ class NewsController extends ActiveController
 
         $search = new NewsSearch();
 
+        $search->scenario = NewsSearch::SCENARIO_LIST_USER;
+
         return $search->featuredList($params);
     }
 
