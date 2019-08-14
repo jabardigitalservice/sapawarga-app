@@ -144,6 +144,8 @@ class PhoneBookSearch extends PhoneBook
 
     protected function getQueryRoleKabKotaKecKel($user, $query, $params)
     {
+        $query->andFilterWhere(['<>', 'status', PhoneBook::STATUS_DISABLED]);
+
         //Override kabkota_id must from their own city
         $params['kabkota_id'] = Arr::get($user, 'kabkota_id');
 
