@@ -79,7 +79,7 @@ class NewsController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'statistics'], //only be applied to
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'statistics', 'related'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
@@ -88,7 +88,7 @@ class NewsController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'featured'],
+                    'actions' => ['index', 'view', 'featured', 'related'],
                     'roles' => ['newsList'],
                 ],
             ],
@@ -146,6 +146,17 @@ class NewsController extends ActiveController
         $search->scenario = NewsSearch::SCENARIO_LIST_USER;
 
         return $search->featuredList($params);
+    }
+
+    public function actionRelated()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $search = new NewsSearch();
+
+        $search->scenario = NewsSearch::SCENARIO_LIST_USER;
+
+        return $search->relatedList($params);
     }
 
     public function actionStatistics()

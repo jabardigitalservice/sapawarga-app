@@ -64,6 +64,21 @@ class NewsSearch extends News
         return $this->getQueryAll($query, $params);
     }
 
+    public function relatedList($params)
+    {
+        $query = News::find()->joinWith('channel');
+        $query->andFilterWhere(['not in', 'news.id', Arr::get($params, 'id')]);
+        $query->andFilterWhere(['featured' => true]);
+        $query->andFilterWhere(['news.status' => News::STATUS_ACTIVE]);
+
+        $this->filterByKabkota($query, $params);
+
+        $params['sort_by']    = 'seq';
+        $params['sort_order'] = 'ascending';
+
+        return $this->getQueryAll($query, $params);
+    }
+
     protected function getQueryListUser($query, $params)
     {
         $filterStatusList = [
