@@ -6,7 +6,7 @@ $db = require __DIR__ . '/db.php';
 $config = [
     'id' => 'basic-console',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'queue'],
     'controllerNamespace' => 'app\commands',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -25,6 +25,7 @@ $config = [
                 ],
             ],
         ],
+        'queue' => include __DIR__ . '/queue.php',
         'db' => $db,
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
@@ -35,6 +36,9 @@ $config = [
         'migrate' => [
             'class' => 'yii\console\controllers\MigrateController',
             'templateFile' => '@app/components/MigrationTemplate.php',
+            'migrationNamespaces' => [
+                'yii\queue\db\migrations',
+            ],
         ],
         // 'fixture' => [ // Fixture generation command line.
         //     'class' => 'yii\faker\FixtureController',

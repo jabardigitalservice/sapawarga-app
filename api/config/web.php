@@ -5,7 +5,7 @@ $params = include __DIR__ . '/params.php';
 $config = [
     'id' => 'boilerplate-api',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'queue'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -69,6 +69,7 @@ $config = [
                 ],
             ],
         ],
+        'queue' => include __DIR__ . '/queue.php',
         'db' => include __DIR__ . '/db.php',
 
         'urlManager' => [
