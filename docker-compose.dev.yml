@@ -20,7 +20,7 @@ services:
   database:
     build:
       context: ./database
-    image: mysql:5.7
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${IMAGETAG}
     networks:
       - internal
     ports:
