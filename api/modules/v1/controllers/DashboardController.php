@@ -70,11 +70,11 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'usulan'], //only be applied to
+            'only' => ['usulantop'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'usulan'],
+                    'actions' => ['usulantop'],
                     'roles' => ['dashboardList'],
                 ],
             ],
