@@ -67,6 +67,8 @@ release_all:
     - docker images
     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:latest
+    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:latest
 
 deploy_staging:
   stage: deploy
