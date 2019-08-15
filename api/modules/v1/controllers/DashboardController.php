@@ -70,11 +70,11 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['usulantop'], //only be applied to
+            'only' => ['aspirasi-most-likes'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['usulantop'],
+                    'actions' => ['aspirasi-most-likes'],
                     'roles' => ['dashboardList'],
                 ],
             ],
@@ -83,12 +83,12 @@ class DashboardController extends ActiveController
         return $behaviors;
     }
 
-    public function actionUsulantop()
+    public function actionAspirasiMostLikes()
     {
         $params = Yii::$app->request->getQueryParams();
 
         $usulanTop = new AspirasiDashboard();
 
-        return $usulanTop->getAspirasiTop($params);
+        return $usulanTop->getAspirasiMostLikes($params);
     }
 }

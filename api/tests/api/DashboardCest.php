@@ -7,7 +7,7 @@ class DashboardCest
     {
         $I->amStaff('admin');
 
-        $I->sendGET('/v1/dashboards/usulantop');
+        $I->sendGET('/v1/dashboards/aspirasi-most-likes');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -21,7 +21,7 @@ class DashboardCest
     {
         $I->amStaff('staffprov');
 
-        $I->sendGET('/v1/dashboards/usulantop');
+        $I->sendGET('/v1/dashboards/aspirasi-most-likes');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -35,7 +35,7 @@ class DashboardCest
     {
         $I->amStaff('staffkec');
 
-        $I->sendGET('/v1/dashboards/usulantop');
+        $I->sendGET('/v1/dashboards/aspirasi-most-likes');
         $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
@@ -48,7 +48,7 @@ class DashboardCest
     {
         $I->amStaff('staffkel');
 
-        $I->sendGET('/v1/dashboards/usulantop');
+        $I->sendGET('/v1/dashboards/aspirasi-most-likes');
         $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
@@ -62,7 +62,7 @@ class DashboardCest
     {
         $I->amUser();
 
-        $I->sendGET('/v1/dashboards/usulantop');
+        $I->sendGET('/v1/dashboards/aspirasi-most-likes');
         $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 

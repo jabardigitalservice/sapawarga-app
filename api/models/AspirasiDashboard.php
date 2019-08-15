@@ -18,7 +18,7 @@ class AspirasiDashboard extends Aspirasi
      * @return SqlDataProvider
      */
 
-    public function getAspirasiTop($params)
+    public function getAspirasiMostLikes($params)
     {
         $conditional = '';
         $limit = Arr::get($params, 'limit');

@@ -295,8 +295,8 @@ $config = [
                     'controller' => 'v1/dashboard',
                     'pluralize' => true,
                     'extraPatterns' => [
-                        'GET usulantop' => 'usulantop',
-                        'OPTIONS usulantop' => 'options',
+                        'GET aspirasi-most-likes' => 'aspirasi-most-likes',
+                        'OPTIONS aspirasi-most-likes' => 'options',
                     ]
                 ],
             ]
