@@ -261,7 +261,7 @@ class AspirasiCest
             'kabkota_id'  => 22,
             'kec_id'      => 446,
             'kel_id'      => 6082,
-            'status'      => 10,
+            'status'      => 0,
             'category_id' => 9,
             'author_id'   => 36,
         ]);
@@ -287,6 +287,130 @@ class AspirasiCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
+        ]);
+    }
+
+    public function postUserCanUpdateIfStatusDraft(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 0,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function postUserCannotUpdateIfStatusPending(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 5,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function postUserCannotUpdateIfStatusPublished(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function postUserCannotUpdateIfStatusRejected(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 3,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 

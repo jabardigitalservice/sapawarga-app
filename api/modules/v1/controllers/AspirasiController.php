@@ -10,6 +10,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\web\ForbiddenHttpException;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -133,7 +134,10 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('update', $model);
 
-        $model->author_id = Yii::$app->user->getId();
+        // Allowed to update if status Draft only
+        if ($model->status != Aspirasi::STATUS_DRAFT) {
+            throw new HttpException(403);
+        }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
