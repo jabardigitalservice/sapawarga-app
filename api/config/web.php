@@ -290,6 +290,15 @@ $config = [
                         'OPTIONS sse' => 'sse',
                     ]
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/dashboard',
+                    'pluralize' => true,
+                    'extraPatterns' => [
+                        'GET usulantop' => 'usulantop',
+                        'OPTIONS usulantop' => 'options',
+                    ]
+                ],
             ]
         ],
         'response' => [
