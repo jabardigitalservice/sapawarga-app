@@ -4,6 +4,10 @@ FROM mysql:5.7
 RUN apt-get update
 RUN apt-get install nano -y
 
+# set timezone
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Expose port
 EXPOSE 3306
 
