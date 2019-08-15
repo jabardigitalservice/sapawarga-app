@@ -37,10 +37,10 @@ class m190814_073259_insert_rbac_dashboard_staff extends CustomMigration
         $dashboardListPermission->description = 'Get Dashboard List';
         $auth->remove($dashboardListPermission);
 
-        $role = $auth->getRole('user');
+        $role = $auth->getRole('admin');
         $auth->removeChild($role, $dashboardListPermission);
 
-        $role = $auth->getRole('staffrw');
+        $role = $auth->getRole('staffprov');
         $auth->removeChild($role, $dashboardListPermission);
     }
 }
