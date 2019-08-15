@@ -12,6 +12,6 @@ class DownloadJob extends BaseObject implements JobInterface
 
     public function execute($queue)
     {
-        echo 'executed!';
+        echo sprintf("Job executed! %s %s", $this->url, $this->file);
     }
 }
