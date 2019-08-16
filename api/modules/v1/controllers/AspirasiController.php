@@ -134,8 +134,8 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('update', $model);
 
-        // Allowed to update if status Draft only
-        if ($model->status != Aspirasi::STATUS_DRAFT) {
+        // Allowed to update if status Draft & Rejected only
+        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
             throw new HttpException(403);
         }
 
@@ -167,6 +167,11 @@ class AspirasiController extends ActiveController
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
+        // Allowed to update if status Draft & Rejected only
+        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
+            throw new HttpException(403);
+        }
 
         $this->checkAccess('delete', $model);
 
