@@ -291,6 +291,15 @@ $config = [
                         'OPTIONS sse' => 'sse',
                     ]
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/dashboard',
+                    'pluralize' => true,
+                    'extraPatterns' => [
+                        'GET aspirasi-most-likes' => 'aspirasi-most-likes',
+                        'OPTIONS aspirasi-most-likes' => 'options',
+                    ]
+                ],
             ]
         ],
         'response' => [
