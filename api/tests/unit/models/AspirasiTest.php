@@ -392,6 +392,78 @@ class AspirasiTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('status'));
     }
 
+    public function testUserCannotCreateDeletedStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_CREATE;
+
+        $model->status = -1;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('status'));
+    }
+
+    public function testUserCanUpdateDraftStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_UPDATE;
+
+        $model->status = 0;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('status'));
+    }
+
+    public function testUserCanUpdatePendingStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_UPDATE;
+
+        $model->status = 5;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('status'));
+    }
+
+    public function testUserCannotUpdatePublishedStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_UPDATE;
+
+        $model->status = 10;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('status'));
+    }
+
+    public function testUserCannotUpdateRejectedStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_UPDATE;
+
+        $model->status = 3;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('status'));
+    }
+
+    public function testUserCannotUpdateDeletedStatus()
+    {
+        $model           = new Aspirasi();
+        $model->scenario = Aspirasi::SCENARIO_USER_UPDATE;
+
+        $model->status = -1;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('status'));
+    }
+
     public function testCreateScenarioStaff()
     {
         $model         = new Aspirasi();

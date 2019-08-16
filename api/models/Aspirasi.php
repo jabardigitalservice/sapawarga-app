@@ -37,6 +37,7 @@ class Aspirasi extends \yii\db\ActiveRecord
     const CATEGORY_TYPE = 'aspirasi';
 
     const SCENARIO_USER_CREATE = 'user-create';
+    const SCENARIO_USER_UPDATE = 'user-update';
 
     /**
      * {@inheritdoc}
@@ -134,6 +135,7 @@ class Aspirasi extends \yii\db\ActiveRecord
             ['approved_at', 'default'],
 
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
+            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
         ];
     }
 

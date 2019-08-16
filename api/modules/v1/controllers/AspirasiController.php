@@ -10,6 +10,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\web\ForbiddenHttpException;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -133,7 +134,10 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('update', $model);
 
-        $model->author_id = Yii::$app->user->getId();
+        // Allowed to update if status Draft & Rejected only
+        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
+            throw new HttpException(403);
+        }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
@@ -163,6 +167,11 @@ class AspirasiController extends ActiveController
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
+        // Allowed to update if status Draft & Rejected only
+        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
+            throw new HttpException(403);
+        }
 
         $this->checkAccess('delete', $model);
 

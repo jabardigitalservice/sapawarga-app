@@ -261,7 +261,7 @@ class AspirasiCest
             'kabkota_id'  => 22,
             'kec_id'      => 446,
             'kel_id'      => 6082,
-            'status'      => 10,
+            'status'      => 0,
             'category_id' => 9,
             'author_id'   => 36,
         ]);
@@ -290,7 +290,195 @@ class AspirasiCest
         ]);
     }
 
-    public function userCanDeleteTest(ApiTester $I)
+    public function userCanUpdateIfStatusDraft(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 0,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function userCanUpdateIfStatusRejected(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 3,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+            'status' => 1,
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function userCannotUpdateIfStatusPending(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 5,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function userCannotUpdateIfStatusPublished(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'title' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function userCanDeleteIfDraftTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 0,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendDELETE('/v1/aspirasi/1');
+        $I->canSeeResponseCodeIs(204);
+    }
+
+    public function userCanDeleteIfRejectedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 3,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendDELETE('/v1/aspirasi/1');
+        $I->canSeeResponseCodeIs(204);
+    }
+
+    public function userCannotDeleteIfPendingTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 5,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendDELETE('/v1/aspirasi/1');
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    public function userCannotDeleteIfPublishedTest(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -308,10 +496,10 @@ class AspirasiCest
         $I->amUser('user');
 
         $I->sendDELETE('/v1/aspirasi/1');
-        $I->canSeeResponseCodeIs(204);
+        $I->canSeeResponseCodeIs(403);
     }
 
-    public function userCannotDeleteUnauthorizedTest(ApiTester $I)
+    public function userCannotDeleteIfUnauthorizedTest(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
