@@ -68,12 +68,11 @@ class AspirasiDashboard extends Aspirasi
     public function getAspirasiCounts($params)
     {
         // Query
-        $sql = "SELECT `status`, count(id) as total_count
+        $sql = 'SELECT `status`, count(id) AS total_count
                 FROM aspirasi
                 WHERE `status` = :status_active OR `status` = :status_pending
-                group by `status`
-                order by `status`
-                ";
+                GROUP BY `status`
+                ORDER BY `status`';
 
         return new SqlDataProvider([
             'sql'      => $sql,
