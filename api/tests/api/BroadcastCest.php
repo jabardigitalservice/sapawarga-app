@@ -311,6 +311,56 @@ class BroadcastCest
         ]);
     }
 
+    public function AdminCreateBroadcastCreateUsersMessages(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('users_messages', [
+            'type'          => 'broadcast',
+            'message_id'    => 1,
+            'sender_id'     => 1,
+            'recipient_id'  => 17,
+            'title'         => 'Broadcast Title',
+            'excerpt'       => null,
+            'content'       => 'Broadcast Description',
+            'status'        => 10,
+            'meta'          => null,
+            'read_at'       => null,
+        ]);
+
+        $I->seeInDatabase('users_messages', [
+            'type'          => 'broadcast',
+            'message_id'    => 1,
+            'sender_id'     => 1,
+            'recipient_id'  => 18,
+            'title'         => 'Broadcast Title',
+            'excerpt'       => null,
+            'content'       => 'Broadcast Description',
+            'status'        => 10,
+            'meta'          => null,
+            'read_at'       => null,
+        ]);
+    }
+
     public function createNewBroadcastCategoryInvalid(ApiTester $I)
     {
         $I->amStaff();
