@@ -55,4 +55,30 @@ class AspirasiDashboard extends Aspirasi
             ],
         ]);
     }
+
+
+    /**
+     * Creates data provider instance with search query applied
+     *
+     * @param array $params
+     *
+     * @return SqlDataProvider
+     */
+
+    public function getAspirasiCounts($params)
+    {
+        // Query
+        $sql = "SELECT `status`, count(id) as total_count
+                FROM aspirasi
+                WHERE `status` = :status_active OR `status` = :status_pending
+                group by `status`
+                order by `status`
+                ";
+
+        return new SqlDataProvider([
+            'sql'      => $sql,
+            'params'   => [':status_active' => Aspirasi::STATUS_PUBLISHED,
+                           ':status_pending' => Aspirasi::STATUS_APPROVAL_PENDING],
+        ]);
+    }
 }

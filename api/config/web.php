@@ -298,6 +298,8 @@ $config = [
                     'extraPatterns' => [
                         'GET aspirasi-most-likes' => 'aspirasi-most-likes',
                         'OPTIONS aspirasi-most-likes' => 'options',
+                        'GET aspirasi-counts' => 'aspirasi-counts',
+                        'OPTIONS aspirasi-counts' => 'options',
                     ]
                 ],
             ]
