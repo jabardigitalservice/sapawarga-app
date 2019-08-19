@@ -150,6 +150,28 @@ class DashboardCest
         ]);
     }
 
+    public function getAspirasiCountByStatusTest(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/dashboards/aspirasi-counts');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(5, $data[0][0]['status']);
+        $I->assertEquals(1, $data[0][0]['total_count']);
+
+        $I->assertEquals(10, $data[0][1]['status']);
+        $I->assertEquals(4, $data[0][1]['total_count']);
+    }
+
     public function _after(ApiTester $I)
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
