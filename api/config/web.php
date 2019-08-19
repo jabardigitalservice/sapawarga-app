@@ -300,6 +300,8 @@ $config = [
                         'OPTIONS aspirasi-most-likes' => 'options',
                         'GET aspirasi-counts' => 'aspirasi-counts',
                         'OPTIONS aspirasi-counts' => 'options',
+                        'GET aspirasi-geo' => 'aspirasi-geo',
+                        'OPTIONS aspirasi-geo' => 'options',
                     ]
                 ],
             ]

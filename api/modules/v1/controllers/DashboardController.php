@@ -7,7 +7,6 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\filters\auth\CompositeAuth;
 use app\filters\auth\HttpBearerAuth;
-
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -70,11 +69,11 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['aspirasi-most-likes','aspirasi-counts'], //only be applied to
+            'only' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['aspirasi-most-likes','aspirasi-counts'],
+                    'actions' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo'],
                     'roles' => ['dashboardList'],
                 ],
             ],
@@ -99,5 +98,14 @@ class DashboardController extends ActiveController
         $aspirasiCounts = new AspirasiDashboard();
 
         return $aspirasiCounts->getAspirasiCounts($params);
+    }
+
+    public function actionAspirasiGeo()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $aspirasiGeo = new AspirasiDashboard();
+
+        return $aspirasiGeo->getAspirasiGeo($params);
     }
 }
