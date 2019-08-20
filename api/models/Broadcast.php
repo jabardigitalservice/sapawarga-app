@@ -7,6 +7,7 @@ use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use app\components\ModelHelper;
+use Jdsteam\Sapawarga\Jobs\MessageJob;
 
 /**
  * This is the model class for table "broadcasts".
@@ -207,6 +208,8 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
+        $this->addToUserInbox($this);
+
         if ($this->enableSendPush) {
             $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
@@ -251,6 +254,15 @@ class Broadcast extends \yii\db\ActiveRecord
     {
         $this->enableSendPush = $boolean;
     }
+
+    public function addToUserInbox($model)
+    {
+        Yii::$app->queue->push(new MessageJob([
+            'type' => self::CATEGORY_TYPE,
+            'instance' => $this,
+        ]));
+    }
+
     /**
      * Checks if category type is broadcast
      *
