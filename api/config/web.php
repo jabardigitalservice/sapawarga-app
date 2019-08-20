@@ -304,6 +304,15 @@ $config = [
                         'OPTIONS aspirasi-geo' => 'options',
                     ]
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/user-message',
+                    'pluralize' => true,
+                    'tokens' => [
+                        '{id}' => '<id:\d+>',
+                    ],
+                    'extraPatterns' => []
+                ],
             ]
         ],
         'response' => [
