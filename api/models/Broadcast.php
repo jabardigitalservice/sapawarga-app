@@ -2,12 +2,12 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Yii;
 use yii\behaviors\TimestampBehavior;
-use app\components\ModelHelper;
-use Jdsteam\Sapawarga\Jobs\MessageJob;
 
 /**
  * This is the model class for table "broadcasts".
@@ -257,10 +257,25 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function addToUserInbox($model)
     {
-        Yii::$app->queue->push(new MessageJob([
-            'type' => self::CATEGORY_TYPE,
-            'instance' => $this,
-        ]));
+        $params = [
+            'kabkota_id' => $model->kabkota_id,
+            'kec_id' => $model->kec_id,
+            'kec_id' => $model->kec_id,
+            'rw' => $model->rw,
+        ];
+        $query = User::find()
+            ->select('id');
+        $query = ModelHelper::filterByAreaTopDown($query, $params);
+        $query->asArray()
+            ->all();
+
+        // foreach ($query as $user) {
+        //     \yii\helpers\VarDumper::dump($user);
+        //     Yii::$app->queue->push(new MessageJob([
+        //         'type' => self::CATEGORY_TYPE,
+        //         'instance' => $this,
+        //     ]));
+        // }
     }
 
     /**

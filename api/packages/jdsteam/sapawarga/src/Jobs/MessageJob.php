@@ -12,6 +12,7 @@ class MessageJob extends BaseObject implements JobInterface
 {
     public $type;
     public $instance;
+    public $recipient_id;
 
     public function execute($queue)
     {
@@ -21,7 +22,7 @@ class MessageJob extends BaseObject implements JobInterface
             'type' => $this->type,
             'message_id' => $instance->id,
             'sender_id' => $instance->author_id,
-            'recipient_id' => 1, //TODO iterate recipient ids
+            'recipient_id' => $this->recipient_id, //TODO iterate recipient ids
             'title' => null,
             'excerpt' => null,
             'content' => $instance->description,
