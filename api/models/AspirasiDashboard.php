@@ -11,9 +11,9 @@ use yii\data\SqlDataProvider;
 class AspirasiDashboard extends Aspirasi
 {
     /**
-     * Creates data provider instance with search query applied
+     * Creates data provider instance applied for get aspirasi most likes
      *
-     * @param array $params
+     * @param array $paramsSql
      *
      * @return SqlDataProvider
      */
@@ -56,15 +56,11 @@ class AspirasiDashboard extends Aspirasi
         ]);
     }
 
-
     /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
+     * Creates data provider instance applied for get total aspirasi group by status
      *
      * @return SqlDataProvider
      */
-
     public function getAspirasiCounts($params)
     {
         // Query
@@ -78,6 +74,44 @@ class AspirasiDashboard extends Aspirasi
             'sql'      => $sql,
             'params'   => [':status_active' => Aspirasi::STATUS_PUBLISHED,
                            ':status_pending' => Aspirasi::STATUS_APPROVAL_PENDING],
+        ]);
+    }
+
+    /**
+     * Creates data provider instance applied for get total aspirasi group by kabkota
+     *
+     * @param array $paramsSql
+     *
+     * @return SqlDataProvider
+     */
+    public function getAspirasiGeo($params)
+    {
+        $conditional = '';
+        $limit = Arr::get($params, 'limit');
+        $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED];
+
+        // Filtering
+        $kabKotaId = Arr::get($params, 'kabkota_id');
+        if ($kabKotaId) {
+            $conditional .= 'AND a.kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabKotaId;
+        }
+
+        // Query
+        $sql = "SELECT areas.name, count(a.id) as counts, kabkota_id, latitude, longitude
+                FROM sapawarga.aspirasi a
+                LEFT JOIN areas ON areas.id = kabkota_id
+                WHERE a.status = :status_active
+                $conditional
+                GROUP BY kabkota_id
+                ORDER BY counts DESC";
+
+        return new SqlDataProvider([
+            'sql'      => $sql,
+            'params'   => $paramsSql,
+            'pagination' => [
+                'pageSize' => $limit,
+            ],
         ]);
     }
 }
