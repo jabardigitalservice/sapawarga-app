@@ -6,7 +6,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "polling_votes".
+ * This is the model class for table "user_messages".
  *
  * @property int $id
  * @property string $type
@@ -20,7 +20,7 @@ use yii\db\ActiveRecord;
  * @property mixed $meta
  * @property int $read_at
  */
-class UserMessages extends ActiveRecord
+class UserMessage extends ActiveRecord
 {
     /**
      * {@inheritdoc}
