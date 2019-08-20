@@ -3,18 +3,18 @@
 use app\components\CustomMigration;
 
 /**
- * Class m190816_102004_create_table_users_messages */
-class m190816_102004_create_table_users_messages extends CustomMigration
+ * Class m190816_102004_create_table_user_messages */
+class m190816_102004_create_table_user_messages extends CustomMigration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('users_messages', [
+        $this->createTable('user_messages', [
             'id'            => $this->primaryKey(),
             'type'          => $this->string()->notNull(),
-            'message_id'     => $this->integer()->notNull(),
+            'message_id'    => $this->integer()->notNull(),
             'sender_id'     => $this->integer()->notNull(),
             'recipient_id'  => $this->integer()->notNull(),
             'title'         => $this->string()->notNull(),
@@ -33,8 +33,8 @@ class m190816_102004_create_table_users_messages extends CustomMigration
         // (misalnya broadcast, polling, survey)
 
         $this->addForeignKey(
-            'fk-users_messages-sender_id',
-            'users_messages',
+            'fk-user_messages-sender_id',
+            'user_messages',
             'sender_id',
             'user',
             'id',
@@ -42,8 +42,8 @@ class m190816_102004_create_table_users_messages extends CustomMigration
         );
 
         $this->addForeignKey(
-            'fk-users_messages-recipient_id',
-            'users_messages',
+            'fk-user_messages-recipient_id',
+            'user_messages',
             'recipient_id',
             'user',
             'id',
@@ -57,15 +57,15 @@ class m190816_102004_create_table_users_messages extends CustomMigration
     public function safeDown()
     {
         $this->dropForeignKey(
-            'fk-users_messages-sender_id',
-            'users_messages'
+            'fk-user_messages-sender_id',
+            'user_messages'
         );
 
         $this->dropForeignKey(
-            'fk-users_messages-recipient_id',
-            'users_messages'
+            'fk-user_messages-recipient_id',
+            'user_messages'
         );
 
-        $this->dropTable('users_messages');
+        $this->dropTable('user_messages');
     }
 }
