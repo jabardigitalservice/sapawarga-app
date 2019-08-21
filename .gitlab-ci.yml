@@ -14,8 +14,6 @@ stages:
 code_quality:
   image: docker:stable
   stage: code_quality
-  only: # temp
-    - master
   services:
     - docker:stable-dind
   variables:
@@ -37,8 +35,6 @@ code_quality:
 build_dev:
   stage: build
   image: docker:stable
-  only: # temp
-    - master
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
@@ -51,8 +47,6 @@ build_dev:
 test_api:
   stage: test
   image: docker:stable
-  only: # temp
-    - master
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
@@ -102,8 +96,8 @@ deploy_staging:
 deploy_production:
   stage: deploy
   image: dtzar/helm-kubectl
-  # only:
-  #   - master
+  only:
+    - master
   script:
     - kubectl config set-cluster k8s --server="${KUBERNETES_SERVER}"
     - kubectl config set clusters.k8s.certificate-authority-data ${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}
