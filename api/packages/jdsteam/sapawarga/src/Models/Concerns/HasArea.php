@@ -3,6 +3,7 @@
 namespace Jdsteam\Sapawarga\Models\Concerns;
 
 use app\models\Area;
+use Yii;
 
 trait HasArea
 {
@@ -19,6 +20,19 @@ trait HasArea
     public function getKabkota()
     {
         return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+    }
+
+    protected function rulesRw()
+    {
+        return [
+            [
+                'rw',
+                'match',
+                'pattern' => '/^[0-9]{3}$/',
+                'message' => Yii::t('app', 'error.rw.pattern'),
+            ],
+            ['rw', 'default'],
+        ];
     }
 
     protected function getKabkotaField()

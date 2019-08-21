@@ -3,10 +3,19 @@
 namespace Jdsteam\Sapawarga\Models\Concerns;
 
 use app\models\Category;
+use app\validator\IsArrayValidator;
 
 trait HasAttachments
 {
     protected $bucket = 'imageFiles';
+
+    protected function rulesAttachments()
+    {
+        return [
+            ['attachments', 'default'],
+            ['attachments', IsArrayValidator::class],
+        ];
+    }
 
     protected function getAttachmentsField()
     {

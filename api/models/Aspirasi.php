@@ -77,52 +77,52 @@ class Aspirasi extends ActiveRecord
      */
     public function rules()
     {
-        return [
+        $rules = [
             [
-                [
-                    'title',
-                    'description',
-                    'kabkota_id',
-                    'kec_id',
-                    'kel_id',
-                    'author_id',
-                    'category_id',
-                    'status',
-                ],
+                ['title', 'description', 'kabkota_id', 'kec_id', 'kel_id', 'author_id', 'category_id', 'status'],
                 'required',
             ],
-            ['category_id', 'validateCategoryID'],
             [['title', 'description', 'rw', 'meta'], 'trim'],
+            ['description', 'string', 'max' => 1024 * 3],
+            ['description', InputCleanValidator::class],
+            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
+            ['meta', 'default'],
+            ['approved_by', 'default'],
+            ['approved_at', 'default'],
+            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
+            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
+        ];
+
+        return array_merge(
+            $rules,
+            $this->rulesTitle(),
+            $this->rulesApprovalNote(),
+            $this->rulesRw(),
+            $this->rulesCategory(),
+            $this->rulesAttachments()
+        );
+    }
+
+    protected function rulesTitle()
+    {
+        return [
             ['title', 'string', 'max' => 255],
             ['title', 'string', 'min' => 5],
             ['title', InputCleanValidator::class],
-            ['description', 'string', 'max' => 1024 * 3],
-            // ['description', 'string', 'min' => 5],
-            ['description', InputCleanValidator::class],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern'),
-            ],
-            ['rw', 'default'],
-            ['attachments', 'default'],
-            ['attachments', IsArrayValidator::class],
-            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['meta', 'default'],
+        ];
+    }
+
+    protected function rulesApprovalNote()
+    {
+        return [
+            ['approval_note', 'default'],
             [
                 'approval_note',
                 'required',
                 'when' => function ($model) {
                     return $model->status === self::STATUS_APPROVAL_REJECTED;
                 },
-            ],
-            ['approval_note', 'default'],
-            ['approved_by', 'default'],
-            ['approved_at', 'default'],
-
-            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
-            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
+            ]
         ];
     }
 
@@ -185,23 +185,47 @@ class Aspirasi extends ActiveRecord
 
     protected function getStatusLabel()
     {
+        if (in_array($this->status, [
+            self::STATUS_DRAFT,
+            self::STATUS_PUBLISHED,
+            self::STATUS_APPROVAL_PENDING,
+            self::STATUS_APPROVAL_REJECTED])
+        ) {
+            return $this->getStatusAspirasi();
+        }
+
+        return $this->getStatusCommon();
+    }
+
+    private function getStatusAspirasi()
+    {
         $statusLabel = '';
 
         switch ($this->status) {
             case self::STATUS_PUBLISHED:
                 $statusLabel = Yii::t('app', 'status.published');
                 break;
-            case self::STATUS_DRAFT:
-                $statusLabel = Yii::t('app', 'status.draft');
-                break;
-            case self::STATUS_DELETED:
-                $statusLabel = Yii::t('app', 'status.deleted');
-                break;
             case self::STATUS_APPROVAL_PENDING:
                 $statusLabel = Yii::t('app', 'status.approval-pending');
                 break;
             case self::STATUS_APPROVAL_REJECTED:
                 $statusLabel = Yii::t('app', 'status.approval-rejected');
+                break;
+            case self::STATUS_DRAFT:
+                $statusLabel = Yii::t('app', 'status.draft');
+                break;
+        }
+
+        return $statusLabel;
+    }
+
+    private function getStatusCommon()
+    {
+        $statusLabel = '';
+
+        switch ($this->status) {
+            case self::STATUS_DELETED:
+                $statusLabel = Yii::t('app', 'status.deleted');
                 break;
         }
 
@@ -233,16 +257,5 @@ class Aspirasi extends ActiveRecord
         }
 
         return parent::beforeSave($insert);
-    }
-
-    /**
-     * Checks if category type is aspirasi
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 }
