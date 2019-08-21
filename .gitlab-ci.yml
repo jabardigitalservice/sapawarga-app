@@ -120,12 +120,12 @@ deploy_production:
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
     - cat kubernetes/backend-variables.yaml
-    - kubectl apply -f backend-variables.yaml
-        -f backend-mysql-pv-claim.yaml
-        -f backend-mysql-deployment.yaml
-        -f backend-mysql-service.yaml
-        -f backend-api-pv-claim.yaml
-        -f backend-api-deployment.yaml
-        -f backend-api-service.yaml
-        -f backend-memcached-deployment.yaml
-        -f backend-memcached-service.yaml
+    - kubectl apply -f kubernetes/backend-variables.yaml
+        -f kubernetes/backend-mysql-pv-claim.yaml
+        -f kubernetes/backend-mysql-deployment.yaml
+        -f kubernetes/backend-mysql-service.yaml
+        -f kubernetes/backend-api-pv-claim.yaml
+        -f kubernetes/backend-api-deployment.yaml
+        -f kubernetes/backend-api-service.yaml
+        -f kubernetes/backend-memcached-deployment.yaml
+        -f kubernetes/backend-memcached-service.yaml
