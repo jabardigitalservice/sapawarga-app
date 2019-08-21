@@ -2,9 +2,12 @@
 
 namespace app\models;
 
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "categories".
@@ -15,11 +18,9 @@ use yii\db\ActiveQuery;
  * @property array $meta
  * @property int $status
  */
-class Category extends \yii\db\ActiveRecord
+class Category extends ActiveRecord implements ActiveStatus
 {
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_ACTIVE = 10;
+    use HasActiveStatus;
 
     // Memetakan category type id ke category type name
     const TYPE_MAP = [
@@ -63,21 +64,7 @@ class Category extends \yii\db\ActiveRecord
             'name',
             'meta',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_ACTIVE:
-                        $statusLabel = Yii::t('app', 'status.active');
-                        break;
-                    case self::STATUS_DISABLED:
-                        $statusLabel = Yii::t('app', 'status.inactive');
-                        break;
-                    case self::STATUS_DELETED:
-                        $statusLabel = Yii::t('app', 'status.deleted');
-                        break;
-                }
-                return $statusLabel;
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
         ];
