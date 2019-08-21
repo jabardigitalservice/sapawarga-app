@@ -165,10 +165,10 @@ class DashboardCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(5, $data[0][0]['status']);
+        $I->assertEquals('STATUS_APPROVAL_PENDING', $data[0][0]['status']);
         $I->assertEquals(1, $data[0][0]['total_count']);
 
-        $I->assertEquals(10, $data[0][1]['status']);
+        $I->assertEquals('STATUS_PUBLISHED', $data[0][1]['status']);
         $I->assertEquals(4, $data[0][1]['total_count']);
     }
 

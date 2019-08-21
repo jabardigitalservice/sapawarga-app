@@ -30,8 +30,9 @@ class Aspirasi extends \yii\db\ActiveRecord
 {
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
-    const STATUS_APPROVAL_PENDING = 5;
+
     const STATUS_APPROVAL_REJECTED = 3;
+    const STATUS_APPROVAL_PENDING = 5;
     const STATUS_PUBLISHED = 10;
 
     const CATEGORY_TYPE = 'aspirasi';
