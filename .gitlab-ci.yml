@@ -1,15 +1,8 @@
-image: docker:latest
-
 services:
   - docker:dind
 
 variables:
   IMAGETAG: $CI_COMMIT_REF_SLUG
-
-before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-  - pip install docker-compose
 
 stages:
   - code_quality
@@ -21,6 +14,8 @@ stages:
 code_quality:
   image: docker:stable
   stage: code_quality
+  only: # temp
+    - master
   services:
     - docker:stable-dind
   variables:
@@ -41,6 +36,13 @@ code_quality:
 
 build_dev:
   stage: build
+  image: docker:stable
+  only: # temp
+    - master
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+    - pip install docker-compose
   script:
     - docker-compose -f docker-compose.dev.yml build
     - docker images
@@ -48,6 +50,13 @@ build_dev:
 
 test_api:
   stage: test
+  image: docker:stable
+  only: # temp
+    - master
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+    - pip install docker-compose
   script:
     - docker-compose -f docker-compose.dev.yml pull
     - docker images
@@ -60,8 +69,13 @@ test_api:
 
 release_all:
   stage: release
+  image: docker:stable
   only:
     - master
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+    - pip install docker-compose
   script:
     - docker-compose -f docker-compose.dev.yml pull
     - docker images
@@ -72,6 +86,7 @@ release_all:
 
 deploy_staging:
   stage: deploy
+  image: docker:stable
   only:
     - master
   before_script:
@@ -83,3 +98,34 @@ deploy_staging:
   script:
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo docker-compose pull && sudo docker-compose down && sudo docker-compose up -d"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
+
+deploy_production:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  # only:
+  #   - master
+  script:
+    - kubectl config set-cluster k8s --server="${KUBERNETES_SERVER}"
+    - kubectl config set clusters.k8s.certificate-authority-data ${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}
+    - kubectl config set-credentials gitlab --token="${KUBERNETES_USER_TOKEN}"
+    - kubectl config set-context default --cluster=k8s --user=gitlab
+    - kubectl config use-context default
+    - kubectl config use-context default
+    - kubectl cluster-info
+    - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
+    - cat kubernetes/backend-variables.yaml
+    - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+    - cat kubernetes/backend-variables.yaml
+    - kubectl apply -f backend-variables.yaml
+        -f backend-mysql-pv-claim.yaml
+        -f backend-mysql-deployment.yaml
+        -f backend-mysql-service.yaml
+        -f backend-api-pv-claim.yaml
+        -f backend-api-deployment.yaml
+        -f backend-api-service.yaml
+        -f backend-memcached-deployment.yaml
+        -f backend-memcached-service.yaml
