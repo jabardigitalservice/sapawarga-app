@@ -106,7 +106,7 @@ class UserMessageCest
             'title' => 'Lorem Ipsum2',
             'excerpt' => 'Lorem ipsum dolor2',
             'content' => 'Lorem ipsum dolor sit amet2',
-            'status' => 0,
+            'status' => -1,
             'meta' => null,
             'read_at' => null,
             'created_at'  => '1554706345',
@@ -128,7 +128,7 @@ class UserMessageCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
-        $I->assertEquals(1, $data[0]['id']);
+        $I->assertEquals('lejRe', $data[0]['id']);
         $I->assertEquals(17, $data[0]['recipient_id']);
     }
 
@@ -181,7 +181,7 @@ class UserMessageCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
-        $I->assertEquals(1, $data[0]['id']);
+        $I->assertEquals('lejRe', $data[0]['id']);
         $I->assertEquals(17, $data[0]['recipient_id']);
     }
 
@@ -205,7 +205,7 @@ class UserMessageCest
 
         $I->amUser('staffrw');
 
-        $I->sendGET('/v1/user-messages/1');
+        $I->sendGET('/v1/user-messages/lejRe');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -216,7 +216,7 @@ class UserMessageCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data');
 
-        $I->assertEquals(1, $data[0]['id']);
+        $I->assertEquals('lejRe', $data[0]['id']);
         $I->assertEquals(17, $data[0]['recipient_id']);
         $I->assertNotNull($data[0]['read_at']);
     }

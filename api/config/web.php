@@ -309,7 +309,7 @@ $config = [
                     'controller' => 'v1/user-message',
                     'pluralize' => true,
                     'tokens' => [
-                        '{id}' => '<id:\d+>',
+                        '{id}' => '<id:[A-Za-z0-9]+>',
                     ],
                     'extraPatterns' => []
                 ],

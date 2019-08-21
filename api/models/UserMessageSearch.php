@@ -25,7 +25,7 @@ class UserMessageSearch extends UserMessage
         $query = UserMessage::find();
 
         // Mandatory conditions
-        $query->andFilterWhere(['<>', 'status', 0]);
+        $query->andFilterWhere(['<>', 'status', UserMessage::STATUS_DELETED]);
         $query->andFilterWhere(['=', 'recipient_id', $params['user_id']]);
 
         // Filtering conditions

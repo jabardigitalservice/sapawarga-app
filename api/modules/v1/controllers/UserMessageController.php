@@ -12,6 +12,7 @@ use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use Hashids\Hashids;
 
 /**
  * MessageController implements the CRUD actions for User Message model.
@@ -96,16 +97,23 @@ class UserMessageController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|\app\models\News
+     * @return mixed|\app\models\UserMessage
      * @throws \yii\web\NotFoundHttpException
      */
     public function findModel($id)
     {
+        $hashids = new Hashids('', UserMessage::LENGTH_PAD_HASHID);
+        $idDecode = $hashids->decode($id);
+
+        if (empty($idDecode)) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
         $userDetail = User::findIdentity(Yii::$app->user->getId());
 
         $model = UserMessage::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', 0])
+            ->where(['id' => $idDecode[0]])
+            ->andWhere(['<>', 'status', UserMessage::STATUS_DELETED])
             ->andWhere(['=', 'recipient_id', $userDetail->id])
             ->one();
 

@@ -4,6 +4,7 @@ namespace app\models;
 
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use Hashids\Hashids;
 
 /**
  * This is the model class for table "user_messages".
@@ -22,6 +23,11 @@ use yii\db\ActiveRecord;
  */
 class UserMessage extends ActiveRecord
 {
+    const STATUS_DELETED = -1;
+    const STATUS_ACTIVE = 10;
+
+    const LENGTH_PAD_HASHID = 5;
+
     /**
      * {@inheritdoc}
      */
@@ -67,8 +73,12 @@ class UserMessage extends ActiveRecord
 
     public function fields()
     {
+        $hashids = new Hashids('', UserMessage::LENGTH_PAD_HASHID);
+
         $fields = [
-            'id',
+            'id' => function () use ($hashids) {
+                return $hashids->encode($this->id);
+            },
             'type',
             'message_id',
             'sender_id',
