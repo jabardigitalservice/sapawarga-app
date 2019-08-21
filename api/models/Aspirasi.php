@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use app\components\ModelHelper;
@@ -28,6 +29,8 @@ use app\validator\IsArrayValidator;
  */
 class Aspirasi extends \yii\db\ActiveRecord
 {
+    use HasArea;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
 
@@ -62,21 +65,6 @@ class Aspirasi extends \yii\db\ActiveRecord
     public function getCategory()
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
     public function scenarios()
@@ -168,37 +156,16 @@ class Aspirasi extends \yii\db\ActiveRecord
             'title',
             'description',
             'kabkota_id',
-            'kabkota'      => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
+            'kabkota' => function () {
+                return $this->getKabkotaField();
             },
             'kec_id',
             'kecamatan'    => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
+                return $this->getKecamatanField();
             },
             'kel_id',
             'kelurahan'    => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
+                return $this->getKelurahanField();
             },
             'likes_count'  => function () {
                 return (int)$this->getLikes()->count();
