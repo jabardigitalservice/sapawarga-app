@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "categories".
@@ -126,14 +127,26 @@ class Category extends \yii\db\ActiveRecord
             $existingName = Category::find()
                 ->where(['name' => $this->$attribute])
                 ->andWhere(['type' => $this->type]);
-            if ($request->isPut) {
-                $existingName->andWhere(['!=', 'id', $this->id]);
-            }
-            $existingName = $existingName->count();
 
-            if ($existingName > 0) {
-                $this->addError($attribute, Yii::t('app', 'error.category.taken'));
-            }
+            return $this->validateNameCreateOrUpdate($request, $attribute, $existingName);
+        }
+    }
+
+    protected function validateNameCreateOrUpdate($request, ActiveQuery $existingName, $attribute)
+    {
+        if ($request->isPut) {
+            $existingName->andWhere(['!=', 'id', $this->id]);
+        }
+
+        return $this->returnError($existingName, $attribute);
+    }
+
+    protected function returnError(ActiveQuery $existingName, $attribute)
+    {
+        $existingName = $existingName->count();
+
+        if ($existingName > 0) {
+            $this->addError($attribute, Yii::t('app', 'error.category.taken'));
         }
     }
 }
