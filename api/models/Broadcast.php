@@ -210,43 +210,6 @@ class Broadcast extends \yii\db\ActiveRecord
     {
         $this->addToUserInbox($this);
 
-        if ($this->enableSendPush) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
-
-            if ($isSendNotification) {
-                $this->data = [
-                    'target'            => 'broadcast',
-                    'id'                => $this->id,
-                    'author'            => $this->author->name,
-                    'title'             => $this->title,
-                    'category_name'     => $this->category->name,
-                    'description'       => $this->description,
-                    'updated_at'        => $this->updated_at ?? time(),
-                    'push_notification' => true,
-                ];
-                // By default,  send notification to all users
-                $topic = self::TOPIC_DEFAULT;
-                if ($this->kel_id && $this->rw) {
-                    $topic = "{$this->kel_id}_{$this->rw}";
-                } elseif ($this->kel_id) {
-                    $topic = (string) $this->kel_id;
-                } elseif ($this->kec_id) {
-                    $topic = (string) $this->kec_id;
-                } elseif ($this->kabkota_id) {
-                    $topic = (string) $this->kabkota_id;
-                }
-
-                $notifModel = new Message();
-                $notifModel->setAttributes([
-                    'title'         => $this->title,
-                    'description'   => $this->description,
-                    'data'          => $this->data,
-                    'topic'         => $topic,
-                ]);
-                $notifModel->send();
-            }
-        }
-
         return parent::afterSave($insert, $changedAttributes);
     }
 
@@ -263,19 +226,19 @@ class Broadcast extends \yii\db\ActiveRecord
             'kec_id' => $model->kec_id,
             'rw' => $model->rw,
         ];
-        $query = User::find()
-            ->select('id');
-        $query = ModelHelper::filterByAreaTopDown($query, $params);
-        $query->asArray()
-            ->all();
 
-        // foreach ($query as $user) {
-        //     \yii\helpers\VarDumper::dump($user);
-        //     Yii::$app->queue->push(new MessageJob([
-        //         'type' => self::CATEGORY_TYPE,
-        //         'instance' => $this,
-        //     ]));
-        // }
+        $query = User::find()->select('id');
+        $query = ModelHelper::filterByAreaTopDown($query, $params);
+
+        if ($query->count() > 0) {
+            foreach ($query->all() as $user) {
+                Yii::$app->queue->push(new MessageJob([
+                    'type' => self::CATEGORY_TYPE,
+                    'recipient_id' => $user->id,
+                    'instance' => $this,
+                ]));
+            }
+        }
     }
 
     /**
