@@ -108,6 +108,7 @@ class Category extends ActiveRecord implements ActiveStatus
     public function validateName($attribute, $params)
     {
         // get post type - POST or PUT
+        // @TODO seharusnya tidak boleh ada request context di model
         $request = Yii::$app->request;
 
         if ($request->isPost || $request->isPut) {
@@ -115,7 +116,7 @@ class Category extends ActiveRecord implements ActiveStatus
                 ->where(['name' => $this->$attribute])
                 ->andWhere(['type' => $this->type]);
 
-            return $this->validateNameCreateOrUpdate($request, $attribute, $existingName);
+            return $this->validateNameCreateOrUpdate($request, $existingName, $attribute);
         }
     }
 
