@@ -14,6 +14,7 @@ class MessageJob extends BaseObject implements JobInterface
 {
     public $type;
     public $instance;
+    public $sender_id;
 
     public function execute($queue)
     {
@@ -44,7 +45,7 @@ class MessageJob extends BaseObject implements JobInterface
             $model->setAttributes([
                 'type' => $this->type,
                 'message_id' => $instance->id,
-                'sender_id' => $instance->author_id,
+                'sender_id' => $this->sender_id,
                 'recipient_id' => $user->id,
                 'title' => $instance->title,
                 'excerpt' => null,

@@ -212,11 +212,14 @@ class Broadcast extends \yii\db\ActiveRecord
         $params = Yii::$app->request->getQueryParams();
 
         if (! Arr::has($params, 'test')) {
-            // Send job queue to insert user_messages per user
-            Yii::$app->queue->push(new MessageJob([
-                'type' => self::CATEGORY_TYPE,
-                'instance' => $this,
-            ]));
+            if (!YII_ENV_TEST) {
+                // Send job queue to insert user_messages per user
+                Yii::$app->queue->push(new MessageJob([
+                    'type' => self::CATEGORY_TYPE,
+                    'sender_id' => $this->author_id,
+                    'instance' => $this,
+                ]));
+            }
         }
 
         return parent::afterSave($insert, $changedAttributes);
