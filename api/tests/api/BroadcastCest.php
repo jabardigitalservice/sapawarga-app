@@ -9,6 +9,60 @@ class BroadcastCest
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
 
         Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
+        Yii::$app->db->createCommand('TRUNCATE user_messages')->execute();
+    }
+
+    public function AdminCreateBroadcastCreateUserMessages(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendPOST('/v1/broadcasts?queue=yes', [
+            'category_id' => 5,
+            'title'       => 'Broadcast Title',
+            'description' => 'Broadcast Description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => null,
+            'status'      => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        // Waiting queue job
+        sleep(5);
+
+        $I->seeInDatabase('user_messages', [
+            'type'          => 'broadcast',
+            'message_id'    => 1,
+            'sender_id'     => 1,
+            'recipient_id'  => 17,
+            'title'         => 'Broadcast Title',
+            'excerpt'       => null,
+            'content'       => 'Broadcast Description',
+            'status'        => 10,
+            'meta'          => null,
+            'read_at'       => null,
+        ]);
+
+        $I->seeInDatabase('user_messages', [
+            'type'          => 'broadcast',
+            'message_id'    => 1,
+            'sender_id'     => 1,
+            'recipient_id'  => 18,
+            'title'         => 'Broadcast Title',
+            'excerpt'       => null,
+            'content'       => 'Broadcast Description',
+            'status'        => 10,
+            'meta'          => null,
+            'read_at'       => null,
+        ]);
     }
 
     private function addNewBroadcast(ApiTester $I, $id, $area) {
@@ -28,145 +82,7 @@ class BroadcastCest
         ]);
     }
 
-    // Test cases for RW/users
-    public function rwGetBroadcastListSameKelurahan(ApiTester $I)
-    {
-        $area = [
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => null,
-        ];
-
-        $I->amUser('staffrw');
-
-        $this->addNewBroadcast($I, 1, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(1, count($data));
-        $I->assertEquals(1, $data[0]['id']);
-
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
-        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
-
-        $I->amUser('staffrw2');
-
-        $this->addNewBroadcast($I, 2, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(1, count($data));
-        $I->assertEquals(2, $data[0]['id']);
-    }
-
-    public function rwGetBroadcastListSameKelurahanDifferentRW(ApiTester $I)
-    {
-        $area = [
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => '001',
-        ];
-
-        $I->amUser('staffrw');
-
-        $this->addNewBroadcast($I, 1, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(1, count($data));
-        $I->assertEquals(1, $data[0]['id']);
-
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
-        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
-
-        $I->amUser('staffrw2');
-
-        $this->addNewBroadcast($I, 2, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(0, count($data));
-    }
-
-    public function userCannotCreateNewTest(ApiTester $I)
-    {
-        $I->amUser();
-
-        $I->sendPOST($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(403);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
-        ]);
-    }
-
-    public function userCannotUpdateTest(ApiTester $I)
-    {
-        $I->amUser();
-
-        $I->sendPUT("{$this->endpointBroadcast}/0");
-        $I->canSeeResponseCodeIs(403);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
-        ]);
-    }
-
-    public function userCannotDeleteTest(ApiTester $I)
-    {
-        $I->amUser();
-
-        $I->sendDELETE("{$this->endpointBroadcast}/0");
-        $I->canSeeResponseCodeIs(403);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
-        ]);
-    }
-
-
     // Test cases for admins
-
     public function staffProvCanCreateBroadcast(ApiTester $I)
     {
         $I->amStaff('staffprov');
@@ -311,54 +227,95 @@ class BroadcastCest
         ]);
     }
 
-    public function AdminCreateBroadcastCreateUsersMessages(ApiTester $I)
+    public function userCannotCreateNewTest(ApiTester $I)
     {
-        $I->amStaff();
+        $I->amUser();
 
-        $I->sendPOST('/v1/broadcasts?test=1', [
+        $I->sendPOST($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function userCannotUpdateTest(ApiTester $I)
+    {
+        $I->amUser();
+
+        $I->sendPUT("{$this->endpointBroadcast}/0");
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function userCannotDeleteTest(ApiTester $I)
+    {
+        $I->amUser();
+
+        $I->sendDELETE("{$this->endpointBroadcast}/0");
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function updateBroadcast(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
             'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
+            'author_id'   => 1,
+            'title'       => 'Kegiatan Gubernur.',
+            'description' => 'Lorem ipsum.',
             'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => null,
             'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
         ]);
 
-        $I->canSeeResponseCodeIs(201);
+        $I->amStaff();
+
+        $I->sendPUT("{$this->endpointBroadcast}/1", [
+            'title' => 'Edited',
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
             'success' => true,
-            'status'  => 201,
+            'status'  => 200,
+        ]);
+    }
+
+    public function deleteBroadcast(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'          => 1,
+            'category_id' => 5,
+            'author_id'   => 1,
+            'title'       => 'Kegiatan Gubernur.',
+            'description' => 'Lorem ipsum.',
+            'kabkota_id'  => 22,
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
         ]);
 
-        $I->seeInDatabase('users_messages', [
-            'type'          => 'broadcast',
-            'message_id'    => 1,
-            'sender_id'     => 1,
-            'recipient_id'  => 17,
-            'title'         => 'Broadcast Title',
-            'excerpt'       => null,
-            'content'       => 'Broadcast Description',
-            'status'        => 10,
-            'meta'          => null,
-            'read_at'       => null,
-        ]);
+        $I->amStaff();
 
-        $I->seeInDatabase('users_messages', [
-            'type'          => 'broadcast',
-            'message_id'    => 1,
-            'sender_id'     => 1,
-            'recipient_id'  => 18,
-            'title'         => 'Broadcast Title',
-            'excerpt'       => null,
-            'content'       => 'Broadcast Description',
-            'status'        => 10,
-            'meta'          => null,
-            'read_at'       => null,
-        ]);
+        $I->sendDELETE("{$this->endpointBroadcast}/1");
+        $I->canSeeResponseCodeIs(204);
     }
 
     public function createNewBroadcastCategoryInvalid(ApiTester $I)
@@ -430,6 +387,100 @@ class BroadcastCest
         $I->seeResponseContainsJson([
             'kabkota_id' => 23,
         ]);
+    }
+
+    // Test cases for RW/users
+    public function rwGetBroadcastListSameKelurahan(ApiTester $I)
+    {
+        $area = [
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => null,
+        ];
+
+        $I->amUser('staffrw');
+
+        $this->addNewBroadcast($I, 1, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
+        $I->assertEquals(1, $data[0]['id']);
+
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
+
+        $I->amUser('staffrw2');
+
+        $this->addNewBroadcast($I, 2, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
+        $I->assertEquals(2, $data[0]['id']);
+    }
+
+    public function rwGetBroadcastListSameKelurahanDifferentRW(ApiTester $I)
+    {
+        $area = [
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'rw'          => '001',
+        ];
+
+        $I->amUser('staffrw');
+
+        $this->addNewBroadcast($I, 1, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(1, count($data));
+        $I->assertEquals(1, $data[0]['id']);
+
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
+
+        $I->amUser('staffrw2');
+
+        $this->addNewBroadcast($I, 2, $area);
+
+        $I->sendGET($this->endpointBroadcast);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(0, count($data));
     }
 
     public function getBroadcastListFilterCategory(ApiTester $I)
@@ -684,52 +735,11 @@ class BroadcastCest
         ]);
     }
 
-    public function updateBroadcast(ApiTester $I)
+    public function _after(ApiTester $I)
     {
-        $I->haveInDatabase('broadcasts', [
-            'id'          => 1,
-            'category_id' => 5,
-            'author_id'   => 1,
-            'title'       => 'Kegiatan Gubernur.',
-            'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 22,
-            'status'      => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
-        ]);
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
 
-        $I->amStaff();
-
-        $I->sendPUT("{$this->endpointBroadcast}/1", [
-            'title' => 'Edited',
-        ]);
-
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-    }
-
-    public function deleteBroadcast(ApiTester $I)
-    {
-        $I->haveInDatabase('broadcasts', [
-            'id'          => 1,
-            'category_id' => 5,
-            'author_id'   => 1,
-            'title'       => 'Kegiatan Gubernur.',
-            'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 22,
-            'status'      => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
-        ]);
-
-        $I->amStaff();
-
-        $I->sendDELETE("{$this->endpointBroadcast}/1");
-        $I->canSeeResponseCodeIs(204);
+        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
+        Yii::$app->db->createCommand('TRUNCATE user_messages')->execute();
     }
 }
