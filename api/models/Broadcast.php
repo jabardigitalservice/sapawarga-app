@@ -208,7 +208,11 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        $this->addToUserInbox($this);
+        // Send job queue to insert user_messages per user
+        Yii::$app->queue->push(new MessageJob([
+            'type' => self::CATEGORY_TYPE,
+            'instance' => $this,
+        ]));
 
         return parent::afterSave($insert, $changedAttributes);
     }
@@ -216,29 +220,6 @@ class Broadcast extends \yii\db\ActiveRecord
     public function setEnableSendPush($boolean)
     {
         $this->enableSendPush = $boolean;
-    }
-
-    public function addToUserInbox($model)
-    {
-        $params = [
-            'kabkota_id' => $model->kabkota_id,
-            'kec_id' => $model->kec_id,
-            'kec_id' => $model->kec_id,
-            'rw' => $model->rw,
-        ];
-
-        $query = User::find()->select('id');
-        $query = ModelHelper::filterByAreaTopDown($query, $params);
-
-        if ($query->count() > 0) {
-            foreach ($query->all() as $user) {
-                Yii::$app->queue->push(new MessageJob([
-                    'type' => self::CATEGORY_TYPE,
-                    'recipient_id' => $user->id,
-                    'instance' => $this,
-                ]));
-            }
-        }
     }
 
     /**

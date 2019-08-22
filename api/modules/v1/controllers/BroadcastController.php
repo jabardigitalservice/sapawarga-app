@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\filters\auth\HttpBearerAuth;
 use app\models\Broadcast;
 use app\models\BroadcastSearch;
+use app\models\UserMessage;
 use app\models\User;
 use Illuminate\Support\Arr;
 use Yii;
@@ -150,6 +151,9 @@ class BroadcastController extends ActiveController
         if ($model->save(false) === false) {
             throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
         }
+
+        // Delete user_messages
+        UserMessage::deleteAll(['message_id' => $id]);
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(204);
