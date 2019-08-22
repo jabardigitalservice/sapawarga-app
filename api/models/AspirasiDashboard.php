@@ -74,10 +74,19 @@ class AspirasiDashboard extends Aspirasi
                 GROUP BY `status`
                 ORDER BY `status`';
 
-        return new SqlDataProvider([
+        $provider = new SqlDataProvider([
             'sql'      => $sql,
             'params'   => [':status_draft' => Aspirasi::STATUS_DRAFT],
         ]);
+
+        $posts = $provider->getModels();
+
+        $data = [];
+        foreach ($posts as $value) {
+            $data[$value['status']] = $value['total_count'];
+        }
+
+        return $data;
     }
 
     /**
