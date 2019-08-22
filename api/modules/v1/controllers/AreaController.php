@@ -18,7 +18,7 @@ use yii\web\ServerErrorHttpException;
  */
 class AreaController extends ActiveController
 {
-    public $modelClass = 'app\models\Area';
+    public $modelClass = Area::class;
 
     public function behaviors()
     {
@@ -43,26 +43,11 @@ class AreaController extends ActiveController
             ],
         ];
 
-        // remove authentication filter
-        $auth = $behaviors['authenticator'];
-        unset($behaviors['authenticator']);
+        return $this->behaviorCors($behaviors);
+    }
 
-        // add CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
-            'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-            ],
-        ];
-
-        // re-add authentication filter
-        $behaviors['authenticator'] = $auth;
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options', 'public'];
-
-        // setup access
+    protected function behaviorAccess($behaviors)
+    {
         $behaviors['access'] = [
             'class' => AccessControl::className(),
             'only' => ['index', 'view', 'create', 'update', 'delete'], //only be applied to
