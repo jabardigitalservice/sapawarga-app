@@ -8,6 +8,7 @@ use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use Illuminate\Support\Arr;
 
 /**
  * This is the model class for table "broadcasts".
@@ -208,11 +209,15 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        // Send job queue to insert user_messages per user
-        Yii::$app->queue->push(new MessageJob([
-            'type' => self::CATEGORY_TYPE,
-            'instance' => $this,
-        ]));
+        $params = Yii::$app->request->getQueryParams();
+
+        if (! Arr::has($params, 'test')) {
+            // Send job queue to insert user_messages per user
+            Yii::$app->queue->push(new MessageJob([
+                'type' => self::CATEGORY_TYPE,
+                'instance' => $this,
+            ]));
+        }
 
         return parent::afterSave($insert, $changedAttributes);
     }
