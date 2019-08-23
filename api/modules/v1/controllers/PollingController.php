@@ -29,13 +29,6 @@ class PollingController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
-            'class'       => CompositeAuth::className(),
-            'authMethods' => [
-                HttpBearerAuth::className(),
-            ],
-        ];
-
         $behaviors['verbs'] = [
             'class'   => \yii\filters\VerbFilter::className(),
             'actions' => [
@@ -52,52 +45,24 @@ class PollingController extends ActiveController
             ],
         ];
 
-        // remove authentication filter
-        $auth = $behaviors['authenticator'];
-        unset($behaviors['authenticator']);
+        return $this->behaviorCors($behaviors);
+    }
 
-        // add CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
-            'cors'  => [
-                'Origin'                         => ['*'],
-                'Access-Control-Request-Method'  => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-            ],
-        ];
-
-        // re-add authentication filter
-        $behaviors['authenticator'] = $auth;
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options', 'public'];
-
+    protected function behaviorAccess($behaviors)
+    {
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
             'only'  => [
-                'index',
-                'view',
-                'create',
-                'update',
-                'delete',
-                'vote',
-                'vote-check',
-                'answer-create',
-                'answer-update',
-                'answer-delete',
+                'index', 'view', 'create', 'update', 'delete', 'vote', 'vote-check',
+                'answer-create', 'answer-update', 'answer-delete',
             ],
             'rules' => [
                 [
                     'allow'   => true,
                     'actions' => [
-                        'index',
-                        'view',
-                        'create',
-                        'update',
-                        'delete',
-                        'answer-create',
-                        'answer-update',
-                        'answer-delete',
+                        'index', 'view', 'create', 'update', 'delete',
+                        'answer-create', 'answer-update', 'answer-delete',
                     ],
                     'roles'   => ['admin', 'pollingManage'],
                 ],

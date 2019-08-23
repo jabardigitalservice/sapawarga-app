@@ -20,13 +20,6 @@ class CategoryController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
-            'class'       => CompositeAuth::className(),
-            'authMethods' => [
-                HttpBearerAuth::className(),
-            ],
-        ];
-
         $behaviors['verbs'] = [
             'class'   => \yii\filters\VerbFilter::className(),
             'actions' => [

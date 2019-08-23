@@ -2,6 +2,8 @@
 
 namespace app\modules\v1\controllers;
 
+use app\filters\auth\HttpBearerAuth;
+use yii\filters\auth\CompositeAuth;
 use yii\rest\ActiveController as BaseActiveController;
 
 class ActiveController extends BaseActiveController
@@ -13,6 +15,20 @@ class ActiveController extends BaseActiveController
         'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'items',
     ];
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['authenticator'] = [
+            'class'       => CompositeAuth::className(),
+            'authMethods' => [
+                HttpBearerAuth::className(),
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     protected function behaviorCors($behaviors)
     {

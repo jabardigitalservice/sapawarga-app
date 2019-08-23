@@ -26,13 +26,6 @@ class NewsController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
-            'class' => CompositeAuth::className(),
-            'authMethods' => [
-                HttpBearerAuth::className(),
-            ],
-        ];
-
         $behaviors['verbs'] = [
             'class' => VerbFilter::className(),
             'actions' => [
