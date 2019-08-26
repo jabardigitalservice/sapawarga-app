@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\filters\auth\HttpBearerAuth;
 use app\models\Broadcast;
 use app\models\BroadcastSearch;
+use app\models\UserMessage;
 use app\models\User;
 use Illuminate\Support\Arr;
 use Yii;
@@ -85,6 +86,7 @@ class BroadcastController extends ActiveController
         // Override Delete Action
         unset($actions['delete']);
         unset($actions['create']);
+        unset($actions['update']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         $actions['view']['findModel'] = [$this, 'findModel'];
@@ -101,8 +103,8 @@ class BroadcastController extends ActiveController
 
         $params = Yii::$app->request->getQueryParams();
 
-        if (Arr::has($params, 'test')) {
-            $model->setEnableSendPush(false);
+        if (!Arr::has($params, 'test')) {
+            $model->setEnableSendUserMessageQueue(true);
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -110,6 +112,38 @@ class BroadcastController extends ActiveController
         if ($model->validate() && $model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
+        } elseif (!$model->hasErrors()) {
+            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
+        } else {
+            // Validation error
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    public function actionUpdate($id)
+    {
+        $model = Broadcast::findOne($id);
+
+        if (empty($model)) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        $params = Yii::$app->request->getQueryParams();
+
+        if (!Arr::has($params, 'test')) {
+            $model->setEnableSendUserMessageQueue(true);
+        }
+
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
         } elseif (!$model->hasErrors()) {
             throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
         } else {
@@ -143,6 +177,9 @@ class BroadcastController extends ActiveController
         if ($model->save(false) === false) {
             throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
         }
+
+        // Delete user_messages
+        UserMessage::deleteAll(['message_id' => $id]);
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(204);
