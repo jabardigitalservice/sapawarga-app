@@ -30,18 +30,6 @@ class SettingController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['verbs'] = [
-            'class' => \yii\filters\VerbFilter::className(),
-            'actions' => [
-                'index' => ['get'],
-                'view' => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-                'public' => ['get'],
-            ],
-        ];
-
         return $this->behaviorCors($behaviors);
     }
 

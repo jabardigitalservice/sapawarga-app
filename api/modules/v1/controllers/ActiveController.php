@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\filters\auth\HttpBearerAuth;
 use yii\filters\auth\CompositeAuth;
+use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
 
 class ActiveController extends BaseActiveController
@@ -19,6 +20,18 @@ class ActiveController extends BaseActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
+
+        $behaviors['verbs'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'index' => ['get'],
+                'view' => ['get'],
+                'create' => ['post'],
+                'update' => ['put'],
+                'delete' => ['delete'],
+                'public' => ['get'],
+            ],
+        ];
 
         $behaviors['authenticator'] = [
             'class'       => CompositeAuth::className(),
