@@ -43,6 +43,7 @@ class Broadcast extends \yii\db\ActiveRecord
      * @var bool
      */
     protected $enableSendPush = true;
+    protected $enableSendUserMessageQueue = false;
 
     /**
      * {@inheritdoc}
@@ -209,20 +210,21 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        $params = Yii::$app->request->getQueryParams();
-
-        if (! Arr::has($params, 'test')) {
-            if (!YII_ENV_TEST) {
-                // Send job queue to insert user_messages per user
-                Yii::$app->queue->push(new MessageJob([
-                    'type' => self::CATEGORY_TYPE,
-                    'sender_id' => $this->author_id,
-                    'instance' => $this,
-                ]));
-            }
+        // Send job queue to insert user_messages per user
+        if ($this->enableSendUserMessageQueue) {
+            Yii::$app->queue->push(new MessageJob([
+                'type' => self::CATEGORY_TYPE,
+                'sender_id' => $this->author_id,
+                'instance' => $this,
+            ]));
         }
 
         return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function setEnableSendUserMessageQueue($boolean)
+    {
+        $this->enableSendUserMessageQueue = $boolean;
     }
 
     public function setEnableSendPush($boolean)
