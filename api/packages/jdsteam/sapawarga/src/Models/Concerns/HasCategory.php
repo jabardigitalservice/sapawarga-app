@@ -15,6 +15,7 @@ trait HasCategory
     protected function rulesCategory()
     {
         return [
+            ['category_id', 'integer'],
             ['category_id', 'validateCategoryID'],
         ];
     }
