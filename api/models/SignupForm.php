@@ -21,11 +21,10 @@ class SignupForm extends Model
      */
     public function rules()
     {
-        return [
+        $rules = [
             ['username', 'trim'],
             ['username', 'required'],
-            [
-                'username',
+            ['username',
                 'unique',
                 'targetClass' => '\app\models\User',
                 'message' => Yii::t('app', 'This username has already been taken.')
@@ -40,6 +39,20 @@ class SignupForm extends Model
                     'Your username can only contain alphanumeric characters, underscores and dashes.'
                 )
             ],
+
+            ['password', 'required'],
+            ['password', 'string', 'min' => 6],
+        ];
+
+        return array_merge(
+            $rules,
+            $this->rulesEmail()
+        );
+    }
+
+    protected function rulesEmail()
+    {
+        return [
             ['email', 'trim'],
             ['email', 'required'],
             ['email', 'email'],
@@ -50,9 +63,6 @@ class SignupForm extends Model
                 'targetClass' => '\app\models\User',
                 'message' => Yii::t('app', 'This email address has already been taken.')
             ],
-
-            ['password', 'required'],
-            ['password', 'string', 'min' => 6],
         ];
     }
 

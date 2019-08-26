@@ -168,11 +168,6 @@ class AspirasiController extends ActiveController
 
     public function actionApproval($id)
     {
-        $action = Yii::$app->request->post('action');
-        $note   = Yii::$app->request->post('note');
-
-        $currentUserId = Yii::$app->user->getId();
-
         $model = $this->findModel($id);
 
         if ($model->status !== Aspirasi::STATUS_APPROVAL_PENDING) {
@@ -181,6 +176,16 @@ class AspirasiController extends ActiveController
 
             return 'Bad Request: Invalid Object Status';
         }
+
+        return $this->processApproval($model);
+    }
+
+    protected function processApproval($model)
+    {
+        $action = Yii::$app->request->post('action');
+        $note   = Yii::$app->request->post('note');
+
+        $currentUserId = Yii::$app->user->getId();
 
         if ($action === 'APPROVE') {
             $model->status      = Aspirasi::STATUS_PUBLISHED;
@@ -192,7 +197,6 @@ class AspirasiController extends ActiveController
         } else {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(400);
-
             return 'Bad Request: Invalid Action';
         }
 
