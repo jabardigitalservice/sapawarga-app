@@ -1,0 +1,43 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: sapawarga-backend-config-env
+  namespace: sapawarga
+data:
+  PHP_ENABLE_XDEBUG: "0"
+  YII_ENV_DEV: "1"
+  APP_STORAGE_LOCAL_URL: http://localhost/api
+  MYSQL_HOST: sapawarga-mysql
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: sapawarga
+  CACHE_USE_MEMCACHED: "true"
+  CACHE_SERVERS: memcached
+  CACHE_PORT: "11211"
+  CACHE_WEIGHT: "60"
+  MAILER_TRANSPORT_FILE: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sapawarga-backend-secret
+  namespace: sapawarga
+data:
+  COOKIE_VALIDATION_KEY: %COOKIE_VALIDATION_KEY% # K0I9yOJPLBqbaam4IWrqtelfxp1m1zEXB04f5H6D
+  MYSQL_USER: %MYSQL_USER% # Base64 decoded=mysqluser
+  MYSQL_PASSWORD: %MYSQL_PASSWORD% # Base64 decoded=asdf1234
+  MYSQL_ROOT_PASSWORD: %MYSQL_ROOT_PASSWORD% # Base64 decoded=asdf1234
+  # CACHE_USERNAME: 
+  # CACHE_PASSWORD: 
+  # MAILER_USER: 
+  # MAILER_PASSWORD:  
+  # MAILER_ENCRYPTION: 
+  # FCM_KEY: 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: regcred
+  namespace: sapawarga
+data:
+  .dockerconfigjson: %dockerconfigjson% # Base64 decoded={"auths": {"your.registry.host": {"auth": "username:password"}}}
+type: kubernetes.io/dockerconfigjson
