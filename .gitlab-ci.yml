@@ -13,8 +13,6 @@ stages:
 
 code_quality:
   image: docker:stable
-  only: # for test purpose
-    - master
   stage: code_quality
   services:
     - docker:stable-dind
@@ -36,8 +34,6 @@ code_quality:
 
 build_dev:
   stage: build
-  only: # for test purpose
-    - master
   image: docker:stable
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -50,8 +46,6 @@ build_dev:
 
 test_api:
   stage: test
-  only: # for test purpose
-    - master
   image: docker:stable
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -69,8 +63,6 @@ test_api:
 
 release_all:
   stage: release
-  only: # for test purpose
-    - master
   image: docker:stable
   only:
     - master
@@ -89,8 +81,8 @@ release_all:
 deploy_staging:
   stage: deploy
   image: docker:stable
-  # only:
-  #   - master
+  only:
+    - master
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
