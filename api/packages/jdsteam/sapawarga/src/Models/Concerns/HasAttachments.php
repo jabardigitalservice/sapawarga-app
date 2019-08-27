@@ -2,8 +2,9 @@
 
 namespace Jdsteam\Sapawarga\Models\Concerns;
 
-use app\models\Category;
 use app\validator\IsArrayValidator;
+use Yii;
+use yii2tech\filestorage\BucketInterface;
 
 trait HasAttachments
 {
@@ -23,11 +24,16 @@ trait HasAttachments
             return null;
         }
 
-        return array_map(function ($item) {
+        /**
+         * @var BucketInterface $bucket
+         */
+        $bucket = Yii::$app->fileStorage->getBucket($this->bucket);
+
+        return array_map(function ($item) use ($bucket) {
             return [
                 'type' => $item['type'],
                 'path' => $item['path'],
-                'url'  => $this->bucket->getFileUrl($item['path']),
+                'url'  => $bucket->getFileUrl($item['path']),
             ];
         }, $this->attachments);
     }
