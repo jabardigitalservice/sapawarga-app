@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sapawarga-mysql
+  namespace: sapawarga
+spec:
+  template:
+    metadata:
+      labels:
+        app: sapawarga-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:latest
+        ports:
+          - containerPort: 3306
+        volumeMounts:
+          - name: mysql-persistent-storage
+            mountPath: /var/lib/mysql
+            subPath: mysql-data
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_ROOT_PASSWORD
+          - name: MYSQL_USER
+            valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_USER
+          - name: MYSQL_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_PASSWORD
+          - name: MYSQL_DATABASE
+            valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_DATABASE
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim

@@ -54,14 +54,21 @@ class HttpBearerAuth extends \yii\filters\auth\AuthMethod
 
         if ($authHeader !== null && preg_match('/^Bearer\s+(.*?)$/', $authHeader, $matches)) {
             Yii::debug('authenticate matches => ' . print_r($matches, true));
-            $identity = $user->loginByAccessToken($matches[1], get_class($this));
-            if ($identity === null) {
-                $this->handleFailure($response);
-            }
-            return $identity;
+
+            return $this->getIdentity($user, $matches, $response);
         }
 
         return null;
+    }
+
+    protected function getIdentity($user, $matches, $response)
+    {
+        $identity = $user->loginByAccessToken($matches[1], get_class($this));
+        if ($identity === null) {
+            $this->handleFailure($response);
+        }
+
+        return $identity;
     }
 
     /**

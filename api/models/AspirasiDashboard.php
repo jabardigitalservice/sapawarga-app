@@ -64,17 +64,29 @@ class AspirasiDashboard extends Aspirasi
     public function getAspirasiCounts($params)
     {
         // Query
-        $sql = 'SELECT `status`, count(id) AS total_count
+        $sql = 'SELECT 	CASE
+                    WHEN `status` = 3 THEN "STATUS_APPROVAL_REJECTED"
+                    WHEN `status` = 5 THEN "STATUS_APPROVAL_PENDING"
+                    WHEN `status` = 10 THEN "STATUS_PUBLISHED"
+                    END as `status`, count(id) AS total_count
                 FROM aspirasi
-                WHERE `status` = :status_active OR `status` = :status_pending
+                WHERE `status` > :status_draft
                 GROUP BY `status`
                 ORDER BY `status`';
 
-        return new SqlDataProvider([
+        $provider = new SqlDataProvider([
             'sql'      => $sql,
-            'params'   => [':status_active' => Aspirasi::STATUS_PUBLISHED,
-                           ':status_pending' => Aspirasi::STATUS_APPROVAL_PENDING],
+            'params'   => [':status_draft' => Aspirasi::STATUS_DRAFT],
         ]);
+
+        $posts = $provider->getModels();
+
+        $data = [];
+        foreach ($posts as $value) {
+            $data[$value['status']] = $value['total_count'];
+        }
+
+        return $data;
     }
 
     /**

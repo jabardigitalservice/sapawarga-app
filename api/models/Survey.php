@@ -4,6 +4,8 @@ namespace app\models;
 
 use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -24,6 +26,8 @@ use yii\db\ActiveRecord;
  */
 class Survey extends ActiveRecord
 {
+    use HasArea, HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
     const STATUS_DISABLED = 1;
@@ -44,131 +48,75 @@ class Survey extends ActiveRecord
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['title', 'status', 'external_url', 'category_id'], 'required'],
             [['title', 'status', 'external_url', 'category_id'], 'trim'],
-
             ['title', 'string', 'min' => 10],
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
-
-            ['category_id', 'integer'],
-            ['category_id', 'validateCategoryID'],
-
             ['external_url', 'url'],
-
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
-            [
-                'start_date',
-                'compare',
-                'compareAttribute'       => 'end_date',
-                'operator'               => '<',
-            ],
-            [
-                'end_date',
-                'compare',
-                'compareAttribute'       => 'start_date',
-                'operator'               => '>',
-            ],
-
+            ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
+            ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
             ['status', 'in', 'range' => [-1, 0, 1, 10]],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesCategory()
+        );
     }
 
     public function fields()
     {
-        $fields = [
+        return [
             'id',
             'category_id',
-            'category'     => function () {
-                return [
-                    'id'   => $this->category->id,
-                    'name' => $this->category->name,
-                ];
-            },
+            'category' => 'CategoryField',
             'title',
             'external_url',
             'start_date',
             'end_date',
             'meta',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_PUBLISHED:
-                        $statusLabel = Yii::t('app', 'status.published');
-                        break;
-                    case self::STATUS_DISABLED:
-                        $statusLabel = Yii::t('app', 'status.inactive');
-                        break;
-                    case self::STATUS_DRAFT:
-                        $statusLabel = Yii::t('app', 'status.draft');
-                        break;
-                    case self::STATUS_DELETED:
-                        $statusLabel = Yii::t('app', 'status.deleted');
-                        break;
-                }
-                return $statusLabel;
-            },
+            'status_label' => 'StatusLabel',
             'kabkota_id',
-            'kabkota'      => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'kec_id',
-            'kecamatan'    => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kel_id',
-            'kelurahan'    => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'rw',
             'created_at',
             'updated_at',
         ];
+    }
 
-        return $fields;
+    protected function getStatusLabel()
+    {
+        $statusLabel = '';
+
+        switch ($this->status) {
+            case self::STATUS_PUBLISHED:
+                $statusLabel = Yii::t('app', 'status.published');
+                break;
+            case self::STATUS_DISABLED:
+                $statusLabel = Yii::t('app', 'status.inactive');
+                break;
+            case self::STATUS_DRAFT:
+                $statusLabel = Yii::t('app', 'status.draft');
+                break;
+            case self::STATUS_DELETED:
+                $statusLabel = Yii::t('app', 'status.deleted');
+                break;
+        }
+
+        return $statusLabel;
     }
 
     public function afterSave($insert, $changedAttributes)

@@ -3,6 +3,10 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -27,11 +31,9 @@ use app\components\ModelHelper;
  * @property int $updated_at
  */
 
-class Video extends ActiveRecord
+class Video extends ActiveRecord implements ActiveStatus
 {
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_ACTIVE = 10;
+    use HasArea, HasCategory, HasActiveStatus;
 
     const CATEGORY_TYPE = 'video';
 
@@ -43,22 +45,12 @@ class Video extends ActiveRecord
         return 'videos';
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
-        return [
+        $rules = [
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
@@ -73,11 +65,12 @@ class Video extends ActiveRecord
                  'integer'
             ],
             ['video_url', 'match', 'pattern' => '/^(https:\/\/www.youtube.com)\/.+$/'],
-            ['category_id', 'validateCategoryID'],
             ['source', 'in', 'range' => ['youtube']],
             ['status', 'in', 'range' => [-1, 0, 10]],
             ['seq', 'in', 'range' => [1, 2, 3, 4, 5]],
         ];
+
+        return array_merge($rules, $this->rulesCategory());
     }
 
     public function fields()
@@ -86,55 +79,20 @@ class Video extends ActiveRecord
             'id',
             'title',
             'category_id',
-            'category' => function () {
-                return [
-                    'id'   => $this->category->id,
-                    'name' => $this->category->name,
-                ];
-            },
+            'category' => 'CategoryField',
             'source',
             'video_url',
             'kabkota_id',
-            'kabkota' => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabupaten' => 'KabkotaField',
             'total_likes',
             'seq',
             'status',
-            'status_label' => function () {
-                return $this->getStatusLabel();
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
         ];
 
         return $fields;
-    }
-
-    protected function getStatusLabel()
-    {
-        $statusLabel = '';
-
-        switch ($this->status) {
-            case self::STATUS_ACTIVE:
-                $statusLabel = Yii::t('app', 'status.active');
-                break;
-            case self::STATUS_DISABLED:
-                $statusLabel = Yii::t('app', 'status.inactive');
-                break;
-            case self::STATUS_DELETED:
-                $statusLabel = Yii::t('app', 'status.deleted');
-                break;
-        }
-
-        return $statusLabel;
     }
 
     /**
@@ -166,15 +124,5 @@ class Video extends ActiveRecord
             ],
             BlameableBehavior::class,
         ];
-    }
-    /**
-     * Checks if category type is broadcast
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 }

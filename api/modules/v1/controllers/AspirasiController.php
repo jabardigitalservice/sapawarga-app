@@ -25,13 +25,6 @@ class AspirasiController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
-            'class'       => CompositeAuth::className(),
-            'authMethods' => [
-                HttpBearerAuth::className(),
-            ],
-        ];
-
         $behaviors['verbs'] = [
             'class'   => \yii\filters\VerbFilter::className(),
             'actions' => [
@@ -47,25 +40,11 @@ class AspirasiController extends ActiveController
             ],
         ];
 
-        // remove authentication filter
-        $auth = $behaviors['authenticator'];
-        unset($behaviors['authenticator']);
+        return $this->behaviorCors($behaviors);
+    }
 
-        // add CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
-            'cors'  => [
-                'Origin'                         => ['*'],
-                'Access-Control-Request-Method'  => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-            ],
-        ];
-
-        // re-add authentication filter
-        $behaviors['authenticator'] = $auth;
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options', 'public'];
-
+    protected function behaviorAccess($behaviors)
+    {
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -189,11 +168,6 @@ class AspirasiController extends ActiveController
 
     public function actionApproval($id)
     {
-        $action = Yii::$app->request->post('action');
-        $note   = Yii::$app->request->post('note');
-
-        $currentUserId = Yii::$app->user->getId();
-
         $model = $this->findModel($id);
 
         if ($model->status !== Aspirasi::STATUS_APPROVAL_PENDING) {
@@ -202,6 +176,16 @@ class AspirasiController extends ActiveController
 
             return 'Bad Request: Invalid Object Status';
         }
+
+        return $this->processApproval($model);
+    }
+
+    protected function processApproval($model)
+    {
+        $action = Yii::$app->request->post('action');
+        $note   = Yii::$app->request->post('note');
+
+        $currentUserId = Yii::$app->user->getId();
 
         if ($action === 'APPROVE') {
             $model->status      = Aspirasi::STATUS_PUBLISHED;
@@ -213,7 +197,6 @@ class AspirasiController extends ActiveController
         } else {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(400);
-
             return 'Bad Request: Invalid Action';
         }
 

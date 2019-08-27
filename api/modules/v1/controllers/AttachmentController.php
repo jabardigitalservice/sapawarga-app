@@ -29,13 +29,6 @@ class AttachmentController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
-            'class'       => CompositeAuth::className(),
-            'authMethods' => [
-                HttpBearerAuth::className(),
-            ],
-        ];
-
         $behaviors['verbs'] = [
             'class'   => \yii\filters\VerbFilter::className(),
             'actions' => [
@@ -43,25 +36,11 @@ class AttachmentController extends ActiveController
             ],
         ];
 
-        // remove authentication filter
-        $auth = $behaviors['authenticator'];
-        unset($behaviors['authenticator']);
+        return $this->behaviorCors($behaviors);
+    }
 
-        // add CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
-            'cors'  => [
-                'Origin'                         => ['*'],
-                'Access-Control-Request-Method'  => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-            ],
-        ];
-
-        // re-add authentication filter
-        $behaviors['authenticator'] = $auth;
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options', 'public'];
-
+    protected function behaviorAccess($behaviors)
+    {
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -82,19 +61,7 @@ class AttachmentController extends ActiveController
     {
         $type = Yii::$app->request->post('type');
 
-        $model = null;
-
-        switch ($type) {
-            case 'phonebook_photo':
-                $model = new PhoneBookPhotoForm();
-                break;
-            case 'aspirasi_photo':
-                $model = new AspirasiPhotoForm();
-                break;
-            case 'news_photo':
-                $model = new NewsPhotoForm();
-                break;
-        }
+        $model = $this->getModelType($type);
 
         if ($model === null) {
             $response = Yii::$app->getResponse();
@@ -127,5 +94,25 @@ class AttachmentController extends ActiveController
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(400);
+    }
+
+    protected function getModelType($type)
+    {
+        switch ($type) {
+            case 'phonebook_photo':
+                $model = new PhoneBookPhotoForm();
+                break;
+            case 'aspirasi_photo':
+                $model = new AspirasiPhotoForm();
+                break;
+            case 'news_photo':
+                $model = new NewsPhotoForm();
+                break;
+            default:
+                $model = null;
+                break;
+        }
+
+        return $model;
     }
 }

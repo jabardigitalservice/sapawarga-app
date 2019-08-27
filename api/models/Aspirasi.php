@@ -2,11 +2,15 @@
 
 namespace app\models;
 
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasAttachments;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use app\validator\IsArrayValidator;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "aspirasi".
@@ -26,12 +30,15 @@ use app\validator\IsArrayValidator;
  * @property string $approval_note
  * @property int $approved_by
  */
-class Aspirasi extends \yii\db\ActiveRecord
+class Aspirasi extends ActiveRecord
 {
+    use HasArea, HasCategory, HasAttachments;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
-    const STATUS_APPROVAL_PENDING = 5;
+
     const STATUS_APPROVAL_REJECTED = 3;
+    const STATUS_APPROVAL_PENDING = 5;
     const STATUS_PUBLISHED = 10;
 
     const CATEGORY_TYPE = 'aspirasi';
@@ -58,26 +65,6 @@ class Aspirasi extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     public function scenarios()
     {
         $scenarios = parent::scenarios();
@@ -90,171 +77,159 @@ class Aspirasi extends \yii\db\ActiveRecord
      */
     public function rules()
     {
-        return [
+        $rules = [
             [
-                [
-                    'title',
-                    'description',
-                    'kabkota_id',
-                    'kec_id',
-                    'kel_id',
-                    'author_id',
-                    'category_id',
-                    'status',
-                ],
+                ['title', 'description', 'kabkota_id', 'kec_id', 'kel_id', 'author_id', 'category_id', 'status'],
                 'required',
             ],
-            ['category_id', 'validateCategoryID'],
             [['title', 'description', 'rw', 'meta'], 'trim'],
+            ['description', 'string', 'max' => 1024 * 3],
+            ['description', InputCleanValidator::class],
+            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
+            ['meta', 'default'],
+            ['approved_by', 'default'],
+            ['approved_at', 'default'],
+            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
+            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
+        ];
+
+        return array_merge(
+            $rules,
+            $this->rulesTitle(),
+            $this->rulesApprovalNote(),
+            $this->rulesRw(),
+            $this->rulesCategory(),
+            $this->rulesAttachments()
+        );
+    }
+
+    protected function rulesTitle()
+    {
+        return [
             ['title', 'string', 'max' => 255],
             ['title', 'string', 'min' => 5],
             ['title', InputCleanValidator::class],
-            ['description', 'string', 'max' => 1024 * 3],
-            // ['description', 'string', 'min' => 5],
-            ['description', InputCleanValidator::class],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern'),
-            ],
-            ['rw', 'default'],
-            ['attachments', 'default'],
-            ['attachments', IsArrayValidator::class],
-            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['meta', 'default'],
+        ];
+    }
+
+    protected function rulesApprovalNote()
+    {
+        return [
+            ['approval_note', 'default'],
             [
                 'approval_note',
                 'required',
                 'when' => function ($model) {
                     return $model->status === self::STATUS_APPROVAL_REJECTED;
                 },
-            ],
-            ['approval_note', 'default'],
-            ['approved_by', 'default'],
-            ['approved_at', 'default'],
-
-            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
-            ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
+            ]
         ];
     }
 
     public function fields()
     {
-        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
-
-        $fields = [
+        return [
             'id',
             'author_id',
-            'author'       => function () {
-                return [
-                    'id'         => $this->author->id,
-                    'name'       => $this->author->name,
-                    'photo_url'  => $this->author->photo_url,
-                    'role_label' => $this->author->getRoleLabel(),
-                    'email'      => $this->author->email,
-                    'phone'      => $this->author->phone,
-                    'address'    => $this->author->address,
-                ];
-            },
+            'author' => 'AuthorField',
             'category_id',
-            'category'     => function () {
-                return [
-                    'id'   => $this->category->id,
-                    'name' => $this->category->name,
-                ];
-            },
+            'category' => 'CategoryField',
             'title',
             'description',
             'kabkota_id',
-            'kabkota'      => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabupaten' => 'KabkotaField',
             'kec_id',
-            'kecamatan'    => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kel_id',
-            'kelurahan'    => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
-            'likes_count'  => function () {
-                return (int)$this->getLikes()->count();
-            },
-            'likes_users'  => function () {
-                // @TODO too many callback function
-                return array_map(function ($item) {
-                    return [
-                        'id'   => $item->id,
-                        'name' => $item->name,
-                    ];
-                }, $this->likes);
-            },
+            'kelurahan'  => 'KelurahanField',
+            'likes_count'  => 'LikesCount',
+            'likes_users' => 'LikesUsers',
             'rw',
             'meta',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_PUBLISHED:
-                        $statusLabel = Yii::t('app', 'status.published');
-                        break;
-                    case self::STATUS_DRAFT:
-                        $statusLabel = Yii::t('app', 'status.draft');
-                        break;
-                    case self::STATUS_DELETED:
-                        $statusLabel = Yii::t('app', 'status.deleted');
-                        break;
-                    case self::STATUS_APPROVAL_PENDING:
-                        $statusLabel = Yii::t('app', 'status.approval-pending');
-                        break;
-                    case self::STATUS_APPROVAL_REJECTED:
-                        $statusLabel = Yii::t('app', 'status.approval-rejected');
-                        break;
-                }
-                return $statusLabel;
-            },
+            'status_label' => 'StatusLabel',
             'approval_note',
-            'attachments'  => function () use ($bucket) {
-                if ($this->attachments === null) {
-                    return null;
-                }
-
-                // @TODO too many callback function
-                return array_map(function ($item) use ($bucket) {
-                    return [
-                        'type' => $item['type'],
-                        'path' => $item['path'],
-                        'url'  => $bucket->getFileUrl($item['path']),
-                    ];
-                }, $this->attachments);
-            },
+            'attachments'  => 'AttachmentsField',
             'created_at',
             'updated_at',
         ];
+    }
 
-        return $fields;
+    protected function getAuthorField()
+    {
+        return [
+            'id'         => $this->author->id,
+            'name'       => $this->author->name,
+            'photo_url'  => $this->author->photo_url,
+            'role_label' => $this->author->getRoleLabel(),
+            'email'      => $this->author->email,
+            'phone'      => $this->author->phone,
+            'address'    => $this->author->address,
+        ];
+    }
+
+    protected function getLikesCount()
+    {
+        return (int)$this->getLikes()->count();
+    }
+
+    protected function getLikesUsers()
+    {
+        return array_map(function ($item) {
+            return [
+                'id'   => $item->id,
+                'name' => $item->name,
+            ];
+        }, $this->likes);
+    }
+
+    protected function getStatusLabel()
+    {
+        if (in_array($this->status, [
+            self::STATUS_DRAFT,
+            self::STATUS_PUBLISHED,
+            self::STATUS_APPROVAL_PENDING,
+            self::STATUS_APPROVAL_REJECTED])
+        ) {
+            return $this->getStatusAspirasi();
+        }
+
+        return $this->getStatusCommon();
+    }
+
+    private function getStatusAspirasi()
+    {
+        $statusLabel = '';
+
+        switch ($this->status) {
+            case self::STATUS_PUBLISHED:
+                $statusLabel = Yii::t('app', 'status.published');
+                break;
+            case self::STATUS_APPROVAL_PENDING:
+                $statusLabel = Yii::t('app', 'status.approval-pending');
+                break;
+            case self::STATUS_APPROVAL_REJECTED:
+                $statusLabel = Yii::t('app', 'status.approval-rejected');
+                break;
+            case self::STATUS_DRAFT:
+                $statusLabel = Yii::t('app', 'status.draft');
+                break;
+        }
+
+        return $statusLabel;
+    }
+
+    private function getStatusCommon()
+    {
+        $statusLabel = '';
+
+        switch ($this->status) {
+            case self::STATUS_DELETED:
+                $statusLabel = Yii::t('app', 'status.deleted');
+                break;
+        }
+
+        return $statusLabel;
     }
 
     /** @inheritdoc */
@@ -282,16 +257,5 @@ class Aspirasi extends \yii\db\ActiveRecord
         }
 
         return parent::beforeSave($insert);
-    }
-
-    /**
-     * Checks if category type is aspirasi
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 }

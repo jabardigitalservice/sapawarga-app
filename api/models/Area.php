@@ -56,23 +56,28 @@ class Area extends \yii\db\ActiveRecord
             'longitude',
             'meta',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_ACTIVE:
-                        $statusLabel = Yii::t('app', 'Active');
-                        break;
-                    case self::STATUS_INACTIVE:
-                        $statusLabel = Yii::t('app', 'Not Active');
-                        break;
-                }
-                return $statusLabel;
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
         ];
 
         return $fields;
+    }
+
+    protected function getStatusLabel()
+    {
+        $statusLabel = '';
+
+        switch ($this->status) {
+            case self::STATUS_ACTIVE:
+                $statusLabel = Yii::t('app', 'Active');
+                break;
+            case self::STATUS_INACTIVE:
+                $statusLabel = Yii::t('app', 'Not Active');
+                break;
+        }
+
+        return $statusLabel;
     }
 
     /**

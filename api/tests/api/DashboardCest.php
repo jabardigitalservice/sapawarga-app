@@ -163,13 +163,10 @@ class DashboardCest
             'status'  => 200,
         ]);
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
 
-        $I->assertEquals(5, $data[0][0]['status']);
-        $I->assertEquals(1, $data[0][0]['total_count']);
-
-        $I->assertEquals(10, $data[0][1]['status']);
-        $I->assertEquals(4, $data[0][1]['total_count']);
+        $I->assertEquals(1, $data[0]['STATUS_APPROVAL_PENDING']);
+        $I->assertEquals(4, $data[0]['STATUS_PUBLISHED']);
     }
 
     public function getAspirasiCountByWilayahTest(ApiTester $I)
