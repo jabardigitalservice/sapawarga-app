@@ -48,7 +48,7 @@ spec:
             - name: FCM_KEY
               valueFrom:
                 configMapKeyRef:
-                  name: sapawarga-backend-config-env
+                  name: sapawarga-backend-secret
                   key: FCM_KEY
             - name: COOKIE_VALIDATION_KEY
               valueFrom:
