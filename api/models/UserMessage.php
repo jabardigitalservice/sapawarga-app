@@ -2,9 +2,10 @@
 
 namespace app\models;
 
+use Jdsteam\Sapawarga\Models\Concerns\HasSenderName;
+use Jdsteam\Sapawarga\Models\Concerns\HasHashesId;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use Hashids\Hashids;
 
 /**
  * This is the model class for table "user_messages".
@@ -23,10 +24,13 @@ use Hashids\Hashids;
  */
 class UserMessage extends ActiveRecord
 {
+    use HasSenderName, HasHashesId;
+
     const STATUS_DELETED = -1;
     const STATUS_ACTIVE = 10;
 
-    const LENGTH_PAD_HASHID = 5;
+    const HASHID_SALT_SECRET = 'JDSSaltSecret';
+    const HASHID_LENGTH_PAD = 5;
 
     /**
      * {@inheritdoc}
@@ -49,16 +53,6 @@ class UserMessage extends ActiveRecord
         return $result;
     }
 
-    public function getSender()
-    {
-        return $this->hasOne(User::class, ['id' => 'sender_id']);
-    }
-
-    public function getRecipient()
-    {
-        return $this->hasOne(User::class, ['id' => 'recipient_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -73,22 +67,12 @@ class UserMessage extends ActiveRecord
 
     public function fields()
     {
-        $hashids = new Hashids('', UserMessage::LENGTH_PAD_HASHID);
-
         $fields = [
-            'id' => function () use ($hashids) {
-                return $hashids->encode($this->id);
-            },
+            'id' => 'HashesId',
             'type',
             'message_id',
             'sender_id',
-            'sender_name' => function () {
-                if ($this->sender) {
-                    return $this->sender->name;
-                } else {
-                    return null;
-                }
-            },
+            'sender_name' => 'SenderName',
             'recipient_id',
             'title',
             'excerpt',
@@ -108,10 +92,10 @@ class UserMessage extends ActiveRecord
     {
         return [
             [
-                'class'              => TimestampBehavior::className(),
+                'class' => TimestampBehavior::className(),
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
-                'value'              => time(),
+                'value' => time(),
             ],
         ];
     }

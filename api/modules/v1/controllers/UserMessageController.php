@@ -102,7 +102,7 @@ class UserMessageController extends ActiveController
      */
     public function findModel($id)
     {
-        $hashids = new Hashids('', UserMessage::LENGTH_PAD_HASHID);
+        $hashids = new Hashids(UserMessage::HASHID_SALT_SECRET, UserMessage::HASHID_LENGTH_PAD);
         $idDecode = $hashids->decode($id);
 
         if (empty($idDecode)) {

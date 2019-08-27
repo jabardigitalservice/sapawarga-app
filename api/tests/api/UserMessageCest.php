@@ -128,7 +128,7 @@ class UserMessageCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
-        $I->assertEquals('lejRe', $data[0]['id']);
+        $I->assertEquals('z9AY9', $data[0]['id']);
         $I->assertEquals(17, $data[0]['recipient_id']);
     }
 
@@ -181,7 +181,7 @@ class UserMessageCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
-        $I->assertEquals('lejRe', $data[0]['id']);
+        $I->assertEquals('z9AY9', $data[0]['id']);
         $I->assertEquals(17, $data[0]['recipient_id']);
     }
 
@@ -205,7 +205,7 @@ class UserMessageCest
 
         $I->amUser('staffrw');
 
-        $I->sendGET('/v1/user-messages/lejRe');
+        $I->sendGET('/v1/user-messages/z9AY9');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -216,7 +216,7 @@ class UserMessageCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data');
 
-        $I->assertEquals('lejRe', $data[0]['id']);
+        $I->assertEquals('z9AY9', $data[0]['id']);
         $I->assertEquals(17, $data[0]['recipient_id']);
         $I->assertNotNull($data[0]['read_at']);
     }
