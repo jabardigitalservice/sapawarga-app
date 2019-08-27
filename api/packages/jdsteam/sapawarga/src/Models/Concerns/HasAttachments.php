@@ -33,7 +33,7 @@ trait HasAttachments
         $this->setBucket($bucket);
     }
 
-    public function setBucket($bucket = null)
+    public function setBucket($bucket)
     {
         $this->bucket = $bucket;
     }
