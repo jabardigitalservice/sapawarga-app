@@ -13,6 +13,8 @@ stages:
 
 code_quality:
   image: docker:stable
+  only: # for test purpose
+    - master
   stage: code_quality
   services:
     - docker:stable-dind
@@ -34,6 +36,8 @@ code_quality:
 
 build_dev:
   stage: build
+  only: # for test purpose
+    - master
   image: docker:stable
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -46,6 +50,8 @@ build_dev:
 
 test_api:
   stage: test
+  only: # for test purpose
+    - master
   image: docker:stable
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -63,6 +69,8 @@ test_api:
 
 release_all:
   stage: release
+  only: # for test purpose
+    - master
   image: docker:stable
   only:
     - master
@@ -81,8 +89,8 @@ release_all:
 deploy_staging:
   stage: deploy
   image: docker:stable
-  only:
-    - master
+  # only:
+  #   - master
   before_script:
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
@@ -90,7 +98,10 @@ deploy_staging:
     - chmod 400 $SSH_STAGING_KEY_PRIVATE
     - ssh-add $SSH_STAGING_KEY_PRIVATE
   script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "IMAGETAG=${IMAGETAG};cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
+    - echo ${IMAGETAG}
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "IMAGETAG=${IMAGETAG}"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "echo $IMAGETAG"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
 
 deploy_production:
