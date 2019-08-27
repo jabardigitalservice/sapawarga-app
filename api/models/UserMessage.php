@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Jdsteam\Sapawarga\Models\Concerns\HasSenderName;
 use Jdsteam\Sapawarga\Models\Concerns\HasHashedId;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -24,7 +23,7 @@ use yii\db\ActiveRecord;
  */
 class UserMessage extends ActiveRecord
 {
-    use HasSenderName, HasHashedId;
+    use HasHashedId;
 
     const STATUS_DELETED = -1;
     const STATUS_ACTIVE = 10;
