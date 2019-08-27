@@ -8,7 +8,7 @@ use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Yii;
 use yii\behaviors\TimestampBehavior;
-use Illuminate\Support\Arr;
+use yii\queue\db\Queue;
 
 /**
  * This is the model class for table "broadcasts".
@@ -209,16 +209,63 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        // Send job queue to insert user_messages per user
         if ($this->enableSendUserMessage) {
-            Yii::$app->queue->push(new MessageJob([
-                'type' => self::CATEGORY_TYPE,
-                'sender_id' => $this->author_id,
-                'instance' => $this,
-            ]));
+            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+            if ($isSendNotification) {
+                $this->handleFinishedJob();
+                // Send job queue to insert user_messages per user
+                Yii::$app->queue->push(new MessageJob([
+                    'type' => self::CATEGORY_TYPE,
+                    'sender_id' => $this->author_id,
+                    'instance' => $this,
+                ]));
+            }
         }
 
         return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function handleFinishedJob()
+    {
+        Yii::$app->queue->on(Queue::EVENT_AFTER_EXEC, function ($event) {
+            if ($event->job instanceof MessageJob) {
+                $this->sendPushNotification();
+            }
+        });
+    }
+
+    public function sendPushNotification()
+    {
+        $this->data = [
+            'target'            => 'broadcast',
+            'id'                => $this->id,
+            'author'            => $this->author->name,
+            'title'             => $this->title,
+            'category_name'     => $this->category->name,
+            'description'       => $this->description,
+            'updated_at'        => $this->updated_at ?? time(),
+            'push_notification' => true,
+        ];
+        // By default,  send notification to all users
+        $topic = self::TOPIC_DEFAULT;
+        if ($this->kel_id && $this->rw) {
+            $topic = "{$this->kel_id}_{$this->rw}";
+        } elseif ($this->kel_id) {
+            $topic = (string) $this->kel_id;
+        } elseif ($this->kec_id) {
+            $topic = (string) $this->kec_id;
+        } elseif ($this->kabkota_id) {
+            $topic = (string) $this->kabkota_id;
+        }
+
+        $notifModel = new Message();
+        $notifModel->setAttributes([
+            'title'         => $this->title,
+            'description'   => $this->description,
+            'data'          => $this->data,
+            'topic'         => $topic,
+        ]);
+        $notifModel->send();
     }
 
     public function setEnableSendUserMessage($boolean)

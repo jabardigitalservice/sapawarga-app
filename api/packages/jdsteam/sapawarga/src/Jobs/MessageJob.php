@@ -61,7 +61,6 @@ class MessageJob extends BaseObject implements JobInterface
                 echo sprintf("Job failed! type = %s, id = %s, recipient_id = %s \n", $this->type, $instance->id, $user->id);
             }
         }
-        // Dispatch another job send push FCM
 
         echo sprintf("Total jobs = %s, finished at = %s \n\n", $key+1, date("d-m-Y H:i:s"));
     }
