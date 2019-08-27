@@ -3,6 +3,9 @@
 namespace tests\unit\models;
 
 use app\models\Aspirasi;
+use Yii;
+use yii2tech\filestorage\BucketInterface;
+use Mockery as m;
 
 class AspirasiTest extends \Codeception\Test\Unit
 {
@@ -266,6 +269,27 @@ class AspirasiTest extends \Codeception\Test\Unit
         $model->validate();
 
         $this->assertFalse($model->hasErrors('attachments'));
+    }
+
+    public function testAttachmentsList()
+    {
+        /**
+         * @var BucketInterface|m\MockInterface $bucket
+         */
+        $bucket = m::mock(BucketInterface::class);
+        $bucket->shouldReceive('getFileUrl')->once();
+
+        $model = new Aspirasi(['bucket' => $bucket]);
+
+        $model->attachments = [
+            [
+                'type' => 'test-type',
+                'path' => 'test-path',
+                'url'  => 'test-url',
+            ]
+        ];
+
+        $this->assertIsArray($model->attachmentsField);
     }
 
     public function testStatusInputString()

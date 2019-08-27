@@ -8,7 +8,10 @@ use yii2tech\filestorage\BucketInterface;
 
 trait HasAttachments
 {
-    protected $bucket = 'imageFiles';
+    /**
+     * @var BucketInterface
+     */
+    protected $bucket;
 
     protected function rulesAttachments()
     {
@@ -18,22 +21,34 @@ trait HasAttachments
         ];
     }
 
+    public function setDefaultBucket($bucket = null)
+    {
+        /**
+         * @var BucketInterface $bucket
+         */
+        if ($bucket === null && isset(Yii::$app->fileStorage)) {
+            $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
+        }
+
+        $this->setBucket($bucket);
+    }
+
+    public function setBucket($bucket = null)
+    {
+        $this->bucket = $bucket;
+    }
+
     protected function getAttachmentsField()
     {
         if ($this->attachments === null) {
             return null;
         }
 
-        /**
-         * @var BucketInterface $bucket
-         */
-        $bucket = Yii::$app->fileStorage->getBucket($this->bucket);
-
-        return array_map(function ($item) use ($bucket) {
+        return array_map(function ($item) {
             return [
                 'type' => $item['type'],
                 'path' => $item['path'],
-                'url'  => $bucket->getFileUrl($item['path']),
+                'url'  => $this->bucket->getFileUrl($item['path']),
             ];
         }, $this->attachments);
     }
