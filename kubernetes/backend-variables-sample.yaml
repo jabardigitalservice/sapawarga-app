@@ -26,12 +26,12 @@ data:
   MYSQL_USER: %MYSQL_USER% # Base64 decoded=mysqluser
   MYSQL_PASSWORD: %MYSQL_PASSWORD% # Base64 decoded=asdf1234
   MYSQL_ROOT_PASSWORD: %MYSQL_ROOT_PASSWORD% # Base64 decoded=asdf1234
+  FCM_KEY: %FCM_KEY%
   # CACHE_USERNAME: 
   # CACHE_PASSWORD: 
   # MAILER_USER: 
   # MAILER_PASSWORD:  
   # MAILER_ENCRYPTION: 
-  # FCM_KEY: 
 ---
 apiVersion: v1
 kind: Secret

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasAttachments;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
@@ -11,6 +12,7 @@ use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use app\validator\IsArrayValidator;
 use yii\db\ActiveRecord;
+use yii2tech\filestorage\BucketInterface;
 
 /**
  * This is the model class for table "aspirasi".
@@ -45,6 +47,17 @@ class Aspirasi extends ActiveRecord
 
     const SCENARIO_USER_CREATE = 'user-create';
     const SCENARIO_USER_UPDATE = 'user-update';
+
+    public function __construct($config = [])
+    {
+        parent::__construct();
+
+        /**
+         * @var BucketInterface $bucket
+         */
+        $bucket = Arr::get($config, 'bucket');
+        $this->setDefaultBucket($bucket);
+    }
 
     /**
      * {@inheritdoc}

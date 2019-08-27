@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:%IMAGETAG%
           ports:
             - containerPort: 80
           readinessProbe:
@@ -45,6 +45,11 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MYSQL_DATABASE
+            - name: FCM_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: FCM_KEY
             - name: COOKIE_VALIDATION_KEY
               valueFrom:
                 secretKeyRef:
