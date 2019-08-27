@@ -10,7 +10,7 @@ trait HasHashesId
 
     protected function getHashesId()
     {
-        $hashids = new Hashids(UserMessage::HASHID_SALT_SECRET, UserMessage::HASHID_LENGTH_PAD);
+        $hashids = new Hashids(\Yii::$app->params['hashidSaltSecret'], \Yii::$app->params['hashidLengthPad']);
 
         return $hashids->encode($this->id);
     }

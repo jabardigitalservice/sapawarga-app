@@ -29,9 +29,6 @@ class UserMessage extends ActiveRecord
     const STATUS_DELETED = -1;
     const STATUS_ACTIVE = 10;
 
-    const HASHID_SALT_SECRET = 'JDSSaltSecret';
-    const HASHID_LENGTH_PAD = 5;
-
     /**
      * {@inheritdoc}
      */
