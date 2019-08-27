@@ -12,9 +12,11 @@ spec:
       labels:
         app: sapawarga-api
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: api
-          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:%IMAGETAG%
           ports:
             - containerPort: 80
           readinessProbe:
