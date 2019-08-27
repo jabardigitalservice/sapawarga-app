@@ -5,10 +5,10 @@ namespace Jdsteam\Sapawarga\Models\Concerns;
 use Hashids\Hashids;
 use app\models\UserMessage;
 
-trait HasHashesId
+trait HasHashedId
 {
 
-    protected function getHashesId()
+    protected function getHashedId()
     {
         $hashids = new Hashids(\Yii::$app->params['hashidSaltSecret'], \Yii::$app->params['hashidLengthPad']);
 

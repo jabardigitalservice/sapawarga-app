@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Jdsteam\Sapawarga\Models\Concerns\HasSenderName;
-use Jdsteam\Sapawarga\Models\Concerns\HasHashesId;
+use Jdsteam\Sapawarga\Models\Concerns\HasHashedId;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -24,7 +24,7 @@ use yii\db\ActiveRecord;
  */
 class UserMessage extends ActiveRecord
 {
-    use HasSenderName, HasHashesId;
+    use HasSenderName, HasHashedId;
 
     const STATUS_DELETED = -1;
     const STATUS_ACTIVE = 10;
@@ -50,6 +50,11 @@ class UserMessage extends ActiveRecord
         return $result;
     }
 
+    public function getSender()
+    {
+        return $this->hasOne(User::class, ['id' => 'sender_id']);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -65,11 +70,17 @@ class UserMessage extends ActiveRecord
     public function fields()
     {
         $fields = [
-            'id' => 'HashesId',
+            'id' => 'HashedId',
             'type',
             'message_id',
             'sender_id',
-            'sender_name' => 'SenderName',
+            'sender_name' => function () {
+                if ($this->sender) {
+                    return $this->sender->name;
+                } else {
+                    return null;
+                }
+            },
             'recipient_id',
             'title',
             'excerpt',
