@@ -2,7 +2,7 @@ services:
   - docker:dind
 
 variables:
-  IMAGETAG: $CI_COMMIT_REF_SLUG
+  IMAGETAG: $CI_PIPELINE_IID
 
 stages:
   - code_quality
