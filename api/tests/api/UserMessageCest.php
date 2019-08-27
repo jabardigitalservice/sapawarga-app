@@ -24,20 +24,6 @@ class UserMessageCest
         ]);
     }
 
-    public function getAccessUserMessageStaffProvFailTest(ApiTester $I)
-    {
-        $I->amStaff('staffprov');
-
-        $I->sendGET('/v1/user-messages');
-        $I->canSeeResponseCodeIs(403);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
-        ]);
-    }
-
     public function getAccessUserMessageStaffKecFailTest(ApiTester $I)
     {
         $I->amStaff('staffkec');
