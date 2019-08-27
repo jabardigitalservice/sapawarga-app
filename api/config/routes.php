@@ -226,5 +226,14 @@ return [
             'GET aspirasi-geo' => 'aspirasi-geo',
             'OPTIONS aspirasi-geo' => 'options',
         ]
-    ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/user-message',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:[A-Za-z0-9]+>',
+        ],
+        'extraPatterns' => []
+    ],
 ];
