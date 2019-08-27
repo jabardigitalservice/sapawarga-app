@@ -28,7 +28,7 @@ class MessageJob extends BaseObject implements JobInterface
         ];
 
         // Get userIds
-        $usersTarget = User::find()->select('id');
+        $usersTarget = User::find()->select('id')->andWhere(['status' => User::STATUS_ACTIVE]);
         $usersTarget = ModelHelper::filterByAreaTopDown($usersTarget, $params);
 
         // Do nothing if empty
@@ -57,13 +57,12 @@ class MessageJob extends BaseObject implements JobInterface
 
             if ($model->save()) {
                 echo sprintf("Job executed! type = %s, id = %s, recipient_id = %s \n", $this->type, $instance->id, $user->id);
-
-                // Dispatch another job send push FCM
-
             } else {
                 echo sprintf("Job failed! type = %s, id = %s, recipient_id = %s \n", $this->type, $instance->id, $user->id);
             }
         }
+        // Dispatch another job send push FCM
+
         echo sprintf("Total jobs = %s, finished at = %s \n\n", $key+1, date("d-m-Y H:i:s"));
     }
 }
