@@ -104,7 +104,7 @@ class BroadcastController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         if (!Arr::has($params, 'test')) {
-            $model->setEnableSendUserMessageQueue(true);
+            $model->setEnableSendUserMessage(true);
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -136,7 +136,7 @@ class BroadcastController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         if (!Arr::has($params, 'test')) {
-            $model->setEnableSendUserMessageQueue(true);
+            $model->setEnableSendUserMessage(true);
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
