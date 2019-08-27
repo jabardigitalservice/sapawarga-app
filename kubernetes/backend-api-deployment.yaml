@@ -47,7 +47,7 @@ spec:
                   key: MYSQL_DATABASE
             - name: FCM_KEY
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: sapawarga-backend-secret
                   key: FCM_KEY
             - name: COOKIE_VALIDATION_KEY
