@@ -25,12 +25,14 @@ services:
       - internal
     depends_on:
       - database
+      - api
     env_file:
       - .env-dev
     volumes:
       - ./api:/srv
       - /srv/vendor
       - vol_storage:/srv/web/storage
+    restart: on-failure
     command: ['bash','-c','/srv/yii queue/listen --verbose']
 
   database:
