@@ -15,6 +15,7 @@ class MessageJob extends BaseObject implements JobInterface
     public $type;
     public $instance;
     public $sender_id;
+    public $push_notif_payload;
 
     public function execute($queue)
     {
@@ -63,5 +64,15 @@ class MessageJob extends BaseObject implements JobInterface
         }
 
         echo sprintf("Total jobs = %s, finished at = %s \n\n", $key+1, date("d-m-Y H:i:s"));
+
+        $this->sendPushNotification();
+    }
+
+    public function sendPushNotification()
+    {
+        echo sprintf("Sending push notification for type = %s, id = %s\n", $this->type, $this->instance->id);
+        $notifModel = new Message();
+        $notifModel->setAttributes($this->push_notif_payload);
+        $notifModel->send();
     }
 }

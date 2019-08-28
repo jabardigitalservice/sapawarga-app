@@ -217,11 +217,45 @@ class Broadcast extends \yii\db\ActiveRecord
                     'type' => self::CATEGORY_TYPE,
                     'sender_id' => $this->author_id,
                     'instance' => $this,
+                    'push_notif_payload' => $this->getPushNotifPayload(),
                 ]));
             }
         }
 
         return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function getPushNotifPayload()
+    {
+        $data = [
+            'target'            => 'broadcast',
+            'id'                => $this->id,
+            'author'            => $this->author->name,
+            'title'             => $this->title,
+            'category_name'     => $this->category->name,
+            'description'       => $this->description,
+            'updated_at'        => $this->updated_at ?? time(),
+            'push_notification' => true,
+        ];
+
+        // By default, send notification to all users
+        $topic = Broadcast::TOPIC_DEFAULT;
+        if ($this->kel_id && $this->rw) {
+            $topic = "{$this->kel_id}_{$this->rw}";
+        } elseif ($this->kel_id) {
+            $topic = (string) $this->kel_id;
+        } elseif ($this->kec_id) {
+            $topic = (string) $this->kec_id;
+        } elseif ($this->kabkota_id) {
+            $topic = (string) $this->kabkota_id;
+        }
+
+        return [
+            'title'         => $this->title,
+            'description'   => $this->description,
+            'data'          => $data,
+            'topic'         => $topic,
+        ];
     }
 
     public function setEnableSendUserMessage($boolean)
