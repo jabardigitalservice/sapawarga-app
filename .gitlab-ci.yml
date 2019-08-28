@@ -2,7 +2,7 @@ services:
   - docker:dind
 
 variables:
-  IMAGETAG: $CI_COMMIT_REF_SLUG
+  IMAGETAG: $CI_PIPELINE_IID
 
 stages:
   - code_quality
@@ -90,7 +90,7 @@ deploy_staging:
     - chmod 400 $SSH_STAGING_KEY_PRIVATE
     - ssh-add $SSH_STAGING_KEY_PRIVATE
   script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "IMAGETAG=${IMAGETAG};cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "export IMAGETAG=${IMAGETAG} && cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
 
 deploy_production:
