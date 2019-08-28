@@ -1,31 +1,18 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: sapawarga-api
+  name: sapawarga-queue
   namespace: sapawarga
-  labels:
-    app: sapawarga-api
 spec:
-  replicas: 1
+  parallelism: 1
   template:
     metadata:
-      labels:
-        app: sapawarga-api
+      name: sapawarga-queue
     spec:
-      securityContext:
-        fsGroup: 1000
       containers:
         - name: api
-          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:%IMAGETAG%
-          ports:
-            - containerPort: 80
-          readinessProbe:
-            httpGet:
-              path: /ping
-              port: 80
-          volumeMounts:
-          - name: api-persistent-storage
-            mountPath: /srv/web/storage
+          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+          command: ["php", "yii", "queue/listen", "--verbose"]
           env:
             - name: MYSQL_HOST
               valueFrom:
@@ -47,11 +34,6 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MYSQL_DATABASE
-            - name: FCM_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: FCM_KEY
             - name: COOKIE_VALIDATION_KEY
               valueFrom:
                 secretKeyRef:
@@ -74,7 +56,4 @@ spec:
                   key: CACHE_PORT
       imagePullSecrets:
         - name: regcred
-      volumes:
-      - name: api-persistent-storage
-        persistentVolumeClaim:
-          claimName: api-pv-claim
+      restartPolicy: OnFailure

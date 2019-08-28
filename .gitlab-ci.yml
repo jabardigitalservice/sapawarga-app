@@ -2,7 +2,7 @@ services:
   - docker:dind
 
 variables:
-  IMAGETAG: $CI_COMMIT_REF_SLUG
+  IMAGETAG: $CI_PIPELINE_IID
 
 stages:
   - code_quality
@@ -73,10 +73,10 @@ release_all:
   script:
     - docker-compose -f docker-compose.dev.yml pull
     - docker images
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:latest
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:latest
+    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
+    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
+    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${IMAGETAG} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${CI_PIPELINE_IID}
+    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${CI_PIPELINE_IID}
 
 deploy_staging:
   stage: deploy
@@ -90,7 +90,7 @@ deploy_staging:
     - chmod 400 $SSH_STAGING_KEY_PRIVATE
     - ssh-add $SSH_STAGING_KEY_PRIVATE
   script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo docker-compose pull && sudo docker-compose down && sudo docker-compose up -d"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "export IMAGETAG=${IMAGETAG} && cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
 
 deploy_production:
@@ -114,7 +114,9 @@ deploy_production:
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%IMAGETAG%/${IMAGETAG}/g" kubernetes/backend-api-deployment.yaml
     - cat kubernetes/backend-variables.yaml
+    - cat kubernetes/backend-api-deployment.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
         -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
@@ -124,3 +126,4 @@ deploy_production:
         -f kubernetes/backend-api-service.yaml
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
+        -f kubernetes/backend-queue-job.yaml
