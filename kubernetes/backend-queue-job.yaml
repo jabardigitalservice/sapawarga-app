@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sapawarga-queue
+  namespace: sapawarga
+spec:
+  parallelism: 1
+  template:
+    metadata:
+      name: sapawarga-queue
+    spec:
+      containers:
+        - name: api
+          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+          command: ["php", "yii", "queue/listen", "--verbose"]
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_HOST
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_DATABASE
+            - name: COOKIE_VALIDATION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: COOKIE_VALIDATION_KEY
+            - name: CACHE_USE_MEMCACHED
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: CACHE_USE_MEMCACHED
+            - name: CACHE_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: CACHE_SERVERS
+            - name: CACHE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: CACHE_PORT
+      imagePullSecrets:
+        - name: regcred
+      restartPolicy: OnFailure
