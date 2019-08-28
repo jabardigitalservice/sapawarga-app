@@ -25,6 +25,11 @@ spec:
           - name: api-persistent-storage
             mountPath: /srv/web/storage
           env:
+            - name: APP_STORAGE_LOCAL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_LOCAL_URL
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:

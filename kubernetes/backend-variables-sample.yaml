@@ -6,7 +6,7 @@ metadata:
 data:
   PHP_ENABLE_XDEBUG: "0"
   YII_ENV_DEV: "1"
-  APP_STORAGE_LOCAL_URL: http://localhost/api
+  APP_STORAGE_LOCAL_URL: %APP_STORAGE_LOCAL_URL%
   MYSQL_HOST: sapawarga-mysql
   MYSQL_PORT: "3306"
   MYSQL_DATABASE: sapawarga
