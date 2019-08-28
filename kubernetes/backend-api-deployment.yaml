@@ -12,8 +12,6 @@ spec:
       labels:
         app: sapawarga-api
     spec:
-      securityContext:
-        fsGroup: 1000
       containers:
         - name: api
           image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:%IMAGETAG%
@@ -72,6 +70,13 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: CACHE_PORT
+      initContainers:
+      - name: volume-permission-fix
+        image: busybox
+        command: ["/bin/chmod","-R","777", "/data"]
+        volumeMounts:
+        - name: api-persistent-storage
+          mountPath: /data
       imagePullSecrets:
         - name: regcred
       volumes:
