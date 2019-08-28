@@ -17,6 +17,22 @@ services:
     ports:
       - 81:80
 
+  queue:
+    build:
+      context: ./api
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${IMAGETAG}
+    networks:
+      - internal
+    depends_on:
+      - database
+    env_file:
+      - .env-dev
+    volumes:
+      - ./api:/srv
+      - /srv/vendor
+      - vol_storage:/srv/web/storage
+    command: ['bash','-c','/srv/yii queue/listen --verbose']
+
   database:
     build:
       context: ./database
