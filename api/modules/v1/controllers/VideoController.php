@@ -126,7 +126,7 @@ class VideoController extends ActiveController
     {
         if ($action === 'update' || $action === 'delete') {
             if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(sprintf('You can only %s articles that you\'ve created.', $action));
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
             }
         }
     }
