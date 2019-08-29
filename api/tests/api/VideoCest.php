@@ -168,6 +168,39 @@ class VideoCest
         ]);
     }
 
+    public function postUpdateNotOwnVideoFailTest(ApiTester $I)
+    {
+        $I->haveInDatabase('videos', [
+            'id' => 1,
+            'category_id' => 22,
+            'title' => 'Lorem ipsum.',
+            'source' => 'youtube',
+            'video_url' => 'https://www.youtube.com/watch?v=YvG6D0qJflk',
+            'kabkota_id' => null,
+            'total_likes' => 0,
+            'seq' => null,
+            'status' => 10,
+            'created_by' => 2,
+            'updated_by' => 2,
+            'created_at' => 1557803314,
+            'updated_at' => 1557803314,
+        ]);
+
+        $I->amStaff('admin');
+
+        $data = [
+            'title' => 'Lorem ipsum updated',
+            'video_url' => 'https://www.youtube.com/watch?v=update',
+            'category_id' => 23,
+            'seq' => 2,
+            'status' => 0,
+        ];
+
+        $I->sendPUT('/v1/videos/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+    }
+
     public function deleteUserUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('user');
@@ -208,6 +241,30 @@ class VideoCest
         $I->canSeeResponseCodeIs(204);
 
         $I->seeInDatabase('videos', ['id' => 1, 'status' => -1]);
+    }
+
+    public function deleteNotOwnVideoFailTest(ApiTester $I)
+    {
+        $I->haveInDatabase('videos', [
+            'id' => 1,
+            'category_id' => 22,
+            'title' => 'Lorem ipsum.',
+            'source' => 'youtube',
+            'video_url' => 'https://www.youtube.com/watch?v=YvG6D0qJflk',
+            'kabkota_id' => null,
+            'total_likes' => 0,
+            'seq' => null,
+            'status' => 10,
+            'created_by' => 2,
+            'updated_by' => 2,
+            'created_at' => 1557803314,
+            'updated_at' => 1557803314,
+        ]);
+
+        $I->amStaff();
+
+        $I->sendDELETE('/v1/videos/1');
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function getUserCategoryVideoStatisticsUnauthorizedTest(ApiTester $I)
