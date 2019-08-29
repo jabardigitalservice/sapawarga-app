@@ -13,7 +13,7 @@ versioning:
   before_script:
     - apk add git
   script:
-    - export $IMAGETAG=$(git describe)
+    - export IMAGETAG=$(git describe)
     - echo $IMAGETAG
     - echo $IMAGETAG > version
   artifacts:
