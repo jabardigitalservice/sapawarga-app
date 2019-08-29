@@ -36,7 +36,8 @@ class UserMessage extends ActiveRecord
         return 'user_messages';
     }
 
-    public function getCategory() {
+    public function getCategory()
+    {
         if ($this->message) {
             return $this->message->category;
         } else {
