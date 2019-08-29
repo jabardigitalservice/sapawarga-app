@@ -42,7 +42,7 @@ class Broadcast extends \yii\db\ActiveRecord
     /**
      * @var bool
      */
-    protected $enableSendUserMessage = false;
+    protected $enableSendPushNotif = false;
 
     /**
      * {@inheritdoc}
@@ -209,17 +209,16 @@ class Broadcast extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if ($this->enableSendUserMessage) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
-            if ($isSendNotification) {
-                // Send job queue to insert user_messages per user
-                Yii::$app->queue->push(new MessageJob([
-                    'type' => self::CATEGORY_TYPE,
-                    'sender_id' => $this->author_id,
-                    'instance' => $this,
-                    'push_notif_payload' => $this->getPushNotifPayload(),
-                ]));
-            }
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        if ($isSendNotification) {
+            // Send job queue to insert user_messages per user
+            Yii::$app->queue->push(new MessageJob([
+                'type' => self::CATEGORY_TYPE,
+                'sender_id' => $this->author_id,
+                'instance' => $this,
+                'enable_push_notif' => $this->enableSendPushNotif,
+                'push_notif_payload' => $this->getPushNotifPayload(),
+            ]));
         }
 
         return parent::afterSave($insert, $changedAttributes);
@@ -258,9 +257,9 @@ class Broadcast extends \yii\db\ActiveRecord
         ];
     }
 
-    public function setEnableSendUserMessage($boolean)
+    public function setEnableSendPushNotif($boolean)
     {
-        $this->enableSendUserMessage = $boolean;
+        $this->enableSendPushNotif = $boolean;
     }
 
     /**

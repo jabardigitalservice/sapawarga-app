@@ -15,6 +15,7 @@ class MessageJob extends BaseObject implements JobInterface
     public $type;
     public $instance;
     public $sender_id;
+    public $enable_push_notif;
     public $push_notif_payload;
 
     public function execute($queue)
@@ -65,7 +66,9 @@ class MessageJob extends BaseObject implements JobInterface
 
         echo sprintf("Total jobs = %s, finished at = %s \n\n", $key+1, date("d-m-Y H:i:s"));
 
-        $this->sendPushNotification();
+        if ($this->enable_push_notif) {
+            $this->sendPushNotification();
+        }
     }
 
     public function sendPushNotification()
