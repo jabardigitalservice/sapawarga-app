@@ -900,6 +900,8 @@ class NewsCest
             'status'      => 10,
             'created_at'  => '1554706345',
             'updated_at'  => '1554706345',
+            'created_by'  => 1,
+            'updated_by'  => 1,
         ]);
 
         $I->amStaff();
@@ -936,6 +938,42 @@ class NewsCest
         ]);
     }
 
+    public function postUpdateNotOwnNewsfailTest(ApiTester $I)
+    {
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by'  => 2,
+            'updated_by'  => 2,
+        ]);
+
+        $I->amStaff();
+
+        $data = [
+            'title'       => 'Lorem ipsum',
+            'channel_id'  => 1,
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 0,
+        ];
+
+        $I->sendPUT('/v1/news/1', $data);
+        $I->canSeeResponseCodeIs(403);
+    }
+
     public function deleteUserUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('staffrw');
@@ -959,6 +997,8 @@ class NewsCest
             'status'      => 10,
             'created_at'  => '1554706345',
             'updated_at'  => '1554706345',
+            'created_by'  => 1,
+            'updated_by'  => 1,
         ]);
 
         $I->amStaff();
@@ -967,6 +1007,31 @@ class NewsCest
         $I->canSeeResponseCodeIs(204);
 
         $I->seeInDatabase('news', ['id' => 1, 'status' => -1]);
+    }
+
+    public function deleteNotOwnNewsFailTest(ApiTester $I)
+    {
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'featured'    => false,
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by'  => 2,
+            'updated_by'  => 2,
+        ]);
+
+        $I->amStaff();
+
+        $I->sendDELETE('/v1/news/1');
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function getUserIncrementReadCountTest(ApiTester $I)
