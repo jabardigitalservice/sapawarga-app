@@ -14,6 +14,7 @@ use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use yii\web\ForbiddenHttpException;
 
 /**
  * NewsController implements the CRUD actions for News model.
@@ -137,10 +138,7 @@ class NewsController extends ActiveController
 
     /**
      * Checks the privilege of the current user.
-     *
-     * This method should be overridden to check whether the current user has the privilege
-     * to run the specified action against the specified data model.
-     * If the user does not have access, a [[ForbiddenHttpException]] should be thrown.
+     * throw ForbiddenHttpException if access should be denied
      *
      * @param string $action the ID of the action to be executed
      * @param object $model the model to be accessed. If null, it means no specific model is being accessed.
@@ -148,7 +146,11 @@ class NewsController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        //
+        if ($action === 'update' || $action === 'delete') {
+            if ($model->created_by !== \Yii::$app->user->id) {
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+            }
+        }
     }
 
     /**

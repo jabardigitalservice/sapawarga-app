@@ -136,6 +136,7 @@ class News extends ActiveRecord
             },
             'created_at',
             'updated_at',
+            'created_by',
         ];
 
         return $fields;
