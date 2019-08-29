@@ -1,6 +1,3 @@
-variables:
-  IMAGETAG: $CI_PIPELINE_IID
-
 stages:
   - versioning
   - read_version
@@ -13,10 +10,13 @@ stages:
 versioning:
   image: alpine:latest
   stage: versioning
+  variables:
+    IMAGETAG: $(git describe)
   before_script:
     - apk add git
   script:
     - git describe > version
+    - echo $IMAGETAG
   artifacts:
     paths:
       - version
