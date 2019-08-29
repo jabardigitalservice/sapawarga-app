@@ -83,19 +83,11 @@ class UserMessage extends ActiveRecord
             'message_id',
             'sender_id',
             'sender_name' => function () {
-                if ($this->sender) {
-                    return $this->sender->name;
-                } else {
-                    return null;
-                }
+                return $this->sender ? $this->sender->name : null;
             },
             'recipient_id',
             'category_name' => function () {
-                if ($this->category) {
-                    return $this->category->name;
-                } else {
-                    return null;
-                }
+                return $this->category ? $this->category->name : null;
             },
             'title',
             'excerpt',
