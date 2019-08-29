@@ -90,6 +90,7 @@ class Video extends ActiveRecord implements ActiveStatus
             'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
+            'created_by',
         ];
 
         return $fields;
