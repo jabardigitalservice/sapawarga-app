@@ -100,6 +100,10 @@ release_all:
   image: docker:stable
   only:
     - master
+  services:
+    - docker:stable-dind
+  variables:
+    DOCKER_DRIVER: overlay2
   dependencies: 
     - versioning
   before_script:
