@@ -75,6 +75,13 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: CACHE_PORT
+      initContainers:
+      - name: volume-permission-fix
+        image: busybox
+        command: ["/bin/chmod","-R","777", "/data"]
+        volumeMounts:
+        - name: api-persistent-storage
+          mountPath: /data
       imagePullSecrets:
         - name: regcred
       volumes:
