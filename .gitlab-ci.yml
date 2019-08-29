@@ -10,8 +10,6 @@ stages:
 versioning:
   image: alpine:latest
   stage: versioning
-  variables:
-    IMAGETAG: unknown
   before_script:
     - apk add git
   script:
