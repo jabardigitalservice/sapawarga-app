@@ -83,7 +83,7 @@ class Video extends ActiveRecord implements ActiveStatus
             'source',
             'video_url',
             'kabkota_id',
-            'kabupaten' => 'KabkotaField',
+            'kabkota' => 'KabkotaField',
             'total_likes',
             'seq',
             'status',
