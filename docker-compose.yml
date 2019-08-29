@@ -36,7 +36,7 @@ services:
     command: ['bash','-c','/srv/yii queue/listen --verbose']
 
   database:
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${IMAGETAG}
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${VERSION}
     networks:
       - internal
     ports:
