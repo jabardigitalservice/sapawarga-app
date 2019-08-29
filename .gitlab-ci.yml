@@ -11,12 +11,13 @@ versioning:
   image: alpine:latest
   stage: versioning
   variables:
-    IMAGETAG: $(git describe)
+    IMAGETAG: unknown
   before_script:
     - apk add git
   script:
-    - git describe > version
+    - export $IMAGETAG=$(git describe)
     - echo $IMAGETAG
+    - echo $IMAGETAG > version
   artifacts:
     paths:
       - version
