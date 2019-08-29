@@ -1,6 +1,5 @@
 stages:
   - versioning
-  - read_version
   - code_quality
   - build
   - test
@@ -21,18 +20,6 @@ versioning:
   artifacts:
     paths:
       - version
-
-read_version:
-  image: alpine:latest
-  stage: read_version
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-  script:
-    - echo $VERSION
-  only:
-    - branches
 
 code_quality:
   image: docker:stable
