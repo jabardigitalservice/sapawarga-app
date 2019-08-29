@@ -3,6 +3,7 @@ variables:
 
 stages:
   - versioning
+  - read_version
   - code_quality
   - build
   - test
@@ -12,12 +13,25 @@ stages:
 versioning:
   image: alpine:latest
   stage: versioning
-  script:
-    - echo $CI_COMMIT_TAG
-    - pwd
-    - ls -al
+  before_script:
     - apk add git
-    - git describe
+  script:
+    - git describe > version
+  artifacts:
+    paths:
+      - version
+  only:
+    - branches
+
+read_version:
+  image: alpine:latest
+  stage: read_version
+  before_script:
+    - [ -f ./version ] && export VERSION=$(cat ./version)
+  script:
+    - echo $VERSION
+  only:
+    - branches
 
 code_quality:
   image: docker:stable
