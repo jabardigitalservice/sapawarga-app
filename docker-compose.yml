@@ -3,7 +3,7 @@ services:
   api:
     # build:
     #   context: ./api
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
       - internal
     depends_on:
@@ -20,7 +20,7 @@ services:
   queue:
     # build:
     #   context: ./api
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
       - internal
     depends_on:
