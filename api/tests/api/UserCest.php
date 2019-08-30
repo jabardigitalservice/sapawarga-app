@@ -154,10 +154,17 @@ class UserCest
 
     public function userUpdateProfile(ApiTester $I)
     {
-        $I->amUser('staffrw2');
+        // reset 'user' column
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE auth_assignment')->execute();
+        Yii::$app->db->createCommand('TRUNCATE user')->execute();
+        $sql = file_get_contents(__DIR__ . '/../../migrations/seeder/user_and_permission.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $I->amUser('staffrw3');
 
         $I->sendPOST("{$this->endpointProfile}", [
-            'username' => 'staffrw2',
+            'username' => 'staffrw3',
             'name' => 'Name Edited',
         ]);
 
