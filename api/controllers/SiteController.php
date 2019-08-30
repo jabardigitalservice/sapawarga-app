@@ -12,7 +12,7 @@ class SiteController extends Controller
     {
         $response = new Response();
         $response->statusCode = 200;
-        $response->data = Yii::t('app', 'pong ['.getenv('VERSION').']');
+        $response->data = Yii::t('app', 'pong [' . getenv('VERSION') . ']');
 
         return $response;
     }
