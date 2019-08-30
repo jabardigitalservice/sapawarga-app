@@ -15,6 +15,7 @@ class MessageJob extends BaseObject implements JobInterface
     public $type;
     public $instance;
     public $sender_id;
+    public $enable_push_notif;
     public $push_notif_payload;
 
     public function execute($queue)
@@ -40,6 +41,15 @@ class MessageJob extends BaseObject implements JobInterface
         // Delete first when any update broadcast
         UserMessage::deleteAll(['message_id' => $instance->id]);
 
+        $this->insertUserMessages($usersTarget, $instance);
+
+        if ($this->enable_push_notif) {
+            $this->sendPushNotification();
+        }
+    }
+
+    public function insertUserMessages($usersTarget, $instance)
+    {
         // Insert to user_messages per user
         foreach ($usersTarget->all() as $key => $user) {
             $model = new UserMessage();
@@ -64,8 +74,6 @@ class MessageJob extends BaseObject implements JobInterface
         }
 
         echo sprintf("Total jobs = %s, finished at = %s \n\n", $key+1, date("d-m-Y H:i:s"));
-
-        $this->sendPushNotification();
     }
 
     public function sendPushNotification()

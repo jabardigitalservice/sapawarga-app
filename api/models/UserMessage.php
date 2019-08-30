@@ -36,6 +36,15 @@ class UserMessage extends ActiveRecord
         return 'user_messages';
     }
 
+    public function getCategory()
+    {
+        if ($this->message) {
+            return $this->message->category;
+        } else {
+            return null;
+        }
+    }
+
     public function getMessage()
     {
         $result = '';
@@ -74,13 +83,12 @@ class UserMessage extends ActiveRecord
             'message_id',
             'sender_id',
             'sender_name' => function () {
-                if ($this->sender) {
-                    return $this->sender->name;
-                } else {
-                    return null;
-                }
+                return $this->sender ? $this->sender->name : null;
             },
             'recipient_id',
+            'category_name' => function () {
+                return $this->category ? $this->category->name : null;
+            },
             'title',
             'excerpt',
             'content',

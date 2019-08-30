@@ -150,7 +150,7 @@ class Aspirasi extends ActiveRecord
             'title',
             'description',
             'kabkota_id',
-            'kabupaten' => 'KabkotaField',
+            'kabkota' => 'KabkotaField',
             'kec_id',
             'kecamatan' => 'KecamatanField',
             'kel_id',
