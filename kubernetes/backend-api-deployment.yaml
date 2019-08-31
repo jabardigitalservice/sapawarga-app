@@ -30,6 +30,11 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: APP_STORAGE_LOCAL_URL
+            - name: APP_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_VERSION
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
