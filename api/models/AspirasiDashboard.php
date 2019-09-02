@@ -120,7 +120,7 @@ class AspirasiDashboard extends Aspirasi
                 FROM areas
                 LEFT JOIN(
                     SELECT COUNT(a.id) AS counts, $groupBy AS area_id
-                    FROM sapawarga.aspirasi a
+                    FROM aspirasi a
                     WHERE a.status = :status_active
                     GROUP BY $groupBy
                 ) AS aspirasi ON aspirasi.area_id = areas.id
