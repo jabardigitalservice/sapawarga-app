@@ -182,26 +182,22 @@ class DashboardCest
             'status'  => 200,
         ]);
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
 
         $I->assertEquals('KOTA BANDUNG', $data[0][0]['name']);
         $I->assertEquals(3, $data[0][0]['counts']);
-        $I->assertEquals(22, $data[0][0]['kabkota_id']);
-        $I->assertEquals('107.590417459601', $data[0][0]['latitude']);
-        $I->assertEquals('-6.95981961897412', $data[0][0]['longitude']);
+        $I->assertEquals(22, $data[0][0]['id']);
 
         $I->assertEquals('KOTA BEKASI', $data[0][1]['name']);
         $I->assertEquals(1, $data[0][1]['counts']);
-        $I->assertEquals(23, $data[0][1]['kabkota_id']);
-        $I->assertEquals('106.922564116874', $data[0][1]['latitude']);
-        $I->assertEquals('-6.29371311907745', $data[0][1]['longitude']);
+        $I->assertEquals(23, $data[0][1]['id']);
     }
 
-    public function getAspirasiCountByWilayahBekasiTest(ApiTester $I)
+    public function getAspirasiCountByKecBandungTest(ApiTester $I)
     {
         $I->amStaff('staffprov');
 
-        $I->sendGET('/v1/dashboards/aspirasi-geo?kabkota_id=23');
+        $I->sendGET('/v1/dashboards/aspirasi-geo?kabkota_id=22');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -210,17 +206,31 @@ class DashboardCest
             'status'  => 200,
         ]);
 
-        $I->dontSeeResponseContainsJson([
-            'kabkota_id' => 22,
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+
+        $I->assertEquals('BANDUNG WETAN', $data[0][0]['name']);
+        $I->assertEquals(2, $data[0][0]['counts']);
+        $I->assertEquals(446, $data[0][0]['id']);
+    }
+
+    public function getAspirasiCountByKelBandungTest(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/dashboards/aspirasi-geo?kec_id=446');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
         ]);
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
 
-        $I->assertEquals('KOTA BEKASI', $data[0][0]['name']);
-        $I->assertEquals(1, $data[0][0]['counts']);
-        $I->assertEquals(23, $data[0][0]['kabkota_id']);
-        $I->assertEquals('106.922564116874', $data[0][0]['latitude']);
-        $I->assertEquals('-6.29371311907745', $data[0][0]['longitude']);
+        $I->assertEquals('TAMANSARI', $data[0][0]['name']);
+        $I->assertEquals(2, $data[0][0]['counts']);
+        $I->assertEquals(6178, $data[0][0]['id']);
     }
 
     public function _after(ApiTester $I)

@@ -100,30 +100,39 @@ class AspirasiDashboard extends Aspirasi
     {
         $conditional = '';
         $limit = Arr::get($params, 'limit');
-        $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED];
+        $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED, ':parent_id' => 1];
+        $groupBy = 'kabkota_id';
 
         // Filtering
         $kabKotaId = Arr::get($params, 'kabkota_id');
         if ($kabKotaId) {
-            $conditional .= 'AND a.kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = $kabKotaId;
+            $paramsSql[':parent_id'] = $kabKotaId;
+            $groupBy = 'kec_id';
         }
 
-        // Query
-        $sql = "SELECT areas.name, count(a.id) as counts, kabkota_id, latitude, longitude
-                FROM sapawarga.aspirasi a
-                LEFT JOIN areas ON areas.id = kabkota_id
-                WHERE a.status = :status_active
-                $conditional
-                GROUP BY kabkota_id
-                ORDER BY counts DESC";
+        $kecId = Arr::get($params, 'kec_id');
+        if ($kecId) {
+            $paramsSql[':parent_id'] = $kecId;
+            $groupBy = 'kel_id';
+        }
 
-        return new SqlDataProvider([
+        $sql = "SELECT id, name, longitude, latitude, IFNULL(aspirasi.counts, 0) AS counts
+                FROM areas
+                LEFT JOIN(
+                    SELECT COUNT(a.id) AS counts, $groupBy AS area_id
+                    FROM aspirasi a
+                    WHERE a.status = :status_active
+                    GROUP BY $groupBy
+                ) AS aspirasi ON aspirasi.area_id = areas.id
+                WHERE parent_id = :parent_id
+                $conditional
+                ORDER BY aspirasi.counts desc, name asc";
+
+        $provider = new SqlDataProvider([
             'sql'      => $sql,
             'params'   => $paramsSql,
-            'pagination' => [
-                'pageSize' => $limit,
-            ],
         ]);
+
+        return $provider->getModels();
     }
 }
