@@ -297,4 +297,25 @@ class NewsHoaxTest extends Unit
 
         $this->assertTrue($model->hasErrors('status'));
     }
+
+    public function testCoverPathRequired()
+    {
+        $model = new NewsHoax();
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('cover_path'));
+
+        $model->cover_path = '';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('cover_path'));
+
+        $model->cover_path = 'covers/test.jpg';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('cover_path'));
+    }
 }
