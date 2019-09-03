@@ -28,6 +28,7 @@ return [
 
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
+    'role.saberhoax' => 'Administrator Saber Hoax',
     'role.staffKabkota' => 'Staf Kabupaten/Kota',
     'role.staffKec' => 'Staf Kecamatan',
     'role.staffKel' => 'Staf Desa/Kelurahan',
