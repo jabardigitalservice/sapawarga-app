@@ -312,17 +312,18 @@ class DashboardCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data');
 
-        $I->assertEquals('Option A', $data[0][0]['body']);
+        $I->assertEquals(1, $data[0][0]['answer_id']);
+        $I->assertEquals('Option A', $data[0][0]['answer_body']);
         $I->assertEquals(2, $data[0][0]['votes']);
-        $I->assertEquals(66.67, $data[0][0]['percentage']);
 
-        $I->assertEquals('Option B', $data[0][1]['body']);
+        $I->assertEquals(2, $data[0][1]['answer_id']);
+        $I->assertEquals('Option B', $data[0][1]['answer_body']);
         $I->assertEquals(1, $data[0][1]['votes']);
-        $I->assertEquals(33.33, $data[0][1]['percentage']);
 
-        $I->assertEquals('Option C', $data[0][2]['body']);
+        $I->assertEquals(3, $data[0][2]['answer_id']);
+        $I->assertEquals('Option C', $data[0][2]['answer_body']);
         $I->assertEquals(0, $data[0][2]['votes']);
-        $I->assertEquals(0.00, $data[0][2]['percentage']);
+
     }
 
     public function _after(ApiTester $I)
