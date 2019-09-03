@@ -21,13 +21,14 @@ class PollingDashboard extends Polling
     {
         $paramsSql[':polling_id'] = Arr::get($params, 'id');
 
-        $sql = 'SELECT pa.id AS answer_id, pa.body AS answer_body, ifnull(vote.votes, 0) as votes FROM polling_answers pa
+        $sql = 'SELECT pa.polling_id, pa.id AS answer_id, pa.body AS answer_body, ifnull(vote.votes, 0) as votes FROM polling_answers pa
                 LEFT JOIN (SELECT pa.id as polling_answers_id, body, count(pv.id) AS votes
                                 FROM polling_votes pv
                                 LEFT JOIN polling_answers pa ON pa.id = pv.answer_id
                                 WHERE pv.polling_id = :polling_id
                                 GROUP BY answer_id
                 ) as vote ON vote.polling_answers_id = pa.id
+                WHERE pa.polling_id = :polling_id
                 ORDER BY pa.id ASC';
 
         $provider = new SqlDataProvider([
