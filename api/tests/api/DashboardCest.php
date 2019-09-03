@@ -298,6 +298,31 @@ class DashboardCest
             'created_at' => '1554706345',
             'updated_at' => '1554706345',
         ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/dashboards/polling-chart?id=1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+
+        $I->assertEquals('Option A', $data[0][0]['body']);
+        $I->assertEquals(2, $data[0][0]['votes']);
+        $I->assertEquals(66.67, $data[0][0]['percentage']);
+
+        $I->assertEquals('Option B', $data[0][1]['body']);
+        $I->assertEquals(1, $data[0][1]['votes']);
+        $I->assertEquals(33.33, $data[0][1]['percentage']);
+
+        $I->assertEquals('Option C', $data[0][2]['body']);
+        $I->assertEquals(0, $data[0][2]['votes']);
+        $I->assertEquals(0.00, $data[0][2]['percentage']);
     }
 
     public function _after(ApiTester $I)
