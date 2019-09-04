@@ -131,8 +131,7 @@ class AspirasiDashboard extends Aspirasi
         $provider = new SqlDataProvider([
             'sql' => $sql,
             'params' => $paramsSql,
-            'pagination' => false
-
+            'pagination' => false,
         ]);
 
         return $provider->getModels();
