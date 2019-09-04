@@ -48,8 +48,8 @@ class AspirasiDashboard extends Aspirasi
                 ORDER BY total_likes DESC";
 
         return new SqlDataProvider([
-            'sql'      => $sql,
-            'params'   => $paramsSql,
+            'sql' => $sql,
+            'params' => $paramsSql,
             'pagination' => [
                 'pageSize' => $limit,
             ],
@@ -75,8 +75,8 @@ class AspirasiDashboard extends Aspirasi
                 ORDER BY `status`';
 
         $provider = new SqlDataProvider([
-            'sql'      => $sql,
-            'params'   => [':status_draft' => Aspirasi::STATUS_DRAFT],
+            'sql' => $sql,
+            'params' => [':status_draft' => Aspirasi::STATUS_DRAFT],
         ]);
 
         $posts = $provider->getModels();
@@ -129,8 +129,10 @@ class AspirasiDashboard extends Aspirasi
                 ORDER BY aspirasi.counts desc, name asc";
 
         $provider = new SqlDataProvider([
-            'sql'      => $sql,
-            'params'   => $paramsSql,
+            'sql' => $sql,
+            'params' => $paramsSql,
+            'pagination' => false
+
         ]);
 
         return $provider->getModels();
