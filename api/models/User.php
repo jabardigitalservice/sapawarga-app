@@ -57,7 +57,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const ROLE_STAFF_KEL = 60;
     const ROLE_STAFF_KEC = 70;
     const ROLE_STAFF_KABKOTA = 80;
-    const ROLE_SABERHOAX = 89;
+    const ROLE_STAFF_SABERHOAX = 89;
     const ROLE_STAFF_PROV = 90;
     const ROLE_ADMIN = 99;
     const STATUS_DELETED = -1;
@@ -69,7 +69,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const ROLE_MAP = [
         'admin' => self::ROLE_ADMIN,
         'staffProv' => self::ROLE_STAFF_PROV,
-        'saberHoax' => self::ROLE_SABERHOAX,
+        'staffSaberhoax' => self::ROLE_STAFF_SABERHOAX,
         'staffKabkota' => self::ROLE_STAFF_KABKOTA,
         'staffKec' => self::ROLE_STAFF_KEC,
         'staffKel' => self::ROLE_STAFF_KEL,
@@ -474,8 +474,8 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             case self::ROLE_STAFF_KABKOTA:
                 $roleLabel = Yii::t('app', 'role.staffKabkota');
                 break;
-            case self::ROLE_SABERHOAX:
-                $roleLabel = Yii::t('app', 'role.saberhoax');
+            case self::ROLE_STAFF_SABERHOAX:
+                $roleLabel = Yii::t('app', 'role.staffSaberhoax');
                 break;
             case self::ROLE_STAFF_PROV:
                 $roleLabel = Yii::t('app', 'role.staffProv');
@@ -951,7 +951,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         // ---- Start to process permissions
         if ($this->scenario == self::SCENARIO_REGISTER) {
             // Assign default permissions based on role
-            if ($this->role != self::ROLE_SABERHOAX) {
+            if ($this->role != self::ROLE_STAFF_SABERHOAX) {
                 if ($this->role >= self::ROLE_STAFF_RW && $this->role < self::ROLE_ADMIN) {
                     $authItem = $authManager->getPermission('manageUsers');
                     $authManager->assign($authItem, $this->getId());
@@ -1032,8 +1032,8 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             case self::ROLE_STAFF_KABKOTA:
                 $roleName = 'staffKabkota';
                 break;
-            case self::ROLE_SABERHOAX:
-                $roleName = 'saberHoax';
+            case self::ROLE_STAFF_SABERHOAX:
+                $roleName = 'staffSaberhoax';
                 break;
             case self::ROLE_STAFF_PROV:
                 $roleName = 'staffProv';
