@@ -1,6 +1,6 @@
 <?php
 
-class NewsCest
+class NewsHoaxCest
 {
     private $endpoint = '/v1/news-hoax';
 
@@ -341,7 +341,7 @@ class NewsCest
             'status'  => 201,
         ]);
 
-        $I->seeInDatabase('news', [
+        $I->seeInDatabase('news_hoax', [
             'category_id'  => 1,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
@@ -430,6 +430,6 @@ class NewsCest
         $I->sendDELETE("{$this->endpoint}/1");
         $I->canSeeResponseCodeIs(204);
 
-        $I->seeInDatabase('news', ['id' => 1, 'status' => -1]);
+        $I->seeInDatabase('news_hoax', ['id' => 1, 'status' => -1]);
     }
 }
