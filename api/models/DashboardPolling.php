@@ -6,9 +6,9 @@ use Illuminate\Support\Arr;
 use yii\data\SqlDataProvider;
 
 /**
- * PollingDashboard represents the model behind the search form of `app\models\Polling`.
+ * DashboardPolling represents the model behind the search form of `app\models\Polling`.
  */
-class PollingDashboard extends Polling
+class DashboardPolling extends Polling
 {
     /**
      * Creates data provider instance applied for get polling latest
