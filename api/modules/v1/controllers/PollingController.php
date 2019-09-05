@@ -8,6 +8,7 @@ use app\models\PollingAnswer;
 use app\models\PollingSearch;
 use app\models\PollingVote;
 use app\models\User;
+use app\models\DashboardPolling;
 use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
@@ -42,6 +43,7 @@ class PollingController extends ActiveController
                 'answer-create' => ['post'],
                 'answer-update' => ['put'],
                 'answer-delete' => ['delete'],
+                'result'        => ['get'],
             ],
         ];
 
@@ -55,14 +57,14 @@ class PollingController extends ActiveController
             'class' => AccessControl::className(),
             'only'  => [
                 'index', 'view', 'create', 'update', 'delete', 'vote', 'vote-check',
-                'answer-create', 'answer-update', 'answer-delete',
+                'answer-create', 'answer-update', 'answer-delete', 'result'
             ],
             'rules' => [
                 [
                     'allow'   => true,
                     'actions' => [
                         'index', 'view', 'create', 'update', 'delete',
-                        'answer-create', 'answer-update', 'answer-delete',
+                        'answer-create', 'answer-update', 'answer-delete', 'result'
                     ],
                     'roles'   => ['admin', 'pollingManage'],
                 ],
@@ -292,6 +294,15 @@ class PollingController extends ActiveController
         }
 
         Yii::$app->getResponse()->setStatusCode(204);
+    }
+
+    public function actionResult($id)
+    {
+        $params['id'] = $id;
+
+        $pollingResult = new DashboardPolling();
+
+        return $pollingResult->getPollingResult($params);
     }
 
     /**
