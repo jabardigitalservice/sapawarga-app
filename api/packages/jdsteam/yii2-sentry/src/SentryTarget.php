@@ -37,7 +37,9 @@ class SentryTarget extends Target
      */
     public function export()
     {
-        if ($this->enabled === false) {
+        $user = Yii::$app->user->identity;
+
+        if ($this->enabled === false || $user === null) {
             return false;
         }
 
@@ -45,11 +47,6 @@ class SentryTarget extends Target
             list($text, $level, $category, $timestamp, $traces) = $message;
 
             if ($text instanceof \Throwable || $text instanceof \Exception) {
-                $user = Yii::$app->user->identity;
-
-                if ($user === null) {
-                    return false;
-                }
 
                 Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment]);
 
