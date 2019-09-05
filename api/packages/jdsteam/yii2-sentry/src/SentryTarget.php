@@ -44,21 +44,28 @@ class SentryTarget extends Target
         }
 
         foreach ($this->messages as $message) {
-            list($text, $level, $category, $timestamp, $traces) = $message;
+            return $this->captureErrors($message);
+        }
+    }
 
-            if ($text instanceof \Throwable || $text instanceof \Exception) {
-                Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment]);
+    protected function captureErrors($message)
+    {
+        list($text, $level, $category, $timestamp, $traces) = $message;
 
-                Sentry\configureScope(function (Sentry\State\Scope $scope) use ($user): void {
-                    $scope->setUser([
-                        'id' => $user->id,
-                        'username' => $user->username,
-                        'email' => $user->email,
-                    ]);
-                });
+        if ($text instanceof \Throwable || $text instanceof \Exception) {
+            $user = Yii::$app->user->identity;
 
-                Sentry\captureException($text);
-            }
+            Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment]);
+
+            Sentry\configureScope(function (Sentry\State\Scope $scope) use ($user): void {
+                $scope->setUser([
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                ]);
+            });
+
+            Sentry\captureException($text);
         }
     }
 }
