@@ -307,8 +307,8 @@ class DashboardCest
 
         $I->assertEquals(2, count($data[0]));
 
-        $I->assertEquals(2, $data[0][0]['answer_id']);
-        $I->assertEquals(1, $data[0][1]['answer_id']);
+        $I->assertEquals(2, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][1]['id']);
     }
 
     public function _after(ApiTester $I)
