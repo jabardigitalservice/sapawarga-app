@@ -430,8 +430,6 @@ class UserController extends ActiveController
      */
     public function actionMe()
     {
-        throw new Exception("My first Sentry error!");
-
         return $this->getCurrentUser();
     }
 
