@@ -14,6 +14,7 @@ use app\models\UserPhotoUploadForm;
 use app\models\UserSearch;
 use Intervention\Image\ImageManager;
 use Yii;
+use yii\base\Exception;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
