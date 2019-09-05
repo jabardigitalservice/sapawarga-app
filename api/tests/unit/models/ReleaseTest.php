@@ -34,7 +34,7 @@ class ReleaseTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('version'));
 
         // correct string pattern
-        $model->name = '1.0.0';
+        $model->version = '1.0.0';
         $model->validate();
         $this->assertFalse($model->hasErrors('name'));
     }
@@ -43,15 +43,15 @@ class ReleaseTest extends \Codeception\Test\Unit
     {
         $model = new Release();
 
-        $model->name = 123;
+        $model->force_update = 123;
         $model->validate();
         $this->assertTrue($model->hasErrors('force_update'));
 
-        $model->name = 'abc';
+        $model->force_update = 'abc';
         $model->validate();
         $this->assertTrue($model->hasErrors('force_update'));
 
-        $model->name = true;
+        $model->force_update = true;
         $model->validate();
         $this->assertFalse($model->hasErrors('force_update'));
     }
