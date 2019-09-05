@@ -111,6 +111,15 @@ class DashboardController extends ActiveController
         return $aspirasiGeo->getAspirasiGeo($params);
     }
 
+    public function actionPollingLatest()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $pollingLatest = new PollingDashboard();
+
+        return $pollingLatest->getPollingLatest($params);
+    }
+
     public function actionPollingChart()
     {
         $params = Yii::$app->request->getQueryParams();
