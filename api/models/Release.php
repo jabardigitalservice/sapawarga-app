@@ -3,10 +3,8 @@
 namespace app\models;
 
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
-use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**

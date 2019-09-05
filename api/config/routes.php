@@ -236,4 +236,12 @@ return [
         ],
         'extraPatterns' => []
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/release',
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => []
+    ],
 ];
