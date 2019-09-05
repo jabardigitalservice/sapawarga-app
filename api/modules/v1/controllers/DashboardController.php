@@ -8,7 +8,6 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\filters\auth\CompositeAuth;
 use app\filters\auth\HttpBearerAuth;
-use yii\web\NotAcceptableHttpException;
 use yii\web\ServerErrorHttpException;
 
 use app\models\AspirasiDashboard;
@@ -111,18 +110,12 @@ class DashboardController extends ActiveController
         return $aspirasiGeo->getAspirasiGeo($params);
     }
 
-    public function actionPollingChart()
+    public function actionPollingLatest()
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $pollingId = Arr::get($params, 'id');
+        $pollingLatest = new PollingDashboard();
 
-        if (empty($pollingId)) {
-            throw new NotAcceptableHttpException('Object not acceptable');
-        }
-
-        $pollingChart = new PollingDashboard();
-
-        return $pollingChart->getPollingChart($params);
+        return $pollingLatest->getPollingLatest($params);
     }
 }
