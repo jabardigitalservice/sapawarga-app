@@ -300,9 +300,9 @@ class PollingController extends ActiveController
     {
         $params['id'] = $id;
 
-        $pollingChart = new PollingDashboard();
+        $pollingResult = new PollingDashboard();
 
-        return $pollingChart->getPollingChart($params);
+        return $pollingResult->getPollingResult($params);
     }
 
     /**
