@@ -12,6 +12,7 @@ return [
         [
             'class' => SentryTarget::class,
             'enabled' => env('ERROR_REPORT', false),
+            'environment' => env('ERROR_ENVIRONMENT', 'staging'),
             'dsn' => env('SENTRY_DSN'),
             'levels' => ['error', 'warning'],
             'context' => true

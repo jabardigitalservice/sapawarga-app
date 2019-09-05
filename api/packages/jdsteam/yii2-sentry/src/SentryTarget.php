@@ -8,14 +8,25 @@ use yii\log\Target;
 
 class SentryTarget extends Target
 {
+    /**
+     * @var string
+     */
     public $dsn;
 
+    /**
+     * @var bool
+     */
     public $context;
 
     /**
      * @var bool
      */
     public $enabled;
+
+    /**
+     * @var string
+     */
+    public $environment;
 
     /**
      * Initializes the route.
@@ -26,7 +37,7 @@ class SentryTarget extends Target
         parent::init();
 
         if ($this->enabled) {
-            Sentry\init(['dsn' => $this->dsn, 'environment' => 'staging']);
+            Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment]);
         }
     }
 
