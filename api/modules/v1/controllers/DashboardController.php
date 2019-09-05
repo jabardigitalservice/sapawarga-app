@@ -11,7 +11,7 @@ use app\filters\auth\HttpBearerAuth;
 use yii\web\ServerErrorHttpException;
 
 use app\models\AspirasiDashboard;
-use app\models\PollingDashboard;
+use app\models\DashboardPolling;
 
 /**
  * DashboardController for implements the prepared data
@@ -114,7 +114,7 @@ class DashboardController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $pollingLatest = new PollingDashboard();
+        $pollingLatest = new DashboardPolling();
 
         return $pollingLatest->getPollingLatest($params);
     }
