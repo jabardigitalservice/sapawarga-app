@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\models\Release;
 use app\models\CategorySearch;
+use app\models\ReleaseSearch;
 use yii\filters\AccessControl;
 
 /**
@@ -52,13 +53,13 @@ class ReleaseController extends ActiveController
     public function actions()
     {
         $actions = parent::actions();
-        // $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         return $actions;
     }
 
     public function prepareDataProvider()
     {
-        $search = new CategorySearch();
+        $search = new ReleaseSearch();
 
         return $search->search(\Yii::$app->request->getQueryParams());
     }
