@@ -146,6 +146,7 @@ return [
             'GET {id}/vote' => 'vote-check',
             'PUT {id}/vote' => 'vote',
             'OPTIONS {id}/vote' => 'options',
+            'GET {id}/result' => 'result',
         ]
     ],
     [
@@ -225,6 +226,8 @@ return [
             'OPTIONS aspirasi-counts' => 'options',
             'GET aspirasi-geo' => 'aspirasi-geo',
             'OPTIONS aspirasi-geo' => 'options',
+            'GET polling-latest' => 'polling-latest',
+            'OPTIONS polling-latest' => 'options',
         ]
     ],
     [

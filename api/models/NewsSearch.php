@@ -37,7 +37,6 @@ class NewsSearch extends News
         $query->andFilterWhere(['channel_id' => $filterChannelId]);
 
         $query->andFilterWhere(['like', 'title', $searchKeyword]);
-        $query->orFilterWhere(['like', 'content', $searchKeyword]);
 
         $query->andFilterWhere(['<>', 'news.status', News::STATUS_DELETED]);
 

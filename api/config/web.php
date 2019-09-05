@@ -60,15 +60,7 @@ $config = [
                 'encryption' => getenv('MAILER_ENCRYPTION'),
             ],
         ],
-        'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
-        ],
+        'log' => include __DIR__ . '/components/log.php',
         'queue' => include __DIR__ . '/queue.php',
         'db' => include __DIR__ . '/db.php',
 
