@@ -47,7 +47,6 @@ class SentryTarget extends Target
             list($text, $level, $category, $timestamp, $traces) = $message;
 
             if ($text instanceof \Throwable || $text instanceof \Exception) {
-
                 Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment]);
 
                 Sentry\configureScope(function (Sentry\State\Scope $scope) use ($user): void {
