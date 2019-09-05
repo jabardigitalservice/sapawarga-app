@@ -4,18 +4,27 @@ class ReleaseCest
 {
     private $endpointRelease = '/v1/releases';
 
+    public function postCreateReleaseUnauthorized(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+        $data = [];
+        $I->sendPOST($this->endpointRelease, $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->amUser('staffrw');
+        $data = [];
+        $I->sendPOST($this->endpointRelease, $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+    }
+
     public function createNewReleaseVersionExist(ApiTester $I)
     {
         $I->amStaff();
 
-        $I->haveInDatabase('releases', [
-            'id'         => 1,
-            'version'    => '1.0.0',
-            'force_update'    => true,
-        ]);
-
         $I->sendPOST($this->endpointRelease, [
-            'version'    => '1.0.0',
+            'version'    => '0.0.1',
             'force_update'    => true,
         ]);
 
@@ -44,6 +53,22 @@ class ReleaseCest
             'success' => true,
             'status'  => 201,
         ]);
+
+        $I->seeInDatabase('releases', [
+            'version'       => '1.0.1',
+            'force_update'  => false,
+        ]);
+    }
+
+    public function getReleaseUnauthorized(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+        $I->sendGET($this->endpointRelease);
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('staffrw');
+        $I->sendGET($this->endpointRelease);
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function getReleaseListAll(ApiTester $I)
@@ -81,16 +106,21 @@ class ReleaseCest
         $I->sendGET("{$this->endpointRelease}/1");
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
+    }
 
-        $I->seeResponseContainsJson([
-            'success'   => true,
-            'status'    => 200,
-            'data'      => [
-                'id' => 1,
-                'version' => '1.0.0',
-                'force_update' => true,
-            ]
-        ]);
+    public function postUpdateReleaseUnauthorized(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+        $data = [];
+        $I->sendPUT("{$this->endpointRelease}/1", $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->amUser('staffrw');
+        $data = [];
+        $I->sendPUT("{$this->endpointRelease}/1", $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
     }
 
     public function updateRelease(ApiTester $I)
@@ -108,6 +138,17 @@ class ReleaseCest
             'success' => true,
             'status'  => 200,
         ]);
+    }
+
+    public function deleteReleaseUnauthorizedTest(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+        $I->sendDELETE("{$this->endpointRelease}/1");
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('staffrw');
+        $I->sendDELETE("{$this->endpointRelease}/1");
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function deleteRelease(ApiTester $I)

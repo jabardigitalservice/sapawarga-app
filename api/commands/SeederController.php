@@ -46,6 +46,9 @@ class SeederController extends Controller
         echo 'Seeding News Channels and News...' . PHP_EOL;
         $this->actionNews();
 
+        echo 'Seeding Release Versions...' . PHP_EOL;
+        $this->actionRelease();
+
         Yii::$app->db->createCommand()->checkIntegrity(true)->execute();
     }
 
@@ -146,6 +149,14 @@ class SeederController extends Controller
         Yii::$app->db->createCommand('TRUNCATE news')->execute();
 
         $sql = file_get_contents(__DIR__ . '/../migrations/seeder/news_newschannel.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+    }
+
+    public function actionRelease()
+    {
+        Yii::$app->db->createCommand('TRUNCATE releases')->execute();
+
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/release.sql');
         Yii::$app->db->createCommand($sql)->execute();
     }
 
