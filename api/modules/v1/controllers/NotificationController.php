@@ -31,18 +31,6 @@ class NotificationController extends ActiveController
             ],
         ];
 
-        $behaviors['verbs'] = [
-            'class'   => \yii\filters\VerbFilter::className(),
-            'actions' => [
-                'index'  => ['get'],
-                'view'   => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-                'public' => ['get'],
-            ],
-        ];
-
         // remove authentication filter
         $auth = $behaviors['authenticator'];
         unset($behaviors['authenticator']);

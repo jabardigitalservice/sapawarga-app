@@ -19,11 +19,7 @@ class SeederController extends Controller
         echo 'Seeding Users...' . PHP_EOL;
         $this->actionUser();
 
-        echo 'Seeding Categories...' . PHP_EOL;
-        $this->actionCategory();
-
-        echo 'Seeding Categories...' . PHP_EOL;
-        $this->actionCategoryVideo();
+        $this->seedCategories();
 
         echo 'Seeding Phonebooks...' . PHP_EOL;
         $this->actionPhoneBook();
@@ -45,6 +41,9 @@ class SeederController extends Controller
 
         echo 'Seeding News Channels and News...' . PHP_EOL;
         $this->actionNews();
+
+        echo 'Seeding Release Versions...' . PHP_EOL;
+        $this->actionRelease();
 
         Yii::$app->db->createCommand()->checkIntegrity(true)->execute();
     }
@@ -149,19 +148,20 @@ class SeederController extends Controller
         Yii::$app->db->createCommand($sql)->execute();
     }
 
-    protected function setRandomKecamatan()
+    public function actionRelease()
     {
-        echo 'Set Phonebooks - Kecamatan...' . PHP_EOL;
+        Yii::$app->db->createCommand('TRUNCATE releases')->execute();
 
-        $phonebooks = PhoneBook::find()->all();
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/release.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+    }
 
-        foreach ($phonebooks as $phonebook) {
-            $kecamatan = Area::find()->where(['parent_id' => $phonebook->kabkota_id])
-                ->orderBy(new \yii\db\Expression('rand()'))
-                ->one();
+    protected function seedCategories()
+    {
+        echo 'Seeding Categories...' . PHP_EOL;
+        $this->actionCategory();
 
-            $phonebook->kec_id = $kecamatan->id;
-            $phonebook->save(false);
-        }
+        echo 'Seeding Categories...' . PHP_EOL;
+        $this->actionCategoryVideo();
     }
 }
