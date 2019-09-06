@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -20,6 +21,8 @@ use yii\db\ActiveRecord;
  */
 class Release extends ActiveRecord implements ActiveStatus
 {
+    const FILE_ALIAS = '@webroot/storage/version.json';
+
     /**
      * {@inheritdoc}
      */
@@ -75,12 +78,14 @@ class Release extends ActiveRecord implements ActiveStatus
 
     public function afterSave($insert, $changedAttributes)
     {
-        if ($insert) { // Model is created
-            // Create/Rewrite  version manifest
-        } else { // Model is updated
-            if (array_key_exists('version', $changedAttributes)) {
-                // Also rewrite  version manifest
-            }
-        }
+        $json = json_encode([
+            'version' => $this->version,
+            'force_update' => $this->force_update,
+        ]);
+
+        $jsonfile= Yii::getAlias(self::FILE_ALIAS);
+        $fp = fopen($jsonfile, 'w+');
+        fwrite($fp, $json);
+        fclose($fp);
     }
 }
