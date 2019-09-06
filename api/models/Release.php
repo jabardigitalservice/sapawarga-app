@@ -19,7 +19,7 @@ use yii\db\ActiveRecord;
  * @property int $created_at
  * @property int $updated_at
  */
-class Release extends ActiveRecord implements ActiveStatus
+class Release extends ActiveRecord
 {
     const FILE_ALIAS = '@webroot/storage/version.json';
 
@@ -78,14 +78,18 @@ class Release extends ActiveRecord implements ActiveStatus
 
     public function afterSave($insert, $changedAttributes)
     {
+        $latest = Release::find()->orderBy(['id' => SORT_DESC])->one();
+
         $json = json_encode([
-            'version' => $this->version,
-            'force_update' => $this->force_update,
+            'version' => $latest->version,
+            'force_update' => $latest->force_update,
         ]);
 
         $jsonfile= Yii::getAlias(self::FILE_ALIAS);
         $fp = fopen($jsonfile, 'w+');
         fwrite($fp, $json);
         fclose($fp);
+
+        return parent::afterSave($insert, $changedAttributes);
     }
 }
