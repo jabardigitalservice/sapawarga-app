@@ -19,11 +19,7 @@ class SeederController extends Controller
         echo 'Seeding Users...' . PHP_EOL;
         $this->actionUser();
 
-        echo 'Seeding Categories...' . PHP_EOL;
-        $this->actionCategory();
-
-        echo 'Seeding Categories...' . PHP_EOL;
-        $this->actionCategoryVideo();
+        $this->seedCategories();
 
         echo 'Seeding Phonebooks...' . PHP_EOL;
         $this->actionPhoneBook();
@@ -160,19 +156,12 @@ class SeederController extends Controller
         Yii::$app->db->createCommand($sql)->execute();
     }
 
-    protected function setRandomKecamatan()
+    protected function seedCategories()
     {
-        echo 'Set Phonebooks - Kecamatan...' . PHP_EOL;
+        echo 'Seeding Categories...' . PHP_EOL;
+        $this->actionCategory();
 
-        $phonebooks = PhoneBook::find()->all();
-
-        foreach ($phonebooks as $phonebook) {
-            $kecamatan = Area::find()->where(['parent_id' => $phonebook->kabkota_id])
-                ->orderBy(new \yii\db\Expression('rand()'))
-                ->one();
-
-            $phonebook->kec_id = $kecamatan->id;
-            $phonebook->save(false);
-        }
+        echo 'Seeding Categories...' . PHP_EOL;
+        $this->actionCategoryVideo();
     }
 }

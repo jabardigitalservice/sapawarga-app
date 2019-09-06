@@ -47,21 +47,6 @@ class Release extends ActiveRecord implements ActiveStatus
         ];
     }
 
-    public function fields()
-    {
-        $fields = [
-            'id',
-            'version',
-            'force_update',
-            'created_by',
-            'updated_by',
-            'created_at',
-            'updated_at',
-        ];
-
-        return $fields;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -86,5 +71,16 @@ class Release extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert) { // Model is created
+            // Create/Rewrite  version manifest
+        } else { // Model is updated
+            if (array_key_exists('version', $changedAttributes)) {
+                // Also rewrite  version manifest
+            }
+        }
     }
 }
