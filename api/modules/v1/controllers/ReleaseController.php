@@ -3,7 +3,6 @@
 namespace app\modules\v1\controllers;
 
 use app\models\Release;
-use app\models\CategorySearch;
 use app\models\ReleaseSearch;
 use yii\filters\AccessControl;
 
@@ -17,18 +16,6 @@ class ReleaseController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['verbs'] = [
-            'class'   => \yii\filters\VerbFilter::className(),
-            'actions' => [
-                'index'  => ['get'],
-                'view'   => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-                'public' => ['get'],
-            ],
-        ];
 
         return $this->behaviorCors($behaviors);
     }
