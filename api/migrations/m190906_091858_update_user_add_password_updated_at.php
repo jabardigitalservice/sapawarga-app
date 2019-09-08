@@ -11,7 +11,7 @@ class m190906_091858_update_user_add_password_updated_at extends CustomMigration
      */
     public function safeUp()
     {
-        $this->addColumn('user', 'password_updated_at', $this->timestamp()->null());
+        $this->addColumn('user', 'password_updated_at', $this->integer()->null());
     }
 
     /**
