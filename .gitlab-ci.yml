@@ -7,217 +7,237 @@ stages:
   - deploy_staging
   - deploy_prod
 
-versioning:
-  image: alpine:latest
-  stage: versioning
-  only:
-    - branches
-  before_script:
-    - apk add git
-  script:
-    - export VERSION=$(git describe)
-    - echo $VERSION
-    - echo $VERSION > version
-  artifacts:
-    paths:
-      - version
+# versioning:
+#   image: alpine:latest
+#   stage: versioning
+#   only:
+#     - branches
+#   before_script:
+#     - apk add git
+#   script:
+#     - export VERSION=$(git describe)
+#     - echo $VERSION
+#     - echo $VERSION > version
+#   artifacts:
+#     paths:
+#       - version
 
-code_quality:
+# code_quality:
+#   image: docker:stable
+#   stage: code_quality
+#   only:
+#     - branches
+#   services:
+#     - docker:stable-dind
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#   script:
+#     - docker run
+#         --env SOURCE_CODE=$PWD
+#         --env CONTAINER_TIMEOUT_SECONDS=3600
+#         --env CODECLIMATE_DEBUG=1
+#         --volume $PWD:/code
+#         --volume /var/run/docker.sock:/var/run/docker.sock
+#         "registry.gitlab.com/gitlab-org/security-products/codequality:11-8-stable" /code
+#   artifacts:
+#     paths: [gl-code-quality-report.json]
+#     reports:
+#       codequality: gl-code-quality-report.json
+#     expire_in: 1 week
+
+# build_dev:
+#   stage: build
+#   image: docker:stable
+#   only:
+#     - branches
+#   services:
+#     - docker:stable-dind
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+#     - pip install docker-compose
+#   script:
+#     - docker-compose -f docker-compose.dev.yml build
+#     - docker images
+#     - docker-compose -f docker-compose.dev.yml push
+
+# test_api:
+#   stage: test
+#   image: docker:stable
+#   only:
+#     - branches
+#   services:
+#     - docker:stable-dind
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+#     - pip install docker-compose
+#   script:
+#     - docker-compose -f docker-compose.dev.yml pull
+#     - docker images
+#     - COMPOSE_HTTP_TIMEOUT=500 docker-compose -f docker-compose.dev.yml up -d
+#     - sleep 60
+#     - docker ps
+#     - docker-compose -f docker-compose.dev.yml exec -T api composer sniff
+#     - docker-compose -f docker-compose.dev.yml exec -T api php yii seeder
+#     - docker-compose -f docker-compose.dev.yml exec -T api composer run test
+
+# release_all:
+#   stage: release
+#   image: docker:stable
+#   only:
+#     - master
+#   services:
+#     - docker:stable-dind
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+#     - pip install docker-compose
+#   script:
+#     - docker-compose -f docker-compose.dev.yml pull
+#     - docker images
+#     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
+#     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
+#     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${VERSION} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${CI_PIPELINE_IID}
+#     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${CI_PIPELINE_IID}
+
+# deploy_staging:
+#   stage: deploy_staging
+#   image: docker:stable
+#   only:
+#     - master
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#     - 'which ssh-agent || ( apk update && apk add openssh-client )'
+#     - mkdir -p ~/.ssh
+#     - eval $(ssh-agent -s)
+#     - chmod 400 $SSH_STAGING_KEY_PRIVATE
+#     - ssh-add $SSH_STAGING_KEY_PRIVATE
+#   script:
+#     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "export VERSION=${VERSION} && cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
+#     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
+#     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker image prune -a -f"
+
+deploy_staging_aws:
   image: docker:stable
-  stage: code_quality
-  only:
-    - branches
-  services:
-    - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-  script:
-    - docker run
-        --env SOURCE_CODE=$PWD
-        --env CONTAINER_TIMEOUT_SECONDS=3600
-        --env CODECLIMATE_DEBUG=1
-        --volume $PWD:/code
-        --volume /var/run/docker.sock:/var/run/docker.sock
-        "registry.gitlab.com/gitlab-org/security-products/codequality:11-8-stable" /code
-  artifacts:
-    paths: [gl-code-quality-report.json]
-    reports:
-      codequality: gl-code-quality-report.json
-    expire_in: 1 week
-
-build_dev:
-  stage: build
-  image: docker:stable
-  only:
-    - branches
-  services:
-    - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-    - pip install docker-compose
-  script:
-    - docker-compose -f docker-compose.dev.yml build
-    - docker images
-    - docker-compose -f docker-compose.dev.yml push
-
-test_api:
-  stage: test
-  image: docker:stable
-  only:
-    - branches
-  services:
-    - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-    - pip install docker-compose
-  script:
-    - docker-compose -f docker-compose.dev.yml pull
-    - docker images
-    - COMPOSE_HTTP_TIMEOUT=500 docker-compose -f docker-compose.dev.yml up -d
-    - sleep 60
-    - docker ps
-    - docker-compose -f docker-compose.dev.yml exec -T api composer sniff
-    - docker-compose -f docker-compose.dev.yml exec -T api php yii seeder
-    - docker-compose -f docker-compose.dev.yml exec -T api composer run test
-
-release_all:
-  stage: release
-  image: docker:stable
-  only:
-    - master
-  services:
-    - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-    - pip install docker-compose
-  script:
-    - docker-compose -f docker-compose.dev.yml pull
-    - docker images
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
-    - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${VERSION} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${CI_PIPELINE_IID}
-    - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${CI_PIPELINE_IID}
-
-deploy_staging:
   stage: deploy_staging
-  image: docker:stable
-  only:
-    - master
-  dependencies: 
-    - versioning
+  # only:
+  #   - master
+  # dependencies: 
+  #   - versioning
   before_script:
-    - export VERSION=$(cat ./version)
+    - export VERSION=v0.1-118-gfb8e6582
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
-    - chmod 400 $SSH_STAGING_KEY_PRIVATE
-    - ssh-add $SSH_STAGING_KEY_PRIVATE
+    - chmod 400 $SSH_STAGING_KEY_PRIVATE_AWS
+    - ssh-add $SSH_STAGING_KEY_PRIVATE_AWS
   script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "export VERSION=${VERSION} && cd /home/development/projects/sapawarga-backend && sudo git pull && sudo docker system prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker ps"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME}@${STAGING_HOST} "sudo docker image prune -a -f"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "export VERSION=${VERSION} && cd /home/ubuntu/projects/sapawarga-app && sudo git pull && sudo docker image prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
+    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
 
-deploy_prod_gke:
-  stage: deploy_prod
-  image: dtzar/helm-kubectl
-  only:
-    - master
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-  script:
-    - kubectl config set-cluster k8s --server="${KUBERNETES_SERVER}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}
-    - kubectl config set-credentials gitlab --token="${KUBERNETES_USER_TOKEN}"
-    - kubectl config set-context default --cluster=k8s --user=gitlab
-    - kubectl config use-context default
-    - kubectl config use-context default
-    - kubectl cluster-info
-    - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
-    - cat kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-api-deployment.yaml
-    - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
-        -f kubernetes/backend-api-deployment.yaml
-        -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
-        -f kubernetes/backend-queue-job.yaml
+# deploy_prod_gke:
+#   stage: deploy_prod
+#   image: dtzar/helm-kubectl
+#   only:
+#     - master
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#   script:
+#     - kubectl config set-cluster k8s --server="${KUBERNETES_SERVER}"
+#     - kubectl config set clusters.k8s.certificate-authority-data ${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}
+#     - kubectl config set-credentials gitlab --token="${KUBERNETES_USER_TOKEN}"
+#     - kubectl config set-context default --cluster=k8s --user=gitlab
+#     - kubectl config use-context default
+#     - kubectl config use-context default
+#     - kubectl cluster-info
+#     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
+#     - cat kubernetes/backend-variables.yaml
+#     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+#     - cat kubernetes/backend-variables.yaml
+#     - cat kubernetes/backend-api-deployment.yaml
+#     - kubectl apply -f kubernetes/backend-variables.yaml
+#         -f kubernetes/backend-mysql-pv-claim.yaml
+#         -f kubernetes/backend-mysql-deployment.yaml
+#         -f kubernetes/backend-mysql-service.yaml
+#         -f kubernetes/backend-api-pv-claim.yaml
+#         -f kubernetes/backend-api-deployment.yaml
+#         -f kubernetes/backend-api-service.yaml
+#         -f kubernetes/backend-memcached-deployment.yaml
+#         -f kubernetes/backend-memcached-service.yaml
+#         -f kubernetes/backend-queue-job.yaml
 
-deploy_prod_eks:
-  stage: deploy_prod
-  image: dtzar/helm-kubectl
-  only:
-    - master
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-  script:
-    - kubectl config set-cluster k8s --server="${EKS_SERVER}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA}
-    - kubectl config set-credentials gitlab --token="${EKS_TOKEN}"
-    - kubectl config set-context default --cluster=k8s --user=gitlab
-    - kubectl config use-context default
-    - kubectl cluster-info
-    - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${EKS_APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_HOST%/${AWS_PROD_MYSQL_HOST}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_USER%/${AWS_PROD_MYSQL_USER}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_PASSWORD%/${AWS_PROD_MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
-    - cat kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-api-deployment.yaml
-    - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
-        -f kubernetes/backend-api-deployment.yaml
-        -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
-        -f kubernetes/backend-queue-job.yaml
+# deploy_prod_eks:
+#   stage: deploy_prod
+#   image: dtzar/helm-kubectl
+#   only:
+#     - master
+#   dependencies: 
+#     - versioning
+#   before_script:
+#     - export VERSION=$(cat ./version)
+#   script:
+#     - kubectl config set-cluster k8s --server="${EKS_SERVER}"
+#     - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA}
+#     - kubectl config set-credentials gitlab --token="${EKS_TOKEN}"
+#     - kubectl config set-context default --cluster=k8s --user=gitlab
+#     - kubectl config use-context default
+#     - kubectl cluster-info
+#     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
+#     - cat kubernetes/backend-variables.yaml
+#     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${EKS_APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_HOST%/${AWS_PROD_MYSQL_HOST}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_USER%/${AWS_PROD_MYSQL_USER}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_PASSWORD%/${AWS_PROD_MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+#     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+#     - cat kubernetes/backend-variables.yaml
+#     - cat kubernetes/backend-api-deployment.yaml
+#     - kubectl apply -f kubernetes/backend-variables.yaml
+#         -f kubernetes/backend-mysql-pv-claim.yaml
+#         -f kubernetes/backend-mysql-deployment.yaml
+#         -f kubernetes/backend-mysql-service.yaml
+#         -f kubernetes/backend-api-pv-claim.yaml
+#         -f kubernetes/backend-api-deployment.yaml
+#         -f kubernetes/backend-api-service.yaml
+#         -f kubernetes/backend-memcached-deployment.yaml
+#         -f kubernetes/backend-memcached-service.yaml
+#         -f kubernetes/backend-queue-job.yaml
