@@ -6,8 +6,6 @@ services:
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
       - internal
-    depends_on:
-      - database
     env_file:
       - .env
     volumes:
@@ -24,7 +22,6 @@ services:
     networks:
       - internal
     depends_on:
-      - database
       - api
     env_file:
       - .env
