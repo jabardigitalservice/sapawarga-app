@@ -558,6 +558,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 return $model->role <= self::ROLE_STAFF_RW;
             }],
             [['name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
+            [['name', 'phone', 'address', 'rt', 'rw', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'trim'],
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
         ];
