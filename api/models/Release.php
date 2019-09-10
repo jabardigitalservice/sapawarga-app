@@ -21,7 +21,7 @@ use yii\db\ActiveRecord;
  */
 class Release extends ActiveRecord
 {
-    const FILE_ALIAS = '@webroot/storage/version.json';
+    const FILE_MANIFEST_PATH = '@webroot/storage/version.json';
 
     /**
      * {@inheritdoc}
@@ -78,18 +78,32 @@ class Release extends ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
+        $this->createManifest($this);
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function afterDelete()
+    {
         $latest = Release::find()->orderBy(['id' => SORT_DESC])->one();
 
+        $this->createManifest($latest);
+
+        return parent::afterDelete();
+    }
+
+    public function createManifest(Release $latest): void
+    {
         $json = json_encode([
             'version' => $latest->version,
             'force_update' => $latest->force_update,
         ]);
 
-        $jsonfile= Yii::getAlias(self::FILE_ALIAS);
+        $jsonfile = Yii::getAlias(self::FILE_MANIFEST_PATH);
+
         $fp = fopen($jsonfile, 'w+');
+
         fwrite($fp, $json);
         fclose($fp);
-
-        return parent::afterSave($insert, $changedAttributes);
     }
 }
