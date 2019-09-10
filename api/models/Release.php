@@ -47,6 +47,17 @@ class Release extends ActiveRecord implements ActiveStatus
         ];
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['force_update'] = function () {
+            return (bool) $this->force_update;
+        };
+
+        return $fields;
+    }
+
     /**
      * {@inheritdoc}
      */
