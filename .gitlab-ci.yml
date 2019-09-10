@@ -147,7 +147,7 @@ deploy_staging_aws:
   # dependencies: 
   #   - versioning
   before_script:
-    - export VERSION=v0.1-118-gfb8e6582
+    - export VERSION=v0.1-121-g25d8c92e
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
