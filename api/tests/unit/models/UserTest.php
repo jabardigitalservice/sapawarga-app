@@ -168,4 +168,34 @@ class UserTest extends \Codeception\Test\Unit
             $this->assertFalse($user->validate($this->_phone));
         });
     }
+
+    public function testTrimInput()
+    {
+        $model = new User();
+        $model->name = ' test data ';
+        $model->phone = ' test data ';
+        $model->address = ' test data ';
+        $model->rt = ' test data ';
+        $model->rw = ' test data ';
+        $model->lat = ' test data ';
+        $model->lon = ' test data ';
+        $model->photo_url = ' test data ';
+        $model->facebook = ' test data ';
+        $model->twitter = ' test data ';
+        $model->instagram = ' test data ';
+
+        $model->validate();
+
+        $this->assertEquals('test data', $model->name);
+        $this->assertEquals('test data', $model->phone);
+        $this->assertEquals('test data', $model->address);
+        $this->assertEquals('test data', $model->rt);
+        $this->assertEquals('test data', $model->rw);
+        $this->assertEquals('test data', $model->lat);
+        $this->assertEquals('test data', $model->lon);
+        $this->assertEquals('test data', $model->photo_url);
+        $this->assertEquals('test data', $model->facebook);
+        $this->assertEquals('test data', $model->twitter);
+        $this->assertEquals('test data', $model->instagram);
+    }
 }
