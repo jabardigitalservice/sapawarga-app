@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
+use app\models\PasswordChangeForm;
 use app\models\PasswordResetForm;
 use app\models\PasswordResetRequestForm;
 use app\models\PasswordResetTokenVerificationForm;
@@ -49,7 +50,6 @@ class UserController extends ActiveController
             'authMethods' => [
                 HttpBearerAuth::className(),
             ],
-
         ];
 
         $behaviors['verbs'] = [
@@ -64,6 +64,7 @@ class UserController extends ActiveController
                 'logout' => ['post'],
                 'me' => ['get', 'post'],
                 'me-photo' => ['get', 'post'],
+                'me-change-password' => ['post'],
             ],
         ];
 
@@ -91,7 +92,7 @@ class UserController extends ActiveController
             'confirm',
             'password-reset-request',
             'password-reset-token-verification',
-            'password-reset'
+            'password-reset',
         ];
 
         // setup access
@@ -106,7 +107,7 @@ class UserController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['logout', 'me', 'me-photo'],
+                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password'],
                     'roles' => ['user', 'staffRW']
                 ]
             ],
@@ -420,6 +421,35 @@ class UserController extends ActiveController
 
             return $model->getErrors();
         }
+    }
+
+    public function actionMeChangePassword()
+    {
+        $user = User::findIdentity(\Yii::$app->user->getId());
+
+        if (! $user) {
+            throw new NotFoundHttpException('Object not found');
+        }
+
+        $model = new PasswordChangeForm();
+        $model->id = $user->id;
+        $model->password_updated_at = $user->password_updated_at;
+        $model->password = Yii::$app->request->post('password');
+        $model->password_confirmation = Yii::$app->request->post('password_confirmation');
+        $model->password_old = Yii::$app->request->post('password_old');
+
+        if ($model->validate() && $model->changePassword()) {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $responseData = 'true';
+            return $responseData;
+        }
+
+        // Validation error
+        $response = \Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
     }
 
     /**
