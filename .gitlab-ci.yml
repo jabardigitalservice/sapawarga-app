@@ -35,17 +35,17 @@ setup_env:
   script:
     - cp .env-template .env
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" .env
-    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${CGP_STAGING_APP_STORAGE_LOCAL_URL}/g" .env
+    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${GCP_STAGING_APP_STORAGE_LOCAL_URL}/g" .env
     - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
     - sed -i "s/%MYSQL_HOST%/${GCP_STAGING_MYSQL_HOST}/g" .env
     - sed -i "s/%MYSQL_PORT%/${GCP_STAGING_MYSQL_PORT}/g" .env
     - sed -i "s/%MYSQL_DATABASE%/${GCP_STAGING_MYSQL_DATABASE}/g" .env
     - sed -i "s/%MYSQL_USER%/${GCP_STAGING_MYSQL_USER}/g" .env
     - sed -i "s/%MYSQL_PASSWORD%/${GCP_STAGING_MYSQL_PASSWORD}/g" .env
-    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" .env
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${GCP_STAGING_MYSQL_ROOT_PASSWORD}/g" .env
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" .env
-    - sed -i "s/%ERROR_REPORT%/${ERROR_REPORT}/g" .env
-    - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" .env
+    - sed -i "s/%ERROR_REPORT%/${GCP_STAGING_ERROR_REPORT}/g" .env
+    - sed -i "s/%ERROR_ENVIRONMENT%/${GCP_STAGING_ERROR_ENVIRONMENT}/g" .env
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" .env
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" .env
     - sed -i "s/%VERSION%/${VERSION}/g" .env
