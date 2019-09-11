@@ -31,6 +31,8 @@ return [
             'GET me/photo' => 'me-photo',
             'POST me/photo' => 'me-photo-upload',
             'OPTIONS me/photo' => 'options',
+            'POST me/change-password' => 'me-change-password',
+            'OPTIONS me/change-password' => 'options',
         ]
     ],
     [
