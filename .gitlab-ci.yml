@@ -113,7 +113,7 @@ test_api:
     - docker ps
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
-    # - docker-compose exec -T api composer run test
+    - docker-compose exec -T api composer run test
 
 deploy_staging_gcp:
   stage: deploy_staging
