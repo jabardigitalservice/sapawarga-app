@@ -32,10 +32,8 @@ code_quality:
     DOCKER_DRIVER: overlay2
   dependencies: 
     - versioning
-    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
-    - cat .env
   script:
     - docker run
         --env SOURCE_CODE=$PWD
