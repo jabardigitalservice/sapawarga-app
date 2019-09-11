@@ -1,5 +1,6 @@
 stages:
   - versioning
+  - setup_env
   - code_quality
   - build
   - test
@@ -22,6 +23,37 @@ versioning:
     paths:
       - version
 
+setup_env:
+  image: alpine:latest
+  stage: setup_env
+  only:
+    - branches
+  dependencies: 
+    - versioning
+  before_script:
+    - export VERSION=$(cat ./version)
+  script:
+    - cp .env-template .env
+    - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" .env
+    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${CGP_STAGING_APP_STORAGE_LOCAL_URL}/g" .env
+    - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
+    - sed -i "s/%MYSQL_HOST%/${GCP_STAGING_MYSQL_HOST}/g" .env
+    - sed -i "s/%MYSQL_PORT%/${GCP_STAGING_MYSQL_PORT}/g" .env
+    - sed -i "s/%MYSQL_DATABASE%/${GCP_STAGING_MYSQL_DATABASE}/g" .env
+    - sed -i "s/%MYSQL_USER%/${GCP_STAGING_MYSQL_USER}/g" .env
+    - sed -i "s/%MYSQL_PASSWORD%/${GCP_STAGING_MYSQL_PASSWORD}/g" .env
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" .env
+    - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" .env
+    - sed -i "s/%ERROR_REPORT%/${ERROR_REPORT}/g" .env
+    - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" .env
+    - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" .env
+    - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" .env
+    - sed -i "s/%VERSION%/${VERSION}/g" .env
+    - cat .env
+  artifacts:
+    paths:
+      - .env
+
 code_quality:
   image: docker:stable
   stage: code_quality
@@ -33,8 +65,10 @@ code_quality:
     DOCKER_DRIVER: overlay2
   dependencies: 
     - versioning
+    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
+    - cat .env
   script:
     - docker run
         --env SOURCE_CODE=$PWD
@@ -49,7 +83,7 @@ code_quality:
       codequality: gl-code-quality-report.json
     expire_in: 1 week
 
-build_dev:
+build_image:
   stage: build
   image: docker:stable
   only:
@@ -60,15 +94,17 @@ build_dev:
     DOCKER_DRIVER: overlay2
   dependencies: 
     - versioning
+    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
+    - cat .env
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
     - pip install docker-compose
   script:
-    - docker-compose -f docker-compose.dev.yml build
+    - docker-compose build
     - docker images
-    - docker-compose -f docker-compose.dev.yml push
+    - docker-compose push
 
 test_api:
   stage: test
@@ -81,20 +117,22 @@ test_api:
     DOCKER_DRIVER: overlay2
   dependencies: 
     - versioning
+    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
+    - cat .env
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
     - pip install docker-compose
   script:
-    - docker-compose -f docker-compose.dev.yml pull
+    - docker-compose pull
     - docker images
-    - COMPOSE_HTTP_TIMEOUT=500 docker-compose -f docker-compose.dev.yml up -d
+    - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
     - sleep 60
     - docker ps
-    - docker-compose -f docker-compose.dev.yml exec -T api composer sniff
-    - docker-compose -f docker-compose.dev.yml exec -T api php yii seeder
-    - docker-compose -f docker-compose.dev.yml exec -T api composer run test
+    - docker-compose exec -T api composer sniff
+    - docker-compose exec -T api php yii seeder
+    - docker-compose exec -T api composer run test
 
 release_all:
   stage: release
@@ -107,13 +145,15 @@ release_all:
     DOCKER_DRIVER: overlay2
   dependencies: 
     - versioning
+    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
+    - cat .env
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
     - pip install docker-compose
   script:
-    - docker-compose -f docker-compose.dev.yml pull
+    - docker-compose pull
     - docker images
     - docker tag registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION} registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
     - docker push registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${CI_PIPELINE_IID}
@@ -127,8 +167,10 @@ deploy_staging:
     - master
   dependencies: 
     - versioning
+    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
+    - cat .env
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
@@ -146,8 +188,10 @@ deploy_staging_aws:
     - master
   dependencies: 
     - versioning
+    - setup_env
   before_script:
     - export VERSION=$(cat ./version)
+    - cat .env
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
