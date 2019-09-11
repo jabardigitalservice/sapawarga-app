@@ -28,6 +28,7 @@ return [
     'error.password.old.empty' => 'Masukan kata sandi lama anda.',
     'error.password.old.incorrect' => 'Kata sandi lama anda salah.',
     'error.password.confirmation.incorect' => 'Kata sandi konfirmasi anda salah.',
+    'error.password.old.same' => 'Password baru sama tidak boleh sama dengan password lama.',
 
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',

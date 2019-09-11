@@ -44,6 +44,10 @@ class PasswordChangeForm extends Model
             if (!$user->validatePassword($this->password_old)) {
                 $this->addError($attribute, \Yii::t('app', 'error.password.old.incorrect'));
             }
+
+            if ($user->validatePassword($this->password)) {
+                $this->addError($attribute, \Yii::t('app', 'error.password.old.same'));
+            }
         }
     }
 

@@ -28,6 +28,7 @@ return [
     'error.password.old.empty' => 'Enter your old password.',
     'error.password.old.incorect' => 'Old password is incorect.',
     'error.password.confirmation.incorect' => 'Password confirmation is incorect.',
+    'error.password.old.same' => 'New password can not be same with old password.',
 
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staff Provinsi',
