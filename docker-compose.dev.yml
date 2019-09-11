@@ -3,6 +3,8 @@ services:
   api:
     build:
       context: ./api
+      args:
+        - APP_VERSION=${VERSION}
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
       - internal

@@ -147,6 +147,7 @@ return [
             'PUT {id}/vote' => 'vote',
             'OPTIONS {id}/vote' => 'options',
             'GET {id}/result' => 'result',
+            'OPTIONS {id}/result' => 'options',
         ]
     ],
     [

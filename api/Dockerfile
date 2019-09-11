@@ -10,6 +10,10 @@ ENV VERSION_COMPOSER_ASSET_PLUGIN=^1.4.2 \
     TERM=linux \
     COMPOSER_ALLOW_SUPERUSER=1
 
+# Build app
+ARG APP_VERSION
+ENV APP_VERSION $APP_VERSION
+
 # Add configuration files
 COPY image-files/ /
 

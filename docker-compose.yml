@@ -1,13 +1,13 @@
 version: '3'
 services:
   api:
-    # build:
-    #   context: ./api
+    build:
+      context: ./api
+      args:
+        - APP_VERSION=${VERSION}
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
       - internal
-    depends_on:
-      - database
     env_file:
       - .env
     volumes:
@@ -24,7 +24,6 @@ services:
     networks:
       - internal
     depends_on:
-      - database
       - api
     env_file:
       - .env
@@ -34,17 +33,6 @@ services:
       - vol_storage:/srv/web/storage
     restart: on-failure
     command: ['bash','-c','/srv/yii queue/listen --verbose']
-
-  database:
-    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${VERSION}
-    networks:
-      - internal
-    ports:
-      - 3306:3306
-    env_file:
-      - .env
-    volumes:
-      - vol_mysql_data:/var/lib/mysql
 
   memcached:
     image: memcached:latest

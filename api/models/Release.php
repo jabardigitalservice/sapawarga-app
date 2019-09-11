@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -18,8 +19,10 @@ use yii\db\ActiveRecord;
  * @property int $created_at
  * @property int $updated_at
  */
-class Release extends ActiveRecord implements ActiveStatus
+class Release extends ActiveRecord
 {
+    const FILE_MANIFEST_PATH = '@webroot/storage/version.json';
+
     /**
      * {@inheritdoc}
      */
@@ -45,6 +48,17 @@ class Release extends ActiveRecord implements ActiveStatus
             ],
             ['force_update', 'boolean'],
         ];
+    }
+
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['force_update'] = function () {
+            return (bool) $this->force_update;
+        };
+
+        return $fields;
     }
 
     /**
@@ -75,12 +89,32 @@ class Release extends ActiveRecord implements ActiveStatus
 
     public function afterSave($insert, $changedAttributes)
     {
-        if ($insert) { // Model is created
-            // Create/Rewrite  version manifest
-        } else { // Model is updated
-            if (array_key_exists('version', $changedAttributes)) {
-                // Also rewrite  version manifest
-            }
-        }
+        $this->createManifest($this);
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function afterDelete()
+    {
+        $latest = Release::find()->orderBy(['id' => SORT_DESC])->one();
+
+        $this->createManifest($latest);
+
+        return parent::afterDelete();
+    }
+
+    public function createManifest(Release $latest): void
+    {
+        $json = json_encode([
+            'version' => $latest->version,
+            'force_update' => $latest->force_update,
+        ]);
+
+        $jsonfile = Yii::getAlias(self::FILE_MANIFEST_PATH);
+
+        $fp = fopen($jsonfile, 'w+');
+
+        fwrite($fp, $json);
+        fclose($fp);
     }
 }
