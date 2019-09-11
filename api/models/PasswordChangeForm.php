@@ -30,6 +30,7 @@ class PasswordChangeForm extends Model
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
             ['password', 'validateOldPassword'],
             ['password', 'validateConfirmPassword'],
+            ['password', 'validateSamePassword'],
         ];
     }
 
@@ -38,15 +39,13 @@ class PasswordChangeForm extends Model
         if (!empty($this->password_updated_at)) {
             if (empty($this->password_old)) {
                 $this->addError($attribute, \Yii::t('app', 'error.password.old.empty'));
+                return false;
             }
 
             $user = $this->getUserByID();
             if (!$user->validatePassword($this->password_old)) {
                 $this->addError($attribute, \Yii::t('app', 'error.password.old.incorrect'));
-            }
-
-            if ($user->validatePassword($this->password)) {
-                $this->addError($attribute, \Yii::t('app', 'error.password.old.same'));
+                return false;
             }
         }
     }
@@ -55,6 +54,16 @@ class PasswordChangeForm extends Model
     {
         if ($this->password != $this->password_confirmation) {
             $this->addError($attribute, \Yii::t('app', 'error.password.confirmation.incorect'));
+            return false;
+        }
+    }
+
+    public function validateSamePassword($attribute, $params)
+    {
+        $user = $this->getUserByID();
+        if ($user->validatePassword($this->password)) {
+            $this->addError($attribute, \Yii::t('app', 'error.password.old.same'));
+            return false;
         }
     }
 
