@@ -111,26 +111,33 @@ class NewsController extends ActiveController
 
     public function actionFeatured()
     {
-        $params = Yii::$app->request->getQueryParams();
+        $params    = Yii::$app->request->getQueryParams();
+        $kabkotaId = Arr::get($params, 'kabkota_id');
 
-        $search = new NewsSearch();
+        $query = NewsFeatured::find();
 
-        $search->scenario = NewsSearch::SCENARIO_LIST_USER;
+        if ($kabkotaId !== null) {
+            $query->where(['kabkota_id' => $kabkotaId]);
+        } else {
+            $query->where(['kabkota_id' => null]);
+        }
 
-        return $search->featuredList($params);
+        $records = $query->with('news')->all();
+
+        return $records;
     }
 
     public function actionFeaturedUpdate()
     {
-        $params         = Yii::$app->request->getQueryParams();
-        $paramKabkotaId = Arr::get($params, 'kabkota_id');
+        $params    = Yii::$app->request->getQueryParams();
+        $kabkotaId = Arr::get($params, 'kabkota_id');
 
         $records = Yii::$app->getRequest()->getBodyParams();
 
-        $this->resetFeatured($paramKabkotaId);
+        $this->resetFeatured($kabkotaId);
 
         foreach ($records as $record) {
-            $result = $this->saveFeatured($paramKabkotaId, $record);
+            $result = $this->saveFeatured($kabkotaId, $record);
 
             if ($result !== true) {
                 return $result;

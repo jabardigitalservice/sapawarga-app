@@ -25,9 +25,40 @@ class NewsFeatured extends ActiveRecord
         return 'news_featured';
     }
 
+    public function getNews()
+    {
+        return $this->hasOne(News::class, ['id' => 'news_id']);
+    }
+
     public function getKabkota()
     {
         return $this->hasOne(Area::class, ['id' => 'kabkota_id']);
+    }
+
+    public function getNewsTitle()
+    {
+        return $this->news->title;
+    }
+
+    public function getNewsContent()
+    {
+        return $this->news->content;
+    }
+
+    public function getNewsCoverPathUrl()
+    {
+        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
+        return $bucket->getFileUrl($this->news->cover_path);
+    }
+
+    public function getNewsSourceDate()
+    {
+        return $this->news->source_date;
+    }
+
+    public function getNewsSourceUrl()
+    {
+        return $this->news->source_url;
     }
 
     /**
@@ -46,7 +77,17 @@ class NewsFeatured extends ActiveRecord
 
     public function fields()
     {
-        return parent::fields();
+        return [
+            'id' => function () {
+                return $this->news->id;
+            },
+            'title' => 'NewsTitle',
+            'content' => 'NewsContent',
+            'cover_path_url' => 'NewsCoverPathUrl',
+            'source_date' => 'NewsSourceDate',
+            'source_url' => 'NewsSourceUrl',
+            'seq',
+        ];
     }
 
     /**
