@@ -6,6 +6,8 @@ use Sentry;
 use Yii;
 use yii\base\Exception;
 use yii\log\Target;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 
 class SentryTarget extends Target
 {
@@ -51,6 +53,11 @@ class SentryTarget extends Target
     protected function captureErrors($message)
     {
         list($text, $level, $category, $timestamp, $traces) = $message;
+
+        if ($text instanceof NotFoundHttpException ||
+            $text instanceof ForbiddenHttpException) {
+            return false;
+        }
 
         if ($text instanceof \Throwable || $text instanceof \Exception) {
             $user = Yii::$app->user->identity;

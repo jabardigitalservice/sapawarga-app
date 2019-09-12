@@ -25,6 +25,10 @@ return [
     'error.rw.pattern' => 'RW harus terdiri dari 3 karakter dan hanya boleh menggunakan karakter numerik (0-9).',
     'error.id.invalid' => 'id tidak valid.',
     'error.approvalnote.exist' => 'Keterangan tidak boleh diisi',
+    'error.password.old.empty' => 'Masukan kata sandi lama anda.',
+    'error.password.old.incorrect' => 'Kata sandi lama anda salah.',
+    'error.password.confirmation.incorect' => 'Kata sandi konfirmasi anda salah.',
+    'error.password.old.same' => 'Kata sandi baru sama tidak boleh sama dengan password lama.',
 
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
