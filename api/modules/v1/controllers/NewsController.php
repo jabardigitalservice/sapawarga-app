@@ -3,11 +3,13 @@
 namespace app\modules\v1\controllers;
 
 use app\filters\auth\HttpBearerAuth;
+use app\models\NewsFeatured;
 use app\models\User;
 use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
 use app\models\NewsViewer;
+use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -36,7 +38,7 @@ class NewsController extends ActiveController
                 'update' => ['put'],
                 'delete' => ['delete'],
                 'public' => ['get'],
-                'featured' => ['get'],
+                'featured' => ['get', 'post'],
                 'statistics' => ['get'],
             ],
         ];
@@ -49,11 +51,11 @@ class NewsController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'statistics', 'related'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'featured-update', 'statistics', 'related'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'statistics'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'featured-update', 'statistics'],
                     'roles' => ['newsManage'],
                 ],
                 [
@@ -116,6 +118,61 @@ class NewsController extends ActiveController
         $search->scenario = NewsSearch::SCENARIO_LIST_USER;
 
         return $search->featuredList($params);
+    }
+
+    public function actionFeaturedUpdate()
+    {
+        $params         = Yii::$app->request->getQueryParams();
+        $paramKabkotaId = Arr::get($params, 'kabkota_id');
+
+        $records = Yii::$app->getRequest()->getBodyParams();
+
+        $this->resetFeatured($paramKabkotaId);
+
+        foreach ($records as $record) {
+            $result = $this->saveFeatured($paramKabkotaId, $record);
+
+            if ($result !== true) {
+                return $result;
+            }
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return $response;
+    }
+
+    protected function resetFeatured($kabkotaId)
+    {
+        if ($kabkotaId === null) {
+            return NewsFeatured::deleteAll('kabkota_id is null');
+        }
+
+        return NewsFeatured::deleteAll('kabkota_id = :kabkota_id', ['kabkota_id' => $kabkotaId]);
+    }
+
+    protected function saveFeatured($kabkotaId, $record)
+    {
+        if ($kabkotaId !== null) {
+            $record['kabkota_id'] = $kabkotaId;
+        }
+
+        $model = new NewsFeatured();
+        $model->load($record, '');
+
+        if ($model->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        if ($model->save() === false) {
+            return $model->getErrors();
+        }
+
+        return true;
     }
 
     public function actionRelated()
