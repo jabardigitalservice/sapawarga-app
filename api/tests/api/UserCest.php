@@ -238,4 +238,42 @@ class UserCest
             'status'  => 422,
         ]);
     }
+
+    public function userChangeProfileSuccess(ApiTester $I)
+    {
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/user/me/change-profile', [
+            'name' => 'name_edited',
+            'email' => 'email_updated@demo.com',
+            'phone' => '11112222',
+            'address' => 'address_updated',
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('user', [
+            'name' => 'name_edited',
+            'email' => 'email_updated@demo.com',
+            'phone' => '11112222',
+            'address' => 'address_updated',
+        ]);
+    }
+
+    public function userChangeProfileNoDataFail(ApiTester $I)
+    {
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/user/me/change-profile', []);
+
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
+        ]);
+    }
+
 }

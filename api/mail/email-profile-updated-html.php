@@ -4,6 +4,10 @@
     /* @var $this yii\web\View */
     /* @var $user app\models\User */
     /* @var $appName string */
+    /* @var $email string */
+    /* @var $appName string */
+    /* @var $phone string */
+    /* @var $address string */
     /* @var $confirmURL string */
 
 ?>
