@@ -427,10 +427,6 @@ class UserController extends ActiveController
     {
         $user = User::findIdentity(\Yii::$app->user->getId());
 
-        if (! $user) {
-            throw new NotFoundHttpException('Object not found');
-        }
-
         $model = new PasswordChangeForm();
         $model->id = $user->id;
         $model->password_updated_at = $user->password_updated_at;
