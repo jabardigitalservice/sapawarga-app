@@ -160,6 +160,7 @@ class UserCest
             'instagram' => 'string|null',
             'last_login_at' => 'integer|null',
             'password_updated_at' => 'integer|null',
+            'profile_updated_at' => 'integer|null',
         ], '$.data');
     }
 
