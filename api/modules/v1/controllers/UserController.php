@@ -462,6 +462,8 @@ class UserController extends ActiveController
         $model->address = Yii::$app->request->post('address');
 
         if ($model->validate() && $model->changeProfile()) {
+            $model->sendConfirmationEmail();
+
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
             $responseData = 'true';
