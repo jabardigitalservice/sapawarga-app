@@ -3,6 +3,7 @@
 namespace app\components;
 
 use Yii;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use app\models\Category;
 
@@ -105,6 +106,31 @@ class ModelHelper
         if (Arr::has($params, 'rw')) {
             $query->andFilterWhere(['rw' => $params['rw']]);
         }
+
+        return $query;
+    }
+
+
+    public static function filterCurrentActiveNow(&$query, $model)
+    {
+        $query->andFilterWhere(['=', 'status', $model::STATUS_PUBLISHED]);
+
+        $today = new Carbon();
+        $query->andFilterWhere([
+            'and',
+            ['<=', 'start_date', $today->toDateString()],
+            ['>=', 'end_date', $today->toDateString()]
+        ]);
+
+        return $query;
+    }
+
+    public static function filterIsEnded(&$query, $model)
+    {
+        $query->andFilterWhere(['=', 'status', $model::STATUS_PUBLISHED]);
+
+        $today = new Carbon();
+        $query->andFilterWhere(['<', 'end_date', $today->toDateString()]);
 
         return $query;
     }
