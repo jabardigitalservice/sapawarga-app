@@ -173,6 +173,7 @@ return [
         ],
         'extraPatterns' => [
             'GET featured' => 'featured',
+            'POST featured' => 'featured-update',
             'OPTIONS featured' => 'options',
             'GET related' => 'related',
             'OPTIONS related' => 'options',

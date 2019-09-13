@@ -3,7 +3,6 @@
 namespace app\models;
 
 use app\components\ModelHelper;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -27,7 +26,7 @@ class PollingSearch extends Polling
     {
         $query = Polling::find()->with('category', 'kelurahan', 'kecamatan', 'kabkota', 'answers');
 
-        $this->filterCurrentActiveNow($query);
+        ModelHelper::filterCurrentActiveNow($query, $this);
 
         // Filter berdasarkan area pengguna
         $params['kabkota_id'] = Arr::get($params, 'kabkota_id');
@@ -96,9 +95,9 @@ class PollingSearch extends Polling
             $status = $params['status'];
 
             if ($status == Polling::STATUS_STARTED) {
-                $this->filterCurrentActiveNow($query);
+                ModelHelper::filterCurrentActiveNow($query, $this);
             } elseif ($status == Polling::STATUS_ENDED) {
-                $this->filterIsEnded($query);
+                ModelHelper::filterIsEnded($query, $this);
             } elseif ($status == Polling::STATUS_DRAFT) {
                 $this->filterOwnDraft($query, $userId);
             }
@@ -124,29 +123,5 @@ class PollingSearch extends Polling
             ['status' => Polling::STATUS_DRAFT],
             ['created_by' => $userId],
         ]);
-    }
-
-    protected function filterCurrentActiveNow($query)
-    {
-        $query->andFilterWhere(['=', 'status', Polling::STATUS_PUBLISHED]);
-
-        $today = new Carbon();
-        $query->andFilterWhere([
-            'and',
-            ['<=', 'start_date', $today->toDateString()],
-            ['>=', 'end_date', $today->toDateString()]
-        ]);
-
-        return $query;
-    }
-
-    protected function filterIsEnded($query)
-    {
-        $query->andFilterWhere(['=', 'status', Polling::STATUS_PUBLISHED]);
-
-        $today = new Carbon();
-        $query->andFilterWhere(['<', 'end_date', $today->toDateString()]);
-
-        return $query;
     }
 }

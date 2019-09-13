@@ -62,7 +62,7 @@ class SurveySearch extends Survey
     {
         // Filter berdasarkan judul, status, dan kategori
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $this->filterByStatus($query, $params);
         $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
         $this->filterByArea($query, $params);
 
@@ -100,5 +100,22 @@ class SurveySearch extends Survey
             ];
             ModelHelper::filterByArea($query, $areaParams);
         }
+    }
+
+    protected function filterByStatus(&$query, $params)
+    {
+        if (Arr::has($params, 'status')) {
+            $status = $params['status'];
+
+            if ($status == Survey::STATUS_STARTED) {
+                ModelHelper::filterCurrentActiveNow($query, $this);
+            } elseif ($status == Survey::STATUS_ENDED) {
+                ModelHelper::filterIsEnded($query, $this);
+            } else {
+                $query->andFilterWhere(['status' => $status]);
+            }
+        }
+
+        return $query;
     }
 }
