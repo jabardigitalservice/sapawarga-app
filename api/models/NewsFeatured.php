@@ -35,6 +35,11 @@ class NewsFeatured extends ActiveRecord
         return $this->hasOne(Area::class, ['id' => 'kabkota_id']);
     }
 
+    protected function getNewsChannel()
+    {
+        return $this->news->channel;
+    }
+
     public function getNewsTitle()
     {
         return $this->news->title;
@@ -86,6 +91,7 @@ class NewsFeatured extends ActiveRecord
             'cover_path_url' => 'NewsCoverPathUrl',
             'source_date' => 'NewsSourceDate',
             'source_url' => 'NewsSourceUrl',
+            'channel' => 'NewsChannel',
             'seq',
         ];
     }
