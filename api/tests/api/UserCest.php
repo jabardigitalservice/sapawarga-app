@@ -241,7 +241,7 @@ class UserCest
 
     public function userChangeProfileSuccess(ApiTester $I)
     {
-        $I->amUser('staffrw');
+        $I->amUser('staffrw16');
 
         $I->sendPOST('/v1/user/me/change-profile', [
             'name' => 'name_edited',
@@ -265,7 +265,7 @@ class UserCest
 
     public function userChangeProfileNoDataFail(ApiTester $I)
     {
-        $I->amUser('staffrw');
+        $I->amUser('staffrw16');
 
         $I->sendPOST('/v1/user/me/change-profile', []);
 
