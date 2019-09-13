@@ -13,7 +13,6 @@ class m190912_074513_create_news_featured_table extends Migration
     public function safeUp()
     {
         $this->createTable('news_featured', [
-            'id'          => $this->primaryKey(),
             'news_id'    => $this->integer()->notNull(),
             'kabkota_id' => $this->integer(),
             'seq'        => $this->integer()->notNull(),
