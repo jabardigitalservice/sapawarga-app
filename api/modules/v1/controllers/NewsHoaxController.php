@@ -72,8 +72,6 @@ class NewsHoaxController extends ActiveController
     {
         $model = $this->findModel($id);
 
-        $this->checkAccess('delete', $model, $id);
-
         $model->status = NewsHoax::STATUS_DELETED;
 
         if ($model->save(false) === false) {
@@ -84,23 +82,6 @@ class NewsHoaxController extends ActiveController
         $response->setStatusCode(204);
 
         return 'ok';
-    }
-
-    /**
-     * Checks the privilege of the current user.
-     * throw ForbiddenHttpException if access should be denied
-     *
-     * @param string $action the ID of the action to be executed
-     * @param object $model the model to be accessed. If null, it means no specific model is being accessed.
-     * @param array $params additional parameters
-     */
-    public function checkAccess($action, $model = null, $params = [])
-    {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
     }
 
     /**
@@ -125,8 +106,14 @@ class NewsHoaxController extends ActiveController
 
     public function prepareDataProvider()
     {
+        $params = Yii::$app->request->getQueryParams();
+        $user   = Yii::$app->user;
         $search = new NewsHoaxSearch();
 
-        return $search->search(\Yii::$app->request->getQueryParams());
+        if ($user->can('newsSaberhoaxManage') === false) {
+            $search->scenario = NewsHoaxSearch::SCENARIO_LIST_USER;
+        }
+
+        return $search->search($params);
     }
 }

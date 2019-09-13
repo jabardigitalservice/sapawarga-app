@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
@@ -29,7 +30,7 @@ use yii\db\ActiveRecord;
  */
 class NewsHoax extends ActiveRecord implements ActiveStatus
 {
-    use HasCategory;
+    use HasActiveStatus, HasCategory;
 
     const CATEGORY_TYPE = 'newsHoax';
 
@@ -101,7 +102,6 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
             'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
-            'created_by',
         ];
 
         return $fields;
