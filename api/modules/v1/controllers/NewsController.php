@@ -134,9 +134,11 @@ class NewsController extends ActiveController
         $repository->resetFeatured($kabkotaId);
 
         foreach ($records as $record) {
-            if (true !== $result = $this->saveFeatured($kabkotaId, $record)) {
+            $result = $this->saveFeatured($kabkotaId, $record);
+
+            if ($result !== true) {
                 return $result;
-            };
+            }
         }
 
         $response = Yii::$app->getResponse();
