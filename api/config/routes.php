@@ -185,6 +185,14 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/news-hoax',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/video',
         'pluralize' => true,
         'tokens' => [

@@ -6,7 +6,6 @@ use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
-use yii\behaviors\BlameableBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -140,7 +139,6 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
                 'class'     => SluggableBehavior::class,
                 'attribute' => 'title',
             ],
-            BlameableBehavior::class,
         ];
     }
 }
