@@ -9,6 +9,7 @@ use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
 use app\models\NewsViewer;
+use app\modules\v1\repositories\NewsFeaturedRepository;
 use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
@@ -111,20 +112,10 @@ class NewsController extends ActiveController
 
     public function actionFeatured()
     {
-        $params    = Yii::$app->request->getQueryParams();
-        $kabkotaId = Arr::get($params, 'kabkota_id');
+        $params     = Yii::$app->request->getQueryParams();
+        $repository = new NewsFeaturedRepository();
 
-        $query = NewsFeatured::find();
-
-        if ($kabkotaId !== null) {
-            $query->where(['kabkota_id' => $kabkotaId]);
-        } else {
-            $query->where(['kabkota_id' => null]);
-        }
-
-        $records = $query->with('news')->all();
-
-        return $records;
+        return $repository->getList($params);
     }
 
     public function actionFeaturedUpdate()
@@ -132,31 +123,26 @@ class NewsController extends ActiveController
         $params    = Yii::$app->request->getQueryParams();
         $kabkotaId = Arr::get($params, 'kabkota_id');
 
-        $records = Yii::$app->getRequest()->getBodyParams();
+        $records   = Yii::$app->getRequest()->getBodyParams();
 
-        $this->resetFeatured($kabkotaId);
+        return $this->parseInputFeatured($kabkotaId, $records);
+    }
+
+    protected function parseInputFeatured($kabkotaId, $records)
+    {
+        $repository = new NewsFeaturedRepository();
+        $repository->resetFeatured($kabkotaId);
 
         foreach ($records as $record) {
-            $result = $this->saveFeatured($kabkotaId, $record);
-
-            if ($result !== true) {
+            if (true !== $result = $this->saveFeatured($kabkotaId, $record)) {
                 return $result;
-            }
+            };
         }
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
 
         return $response;
-    }
-
-    protected function resetFeatured($kabkotaId)
-    {
-        if ($kabkotaId === null) {
-            return NewsFeatured::deleteAll('kabkota_id is null');
-        }
-
-        return NewsFeatured::deleteAll('kabkota_id = :kabkota_id', ['kabkota_id' => $kabkotaId]);
     }
 
     protected function saveFeatured($kabkotaId, $record)
