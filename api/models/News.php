@@ -20,12 +20,10 @@ use yii\db\ActiveRecord;
  * @property string $source_url
  * @property string $source_date
  * @property string $content
- * @property string $featured
  * @property string $channel_id
  * @property \app\models\NewsChannel $channel
  * @property int $kabkota_id
  * @property array $meta
- * @property int $seq
  * @property int $status
  */
 class News extends ActiveRecord
@@ -70,7 +68,7 @@ class News extends ActiveRecord
             [['title', 'content', 'cover_path', 'source_url'], 'safe'],
 
             [
-                ['title', 'channel_id', 'cover_path', 'source_url', 'source_date', 'content', 'featured', 'status'],
+                ['title', 'channel_id', 'cover_path', 'source_url', 'source_date', 'content', 'status'],
                 'required',
             ],
 
@@ -81,12 +79,9 @@ class News extends ActiveRecord
 
             ['meta', 'default'],
 
-            ['featured', 'boolean'],
-
             ['kabkota_id', 'integer'],
             ['channel_id', 'integer'],
             ['status', 'integer'],
-            ['seq', 'integer'],
 
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
@@ -100,7 +95,6 @@ class News extends ActiveRecord
             'id',
             'title',
             'content',
-            'featured',
             'cover_path',
             'cover_path_url' => function () use ($bucket) {
                 return $bucket->getFileUrl($this->cover_path);
@@ -129,7 +123,6 @@ class News extends ActiveRecord
             },
             'total_viewers',
             'meta',
-            'seq',
             'status',
             'status_label' => function () {
                 return $this->getStatusLabel();
@@ -174,7 +167,6 @@ class News extends ActiveRecord
             'source_date' => 'Tanggal Berita',
             'source_url'  => 'URL Berita',
             'content'     => 'Konten Berita',
-            'featured'    => 'Berita Pilihan',
             'meta'        => 'Meta',
             'status'      => 'Status',
         ];

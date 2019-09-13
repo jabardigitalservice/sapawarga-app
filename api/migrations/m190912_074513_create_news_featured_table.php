@@ -30,6 +30,9 @@ class m190912_074513_create_news_featured_table extends Migration
             'id',
             'CASCADE'
         );
+
+        $this->dropColumn('news', 'featured');
+        $this->dropColumn('news', 'seq');
     }
 
     /**
@@ -37,6 +40,9 @@ class m190912_074513_create_news_featured_table extends Migration
      */
     public function safeDown()
     {
+        $this->addColumn('news', 'featured', $this->boolean());
+        $this->addColumn('news', 'seq', $this->integer());
+
         $this->dropTable('news_featured');
     }
 }
