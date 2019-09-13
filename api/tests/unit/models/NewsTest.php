@@ -236,56 +236,6 @@ class NewsTest extends Unit
         $this->assertTrue($model->hasErrors('source_date'));
     }
 
-    public function testFeaturedRequired()
-    {
-        $model = new News();
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('featured'));
-
-        $model->featured = '';
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('featured'));
-
-        $model->featured = false;
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('featured'));
-    }
-
-    public function testFeaturedValidBooleanValue()
-    {
-        $model = new News();
-
-        $model->featured = true;
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('featured'));
-
-        $model->featured = 'true';
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('featured'));
-
-        $model->featured = 'xxxxx';
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('featured'));
-
-        $model->featured = 2;
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('featured'));
-    }
-
     public function testContentRequired()
     {
         $model = new News();
