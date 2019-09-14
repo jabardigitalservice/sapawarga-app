@@ -402,7 +402,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'photo_url' => function () {
                 $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
 
-                return $this->photo_url !== null ? $bucket->getFileUrl($this->photo_url) : null;
+                return $this->photo_url ? $bucket->getFileUrl($this->photo_url) : null;
             },
             'facebook',
             'twitter',
