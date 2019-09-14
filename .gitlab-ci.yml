@@ -182,6 +182,9 @@ deploy_prod_eks:
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%ERROR_REPORT%/${ERROR_REPORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
     - cat kubernetes/backend-variables.yaml
     - cat kubernetes/backend-api-deployment.yaml
