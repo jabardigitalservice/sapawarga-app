@@ -197,4 +197,5 @@ deploy_prod_eks:
         -f kubernetes/backend-api-service.yaml
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
-        -f kubernetes/backend-queue-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-job.yaml
