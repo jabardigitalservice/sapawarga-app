@@ -149,7 +149,9 @@ class AspirasiController extends ActiveController
 
         // Allowed to update if status Draft & Rejected only
         if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
-            throw new HttpException(403);
+            throw new ForbiddenHttpException(
+                'Forbidden action: only allowed status are STATUS_DRAFT, STATUS_APPROVAL_REJECTED'
+            );
         }
 
         $this->checkAccess('delete', $model);

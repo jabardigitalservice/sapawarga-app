@@ -31,6 +31,8 @@ return [
             'GET me/photo' => 'me-photo',
             'POST me/photo' => 'me-photo-upload',
             'OPTIONS me/photo' => 'options',
+            'POST me/change-password' => 'me-change-password',
+            'OPTIONS me/change-password' => 'options',
         ]
     ],
     [
@@ -72,8 +74,7 @@ return [
         'controller' => 'v1/area',
         'tokens' => [
             '{id}' => '<id:\d+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
@@ -91,8 +92,7 @@ return [
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/attachment',
-        'tokens' => [],
-        'extraPatterns' => []
+        'tokens' => []
     ],
     [
         'class' => 'yii\rest\UrlRule',
@@ -110,8 +110,7 @@ return [
         'controller' => 'v1/broadcast',
         'tokens' => [
             '{id}' => '<id:\d+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
@@ -156,16 +155,14 @@ return [
         'pluralize' => false,
         'tokens' => [
             '{id}' => '<id:\d+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/news-channel',
         'tokens' => [
             '{id}' => '<id:\d+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
@@ -176,6 +173,7 @@ return [
         ],
         'extraPatterns' => [
             'GET featured' => 'featured',
+            'POST featured' => 'featured-update',
             'OPTIONS featured' => 'options',
             'GET related' => 'related',
             'OPTIONS related' => 'options',
@@ -202,8 +200,7 @@ return [
         'controller' => 'v1/notification',
         'tokens' => [
             '{id}' => '<id:\d+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
@@ -237,15 +234,13 @@ return [
         'pluralize' => true,
         'tokens' => [
             '{id}' => '<id:[A-Za-z0-9]+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/release',
         'tokens' => [
             '{id}' => '<id:\d+>',
-        ],
-        'extraPatterns' => []
+        ]
     ],
 ];

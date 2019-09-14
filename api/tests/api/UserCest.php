@@ -5,6 +5,15 @@ class UserCest
     private $endpointLogin = '/v1/user/login';
     private $endpointProfile = '/v1/user/me';
 
+    public function _before(ApiTester $I)
+    {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE auth_assignment')->execute();
+        Yii::$app->db->createCommand('TRUNCATE user')->execute();
+        $sql = file_get_contents(__DIR__ . '/../../migrations/seeder/user_and_permission.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+    }
+
     protected function login(ApiTester $I)
     {
         $I->sendPOST($this->endpointLogin, [
@@ -156,13 +165,6 @@ class UserCest
 
     public function userUpdateProfile(ApiTester $I)
     {
-        // reset 'user' column
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
-        Yii::$app->db->createCommand('TRUNCATE auth_assignment')->execute();
-        Yii::$app->db->createCommand('TRUNCATE user')->execute();
-        $sql = file_get_contents(__DIR__ . '/../../migrations/seeder/user_and_permission.sql');
-        Yii::$app->db->createCommand($sql)->execute();
-
         $I->amUser('staffrw3');
 
         $I->sendPOST("{$this->endpointProfile}", [
@@ -176,6 +178,63 @@ class UserCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
+        ]);
+    }
+
+    public function userChangePasswordSucessTest(ApiTester $I)
+    {
+        $I->amUser('staffrw');
+
+        // Change password first time
+        $I->sendPOST('/v1/user/me/change-password', [
+            'password' => '1234567',
+            'password_confirmation' => '1234567',
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        // Change password second time or more with old password
+        $I->sendPOST('/v1/user/me/change-password', [
+            'password_old' => '1234567',
+            'password' => '12345678',
+            'password_confirmation' => '12345678',
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function userNotSendPasswordConfirmationFail(ApiTester $I)
+    {
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/user/me/change-password', [
+            'password' => '123456',
+        ]);
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
+        ]);
+    }
+
+    public function userSameNewAndOldPasswordFail(ApiTester $I)
+    {
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/user/me/change-password', [
+            'password' => '123456',
+            'password_confirmation' => '123456',
+        ]);
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
         ]);
     }
 }

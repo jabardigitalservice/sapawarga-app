@@ -80,6 +80,25 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: CACHE_PORT
+
+            - name: ERROR_REPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: ERROR_REPORT
+
+            - name: ERROR_ENVIRONMENT_DSN_PRODUCTION
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: ERROR_ENVIRONMENT_DSN_PRODUCTION
+
+            - name: SENTRY_DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: SENTRY_DSN
+                  
       initContainers:
       - name: volume-permission-fix
         image: busybox
