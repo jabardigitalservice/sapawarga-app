@@ -5,7 +5,6 @@ metadata:
   namespace: sapawarga
 data:
   PHP_ENABLE_XDEBUG: "0"
-  # change by imam 14 September 2019, request yoga harus 0#
   YII_ENV_DEV: "0"
   APP_STORAGE_LOCAL_URL: %APP_STORAGE_LOCAL_URL%
   APP_VERSION: %APP_VERSION%
@@ -19,7 +18,7 @@ data:
   MAILER_TRANSPORT_FILE: "true"
   SENTRY_DSN: %SENTRY_DSN%
   ERROR_ENVIRONMENT_DSN_PRODUCTION: %ERROR_ENVIRONMENT_DSN_PRODUCTION%
-  ERROR_REPORT: %ERROR_REPORT%
+  ERROR_REPORT: "true"
 ---
 apiVersion: v1
 kind: Secret
