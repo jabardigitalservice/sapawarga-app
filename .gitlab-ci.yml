@@ -186,6 +186,7 @@ deploy_prod_eks:
     - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     - cat kubernetes/backend-variables.yaml
     - cat kubernetes/backend-api-deployment.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
