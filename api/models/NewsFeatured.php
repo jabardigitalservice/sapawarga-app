@@ -25,6 +25,11 @@ class NewsFeatured extends ActiveRecord
         return 'news_featured';
     }
 
+    public static function primaryKey()
+    {
+        return ['news_id'];
+    }
+
     public function getNews()
     {
         return $this->hasOne(News::class, ['id' => 'news_id']);

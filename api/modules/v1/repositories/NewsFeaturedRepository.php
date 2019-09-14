@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\repositories;
 
+use app\models\News;
 use app\models\NewsFeatured;
 use Illuminate\Support\Arr;
 use yii\db\Query;
@@ -30,13 +31,16 @@ class NewsFeaturedRepository
 
     protected function getListBuildFilterQuery(Query $query, $params = []): Query
     {
+        $query->leftJoin('news', '`news_featured`.`news_id` = `news`.`id`');
+        $query->andWhere(['news.status' => News::STATUS_ACTIVE]);
+
         $kabkotaId = Arr::get($params, 'kabkota_id');
 
         if ($kabkotaId !== null) {
-            return $query->where(['kabkota_id' => $kabkotaId]);
+            return $query->andWhere(['news_featured.kabkota_id' => $kabkotaId]);
         }
 
-        return $query->where(['kabkota_id' => null]);
+        return $query->andWhere(['news_featured.kabkota_id' => null]);
     }
 
     protected function getListMatchSequence($records, $n)
