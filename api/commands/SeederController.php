@@ -85,12 +85,6 @@ class SeederController extends Controller
         Yii::$app->db->createCommand($sql)->execute();
     }
 
-    public function actionCategoryVideo()
-    {
-        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/category_video.sql');
-        Yii::$app->db->createCommand($sql)->execute();
-    }
-
     public function actionPhoneBook()
     {
         Yii::$app->db->createCommand('TRUNCATE phonebooks')->execute();
@@ -160,8 +154,5 @@ class SeederController extends Controller
     {
         echo 'Seeding Categories...' . PHP_EOL;
         $this->actionCategory();
-
-        echo 'Seeding Categories...' . PHP_EOL;
-        $this->actionCategoryVideo();
     }
 }
