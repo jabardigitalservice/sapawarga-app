@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Jdsteam\Sapawarga\Jobs\EmailJob;
 use Yii;
 use yii\base\Model;
 
@@ -93,25 +94,9 @@ class UserChangeProfileForm extends Model
 
     public function sendConfirmationEmail()
     {
-        $confirmURL = \Yii::$app->params['frontendURL'] . '#/confirm?id=' . $this->_user->id . '&auth_key=' . $this->_user->auth_key;
-
-        $email = \Yii::$app->mailer
-            ->compose(
-                ['html' => 'email-profile-updated-html'],
-                [
-                    'appName' => \Yii::$app->name,
-                    'name' => $this->_user->name,
-                    'email' => $this->_user->email,
-                    'phone' => $this->_user->phone,
-                    'address' => $this->_user->address,
-                    'confirmURL' => $confirmURL,
-                ]
-            )
-            ->setTo($this->email)
-            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name])
-            ->setSubject('Email confirmation')
-            ->send();
-
-        return $email;
+        Yii::$app->queue->push(new EmailJob([
+            'user' => $this->_user,
+            'email' => $this->email,
+        ]));
     }
 }
