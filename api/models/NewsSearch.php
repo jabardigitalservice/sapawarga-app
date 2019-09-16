@@ -63,11 +63,9 @@ class NewsSearch extends News
 
     protected function getQueryListUser($query, $params)
     {
-        $filterStatusList = [
-            News::STATUS_ACTIVE,
-        ];
+        $this->filterExcludeNewsfeatured($query, $params);
 
-        $query->andFilterWhere(['in', 'news.status', $filterStatusList]);
+        $query->andFilterWhere(['=', 'news.status', News::STATUS_ACTIVE]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -117,6 +115,18 @@ class NewsSearch extends News
             if ($this->scenario === self::SCENARIO_LIST_USER) {
                 $query->andWhere(['kabkota_id' => null]);
             }
+        }
+    }
+
+    protected function filterExcludeNewsfeatured($query, $params)
+    {
+        $newsIds = [];
+        $newsFeatured = NewsFeatured::find()->select('news_id')->asArray()->all();
+        if (!empty($newsFeatured)) {
+            foreach ($newsFeatured as $newsId) {
+                $newsIds[] = $newsId['news_id'];
+            }
+            $query->andFilterWhere(['not in', 'news.id', $newsIds]);
         }
     }
 }

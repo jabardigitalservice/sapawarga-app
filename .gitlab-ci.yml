@@ -154,51 +154,10 @@ deploy_staging_aws:
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
 
-deploy_prod_gke:
-  stage: deploy_prod
-  image: dtzar/helm-kubectl
-  only:
-    - master
-  dependencies: 
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-  script:
-    - kubectl config set-cluster k8s --server="${KUBERNETES_SERVER}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}
-    - kubectl config set-credentials gitlab --token="${KUBERNETES_USER_TOKEN}"
-    - kubectl config set-context default --cluster=k8s --user=gitlab
-    - kubectl config use-context default
-    - kubectl config use-context default
-    - kubectl cluster-info
-    - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
-    - cat kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-api-deployment.yaml
-    - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
-        -f kubernetes/backend-api-deployment.yaml
-        -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
-        -f kubernetes/backend-queue-job.yaml
-
 deploy_prod_eks:
   stage: deploy_prod
   image: dtzar/helm-kubectl
+  when: manual
   only:
     - master
   dependencies: 
@@ -223,7 +182,10 @@ deploy_prod_eks:
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     - cat kubernetes/backend-variables.yaml
     - cat kubernetes/backend-api-deployment.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
@@ -235,4 +197,5 @@ deploy_prod_eks:
         -f kubernetes/backend-api-service.yaml
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
-        -f kubernetes/backend-queue-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-job.yaml

@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:latest
+          image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:%VERSION%
           command: ["php", "yii", "queue/listen", "--verbose"]
           env:
             - name: MYSQL_HOST
