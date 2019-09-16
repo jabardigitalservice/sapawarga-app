@@ -25,6 +25,11 @@ class NewsFeatured extends ActiveRecord
         return 'news_featured';
     }
 
+    public static function primaryKey()
+    {
+        return ['news_id'];
+    }
+
     public function getNews()
     {
         return $this->hasOne(News::class, ['id' => 'news_id']);
@@ -33,6 +38,11 @@ class NewsFeatured extends ActiveRecord
     public function getKabkota()
     {
         return $this->hasOne(Area::class, ['id' => 'kabkota_id']);
+    }
+
+    protected function getNewsChannel()
+    {
+        return $this->news->channel;
     }
 
     public function getNewsTitle()
@@ -86,6 +96,7 @@ class NewsFeatured extends ActiveRecord
             'cover_path_url' => 'NewsCoverPathUrl',
             'source_date' => 'NewsSourceDate',
             'source_url' => 'NewsSourceUrl',
+            'channel' => 'NewsChannel',
             'seq',
         ];
     }

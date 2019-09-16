@@ -34,6 +34,19 @@ services:
     restart: on-failure
     command: ['bash','-c','/srv/yii queue/listen --verbose']
 
+  database:
+    build:
+      context: ./database
+    image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${VERSION}
+    networks:
+      - internal
+    ports:
+      - 3307:3306
+    env_file:
+      - .env
+    volumes:
+      - vol_mysql_data:/var/lib/mysql
+
   memcached:
     image: memcached:latest
     networks:
