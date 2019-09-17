@@ -62,9 +62,7 @@ class UserChangeProfileForm extends Model
             }
 
             // Set all the other fields
-            $excluded_attributes = ['password'];
             $attribute_names = $this->attributes();
-            $attribute_names = array_diff($attribute_names, $excluded_attributes);
             foreach ($attribute_names as $name) {
                 $this->_user[$name] = $this[$name];
             }
