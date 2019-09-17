@@ -25,12 +25,15 @@ class MessageJob extends BaseObject implements JobInterface
         $params = [
             'kabkota_id' => $instance->kabkota_id,
             'kec_id' => $instance->kec_id,
-            'kec_id' => $instance->kec_id,
+            'kel_id' => $instance->kel_id,
             'rw' => $instance->rw,
         ];
 
         // Get userIds
-        $usersTarget = User::find()->select('id')->andWhere(['status' => User::STATUS_ACTIVE]);
+        $usersTarget = User::find()->select('id')
+            ->andWhere(['status' => User::STATUS_ACTIVE])
+            ->andWhere(['not', ['last_login_at' => null]]);
+
         $usersTarget = ModelHelper::filterByAreaTopDown($usersTarget, $params);
 
         // Do nothing if empty
