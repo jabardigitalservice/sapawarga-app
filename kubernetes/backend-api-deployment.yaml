@@ -98,7 +98,13 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: SENTRY_DSN
-                  
+
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: FRONTEND_URL
+
       initContainers:
       - name: volume-permission-fix
         image: busybox
