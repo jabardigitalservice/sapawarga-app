@@ -32,7 +32,7 @@ class MessageJob extends BaseObject implements JobInterface
         // Get userIds
         $usersTarget = User::find()->select('id')
             ->andWhere(['status' => User::STATUS_ACTIVE])
-            ->andWhere(['<>', 'last_login_at', null]);
+            ->andWhere(['not', ['last_login_at' => null]]);
 
         $usersTarget = ModelHelper::filterByAreaTopDown($usersTarget, $params);
 
