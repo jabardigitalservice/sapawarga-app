@@ -5,7 +5,6 @@
     /* @var $user app\models\User */
     /* @var $appName string */
     /* @var $email string */
-    /* @var $appName string */
     /* @var $phone string */
     /* @var $address string */
     /* @var $confirmURL string */
@@ -20,16 +19,16 @@
             </div>
             <div style="text-align: left; word-wrap: break-word;">
 
-                <br />Terima kasih telah melakukan update profil anda pada aplikasi Sapawarga. Berikut ini data yang telah anda update:
+                <br />Terima kasih telah melakukan update profil Anda pada aplikasi Sapawarga. Berikut ini data yang telah Anda update:
 
                 <br />
                 <br />Nama : <?=$name;?>
                 <br />Email: <?=$email;?>
-                <br />Nomor telepon: <?=$phone;?>
+                <br />Nomor Telepon: <?=$phone;?>
                 <br />Alamat: <?=$address;?>
 
                 <br />
-                <br />Silahkan klik link berikut ini untuk melakukan verifikasi pada akun Sapawarga Link Verifikasi
+                <br />Silahkan klik link berikut ini untuk melakukan verifikasi pada akun Sapawarga:
                 <br /><a href="<?=Html::encode($confirmURL);?>"><?=$confirmURL;?></a>
 
                 <br />

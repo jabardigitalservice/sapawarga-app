@@ -28,8 +28,8 @@ class EmailJob extends BaseObject implements JobInterface
                 ]
             )
             ->setTo($this->email)
-            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name])
-            ->setSubject('Email confirmation')
+            ->setFrom([\Yii::$app->params['supportEmail'] => 'Admin Sapawarga'])
+            ->setSubject('Update dan verifikasi email akun Sapawarga')
             ->send();
 
         return $email;

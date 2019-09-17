@@ -10,9 +10,9 @@ $paginationParams = [
 ];
 
 return [
-    'frontendURL' => 'http://localhost/',
-    'supportEmail' => 'admin@example.com',
-    'adminEmail' => 'admin@example.com',
+    'frontendURL' => getenv('FRONTEND_URL'),
+    'supportEmail' => 'sapawarga@jabarprov.go.id',
+    'adminEmail' => 'sapawarga@jabarprov.go.id',
     'jwtSecretCode' => 'someSecretKey',
     'user.passwordResetTokenExpire' => 3600,
     'paginationParams' => $paginationParams,
