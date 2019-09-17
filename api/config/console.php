@@ -25,6 +25,7 @@ $config = [
                 ],
             ],
         ],
+        'mailer' => include __DIR__ . '/components/mailer.php',
         'queue' => include __DIR__ . '/queue.php',
         'db' => $db,
         'authManager' => [
