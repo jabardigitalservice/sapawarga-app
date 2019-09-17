@@ -105,6 +105,37 @@ spec:
                   name: sapawarga-backend-config-env
                   key: FRONTEND_URL
 
+            - name: MAILER_TRANSPORT_FILE
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_TRANSPORT_FILE
+            - name: MAILER_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_HOST
+            - name: MAILER_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_USER
+            - name: MAILER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_PASSWORD
+            - name: MAILER_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_PORT
+            - name: MAILER_ENCRYPTION
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_ENCRYPTION
+
       initContainers:
       - name: volume-permission-fix
         image: busybox
