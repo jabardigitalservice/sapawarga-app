@@ -22,7 +22,7 @@ class DashboardPolling extends Polling
         $paramsSql[':status_published'] = Polling::STATUS_PUBLISHED;
         $limit = Arr::get($params, 'limit', 10);
 
-        $sql = 'SELECT p.id, p.category_id, c.name AS category_name, p.name, p.question, p.status
+        $sql = 'SELECT p.id, p.category_id, c.name AS category_name, p.name, p.question, p.start_date, p.end_date, p.status
                 FROM polling p
                 LEFT JOIN categories c ON c.id = p.category_id
                 WHERE p.status = :status_published
