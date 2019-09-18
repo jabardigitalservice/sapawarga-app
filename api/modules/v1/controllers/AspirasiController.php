@@ -10,7 +10,6 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\web\ForbiddenHttpException;
-use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -115,7 +114,7 @@ class AspirasiController extends ActiveController
 
         // Allowed to update if status Draft & Rejected only
         if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
-            throw new HttpException(403);
+            throw new ForbiddenHttpException();
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
