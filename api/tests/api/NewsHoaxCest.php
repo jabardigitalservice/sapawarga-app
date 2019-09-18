@@ -6,10 +6,13 @@ class NewsHoaxCest
 
     public function getUserListOnlyActiveTest(ApiTester $I)
     {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_hoax')->execute();
+
         // ACTIVE
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -19,7 +22,7 @@ class NewsHoaxCest
         // DELETED
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -29,7 +32,7 @@ class NewsHoaxCest
         // DISABLED
         $I->haveInDatabase('news_hoax', [
             'id'          => 3,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -54,13 +57,13 @@ class NewsHoaxCest
         $I->assertEquals(1, $data[0]['id']);
     }
 
-    public function getAdminListCanSeeAllTest(ApiTester $I)
+    public function getStaffListCanSeeAllTest(ApiTester $I)
     {
         // ACTIVE
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
-            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'category_id' => 28,
+            'title'       => 'Active News Hoax',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
             'status'      => 10,
@@ -69,8 +72,8 @@ class NewsHoaxCest
         // DELETED
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 1,
-            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'category_id' => 28,
+            'title'       => 'Deleted News Hoax',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
             'status'      => -1,
@@ -79,14 +82,14 @@ class NewsHoaxCest
         // DISABLED
         $I->haveInDatabase('news_hoax', [
             'id'          => 3,
-            'category_id'  => 1,
-            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'category_id' => 28,
+            'title'       => 'Inactive News Hoax',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
             'status'      => 0,
         ]);
 
-        $I->amStaff('saberHoax');
+        $I->amStaff('saberhoax');
 
         $I->sendGET($this->endpoint);
         $I->canSeeResponseCodeIs(200);
@@ -99,17 +102,17 @@ class NewsHoaxCest
 
         $I->seeHttpHeader('X-Pagination-Total-Count', 2);
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(1, $data[0]['id']);
-        $I->assertEquals(3, $data[1]['id']);
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
     }
 
     public function getUserListFilterCategoryTest(ApiTester $I)
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -118,7 +121,7 @@ class NewsHoaxCest
 
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 2,
+            'category_id' => 29,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -127,7 +130,7 @@ class NewsHoaxCest
 
         $I->amUser('staffrw');
 
-        $I->sendGET("{$this->endpoint}?category_id=1");
+        $I->sendGET("{$this->endpoint}?category_id=28");
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -147,7 +150,7 @@ class NewsHoaxCest
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -156,7 +159,7 @@ class NewsHoaxCest
 
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 2,
+            'category_id' => 28,
             'title'       => 'Consectetur adipiscing elit.',
             'content'     => 'Consectetur adipiscing elit.',
             'cover_path'  => 'covers/test.jpg',
@@ -185,7 +188,7 @@ class NewsHoaxCest
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -194,7 +197,7 @@ class NewsHoaxCest
 
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 2,
+            'category_id' => 28,
             'title'       => 'Consectetur adipiscing elit.',
             'content'     => 'Consectetur adipiscing elit.',
             'cover_path'  => 'covers/test.jpg',
@@ -220,7 +223,7 @@ class NewsHoaxCest
         // ACTIVE
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -230,7 +233,7 @@ class NewsHoaxCest
         // DELETED
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -240,7 +243,7 @@ class NewsHoaxCest
         // DISABLED
         $I->haveInDatabase('news_hoax', [
             'id'          => 3,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -262,12 +265,12 @@ class NewsHoaxCest
         $I->seeResponseIsJson();
     }
 
-    public function getAdminCanShowTest(ApiTester $I)
+    public function getStaffCanShowTest(ApiTester $I)
     {
         // ACTIVE
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -277,7 +280,7 @@ class NewsHoaxCest
         // DELETED
         $I->haveInDatabase('news_hoax', [
             'id'          => 2,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -287,14 +290,14 @@ class NewsHoaxCest
         // DISABLED
         $I->haveInDatabase('news_hoax', [
             'id'          => 3,
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
             'status'      => 0,
         ]);
 
-        $I->amStaff('saberHoax');
+        $I->amStaff('saberhoax');
 
         $I->sendGET("{$this->endpoint}/1");
         $I->canSeeResponseCodeIs(200);
@@ -320,12 +323,12 @@ class NewsHoaxCest
         $I->seeResponseIsJson();
     }
 
-    public function postAdminCreateTest(ApiTester $I)
+    public function postStaffCreateTest(ApiTester $I)
     {
-        $I->amStaff('saberHoax');
+        $I->amStaff('saberhoax');
 
         $data = [
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -342,7 +345,7 @@ class NewsHoaxCest
         ]);
 
         $I->seeInDatabase('news_hoax', [
-            'category_id'  => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -370,18 +373,18 @@ class NewsHoaxCest
         $I->seeResponseIsJson();
     }
 
-    public function postAdminUpdateTest(ApiTester $I)
+    public function postStaffUpdateTest(ApiTester $I)
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id' => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
             'status'      => 10,
         ]);
 
-        $I->amStaff('saberHoax');
+        $I->amStaff('saberhoax');
 
         $data = [
             'title'       => 'Lorem ipsum edited',
@@ -398,7 +401,7 @@ class NewsHoaxCest
 
         $I->seeInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id' => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum edited',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -414,7 +417,7 @@ class NewsHoaxCest
         $I->canSeeResponseCodeIs(403);
     }
 
-    public function deleteAdminTest(ApiTester $I)
+    public function deleteStaffTest(ApiTester $I)
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
