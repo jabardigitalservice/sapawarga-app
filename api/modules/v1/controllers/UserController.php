@@ -12,6 +12,7 @@ use app\models\SignupConfirmForm;
 use app\models\SignupForm;
 use app\models\User;
 use app\models\UserPhotoUploadForm;
+use app\models\UserChangeProfileForm;
 use app\models\UserSearch;
 use Intervention\Image\ImageManager;
 use Yii;
@@ -65,6 +66,7 @@ class UserController extends ActiveController
                 'me' => ['get', 'post'],
                 'me-photo' => ['get', 'post'],
                 'me-change-password' => ['post'],
+                'me-change-profile' => ['post'],
             ],
         ];
 
@@ -107,7 +109,7 @@ class UserController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password'],
+                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile'],
                     'roles' => ['user', 'staffRW']
                 ]
             ],
@@ -435,6 +437,33 @@ class UserController extends ActiveController
         $model->password_old = Yii::$app->request->post('password_old');
 
         if ($model->validate() && $model->changePassword()) {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $responseData = 'true';
+            return $responseData;
+        }
+
+        // Validation error
+        $response = \Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    public function actionMeChangeProfile()
+    {
+        $user = User::findIdentity(\Yii::$app->user->getId());
+
+        $model = new UserChangeProfileForm();
+        $model->id = $user->id;
+        $model->name = Yii::$app->request->post('name');
+        $model->email = Yii::$app->request->post('email');
+        $model->phone = Yii::$app->request->post('phone');
+        $model->address = Yii::$app->request->post('address');
+
+        if ($model->validate() && $model->changeProfile()) {
+            $model->sendConfirmationEmail();
+
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
             $responseData = 'true';

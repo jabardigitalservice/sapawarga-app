@@ -33,6 +33,8 @@ return [
             'OPTIONS me/photo' => 'options',
             'POST me/change-password' => 'me-change-password',
             'OPTIONS me/change-password' => 'options',
+            'POST me/change-profile' => 'me-change-profile',
+            'OPTIONS me/change-profile' => 'options',
         ]
     ],
     [

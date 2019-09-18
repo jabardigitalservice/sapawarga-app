@@ -30,7 +30,7 @@ code_quality:
     - docker:stable-dind
   variables:
     DOCKER_DRIVER: overlay2
-  dependencies: 
+  dependencies:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
@@ -57,7 +57,7 @@ build_image:
     - docker:stable-dind
   variables:
     DOCKER_DRIVER: overlay2
-  dependencies: 
+  dependencies:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
@@ -81,7 +81,7 @@ build_image:
 #     - docker:stable-dind
 #   variables:
 #     DOCKER_DRIVER: overlay2
-#   dependencies: 
+#   dependencies:
 #     - versioning
 #   before_script:
 #     - export VERSION=$(cat ./version)
@@ -103,6 +103,13 @@ build_image:
 #     - sed -i "s/%ERROR_REPORT%/${GCP_STAGING_ERROR_REPORT}/g" .env
 #     - sed -i "s/%ERROR_ENVIRONMENT%/${GCP_STAGING_ERROR_ENVIRONMENT}/g" .env
 #     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" .env
+#     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" .env
+#     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" .env
+#     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" .env
+#     - sed -i "s/%MAILER_USER%/${MAILER_USER}/g" .env
+#     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" .env
+#     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" .env
+#     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" .env
 #     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" .env
 #     - sed -i "s/%VERSION%/${VERSION}/g" .env
 #     - cat .env
@@ -120,7 +127,7 @@ deploy_staging_gcp:
   image: docker:stable
   only:
     - master
-  dependencies: 
+  dependencies:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
@@ -139,7 +146,7 @@ deploy_staging_aws:
   stage: deploy_staging
   only:
     - master
-  dependencies: 
+  dependencies:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
@@ -160,7 +167,7 @@ deploy_prod_eks:
   when: manual
   only:
     - master
-  dependencies: 
+  dependencies:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
@@ -184,6 +191,13 @@ deploy_prod_eks:
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_USER%/${MAILER_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     - cat kubernetes/backend-variables.yaml
