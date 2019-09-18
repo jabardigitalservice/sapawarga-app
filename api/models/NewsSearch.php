@@ -40,6 +40,10 @@ class NewsSearch extends News
 
         $query->andFilterWhere(['<>', 'news.status', News::STATUS_DELETED]);
 
+        if (Arr::has($params, 'status')) {
+            $query->andFilterWhere(['news.status' => Arr::get($params, 'status')]);
+        }
+
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
         }
