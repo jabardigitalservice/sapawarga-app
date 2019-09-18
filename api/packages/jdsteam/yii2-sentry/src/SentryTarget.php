@@ -62,7 +62,10 @@ class SentryTarget extends Target
         if ($text instanceof \Throwable || $text instanceof \Exception) {
             $user = Yii::$app->user->identity;
 
-            Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment]);
+            $releaseVersion = getenv('APP_VERSION');
+            $releaseString  = "sapawarga-api@{$releaseVersion}";
+
+            Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment, 'release' => $releaseString]);
 
             Sentry\configureScope(function (Sentry\State\Scope $scope) use ($user): void {
                 $scope->setUser([

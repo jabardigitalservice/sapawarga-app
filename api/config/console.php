@@ -5,6 +5,7 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic-console',
+    'name' => 'Sapawarga',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log', 'queue'],
     'controllerNamespace' => 'app\commands',
@@ -25,6 +26,7 @@ $config = [
                 ],
             ],
         ],
+        'mailer' => include __DIR__ . '/components/mailer.php',
         'queue' => include __DIR__ . '/queue.php',
         'db' => $db,
         'authManager' => [

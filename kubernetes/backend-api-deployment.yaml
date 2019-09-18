@@ -98,7 +98,44 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: SENTRY_DSN
-                  
+
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: FRONTEND_URL
+
+            - name: MAILER_TRANSPORT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_TRANSPORT_FILE
+            - name: MAILER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_HOST
+            - name: MAILER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_PORT
+            - name: MAILER_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_USER
+            - name: MAILER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_PASSWORD
+            - name: MAILER_ENCRYPTION
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_ENCRYPTION
+
       initContainers:
       - name: volume-permission-fix
         image: busybox
