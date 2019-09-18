@@ -26,6 +26,7 @@ VALUES
     ('video','Pembangunan',NULL,10,1557803314,1557803314),
     ('video','Event',NULL,10,1557803314,1557803314),
     ('video','Lainnya',NULL,10,1557803314,1557803314),
-    ('newsHoax','Klarifikasi',NULL,10,1557803314,1557803314);
-    ('newsHoax','Disinformasi',NULL,10,1557803314,1557803314);
-    ('newsHoax','Fakta',NULL,10,1557803314,1557803314);
+    ('newsHoax','Berita',NULL,10,1557803314,1557803314),
+    ('newsHoax','Disinformasi',NULL,10,1557803314,1557803314),
+    ('newsHoax','Klarifikasi Fakta',NULL,10,1557803314,1557803314),
+    ('newsHoax','Misinformasi',NULL,10,1557803314,1557803314);
