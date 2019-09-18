@@ -8,7 +8,6 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\ForbiddenHttpException;
 
 /**
  * NewsHoaxController implements the CRUD actions for NewsHoax model.
@@ -91,10 +90,17 @@ class NewsHoaxController extends ActiveController
      */
     public function findModel($id)
     {
-        $model = NewsHoax::find()
+        $query = NewsHoax::find()
             ->where(['id' => $id])
-            ->andWhere(['!=', 'status', NewsHoax::STATUS_DELETED])
-            ->one();
+            ->andWhere(['!=', 'status', NewsHoax::STATUS_DELETED]);
+
+        $user = Yii::$app->user;
+        if ($user->can('newsSaberHoaxList')
+            && $user->can('newsSaberhoaxManage') === false) {
+            $query = $query->andWhere(['!=', 'status', NewsHoax::STATUS_DISABLED]);
+        }
+
+        $model = $query->one();
 
         if ($model === null) {
             throw new NotFoundHttpException("Object not found: $id");

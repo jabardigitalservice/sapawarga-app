@@ -32,7 +32,7 @@ class NewsHoaxSearch extends News
         $filterCategoryId = Arr::get($params, 'category_id');
         $searchKeyword   = Arr::get($params, 'search');
 
-        $query->andFilterWhere(['channel_id' => $filterCategoryId]);
+        $query->andFilterWhere(['category_id' => $filterCategoryId]);
 
         $query->andFilterWhere(['like', 'title', $searchKeyword]);
 
@@ -47,11 +47,7 @@ class NewsHoaxSearch extends News
 
     protected function getQueryListUser($query, $params)
     {
-        $filterStatusList = [
-            NewsHoax::STATUS_ACTIVE,
-        ];
-
-        $query->andFilterWhere(['in', 'news_hoax.status', $filterStatusList]);
+        $query->andFilterWhere(['news_hoax.status' => NewsHoax::STATUS_ACTIVE]);
 
         return $this->getQueryAll($query, $params);
     }
