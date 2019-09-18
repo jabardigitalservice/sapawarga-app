@@ -110,7 +110,8 @@ class NewsHoaxController extends ActiveController
         $user   = Yii::$app->user;
         $search = new NewsHoaxSearch();
 
-        if ($user->can('newsSaberhoaxManage') === false) {
+        if ($user->can('newsSaberHoaxList')
+            && $user->can('newsSaberhoaxManage') === false) {
             $search->scenario = NewsHoaxSearch::SCENARIO_LIST_USER;
         }
 
