@@ -31,6 +31,7 @@ class Category extends ActiveRecord implements ActiveStatus
         Polling::CATEGORY_TYPE      => 'Polling',
         Survey::CATEGORY_TYPE       => 'Survei',
         Video::CATEGORY_TYPE        => 'Video',
+        NewsHoax::CATEGORY_TYPE     => 'Berita Saber Hoaks',
     ];
 
     /**

@@ -357,7 +357,7 @@ class NewsHoaxCest
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id' => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
@@ -421,7 +421,7 @@ class NewsHoaxCest
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
-            'category_id' => 1,
+            'category_id' => 28,
             'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'cover_path'  => 'covers/test.jpg',
