@@ -9,6 +9,8 @@ return [
     'app.password' => 'Kata Sandi',
     'app.role' => 'Role',
     'app.name' => 'Nama Lengkap',
+    'app.phone' => 'Nomor Telepon',
+    'app.address' => 'Alamat',
     'app.rt' => 'RT',
     'app.rw' => 'RW',
     'app.kel_id' => 'Desa/Kelurahan',

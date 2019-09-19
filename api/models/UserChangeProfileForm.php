@@ -44,6 +44,17 @@ class UserChangeProfileForm extends Model
         ];
     }
 
+    /** @inheritdoc */
+    public function attributeLabels()
+    {
+        return [
+            'name' => Yii::t('app', 'app.name'),
+            'email' => Yii::t('app', 'app.email'),
+            'phone' => Yii::t('app', 'app.phone'),
+            'address' => Yii::t('app', 'app.address'),
+        ];
+    }
+
     /**
      * Signs user up.
      *
