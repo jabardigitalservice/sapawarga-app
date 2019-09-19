@@ -9,6 +9,8 @@ return [
     'app.password' => 'Password',
     'app.role' => 'Role',
     'app.name' => 'Full Name',
+    'app.phone' => 'Phone Number',
+    'app.address' => 'Address',
     'app.rt' => 'RT',
     'app.rw' => 'RW',
     'app.kel_id' => 'Desa/Kelurahan',

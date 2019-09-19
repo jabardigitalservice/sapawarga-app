@@ -37,7 +37,8 @@ VALUES
     ('user.bandung','Eu1HG2_9hQUvVV0Ed4Q8WXDnefvyrELv',NULL,'$2y$13$tQPy7bUaNtCPd.8FW/pjuudEGRQcuTdgfKqRJt7tqgJbMqfyF4baW',NULL,'user.bandung@demo.com','user.bandung@demo.com',1556054651,'172.21.0.6',NULL,NULL,NULL,10,10,1556018651,1556018651,'User Kota Bandung','0857123456','Jl. Alamat Kota Bandung','1','2','6178','446','22','-6.910711','107.609822',NULL,'https://facebook.com/user.bandung','user.bandung','user.bandung',NULL),
     ('user','SCGh33nopGun0gMeDnB3lU5XG5KjY3Br',NULL,'$2y$13$QlxrGjAoOCL0TDP6z4pnGOR8RP1amSYN0P9b00uGJO7xnO.NF9WiW',NULL,'user@demo.com','user@demo.com',1556054724,'172.21.0.6',NULL,NULL,NULL,10,10,1556018724,1556018724,'User Kota Bandung Satu','0857123456','Jl. Alamat Kota Bandung Satu','1','2','6178','446','22','-6.910711','107.609822',NULL,'https://facebook.com/user','user','user',NULL),
     ('staff.inactive','E3sUYMd9eNe4uiGlq12Bof3LmQVZCdlb',NULL,'$2y$13$UF1u00zQepfWOyhRcjrvIefJ5f6PI5tRTxyOP9Zw6OFBLfo8H8tIu',NULL,'staff.inactive@demo.com','staff.inactive@demo.com',1555999945,'172.21.0.6',NULL,NULL,NULL,0,90,1555999945,1555999945,'Staff Inactive','080989999',NULL,NULL,NULL,NULL,NULL,NULL,'-6.902471','107.618799',NULL,NULL,NULL,NULL,NULL),
-    ('user.inactive','SCGh33nopGun0gMeDnB3lU5XG5KjY3Br',NULL,'$2y$13$QlxrGjAoOCL0TDP6z4pnGOR8RP1amSYN0P9b00uGJO7xnO.NF9WiW',NULL,'user.inactive@demo.com','user.inactive@demo.com',1556054724,'172.21.0.6',NULL,NULL,NULL,0,10,1556018724,1556018724,'User Inactive','0857123456',NULL,'001','002','6178','446','22','-6.910711','107.609822',NULL,NULL,NULL,NULL,NULL);
+    ('user.inactive','SCGh33nopGun0gMeDnB3lU5XG5KjY3Br',NULL,'$2y$13$QlxrGjAoOCL0TDP6z4pnGOR8RP1amSYN0P9b00uGJO7xnO.NF9WiW',NULL,'user.inactive@demo.com','user.inactive@demo.com',1556054724,'172.21.0.6',NULL,NULL,NULL,0,10,1556018724,1556018724,'User Inactive','0857123456',NULL,'001','002','6178','446','22','-6.910711','107.609822',NULL,NULL,NULL,NULL,NULL),
+    ('saberhoax','E3sUYMd9eNe4uiGlq12Bof3LmQVZCdlb',NULL,'$2y$13$UF1u00zQepfWOyhRcjrvIefJ5f6PI5tRTxyOP9Zw6OFBLfo8H8tIu',NULL,'saberhoax@demo.com','saberhoax@demo.com',1555999945,'172.21.0.6',NULL,NULL,NULL,10,89,1555999945,1555999945,'Staff Jabar Saber Hoaks','080989999','Jl. Alamat Jabar Saber Hoaks',NULL,NULL,NULL,NULL,NULL,'-6.902471','107.618799',NULL,'http://facebook.com/official.jabarsaberhoaks','jabarsaberhoaks','jabarsaberhoaks',NULL);
 
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`)
@@ -123,4 +124,5 @@ VALUES
     ('user','33',1556018418),
     ('user','34',1556018606),
     ('user','35',1556018651),
-    ('user','36',1556018724);
+    ('user','36',1556018724),
+    ('staffSaberhoax','39',1556018724);
