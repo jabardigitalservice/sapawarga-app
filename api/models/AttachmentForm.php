@@ -159,7 +159,7 @@ class AttachmentForm extends Model
      */
     public function getFileUrl()
     {
-        $publicBaseUrl = Yii::$app->params['public_storage_base_url'];
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
         return "{$publicBaseUrl}/{$this->getRelativeFilePath()}";
     }
