@@ -87,11 +87,11 @@ spec:
                   name: sapawarga-backend-config-env
                   key: ERROR_REPORT
 
-            - name: ERROR_ENVIRONMENT_DSN_PRODUCTION
+            - name: ERROR_ENVIRONMENT
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
-                  key: ERROR_ENVIRONMENT_DSN_PRODUCTION
+                  key: ERROR_ENVIRONMENT
 
             - name: SENTRY_DSN
               valueFrom:
