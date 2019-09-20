@@ -9,15 +9,6 @@ use Yii;
 class AspirasiPhotoForm extends AttachmentForm
 {
     /**
-     * @return string
-     */
-    protected function getRelativePath()
-    {
-        return 'aspirasi';
-    }
-
-
-    /**
      * @param $filePath
      *
      * @return \Intervention\Image\Image|\Intervention\Image\ImageManager

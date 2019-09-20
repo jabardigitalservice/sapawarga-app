@@ -17,7 +17,8 @@ return [
     'user.passwordResetTokenExpire' => 3600,
     'paginationParams' => $paginationParams,
     'upload_max_size' => 1024 * 1024 * 2,
-    'local_storage_base_url' => getenv('APP_STORAGE_LOCAL_URL'),
+    'storageFilesystem' => env('APP_STORAGE_FS'),
+    'public_storage_base_url' => env('APP_STORAGE_PUBLIC_URL'),
     'hashidSaltSecret' => 'JDSSaltSecret',
     'hashidLengthPad' => 5,
 ];
