@@ -30,7 +30,9 @@
     "yiisoft/yii2-queue": "^2.3",
     "hashids/hashids": "^3.0",
     "sentry/sentry": "2.1.1",
-    "vlucas/phpdotenv": "^3.5"
+    "vlucas/phpdotenv": "^3.5",
+    "creocoder/yii2-flysystem": "^0.9.3",
+    "league/flysystem-aws-s3-v3": "^1.0"
   },
   "require-dev": {
     "codeception/codeception": "^2.5.5",
