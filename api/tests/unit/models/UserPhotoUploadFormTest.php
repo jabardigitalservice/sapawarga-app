@@ -19,7 +19,7 @@ class UserPhotoUploadFormTest extends \Codeception\Test\Unit
 
         $this->assertFalse($model->validate());
 
-        $this->assertTrue($model->hasErrors('image'));
+        $this->assertTrue($model->hasErrors('file'));
     }
 
     public function testValidateSuccess()
@@ -35,7 +35,8 @@ class UserPhotoUploadFormTest extends \Codeception\Test\Unit
         ];
 
         $model        = new UserPhotoUploadForm();
-        $model->image = UploadedFile::getInstanceByName('image');
+        $model->file  = UploadedFile::getInstanceByName('image');
+        $model->type  = $model;
 
         $this->assertTrue($model->validate());
     }
@@ -53,11 +54,11 @@ class UserPhotoUploadFormTest extends \Codeception\Test\Unit
         ];
 
         $model        = new UserPhotoUploadForm();
-        $model->image = UploadedFile::getInstanceByName('image');
+        $model->file  = UploadedFile::getInstanceByName('image');
 
         $this->assertFalse($model->validate());
 
-        $this->assertTrue($model->hasErrors('image'));
+        $this->assertTrue($model->hasErrors('file'));
     }
 
     public function testValidateFileTooBig()
@@ -73,11 +74,11 @@ class UserPhotoUploadFormTest extends \Codeception\Test\Unit
         ];
 
         $model        = new UserPhotoUploadForm();
-        $model->image = UploadedFile::getInstanceByName('image');
+        $model->file  = UploadedFile::getInstanceByName('image');
 
         $this->assertFalse($model->validate());
 
-        $this->assertTrue($model->hasErrors('image'));
+        $this->assertTrue($model->hasErrors('file'));
     }
 
     public function testCropAndResize()
@@ -124,23 +125,5 @@ class UserPhotoUploadFormTest extends \Codeception\Test\Unit
 
         $this->assertEquals($image->getHeight(), 640);
         $this->assertEquals($image->getWidth(), 640);
-    }
-
-    public function testCreateRelativePath()
-    {
-        $model            = new UserPhotoUploadForm();
-        $relativeFilePath = $model->createFilePath();
-
-        $this->assertStringContainsString('avatars/', $relativeFilePath);
-    }
-
-    public function testSetRelativePath()
-    {
-        $path = '/tmp/test.jpg';
-
-        $model = new UserPhotoUploadForm();
-        $model->setRelativePath($path);
-
-        $this->assertEquals($path, $model->getRelativeFilePath());
     }
 }
