@@ -22,18 +22,4 @@ class UserPhotoUploadForm extends AttachmentForm
     {
         return $this->imageProcessor->make($filePath)->fit(640, 640);
     }
-
-    /**
-     * @param \app\models\User $user
-     * @param $relativePath
-     * @return string
-     */
-    public function setUserProfilePhoto($user, $relativePath)
-    {
-        $user->photo_url = $relativePath;
-        $user->save(false);
-
-        return $relativePath;
-    }
-
 }

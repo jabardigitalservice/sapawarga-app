@@ -134,63 +134,6 @@ class UserPhotoUploadFormTest extends \Codeception\Test\Unit
         $this->assertStringContainsString('avatars/', $relativeFilePath);
     }
 
-    public function testUploadSuccess()
-    {
-        $tempFilePath = '/tmp/test.jpg'; // mock file path
-
-        $imageProcessor = m::mock(ImageManager::class);
-        $imageProcessor->shouldReceive('make->fit')->once()->andReturnUsing(function () {
-            $driver = new Driver();
-            $core = imagecreatetruecolor(600, 600);
-
-            $image = new Image($driver, $core);
-
-            return $image;
-        });
-
-        $bucket = m::mock(Bucket::class);
-        $bucket->shouldReceive('saveFileContent')->andReturnTrue()->once();
-
-        $model  = new UserPhotoUploadForm();
-        $model->setImageProcessor($imageProcessor);
-        $model->setBucket($bucket);
-
-        $result = $model->save($tempFilePath);
-
-        $this->assertTrue($result);
-    }
-
-    public function testUploadFailed()
-    {
-        $tempFilePath = '/tmp/test.jpg'; // mock file path
-
-        $imageProcessor = m::mock(ImageManager::class);
-        $imageProcessor->shouldReceive('make->fit')->andReturnFalse()->once();
-
-        $bucket = m::mock(Bucket::class);
-
-        $model  = new UserPhotoUploadForm();
-        $model->setImageProcessor($imageProcessor);
-        $model->setBucket($bucket);
-
-        $result = $model->save($tempFilePath);
-
-        $this->assertFalse($result);
-    }
-
-    public function testSetUserProfilePhoto()
-    {
-        $user = m::mock(User::class);
-        $user->shouldReceive('hasAttribute')->andReturnTrue()->once();
-        $user->shouldReceive('save')->andReturnTrue()->once();
-
-        $model            = new UserPhotoUploadForm();
-        $relativeFilePath = $model->setUserProfilePhoto($user, 'avatars/my.jpg');
-
-        $this->assertEquals('avatars/my.jpg', $relativeFilePath);
-        $this->assertEquals('avatars/my.jpg', $user->photo_url);
-    }
-
     public function testSetRelativePath()
     {
         $path = '/tmp/test.jpg';

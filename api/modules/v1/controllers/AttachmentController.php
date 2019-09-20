@@ -7,6 +7,7 @@ use app\models\Attachment\AspirasiPhotoForm;
 use app\models\Attachment\NewsPhotoForm;
 use app\models\Attachment\PhoneBookPhotoForm;
 use app\models\AttachmentForm;
+use app\models\UserPhotoUploadForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -107,6 +108,9 @@ class AttachmentController extends ActiveController
                 break;
             case 'news_photo':
                 $model = new NewsPhotoForm();
+                break;
+            case 'user_photo':
+                $model = new UserPhotoUploadForm();
                 break;
             default:
                 $model = null;
