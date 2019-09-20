@@ -8,6 +8,7 @@ use app\models\Attachment\NewsPhotoForm;
 use app\models\Attachment\PhoneBookPhotoForm;
 use app\models\AttachmentForm;
 use app\models\UserPhotoUploadForm;
+use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -99,24 +100,17 @@ class AttachmentController extends ActiveController
 
     protected function getModelType($type)
     {
-        switch ($type) {
-            case 'phonebook_photo':
-                $model = new PhoneBookPhotoForm();
-                break;
-            case 'aspirasi_photo':
-                $model = new AspirasiPhotoForm();
-                break;
-            case 'news_photo':
-                $model = new NewsPhotoForm();
-                break;
-            case 'user_photo':
-                $model = new UserPhotoUploadForm();
-                break;
-            default:
-                $model = null;
-                break;
+        $types = [
+            'phonebook_photo' => PhoneBookPhotoForm::class,
+            'aspirasi_photo'  => AspirasiPhotoForm::class,
+            'news_photo'      => NewsPhotoForm::class,
+            'user_photo'      => UserPhotoUploadForm::class,
+        ];
+
+        if (Arr::has($types, $type)) {
+            return new $types[$type];
         }
 
-        return $model;
+        return null;
     }
 }
