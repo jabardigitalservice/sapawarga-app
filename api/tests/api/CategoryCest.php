@@ -24,6 +24,25 @@ class CategoryCest
         ]);
     }
 
+    public function createNewCategoryForbiddenType(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendPOST($this->endpointCategory, [
+            'type'      => 'notification',
+            'name'      => 'New Category',
+            'status'    => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
     public function createNewCategory(ApiTester $I)
     {
         $I->amStaff();
@@ -143,6 +162,38 @@ class CategoryCest
         ]);
     }
 
+    public function updateCategoryForbiddenType(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendPUT("{$this->endpointCategory}/1", [
+            'name' => 'Layanan Kesehatan Edited',
+            'type' => 'notification',
+        ]);
+
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+
+        $I->amStaff();
+
+        $I->sendPUT("{$this->endpointCategory}/14", [
+            'name' => 'Edited Category',
+        ]);
+
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
     public function updateCategory(ApiTester $I)
     {
         $I->amStaff();
@@ -158,6 +209,14 @@ class CategoryCest
             'success' => true,
             'status'  => 200,
         ]);
+    }
+
+    public function deleteCategoryForbiddenType(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendDELETE("{$this->endpointCategory}/14");
+        $I->canSeeResponseCodeIs(403);
     }
 
     public function deleteCategory(ApiTester $I)
