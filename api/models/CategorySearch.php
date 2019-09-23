@@ -12,6 +12,8 @@ use yii\data\ActiveDataProvider;
  */
 class CategorySearch extends Category
 {
+    const SCENARIO_LIST_NON_SABERHOAX = 'list-non-saberhoax';
+
     /**
      * {@inheritdoc}
      */
@@ -28,8 +30,9 @@ class CategorySearch extends Category
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
-        return Model::scenarios();
+        $scenarios = Model::scenarios();
+        $scenarios[self::SCENARIO_LIST_NON_SABERHOAX] = ['id', 'name', 'type'];
+        return $scenarios;
     }
 
     /**
@@ -69,6 +72,10 @@ class CategorySearch extends Category
 
         $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
         $query->andFilterWhere(['like', 'type', Arr::get($params, 'type')]);
+
+        if ($this->scenario === self::SCENARIO_LIST_NON_SABERHOAX) {
+            $query->andFilterWhere(['<>', 'type', NewsHoax::CATEGORY_TYPE]);
+        }
 
         return $dataProvider;
     }
