@@ -34,6 +34,12 @@ class Category extends ActiveRecord implements ActiveStatus
         NewsHoax::CATEGORY_TYPE     => 'Berita Saber Hoaks',
     ];
 
+    // Daftar category type yang tidak bisa diedit oleh staff
+    const TYPE_VIEW_ONLY = [
+        Notification::CATEGORY_TYPE,
+        NewsHoax::CATEGORY_TYPE,
+    ];
+
     /**
      * {@inheritdoc}
      */

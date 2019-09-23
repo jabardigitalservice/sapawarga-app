@@ -2,12 +2,14 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\Category;
 use app\models\CategorySearch;
+use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorHttpException;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -61,8 +63,77 @@ class CategoryController extends ActiveController
     public function actions()
     {
         $actions = parent::actions();
+
+        // Override actions related to edit
+        unset($actions['create']);
+        unset($actions['update']);
+        unset($actions['delete']);
+
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+        $actions['view']['findModel']            = [$this, 'findModel'];
+
         return $actions;
+    }
+
+    public function actionCreate()
+    {
+        $model = new Category();
+
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        $this->checkAccess('create', $model);
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+        $params = Yii::$app->getRequest()->getBodyParams();
+
+        $this->checkAccess('update', $model, $params);
+
+        $model->load($params, '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    public function actionDelete($id)
+    {
+        $model = $this->findModel($id);
+
+        $this->checkAccess('delete', $model);
+
+        $model->status = Category::STATUS_DELETED;
+
+        if ($model->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(204);
+
+        return 'ok';
     }
 
     public function actionTypes()
@@ -85,6 +156,25 @@ class CategoryController extends ActiveController
         return [ 'items' => $model ];
     }
 
+    /**
+     * @param $id
+     * @return mixed|Category
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function findModel($id)
+    {
+        $model = Category::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', Category::STATUS_DELETED])
+            ->one();
+
+        if ($model === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        return $model;
+    }
+
     public function prepareDataProvider()
     {
         $search = new CategorySearch();
@@ -95,5 +185,31 @@ class CategoryController extends ActiveController
         }
 
         return $search->search(\Yii::$app->request->getQueryParams());
+    }
+
+    /**
+     * @param string $action the ID of the action to be executed
+     * @param object $model the model to be accessed. If null, it means no specific model is being accessed.
+     * @param array $params additional parameters
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function checkAccess($action, $model = null, $params = [])
+    {
+        switch ($action) {
+            case 'create':
+            case 'delete':
+                if (in_array($model->type, Category::TYPE_VIEW_ONLY)) {
+                    throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+                }
+                break;
+            case 'update':
+                if (in_array($model->type, Category::TYPE_VIEW_ONLY)
+                    || in_array(Arr::get($params, 'type'), Category::TYPE_VIEW_ONLY)) {
+                    throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
