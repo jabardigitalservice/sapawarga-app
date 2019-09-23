@@ -50,7 +50,7 @@ class CategoryController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view'],
-                    'roles'   => ['user', 'staffRW'],
+                    'roles'   => ['user', 'staffRW', 'newsSaberhoaxManage'],
                 ],
             ],
         ];
