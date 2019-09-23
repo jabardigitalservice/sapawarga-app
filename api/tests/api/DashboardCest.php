@@ -269,8 +269,8 @@ class DashboardCest
             'kel_id'      => 6082,
             'status'      => 10,
             'category_id' => 17,
-            'created_by'  => 1,
-            'updated_by'  => 1,
+            'created_by'  => 2,
+            'updated_by'  => 2,
             'created_at'  => '1567296000', // 01/09/2019 @ 12:00am
             'updated_at'  => '1567296000', // 01/09/2019 @ 12:00am
         ]);
@@ -305,10 +305,9 @@ class DashboardCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data');
 
-        $I->assertEquals(2, count($data[0]));
+        $I->assertEquals(1, count($data[0]));
 
         $I->assertEquals(2, $data[0][0]['id']);
-        $I->assertEquals(1, $data[0][1]['id']);
     }
 
     public function _after(ApiTester $I)
