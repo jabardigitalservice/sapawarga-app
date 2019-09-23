@@ -50,7 +50,7 @@ class CategoryController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view'],
-                    'roles'   => ['user', 'staffRW'],
+                    'roles'   => ['user', 'staffRW', 'newsSaberhoaxManage'],
                 ],
             ],
         ];
@@ -88,6 +88,11 @@ class CategoryController extends ActiveController
     public function prepareDataProvider()
     {
         $search = new CategorySearch();
+        $user   = Yii::$app->user;
+
+        if (!$user->can('newsSaberhoaxManage')) {
+            $search->scenario = CategorySearch::SCENARIO_LIST_NON_SABERHOAX;
+        }
 
         return $search->search(\Yii::$app->request->getQueryParams());
     }
