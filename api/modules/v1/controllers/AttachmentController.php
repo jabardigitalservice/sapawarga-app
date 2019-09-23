@@ -49,7 +49,7 @@ class AttachmentController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['create'],
-                    'roles'   => ['admin', 'manageUsers', 'user', 'staffRW'],
+                    'roles'   => ['@'], //all authenticated users
                 ],
             ],
         ];
