@@ -276,4 +276,35 @@ class UserCest
         ]);
     }
 
+    public function userAdminCanSeeSaberHoax(ApiTester $I)
+    {
+        $I->amStaff('admin');
+
+        $I->sendGET('/v1/staff?name=saber');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+    }
+
+    public function userProvCanNotSeeSaberHoax(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff?name=saber');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 0);
+    }
+
+
 }

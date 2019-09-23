@@ -128,6 +128,9 @@ class StaffController extends ActiveController
         $search->kel_id = $search->kel_id ?? $currentUser->kel_id;
         $search->rw = $search->rw ?? $currentUser->rw;
 
+        // Only admin can see saberhoax
+        $search->show_saberhoax = ($currentUser->role == User::ROLE_ADMIN) ? true : false;
+
         if (!$search->validate()) {
             throw new BadRequestHttpException(
                 'Invalid parameters: ' . json_encode($search->getErrors())
@@ -172,41 +175,6 @@ class StaffController extends ActiveController
      * Update staff member information from backend dashboard
      *
      * Request: PUT /v1/staff/1
-     *  {
-     *    "id": 20,
-     *    "username": "testuser",
-     *    "email": "test2@test.com",
-     *    "unconfirmed_email": "test2@test.com",
-     *    "password": "{password}",
-     *    "role": 50,
-     *    "role_label": "Staff",
-     *    "last_login_at": null,
-     *    "last_login_ip": null,
-     *    "confirmed_at": null,
-     *    "blocked_at": null,
-     *    "status": 10,
-     *    "status_label": "Active",
-     *    "created_at": "2017-05-27 17:30:12",
-     *    "updated_at": "2017-05-27 17:30:12",
-     *    "permissions": [
-     *        {
-     *            "name": "manageSettings",
-     *            "description": "Manage settings",
-     *            "checked": false
-     *        },
-     *        {
-     *            "name": "manageStaffs",
-     *            "description": "Manage staffs",
-     *            "checked": false
-     *        },
-     *        {
-     *            "name": "manageUsers",
-     *            "description": "Manage users",
-     *            "checked": true
-     *        }
-     *    ]
-     *  }
-     *
      *
      * @param $id
      *
@@ -247,28 +215,6 @@ class StaffController extends ActiveController
      * Return requested staff member information
      *
      * Request: /v1/staff/2
-     *
-     * Sample Response:
-     * {
-     *   "success": true,
-     *   "status": 200,
-     *   "data": {
-     *            "id": 2,
-     *            "username": "staff",
-     *            "email": "staff@staff.com",
-     *            "unconfirmed_email": "lygagohur@hotmail.com",
-     *            "role": 50,
-     *            "role_label": "Staff",
-     *            "last_login_at": "2017-05-20 18:58:40",
-     *            "last_login_ip": "127.0.0.1",
-     *            "confirmed_at": "2017-05-15 09:20:53",
-     *            "blocked_at": null,
-     *            "status": 10,
-     *            "status_label": "Active",
-     *            "created_at": "2017-05-15 09:19:02",
-     *            "updated_at": "2017-05-21 23:31:32"
-     *        }
-     *   }
      *
      * @param $id
      *
@@ -382,6 +328,11 @@ class StaffController extends ActiveController
         ];
 
         $currentUser = User::findIdentity(\Yii::$app->user->getId());
+
+        if ($currentUser->role >= User::ROLE_STAFF_PROV) {
+            $roleMap[User::ROLE_STAFF_SABERHOAX] = ['level' => 'saberhoax', 'name' => 'Saber Hoax'];
+        }
+
         $kabkota_id = $currentUser->kabkota_id;
         $kel_id = $currentUser->kel_id;
         $kec_id = $currentUser->kec_id;
