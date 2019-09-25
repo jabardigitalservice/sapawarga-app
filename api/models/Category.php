@@ -35,7 +35,7 @@ class Category extends ActiveRecord implements ActiveStatus
     ];
 
     // Daftar category type yang tidak bisa diedit oleh staff
-    const TYPE_VIEW_ONLY = [
+    const EXCLUDED_TYPES = [
         Notification::CATEGORY_TYPE,
         NewsHoax::CATEGORY_TYPE,
     ];

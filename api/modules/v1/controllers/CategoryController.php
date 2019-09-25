@@ -198,13 +198,13 @@ class CategoryController extends ActiveController
         switch ($action) {
             case 'create':
             case 'delete':
-                if (in_array($model->type, Category::TYPE_VIEW_ONLY)) {
+                if (in_array($model->type, Category::EXCLUDED_TYPES)) {
                     throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
                 }
                 break;
             case 'update':
-                if (in_array($model->type, Category::TYPE_VIEW_ONLY)
-                    || in_array(Arr::get($params, 'type'), Category::TYPE_VIEW_ONLY)) {
+                if (in_array($model->type, Category::EXCLUDED_TYPES)
+                    || in_array(Arr::get($params, 'type'), Category::EXCLUDED_TYPES)) {
                     throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
                 }
                 break;
