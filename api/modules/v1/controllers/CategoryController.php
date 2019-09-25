@@ -140,6 +140,7 @@ class CategoryController extends ActiveController
     {
         $model = Category::find()
             ->select('type as id')
+            ->where(['not in', 'type', Category::EXCLUDED_TYPES])
             ->groupBy('type')
             ->asArray()
             ->all();
@@ -178,11 +179,6 @@ class CategoryController extends ActiveController
     public function prepareDataProvider()
     {
         $search = new CategorySearch();
-        $user   = Yii::$app->user;
-
-        if (!$user->can('newsSaberhoaxManage')) {
-            $search->scenario = CategorySearch::SCENARIO_LIST_NON_SABERHOAX;
-        }
 
         return $search->search(\Yii::$app->request->getQueryParams());
     }

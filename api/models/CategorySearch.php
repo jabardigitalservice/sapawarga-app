@@ -12,8 +12,6 @@ use yii\data\ActiveDataProvider;
  */
 class CategorySearch extends Category
 {
-    const SCENARIO_LIST_NON_SABERHOAX = 'list-non-saberhoax';
-
     /**
      * {@inheritdoc}
      */
@@ -23,16 +21,6 @@ class CategorySearch extends Category
             [['id'], 'integer'],
             [['name', 'type'], 'safe'],
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function scenarios()
-    {
-        $scenarios = Model::scenarios();
-        $scenarios[self::SCENARIO_LIST_NON_SABERHOAX] = ['id', 'name', 'type'];
-        return $scenarios;
     }
 
     /**
@@ -73,8 +61,9 @@ class CategorySearch extends Category
         $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
         $query->andFilterWhere(['like', 'type', Arr::get($params, 'type')]);
 
-        if ($this->scenario === self::SCENARIO_LIST_NON_SABERHOAX) {
-            $query->andFilterWhere(['<>', 'type', NewsHoax::CATEGORY_TYPE]);
+        // Melakukan pengecualian terhadap tipe kategori 'newsHoax' dan 'notification'
+        if (!Arr::has($params, 'type')) {
+            $query->andFilterWhere(['not in', 'type', Category::EXCLUDED_TYPES]);
         }
 
         return $dataProvider;
