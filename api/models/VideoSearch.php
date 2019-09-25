@@ -56,7 +56,11 @@ class VideoSearch extends Video
 
         $query->andFilterWhere(['in', 'videos.status', $filterStatusList]);
 
-        $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
+        if (Arr::has($params, 'kabkota_id')) {
+            $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
+        } else {
+            $query->andWhere(['kabkota_id' => null]);
+        }
 
         return $this->createActiveDataProvider($query, $params);
     }
