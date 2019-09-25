@@ -86,6 +86,10 @@ class CategoryCest
         $I->cantSeeResponseContainsJson([
             'type' => 'newsHoax',
         ]);
+
+        $I->cantSeeResponseContainsJson([
+            'type' => 'notification',
+        ]);
     }
 
     public function getCategoryListFilterType(ApiTester $I)
@@ -251,6 +255,14 @@ class CategoryCest
 
         $I->seeResponseContainsJson([
             'id' => 'broadcast',
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'id' => 'newsHoax',
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'id' => 'notification',
         ]);
     }
 }
