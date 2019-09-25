@@ -100,7 +100,7 @@ $config = [
             ],
         ],
 
-        'fs' => env('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
+        'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
     ],
     'modules' => [
         'v1' => [
