@@ -60,16 +60,37 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: FCM_KEY
+
             - name: COOKIE_VALIDATION_KEY
               valueFrom:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: COOKIE_VALIDATION_KEY
+
+            - name: MAILER_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_USER
+
+            - name: MAILER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_PASSWORD
+
+            - name: MAILER_ENCRYPTION
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_ENCRYPTION
+
             - name: CACHE_USE_MEMCACHED
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: CACHE_USE_MEMCACHED
+
             - name: CACHE_SERVERS
               valueFrom:
                 configMapKeyRef:
@@ -110,31 +131,19 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_TRANSPORT_FILE
+                  
             - name: MAILER_HOST
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_HOST
+
             - name: MAILER_PORT
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_PORT
-            - name: MAILER_USER
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MAILER_USER
-            - name: MAILER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MAILER_PASSWORD
-            - name: MAILER_ENCRYPTION
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MAILER_ENCRYPTION
+       
 
       initContainers:
       - name: volume-permission-fix
