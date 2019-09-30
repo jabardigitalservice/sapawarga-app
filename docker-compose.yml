@@ -7,7 +7,7 @@ services:
         - APP_VERSION=${VERSION}
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
-      - internal
+      -  jds-dev-network
     env_file:
       - .env
     volumes:
@@ -22,7 +22,7 @@ services:
     #   context: ./api
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:${VERSION}
     networks:
-      - internal
+      -  jds-dev-network
     depends_on:
       - api
     env_file:
@@ -39,7 +39,7 @@ services:
       context: ./database
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-database:${VERSION}
     networks:
-      - internal
+      -  jds-dev-network
     ports:
       - 3307:3306
     env_file:
@@ -50,11 +50,11 @@ services:
   memcached:
     image: memcached:latest
     networks:
-      - internal
+      -  jds-dev-network
 
 networks:
-  internal:
-    driver: bridge
+  jds-dev-network:
+#    driver: bridge
 
 volumes:
   vol_storage:
