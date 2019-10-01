@@ -108,11 +108,7 @@ class UserSearch extends Model
 
         if (isset($this->profile_completed)) {
             $conditional = ($this->profile_completed === 'true') ? 'is not' : 'is';
-            $query->andWhere([
-                'and',
-                [$conditional, 'user.password_updated_at', null],
-                [$conditional, 'user.profile_updated_at', null],
-            ]);
+            $query->andWhere([$conditional, 'user.profile_updated_at', null]);
         }
 
         $this->sort_by = $this->sort_by ?? 'name';
