@@ -24,6 +24,7 @@ class UserSearch extends Model
 
     public $status;
 
+    public $profile_completed;
     public $limit;
     public $sort_by;
     public $sort_order;
@@ -37,10 +38,12 @@ class UserSearch extends Model
                 [
                     'name', 'username', 'phone',
                     'role_id', 'kabkota_id', 'kec_id', 'kel_id', 'rw',
-                    'sort_by', 'sort_order'
+                    'sort_by', 'sort_order',
+                    'profile_completed'
                 ],
                 'string'
             ],
+            ['profile_completed', 'in', 'range' => ['true', 'false']],
         ];
     }
 
@@ -101,6 +104,11 @@ class UserSearch extends Model
 
         if (isset($this->status)) {
             $query->andWhere(['user.status' => $this->status]);
+        }
+
+        if (isset($this->profile_completed)) {
+            $conditional = ($this->profile_completed === 'true') ? 'is not' : 'is';
+            $query->andWhere([$conditional, 'user.profile_updated_at', null]);
         }
 
         $this->sort_by = $this->sort_by ?? 'name';
