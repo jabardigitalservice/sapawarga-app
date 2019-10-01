@@ -306,5 +306,18 @@ class UserCest
         $I->seeHttpHeader('X-Pagination-Total-Count', 0);
     }
 
+    public function userProvCanFilterProfileComplete(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
 
+        $I->sendGET('/v1/staff?profile_completed=true');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+    }
 }
