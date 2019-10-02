@@ -7,6 +7,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
@@ -60,6 +61,10 @@ class StaffController extends ActiveController
                 'photo-upload' => ['post'],
                 'me' => ['get', 'post'],
             ],
+        ];
+
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
         ];
 
         // remove authentication filter
