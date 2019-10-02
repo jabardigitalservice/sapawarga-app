@@ -203,23 +203,21 @@ class Polling extends ActiveRecord
             $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
             if ($isSendNotification) {
-                $category_id = Category::findOne(['name' => Notification::CATEGORY_LABEL_POLLING])->id;
-                $notifModel = new Notification();
-                $notifModel->setAttributes([
-                    'category_id' => $category_id,
-                    'title'=> "Polling Baru: {$this->name}",
-                    'description'=> $this->description,
+                $categoryName = Notification::CATEGORY_LABEL_POLLING;
+                $title = "{$categoryName}: {$this->name}";
+                $description = $this->description;
+                $target = [
                     'kabkota_id'=> $this->kabkota_id,
                     'kec_id'=> $this->kec_id,
                     'kel_id'=> $this->kel_id,
                     'rw'=> $this->rw,
-                    'status'=> Notification::STATUS_PUBLISHED,
-                    'meta' => [
-                        'target'=> 'polling',
-                        'id'=>$this->id
-                    ]
-                ]);
-                $notifModel->save(false);
+                ];
+                $meta = [
+                    'target'=> 'polling',
+                    'id'=>$this->id
+                ];
+
+                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
             }
         }
 

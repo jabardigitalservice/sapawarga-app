@@ -6,6 +6,7 @@ use Yii;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use app\models\Category;
+use app\models\Notification;
 
 class ModelHelper
 {
@@ -46,6 +47,31 @@ class ModelHelper
                 return $model->status == $model::STATUS_PUBLISHED;
             }
         }
+    }
+
+    /**
+     * Create a new notification to mobile app, notifying new content
+     *
+     * @param $categoryName
+     * @param $model
+     * @param $meta
+     */
+    public static function sendNewContentNotification($categoryName, $title, $description, $target, $meta)
+    {
+        $category_id = Category::findOne(['name' => $categoryName])->id;
+        $notifModel = new Notification();
+        $notifModel->setAttributes([
+            'category_id' => $category_id,
+            'title'=> "{$categoryName}: {$title}",
+            'description'=> $description,
+            'kabkota_id'=> $target['kabkota_id'],
+            'kec_id'=> $target['kec_id'],
+            'kel_id'=> $target['kel_id'],
+            'rw'=> $target['rw'],
+            'status'=> Notification::STATUS_PUBLISHED,
+            'meta' => $meta
+        ]);
+        $notifModel->save(false);
     }
 
     /**
