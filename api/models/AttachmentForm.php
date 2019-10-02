@@ -2,12 +2,12 @@
 
 namespace app\models;
 
+use creocoder\flysystem\Filesystem;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Yii;
 use yii\base\Model;
 use yii\web\UploadedFile;
-use yii2tech\filestorage\BucketInterface;
 
 class AttachmentForm extends Model
 {
@@ -24,9 +24,9 @@ class AttachmentForm extends Model
     protected $imageProcessor;
 
     /**
-     * @var BucketInterface
+     * @var Filesystem
      */
-    protected $bucket;
+    protected $fs;
 
     /**
      * @var string
@@ -55,12 +55,13 @@ class AttachmentForm extends Model
     public function upload()
     {
         /**
-         * @var \yii2tech\filestorage\BucketInterface $bucket
+         * @var Filesystem $filesystem
          */
-        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
+        $filesystem = Yii::$app->fs;
+
         $imageProcessor = new ImageManager();
 
-        $this->setBucket($bucket);
+        $this->setFilesystem($filesystem);
         $this->setImageProcessor($imageProcessor);
 
         $tempFilePath = $this->file->tempName;
@@ -77,7 +78,7 @@ class AttachmentForm extends Model
         if ($image = $this->cropAndResizePhoto($tempFilePath)) {
             $this->relativeFilePath = $this->createFilePath();
 
-            return $this->bucket->saveFileContent($this->relativeFilePath, $image->encode());
+            return $this->fs->write($this->relativeFilePath, $image->encode());
         }
 
         return false;
@@ -88,15 +89,7 @@ class AttachmentForm extends Model
      */
     protected function createRandomFilename()
     {
-        return Str::random(32);
-    }
-
-    /**
-     * @return string
-     */
-    protected function getRelativePath()
-    {
-        return 'general';
+        return time() . '-' . Str::random(32);
     }
 
     /**
@@ -130,11 +123,19 @@ class AttachmentForm extends Model
     }
 
     /**
-     * @param BucketInterface $bucket
+     * @param Filesystem $fs
      */
-    public function setBucket(BucketInterface $bucket)
+    public function setFilesystem(Filesystem $fs)
     {
-        $this->bucket = $bucket;
+        $this->fs = $fs;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getRelativePath()
+    {
+        return 'general';
     }
 
     /**
@@ -158,6 +159,8 @@ class AttachmentForm extends Model
      */
     public function getFileUrl()
     {
-        return $this->bucket->getFileUrl($this->getRelativeFilePath());
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        return "{$publicBaseUrl}/{$this->getRelativeFilePath()}";
     }
 }

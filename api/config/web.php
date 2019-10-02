@@ -100,23 +100,7 @@ $config = [
             ],
         ],
 
-        // Other adapter: Local, SFTP, Amazon, Mongo, dsb,
-        // please read https://github.com/yii2tech/file-storage
-        'fileStorage' => [
-            'class' => 'yii2tech\filestorage\local\Storage',
-            'basePath' => '@webroot/storage',
-            'baseUrl' => $params['local_storage_base_url'] . '/storage',
-            'dirPermission' => 0777,
-            'filePermission' => 0644,
-            'buckets' => [
-                'tempFiles' => [
-                    'baseSubPath' => 'temp',
-                ],
-                'imageFiles' => [
-                    'baseSubPath' => 'image',
-                ],
-            ]
-        ],
+        'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
     ],
     'modules' => [
         'v1' => [

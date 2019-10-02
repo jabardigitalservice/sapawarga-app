@@ -5,9 +5,8 @@ namespace app\modules\v1\controllers;
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
-use app\models\UserPhotoUploadForm;
 use app\models\UserSearch;
-use Intervention\Image\ImageManager;
+use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
@@ -18,11 +17,10 @@ use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
 
 class StaffController extends ActiveController
 {
-    use UserTrait;
+    use UserTrait, UserPhotoUpload;
 
     public $modelClass = 'app\models\User';
 
@@ -429,38 +427,7 @@ class StaffController extends ActiveController
 
     public function actionPhotoUpload()
     {
-        /**
-         * @var \yii2tech\filestorage\BucketInterface $bucket
-         */
-        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
-
-        $imageProcessor = new ImageManager();
-        $model = new UserPhotoUploadForm();
-
-        $model->setBucket($bucket);
-        $model->setImageProcessor($imageProcessor);
-
-        $model->image = UploadedFile::getInstanceByName('image');
-
-        if (! $model->validate()) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
-        }
-
-        if ($model->upload()) {
-            $relativePath = $model->getRelativeFilePath();
-
-            $responseData = [
-                'photo_url' => $bucket->getFileUrl($relativePath),
-            ];
-
-            return $responseData;
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(400);
+        return $this->processPhotoUpload();
     }
 
     /**
