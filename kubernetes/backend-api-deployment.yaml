@@ -85,6 +85,18 @@ spec:
                   name: sapawarga-backend-secret
                   key: MAILER_ENCRYPTION
 
+            - name: APP_STORAGE_S3_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: APP_STORAGE_S3_KEY
+            
+            - name: APP_STORAGE_S3_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: APP_STORAGE_S3_SECRET
+
             - name: CACHE_USE_MEMCACHED
               valueFrom:
                 configMapKeyRef:
@@ -144,6 +156,11 @@ spec:
                   name: sapawarga-backend-config-env
                   key: MAILER_PORT
        
+            - name: APP_STORAGE_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_S3_BUCKET
 
       initContainers:
       - name: volume-permission-fix
