@@ -57,8 +57,9 @@ class NewsFeatured extends ActiveRecord
 
     public function getNewsCoverPathUrl()
     {
-        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
-        return $bucket->getFileUrl($this->news->cover_path);
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        return "{$publicBaseUrl}/{$this->news->cover_path}";
     }
 
     public function getNewsSourceDate()
