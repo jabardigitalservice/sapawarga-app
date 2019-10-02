@@ -245,9 +245,9 @@ deploy_prod_eks_v2:
     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
-    - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     - cat kubernetes/backend-variables.yaml
