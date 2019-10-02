@@ -14,8 +14,8 @@ class RecordLastActivity extends ActionFilter
         $userId = Yii::$app->user->getId();
 
         if ($userId) {
-            $user              = User::findIdentity($userId);
-            $user->last_access = new Expression('NOW()');
+            $user                 = User::findIdentity($userId);
+            $user->last_access_at = new Expression('NOW()');
             $user->save(false);
         }
 

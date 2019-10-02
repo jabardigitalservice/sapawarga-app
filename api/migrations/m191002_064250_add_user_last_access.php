@@ -11,7 +11,7 @@ class m191002_064250_add_user_last_access extends CustomMigration
      */
     public function safeUp()
     {
-        $this->addColumn('user', 'last_access', $this->timestamp()->null());
+        $this->addColumn('user', 'last_access_at', $this->timestamp()->null());
     }
 
     /**
@@ -19,8 +19,6 @@ class m191002_064250_add_user_last_access extends CustomMigration
      */
     public function safeDown()
     {
-        echo "m191002_064250_add_user_last_access cannot be reverted.\n";
-
-        return false;
+        $this->dropColumn('user', 'last_access_at');
     }
 }
