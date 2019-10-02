@@ -62,7 +62,7 @@ class ModelHelper
         $notifModel = new Notification();
         $notifModel->setAttributes([
             'category_id' => $category_id,
-            'title'=> "{$categoryName}: {$title}",
+            'title'=> $title,
             'description'=> $description,
             'kabkota_id'=> $target['kabkota_id'],
             'kec_id'=> $target['kec_id'],

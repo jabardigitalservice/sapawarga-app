@@ -33,6 +33,7 @@ class Notification extends \yii\db\ActiveRecord
 
     const CATEGORY_LABEL_SURVEY = 'Survey Terbaru';
     const CATEGORY_LABEL_POLLING = 'Polling Terbaru';
+    const CATEGORY_LABEL_NEWS = 'Berita Terbaru';
     const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
 
 
@@ -40,6 +41,7 @@ class Notification extends \yii\db\ActiveRecord
     const TARGET_MAP = [
         self::CATEGORY_LABEL_SURVEY     => 'notifikasi',
         self::CATEGORY_LABEL_POLLING    => 'notifikasi',
+        self::CATEGORY_LABEL_NEWS       => 'notifikasi',
         self::CATEGORY_LABEL_UPDATE     => 'url',
     ];
 

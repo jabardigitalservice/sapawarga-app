@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Yii;
 use yii\behaviors\BlameableBehavior;
@@ -31,6 +32,7 @@ class News extends ActiveRecord
     const STATUS_DELETED = -1;
     const STATUS_DISABLED = 0;
     const STATUS_ACTIVE = 10;
+    const STATUS_PUBLISHED = 10;
 
     const META_DEFAULT = [
         'read_count' => 0,
@@ -198,5 +200,44 @@ class News extends ActiveRecord
         }
 
         return parent::beforeSave($insert);
+    }
+
+    /** @inheritdoc */
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (!YII_ENV_TEST) {
+            $isSendNotification = $this->isSendNotification($insert, $changedAttributes, $this);
+
+            if ($isSendNotification) {
+                $categoryName = Notification::CATEGORY_LABEL_NEWS;
+                $title = "{$categoryName}: {$this->title}";
+                $description = null;
+                $target = [
+                    'kabkota_id'=> $this->kabkota_id,
+                    'kec_id'=> null,
+                    'kel_id'=> null,
+                    'rw'=> null,
+                ];
+                $meta = [
+                    'target'=> 'news',
+                    'id'=>$this->id
+                ];
+
+                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
+            }
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function isSendNotification($insert, $changedAttributes, $model)
+    {
+        if ($insert) { // Model is created
+            return $model->status == self::STATUS_ACTIVE;
+        } else { // Model is updated
+            if (array_key_exists('status', $changedAttributes)) {
+                return $model->status == self::STATUS_ACTIVE;
+            }
+        }
     }
 }
