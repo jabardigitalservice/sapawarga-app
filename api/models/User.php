@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -44,6 +45,7 @@ use yii\web\Request as WebRequest;
  * @property string $twitter
  * @property string $instagram
  * @property string $push_token
+ * @property string $last_access_at
  *
  * @package app\models
  */
@@ -293,6 +295,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $user;
     }
 
+    public function getLastAccessAtField()
+    {
+        return $this->last_access_at !== null ? (new Carbon($this->last_access_at))->toISOString() : null;
+    }
+
     /** @inheritdoc */
     public function attributeLabels()
     {
@@ -408,6 +415,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'twitter',
             'instagram',
             'last_login_at',
+            'last_access_at' => 'LastAccessAtField',
             'password_updated_at',
             'profile_updated_at',
             'created_at',

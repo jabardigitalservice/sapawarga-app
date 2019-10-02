@@ -11,6 +11,7 @@ use app\models\NewsStatistics;
 use app\models\NewsViewer;
 use app\modules\v1\repositories\NewsFeaturedRepository;
 use Illuminate\Support\Arr;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -42,6 +43,10 @@ class NewsController extends ActiveController
                 'featured' => ['get', 'post'],
                 'statistics' => ['get'],
             ],
+        ];
+
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);
