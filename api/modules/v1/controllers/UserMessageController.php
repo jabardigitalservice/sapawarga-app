@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserMessage;
 use app\models\UserMessageSearch;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -38,6 +39,10 @@ class UserMessageController extends ActiveController
                 'index' => ['get'],
                 'view' => ['get'],
             ],
+        ];
+
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);

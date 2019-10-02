@@ -2,7 +2,9 @@
 
 namespace Jdsteam\Sapawarga\Filters;
 
-class Cors
-{
+use yii\base\ActionFilter;
 
+class Cors extends ActionFilter
+{
+    //
 }
