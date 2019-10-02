@@ -162,6 +162,24 @@ spec:
                   name: sapawarga-backend-config-env
                   key: APP_STORAGE_S3_BUCKET
 
+            - name: APP_STORAGE_FS
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_FS
+
+            - name: APP_STORAGE_PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_PUBLIC_URL
+
+            - name: APP_STORAGE_S3_BUCKET_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_S3_BUCKET_REGION
+                  
       initContainers:
       - name: volume-permission-fix
         image: busybox
