@@ -82,15 +82,15 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
 
     public function fields()
     {
-        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
-
         $fields = [
             'id',
             'title',
             'content',
             'cover_path',
-            'cover_path_url' => function () use ($bucket) {
-                return $bucket->getFileUrl($this->cover_path);
+            'cover_path_url' => function () {
+                $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+                return "{$publicBaseUrl}/{$this->cover_path}";
             },
             'source_date',
             'source_url',

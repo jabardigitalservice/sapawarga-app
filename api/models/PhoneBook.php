@@ -79,8 +79,6 @@ class PhoneBook extends \yii\db\ActiveRecord
 
     public function fields()
     {
-        $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
-
         $fields = [
             'id',
             'name',
@@ -114,8 +112,10 @@ class PhoneBook extends \yii\db\ActiveRecord
             'longitude',
             'seq',
             'cover_image_path',
-            'cover_image_url' => function () use ($bucket) {
-                return $this->cover_image_path ? $bucket->getFileUrl($this->cover_image_path) : null;
+            'cover_image_url' => function () {
+                $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+                return $this->cover_image_path ? "$publicBaseUrl/$this->cover_image_path" : null;
             },
             'meta',
             'status',

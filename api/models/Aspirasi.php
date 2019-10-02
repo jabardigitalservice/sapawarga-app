@@ -12,7 +12,6 @@ use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use app\validator\IsArrayValidator;
 use yii\db\ActiveRecord;
-use yii2tech\filestorage\BucketInterface;
 
 /**
  * This is the model class for table "aspirasi".
@@ -51,12 +50,6 @@ class Aspirasi extends ActiveRecord
     public function __construct($config = [])
     {
         parent::__construct();
-
-        /**
-         * @var BucketInterface $bucket
-         */
-        $bucket = Arr::get($config, 'bucket');
-        $this->setDefaultBucket($bucket);
     }
 
     /**

@@ -400,9 +400,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'lat',
             'lon',
             'photo_url' => function () {
-                $bucket = Yii::$app->fileStorage->getBucket('imageFiles');
+                $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
-                return $this->photo_url ? $bucket->getFileUrl($this->photo_url) : null;
+                return $this->photo_url ? "$publicBaseUrl/$this->photo_url" : null;
             },
             'facebook',
             'twitter',

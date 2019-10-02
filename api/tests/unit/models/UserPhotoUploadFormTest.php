@@ -9,7 +9,6 @@ use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use yii\web\UploadedFile;
 use Mockery as m;
-use yii2tech\filestorage\local\Bucket;
 
 class UserPhotoUploadFormTest extends \Codeception\Test\Unit
 {
