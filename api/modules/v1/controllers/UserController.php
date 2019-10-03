@@ -328,8 +328,8 @@ class UserController extends ActiveController
     public function actionConfirm()
     {
         $model = new SignupConfirmForm();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        $model->load(Yii::$app->request->post());
         if ($model->validate() && $model->confirm()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);

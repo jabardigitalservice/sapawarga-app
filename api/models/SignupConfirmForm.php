@@ -26,11 +26,6 @@ class SignupConfirmForm extends Model
                 'id',
                 'exist',
                 'targetClass' => '\app\models\User',
-                'filter' => [
-                    'and',
-                    ['status' => User::STATUS_PENDING],
-                    'confirmed_at IS NULL',
-                ],
                 'message' => 'The ID is not valid.'
             ],
             ['auth_key', 'string', 'length' => 32],
@@ -40,11 +35,6 @@ class SignupConfirmForm extends Model
                 'exist',
                 'targetClass' => '\app\models\User',
                 'message' => 'The auth key is not valid.',
-                'filter' => function ($query) {
-                    $query->andWhere(['status' => User::STATUS_PENDING])
-                        ->andWhere(['id' => $this->id])
-                        ->andWhere('confirmed_at IS NULL');
-                }
             ]
         ];
     }
