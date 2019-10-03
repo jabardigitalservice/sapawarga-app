@@ -11,8 +11,9 @@ $paginationParams = [
 
 return [
     'frontendURL' => getenv('FRONTEND_URL'),
-    'supportEmail' => 'sapawarga@jabarprov.go.id',
-    'adminEmail' => 'sapawarga@jabarprov.go.id',
+    'supportEmail' => getenv('MAILER_FROM_EMAIL'),
+    'adminEmail' => getenv('MAILER_FROM_EMAIL'),
+    'adminEmailName' => getenv('MAILER_FROM_NAME'),
     'jwtSecretCode' => 'someSecretKey',
     'user.passwordResetTokenExpire' => 3600,
     'paginationParams' => $paginationParams,

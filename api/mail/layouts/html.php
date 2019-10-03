@@ -16,6 +16,9 @@ use yii\helpers\Html;
 <body>
     <?php $this->beginBody() ?>
     <?= $content ?>
+
+    <?php include '_signature.php'; ?>
+
     <?php $this->endBody() ?>
 </body>
 </html>

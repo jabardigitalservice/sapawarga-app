@@ -1,0 +1,51 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: sapawarga-backend-config-env
+  namespace: sapawarga
+data:
+  PHP_ENABLE_XDEBUG: "0"
+  YII_ENV_DEV: "0"
+  APP_STORAGE_LOCAL_URL: %APP_STORAGE_LOCAL_URL%
+  APP_VERSION: %APP_VERSION%
+  MYSQL_HOST: %MYSQL_HOST%
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: sapawarga
+  CACHE_USE_MEMCACHED: "true"
+  CACHE_SERVERS: memcached
+  CACHE_PORT: "11211"
+  CACHE_WEIGHT: "60"
+  MAILER_TRANSPORT_FILE: "false"
+  MAILER_HOST: %MAILER_HOST%
+  MAILER_PORT: "2525"
+  SENTRY_DSN: %SENTRY_DSN%
+  FRONTEND_URL: %FRONTEND_URL%
+  ERROR_ENVIRONMENT: %ERROR_ENVIRONMENT_DSN_PRODUCTION%
+  ERROR_REPORT: "true"
+  APP_STORAGE_PUBLIC_URL: %APP_STORAGE_PUBLIC_URL%
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sapawarga-backend-secret
+  namespace: sapawarga
+data:
+  COOKIE_VALIDATION_KEY: %COOKIE_VALIDATION_KEY% # K0I9yOJPLBqbaam4IWrqtelfxp1m1zEXB04f5H6D
+  MYSQL_USER: %MYSQL_USER% # Base64 decoded=mysqluser
+  MYSQL_PASSWORD: %MYSQL_PASSWORD% # Base64 decoded=asdf1234
+  MYSQL_ROOT_PASSWORD: %MYSQL_ROOT_PASSWORD% # Base64 decoded=asdf1234
+  FCM_KEY: %FCM_KEY%
+  # CACHE_USERNAME:
+  # CACHE_PASSWORD:
+  MAILER_USER: %MAILER_USER%
+  MAILER_PASSWORD: %MAILER_PASSWORD%
+  MAILER_ENCRYPTION: %MAILER_ENCRYPTION%
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: regcred
+  namespace: sapawarga
+data:
+  .dockerconfigjson: %dockerconfigjson% # Base64 decoded={"auths": {"your.registry.host": {"auth": "username:password"}}}
+type: kubernetes.io/dockerconfigjson
