@@ -2,6 +2,7 @@
 
 namespace Jdsteam\Sapawarga\Jobs;
 
+use Yii;
 use yii\base\BaseObject;
 use yii\queue\JobInterface;
 
