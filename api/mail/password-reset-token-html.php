@@ -16,12 +16,6 @@
                 <br />Silahkan klik link berikut ini untuk membuat password baru Anda:
                 <br /><br />
                 <a href="<?=Html::encode($resetURL);?>"><?=$resetURL;?></a>
-                <br />
-                <br />
-                <br />Terima kasih,
-                <br />Admin Sapawarga
-                <br />No. Telp: 081212124023
-                <br />Email: <a href = "mailto: sapawarga@jabarprov.go.id">sapawarga@jabarprov.go.id</a>
             </div>
         </td>
     </tr>

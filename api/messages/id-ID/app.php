@@ -30,7 +30,9 @@ return [
     'error.password.old.empty' => 'Masukan kata sandi lama anda.',
     'error.password.old.incorrect' => 'Kata sandi lama anda salah.',
     'error.password.confirmation.incorect' => 'Kata sandi konfirmasi anda salah.',
-    'error.password.old.same' => 'Kata sandi baru sama tidak boleh sama dengan password lama.',
+    'error.password.old.same' => 'Kata sandi baru tidak boleh sama dengan kata sandi lama.',
+    'error.empty.internalfill' => 'Silahkan mengisi internal entity id  dan internal category',
+    'error.empty.externalfill' => 'Silahkan mengisi link url',
 
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
