@@ -11,20 +11,17 @@
     <tbody>
     <tr>
         <td valign="top" class="mcnTextContent" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: left; padding: 36px; word-break: break-word;">
-            <div style="text-align: center; margin-bottom: 36px">
-                <?=$appName;?>
-            </div>
-            <div style="text-align: left; word-wrap: break-word;">Hello <?= Html::encode($user->username) ?>,<br />
+            <div style="text-align: left; word-wrap: break-word;">Permintaan Reset Password Akun Sapawarga (<?= Html::encode($user->username) ?>)<br />
                 <br />
-                <br />Follow the link below to reset your password:
+                <br />Silahkan klik link berikut ini untuk membuat password baru Anda:
                 <br /><br />
                 <a href="<?=Html::encode($resetURL);?>"><?=$resetURL;?></a>
                 <br />
-                <br />Welcome and thanks!
-                <br />The Team
-                <div class="footer" style="font-size: 0.7em; padding: 0px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: right; color: #777777; line-height: 14px; margin-top: 36px;">© <?=date("Y");?> Company
-                    <br>
-                </div>
+                <br />
+                <br />Terima kasih,
+                <br />Admin Sapawarga
+                <br />No. Telp: 081212124023
+                <br />Email: <a href = "mailto: sapawarga@jabarprov.go.id">sapawarga@jabarprov.go.id</a>
             </div>
         </td>
     </tr>

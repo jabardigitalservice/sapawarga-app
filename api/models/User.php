@@ -46,6 +46,7 @@ use yii\web\Request as WebRequest;
  * @property string $instagram
  * @property string $push_token
  * @property string $last_access_at
+ * @property string $account_confirmed_at
  *
  * @package app\models
  */
@@ -797,6 +798,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
         $this->registration_ip = Yii::$app->request->userIP;
         $this->status = self::STATUS_ACTIVE;
+        $this->account_confirmed_at = new Expression('NOW()');
         $this->save(false);
         $this->touch('confirmed_at');
 

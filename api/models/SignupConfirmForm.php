@@ -28,8 +28,7 @@ class SignupConfirmForm extends Model
                 'targetClass' => '\app\models\User',
                 'filter' => [
                     'and',
-                    ['status' => User::STATUS_PENDING],
-                    'confirmed_at IS NULL',
+                    'account_confirmed_at IS NULL',
                 ],
                 'message' => 'The ID is not valid.'
             ],
@@ -39,12 +38,11 @@ class SignupConfirmForm extends Model
                 'auth_key',
                 'exist',
                 'targetClass' => '\app\models\User',
+                'filter' => [
+                    'and',
+                    'account_confirmed_at IS NULL',
+                ],
                 'message' => 'The auth key is not valid.',
-                'filter' => function ($query) {
-                    $query->andWhere(['status' => User::STATUS_PENDING])
-                        ->andWhere(['id' => $this->id])
-                        ->andWhere('confirmed_at IS NULL');
-                }
             ]
         ];
     }
@@ -66,7 +64,7 @@ class SignupConfirmForm extends Model
             $this->_user->generateAccessTokenAfterUpdatingClientInfo(true);
 
             // Send confirmation email
-            $this->sendSignupSuccessEmail();
+            // $this->sendSignupSuccessEmail();
 
             return true;
         }

@@ -55,7 +55,10 @@ class PasswordResetRequestForm extends Model
             }
         }
 
-        $resetURL = \Yii::$app->params['frontendURL'] . '#/password-reset?token=' . $user->password_reset_token;
+        $resetURL = Yii::$app->params['frontendURL'] . '/#/reset-password?token=' . $user->password_reset_token;
+
+        $fromEmail = Yii::$app->params['adminEmail'];
+        $fromName  = Yii::$app->params['adminEmailName'];
 
         return Yii::$app
             ->mailer
@@ -67,9 +70,9 @@ class PasswordResetRequestForm extends Model
                     'resetURL' => $resetURL,
                 ]
             )
-            ->setFrom([Yii::$app->params['supportEmail'] => \Yii::$app->name])
+            ->setFrom([$fromEmail => $fromName])
             ->setTo($this->email)
-            ->setSubject('Password reset for ' . Yii::$app->name)
+            ->setSubject('Permintaan Reset Password untuk akun Sapawarga ')
             ->send();
     }
 }
