@@ -64,7 +64,7 @@ class SignupConfirmForm extends Model
             $this->_user->generateAccessTokenAfterUpdatingClientInfo(true);
 
             // Send confirmation email
-            $this->sendSignupSuccessEmail();
+            // $this->sendSignupSuccessEmail();
 
             return true;
         }
