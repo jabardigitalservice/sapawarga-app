@@ -53,7 +53,8 @@ class Banner extends ActiveRecord
             [['title', 'image_path', 'type', 'link_url', 'internal_entity_name'], 'safe'],
 
             ['type', 'in', 'range' => ['internal', 'external']],
-            ['type', 'validateType'],
+            ['type', 'validateTypeInternal'],
+            ['type', 'validateTypeExternal'],
 
             ['link_url', 'url'],
             ['internal_category', 'in', 'range' => ['news', 'polling', 'survey']],
@@ -140,14 +141,17 @@ class Banner extends ActiveRecord
         ];
     }
 
-    public function validateType($attribute, $params)
+    public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
             if (empty($this->internal_entity_id) && empty($this->internal_category)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }
+    }
 
+    public function validateTypeExternal($attribute, $params)
+    {
         if ($this->type === 'external') {
             if (empty($this->link_url)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.externalfill'));
