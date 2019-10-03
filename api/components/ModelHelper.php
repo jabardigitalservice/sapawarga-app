@@ -64,12 +64,12 @@ class ModelHelper
             'category_id' => $category_id,
             'title'=> $title,
             'description'=> $description,
-            'kabkota_id'=> $target['kabkota_id'],
-            'kec_id'=> $target['kec_id'],
-            'kel_id'=> $target['kel_id'],
-            'rw'=> $target['rw'],
+            'kabkota_id'=> $target['kabkota_id'] ?: null,
+            'kec_id'=> $target['kec_id'] ?: null,
+            'kel_id'=> $target['kel_id'] ?: null,
+            'rw'=> $target['rw'] ?: null,
             'status'=> Notification::STATUS_PUBLISHED,
-            'meta' => $meta
+            'meta' => $meta,
         ]);
         $notifModel->save(false);
     }
