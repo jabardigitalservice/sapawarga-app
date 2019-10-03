@@ -122,7 +122,7 @@ class BannerController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|\app\models\News
+     * @return mixed|\app\models\Banner
      * @throws \yii\web\NotFoundHttpException
      */
     public function findModel($id)
