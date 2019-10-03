@@ -26,6 +26,10 @@ class SignupConfirmForm extends Model
                 'id',
                 'exist',
                 'targetClass' => '\app\models\User',
+                'filter' => [
+                    'and',
+                    'account_confirmed_at IS NULL',
+                ],
                 'message' => 'The ID is not valid.'
             ],
             ['auth_key', 'string', 'length' => 32],
@@ -34,6 +38,10 @@ class SignupConfirmForm extends Model
                 'auth_key',
                 'exist',
                 'targetClass' => '\app\models\User',
+                'filter' => [
+                    'and',
+                    'account_confirmed_at IS NULL',
+                ],
                 'message' => 'The auth key is not valid.',
             ]
         ];
