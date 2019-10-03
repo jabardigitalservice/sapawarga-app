@@ -45,21 +45,22 @@ class Banner extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'image_path', 'type', 'link_url', 'internal_category', 'internal_entity_id', 'status'],
-                'required'
-            ],
+            [['title', 'image_path', 'type', 'status'],'required'],
             ['title', 'string', 'max' => 200],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
             [['title', 'image_path', 'type', 'link_url'], 'trim'],
             [['title', 'image_path', 'type', 'link_url'], 'safe'],
 
-            ['link_url', 'url'],
-
-            [['status', 'internal_entity_id'], 'integer'],
-            ['status', 'in', 'range' => [-1, 0, 10]],
-            ['internal_category', 'in', 'range' => ['survey', 'polling', 'news']],
             ['type', 'in', 'range' => ['internal', 'external']],
+            ['type', 'validateType'],
+
+            ['link_url', 'url'],
+            ['internal_category', 'in', 'range' => ['survey', 'polling', 'news']],
+            [['status', 'internal_entity_id'], 'integer'],
+
+            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_DISABLED, self::STATUS_ACTIVE]],
+
         ];
     }
 
@@ -136,5 +137,20 @@ class Banner extends ActiveRecord
             ],
             BlameableBehavior::class,
         ];
+    }
+
+    public function validateType($attribute, $params)
+    {
+        if ($this->type === 'internal') {
+            if (empty($this->internal_entity_id) && empty($this->internal_category)) {
+                $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
+            }
+        }
+
+        if ($this->type === 'external') {
+            if (empty($this->link_url)) {
+                $this->addError($attribute, Yii::t('app', 'error.empty.externalfill'));
+            }
+        }
     }
 }

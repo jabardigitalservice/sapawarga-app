@@ -44,8 +44,7 @@ class m190929_114525_insert_rbac_banners extends CustomMigration
         $auth = Yii::$app->authManager;
 
         // Manage permission
-        $bannerManagePermission = $auth->createPermission('bannerManage');
-        $bannerManagePermission->description = 'Get Banner Manage';
+        $bannerManagePermission = $auth->getPermission('bannerManage');
         $auth->remove($bannerManagePermission);
 
         $role = $auth->getRole('admin');
