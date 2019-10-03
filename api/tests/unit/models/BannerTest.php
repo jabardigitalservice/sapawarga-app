@@ -73,27 +73,6 @@ class BannerTest extends Unit
         $this->assertTrue($model->hasErrors('internal_entity_id'));
     }
 
-    public function testUrlRequired()
-    {
-        $model = new Banner();
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('link_url'));
-
-        $model->link_url = '';
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('link_url'));
-
-        $model->link_url = 'http://google.com';
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('link_url'));
-    }
-
     public function testUrlScheme()
     {
         $model = new Banner();
@@ -131,7 +110,8 @@ class BannerTest extends Unit
 
         $this->assertTrue($model->hasErrors('type'));
 
-        $model->type = 'internal';
+        $model->type = 'external';
+        $model->link_url = 'http://google.com';
 
         $model->validate();
 

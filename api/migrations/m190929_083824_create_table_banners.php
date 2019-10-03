@@ -19,6 +19,7 @@ class m190929_083824_create_table_banners extends CustomMigration
             'link_url' => $this->string()->null(),
             'internal_category' => $this->string()->null(),
             'internal_entity_id' => $this->integer()->null(),
+            'internal_entity_name' => $this->string()->null(),
             'status' => $this->integer()->notNull(),
             'created_by' => $this->integer()->notNull(),
             'created_at' => $this->integer()->notNull(),

@@ -79,6 +79,7 @@ class BannerCest
             'type' => 'internal',
             'internal_category' => 'news',
             'internal_entity_id' => 1,
+            'internal_entity_name' => 'Judul News',
             'link_url' => 'https://google.com/',
             'status' => 10,
         ];
@@ -98,6 +99,7 @@ class BannerCest
             'type' => 'internal',
             'internal_category' => 'news',
             'internal_entity_id' => 1,
+            'internal_entity_name' => 'Judul News',
             'link_url' => 'https://google.com/',
             'status' => 10,
         ]);

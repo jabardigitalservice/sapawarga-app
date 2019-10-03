@@ -49,18 +49,17 @@ class Banner extends ActiveRecord
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
-            [['title', 'image_path', 'type', 'link_url'], 'trim'],
-            [['title', 'image_path', 'type', 'link_url'], 'safe'],
+            [['title', 'image_path', 'type', 'link_url', 'internal_entity_name'], 'trim'],
+            [['title', 'image_path', 'type', 'link_url', 'internal_entity_name'], 'safe'],
 
             ['type', 'in', 'range' => ['internal', 'external']],
             ['type', 'validateType'],
 
             ['link_url', 'url'],
-            ['internal_category', 'in', 'range' => ['survey', 'polling', 'news']],
+            ['internal_category', 'in', 'range' => ['news', 'polling', 'survey']],
             [['status', 'internal_entity_id'], 'integer'],
 
             ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_DISABLED, self::STATUS_ACTIVE]],
-
         ];
     }
 
@@ -78,6 +77,7 @@ class Banner extends ActiveRecord
             'link_url',
             'internal_category',
             'internal_entity_id',
+            'internal_entity_name',
             'status',
             'status_label' => function () {
                 return $this->getStatusLabel();
@@ -121,6 +121,7 @@ class Banner extends ActiveRecord
             'link_url' => 'URL',
             'internal_category' => 'Internal kategori',
             'internal_entity_id' => 'Internal ID',
+            'internal_entity_name' => 'Internal Entity Name',
             'status' => 'Status',
         ];
     }
