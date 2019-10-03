@@ -46,7 +46,7 @@ class Banner extends ActiveRecord
     {
         return [
             [['title', 'image_path', 'type', 'status'],'required'],
-            ['title', 'string', 'max' => 200],
+            ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
             [['title', 'image_path', 'type', 'link_url'], 'trim'],
