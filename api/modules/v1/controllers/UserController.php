@@ -359,8 +359,8 @@ class UserController extends ActiveController
     public function actionPasswordResetRequest()
     {
         $model = new PasswordResetRequestForm();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        $model->load(Yii::$app->request->post());
         if ($model->validate() && $model->sendPasswordResetEmail()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
