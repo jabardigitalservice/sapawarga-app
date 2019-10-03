@@ -160,7 +160,7 @@ deploy_prod_eks:
     - kubectl config set-context default --cluster=k8s --user=gitlab
     - kubectl config use-context default
     - kubectl cluster-info
-    - cp kubernetes/backend-variables-sample-tmp.yaml kubernetes/backend-variables.yaml
+    - cp kubernetes/backend-variables-sample-v1.yaml kubernetes/backend-variables.yaml
     - cat kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${EKS_APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_PUBLIC_URL%/${EKS_APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
@@ -181,7 +181,6 @@ deploy_prod_eks:
     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
-    # AWS 
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     - cat kubernetes/backend-variables.yaml
