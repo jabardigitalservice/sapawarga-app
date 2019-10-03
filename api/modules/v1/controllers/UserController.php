@@ -16,6 +16,7 @@ use app\models\UserChangeProfileForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Intervention\Image\ImageManager;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -69,6 +70,10 @@ class UserController extends ActiveController
                 'me-change-password' => ['post'],
                 'me-change-profile' => ['post'],
             ],
+        ];
+
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
         ];
 
         // remove authentication filter
@@ -323,8 +328,8 @@ class UserController extends ActiveController
     public function actionConfirm()
     {
         $model = new SignupConfirmForm();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        $model->load(Yii::$app->request->post());
         if ($model->validate() && $model->confirm()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
@@ -354,8 +359,8 @@ class UserController extends ActiveController
     public function actionPasswordResetRequest()
     {
         $model = new PasswordResetRequestForm();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        $model->load(Yii::$app->request->post());
         if ($model->validate() && $model->sendPasswordResetEmail()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
@@ -408,8 +413,8 @@ class UserController extends ActiveController
     public function actionPasswordReset()
     {
         $model = new PasswordResetForm();
-        $model->load(Yii::$app->request->post());
-
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        
         if ($model->validate() && $model->resetPassword()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);

@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Jdsteam\Sapawarga\Jobs\EmailJob;
+use Jdsteam\Sapawarga\Jobs\SendConfirmationEmailJob;
 use Yii;
 use yii\base\Model;
 
@@ -104,7 +104,7 @@ class UserChangeProfileForm extends Model
 
     public function sendConfirmationEmail()
     {
-        Yii::$app->queue->push(new EmailJob([
+        Yii::$app->queue->push(new SendConfirmationEmailJob([
             'user' => $this->_user,
             'email' => $this->email,
         ]));
