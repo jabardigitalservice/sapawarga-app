@@ -27,12 +27,6 @@
                 <br />
                 <br />Silahkan klik link berikut ini untuk melakukan verifikasi pada akun Sapawarga:
                 <br /><a href="<?=Html::encode($confirmURL);?>"><?=$confirmURL;?></a>
-
-                <br />
-                <br />Terima kasih,
-                <br />Admin Sapawarga
-                <br />No. Telp: 081212124023
-                <br />Email: <a href = "mailto: sapawarga@jabarprov.go.id">sapawarga@jabarprov.go.id</a>
             </div>
         </td>
     </tr>
