@@ -19,7 +19,7 @@
                 <br />Terima kasih telah melakukan update profil Anda pada aplikasi Sapawarga. Berikut ini data yang telah Anda update:
 
                 <br />
-                <br />Nama : <?=$name;?>
+                <br />Nama: <?=$name;?>
                 <br />Email: <?=$email;?>
                 <br />Nomor Telepon: <?=$phone;?>
                 <br />Alamat: <?=$address;?>
