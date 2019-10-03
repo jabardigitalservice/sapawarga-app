@@ -10,6 +10,9 @@ class EmailJob extends BaseObject implements JobInterface
 {
     public function execute($queue)
     {
+        $fromEmail = Yii::$app->params['adminEmail'];
+        $fromName  = Yii::$app->params['adminEmailName'];
+
         Yii::$app->mailer
             ->compose(
                 ['html' => 'test-email-html'],
@@ -17,8 +20,8 @@ class EmailJob extends BaseObject implements JobInterface
                     'appName' => Yii::$app->name,
                 ]
             )
-            ->setFrom('from@domain.com')
-            ->setTo('to@domain.com')
+            ->setFrom([$fromEmail => $fromName])
+            ->setTo('yohang88@gmail.com')
             ->setSubject('Message subject')
             ->send();
     }

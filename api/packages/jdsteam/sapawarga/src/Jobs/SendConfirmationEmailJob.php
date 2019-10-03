@@ -13,6 +13,9 @@ class SendConfirmationEmailJob extends BaseObject implements JobInterface
 
     public function execute($queue)
     {
+        $fromEmail = Yii::$app->params['adminEmail'];
+        $fromName  = Yii::$app->params['adminEmailName'];
+
         $confirmURL = \Yii::$app->params['frontendURL'] . '/#/confirm?id=' . $this->user->id . '&auth_key=' . $this->user->auth_key;
 
         $email = \Yii::$app->mailer
@@ -28,8 +31,8 @@ class SendConfirmationEmailJob extends BaseObject implements JobInterface
                 ]
             )
             ->setTo($this->email)
-            ->setFrom([\Yii::$app->params['supportEmail'] => 'Tim Sapawarga'])
-            ->setSubject('Update dan verifikasi email akun Sapawarga')
+            ->setFrom([$fromEmail => $fromName])
+            ->setSubject('Update Profil dan Verifikasi Email Akun Sapawarga')
             ->send();
 
         return $email;
