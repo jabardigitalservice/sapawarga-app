@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\Attachment\AspirasiPhotoForm;
 use app\models\Attachment\NewsPhotoForm;
 use app\models\Attachment\PhoneBookPhotoForm;
+use app\models\Attachment\BannerPhotoForm;
 use app\models\AttachmentForm;
 use app\models\UserPhotoUploadForm;
 use Illuminate\Support\Arr;
