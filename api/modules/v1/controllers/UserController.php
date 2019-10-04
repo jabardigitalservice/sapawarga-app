@@ -386,8 +386,8 @@ class UserController extends ActiveController
     public function actionPasswordResetTokenVerification()
     {
         $model = new PasswordResetTokenVerificationForm();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        $model->load(Yii::$app->request->post());
         if ($model->validate() && $model->validate()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
