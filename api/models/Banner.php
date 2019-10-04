@@ -3,6 +3,8 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -25,11 +27,9 @@ use yii\db\ActiveRecord;
  * @property int $updated_at
  */
 
-class Banner extends ActiveRecord
+class Banner extends ActiveRecord implements ActiveStatus
 {
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_ACTIVE = 10;
+    use HasActiveStatus;
 
     /**
      * {@inheritdoc}
@@ -80,9 +80,7 @@ class Banner extends ActiveRecord
             'internal_entity_id',
             'internal_entity_name',
             'status',
-            'status_label' => function () {
-                return $this->getStatusLabel();
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
             'created_by',
