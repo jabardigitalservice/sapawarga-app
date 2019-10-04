@@ -11,6 +11,10 @@ use yii\data\ActiveDataProvider;
  */
 class BannerSearch extends Banner
 {
+    const SCENARIO_LIST_STAFF = 'list-staff';
+    const SCENARIO_LIST_USER = 'list-user';
+    const LIMIT_LIST_USER = 10;
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -22,7 +26,15 @@ class BannerSearch extends Banner
     {
         $query = Banner::find();
 
-        // filtering conditions
+        if ($this->scenario === self::SCENARIO_LIST_STAFF) {
+            return $this->getQueryListStaff($query, $params);
+        }
+
+        return $this->getQueryListUser($query, $params);
+    }
+
+    protected function getQueryListStaff($query, $params)
+    {
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
         $query->andFilterWhere(['=', 'type', Arr::get($params, 'type')]);
@@ -31,6 +43,14 @@ class BannerSearch extends Banner
         if (Arr::has($params, 'status')) {
             $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
         }
+
+        return $this->getQueryAll($query, $params);
+    }
+
+    protected function getQueryListUser($query, $params)
+    {
+        $params['limit'] = self::LIMIT_LIST_USER;
+        $query->andFilterWhere(['=', 'status', Banner::STATUS_ACTIVE]);
 
         return $this->getQueryAll($query, $params);
     }

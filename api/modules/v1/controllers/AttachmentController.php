@@ -104,6 +104,7 @@ class AttachmentController extends ActiveController
             'phonebook_photo' => PhoneBookPhotoForm::class,
             'aspirasi_photo'  => AspirasiPhotoForm::class,
             'news_photo'      => NewsPhotoForm::class,
+            'banner_photo'    => BannerPhotoForm::class,
             'user_photo'      => UserPhotoUploadForm::class,
         ];
 
