@@ -144,10 +144,12 @@ class BannerController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         $user = Yii::$app->user;
-        $authUserModel = $user->identity;
-        $authKabKotaId = $authUserModel->kabkota_id;
 
         $search = new BannerSearch();
+
+        if ($user->can('bannerManage') === true) {
+            $search->scenario = BannerSearch::SCENARIO_LIST_STAFF;
+        }
 
         return $search->search($params);
     }
