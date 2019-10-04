@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
@@ -33,6 +34,7 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
     use HasActiveStatus, HasCategory;
 
     const CATEGORY_TYPE = 'newsHoax';
+    const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}
@@ -140,5 +142,28 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
                 'attribute' => 'title',
             ],
         ];
+    }
+
+    /** @inheritdoc */
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (!YII_ENV_TEST) {
+            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+
+            if ($isSendNotification) {
+                $categoryName = Notification::CATEGORY_LABEL_NEWSHOAX;
+                $title = "{$categoryName}: {$this->title}";
+                $description = null;
+                $target = [];
+                $meta = [
+                    'target'=> 'saber-hoax',
+                    'id'=>$this->id
+                ];
+
+                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
+            }
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
     }
 }
