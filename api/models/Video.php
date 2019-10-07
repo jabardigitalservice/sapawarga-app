@@ -131,23 +131,21 @@ class Video extends ActiveRecord implements ActiveStatus
     /** @inheritdoc */
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
-            if ($isSendNotification) {
-                $categoryName = Notification::CATEGORY_LABEL_VIDEO;
-                $title = "{$categoryName}: {$this->title}";
-                $description = null;
-                $target = [
-                    'kabkota_id'=> $this->kabkota_id,
-                ];
-                $meta = [
-                    'target'    => 'url',
-                    'url'       => $this->video_url,
-                ];
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_VIDEO;
+            $title = "{$categoryName}: {$this->title}";
+            $description = null;
+            $target = [
+                'kabkota_id'=> $this->kabkota_id,
+            ];
+            $meta = [
+                'target'    => 'url',
+                'url'       => $this->video_url,
+            ];
 
-                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
-            }
+            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
         }
 
         return parent::afterSave($insert, $changedAttributes);

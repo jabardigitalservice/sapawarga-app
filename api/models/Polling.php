@@ -199,26 +199,24 @@ class Polling extends ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
-            if ($isSendNotification) {
-                $categoryName = Notification::CATEGORY_LABEL_POLLING;
-                $title = "{$categoryName}: {$this->name}";
-                $description = $this->description;
-                $target = [
-                    'kabkota_id'=> $this->kabkota_id,
-                    'kec_id'=> $this->kec_id,
-                    'kel_id'=> $this->kel_id,
-                    'rw'=> $this->rw,
-                ];
-                $meta = [
-                    'target'=> 'polling',
-                    'id'=>$this->id
-                ];
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_POLLING;
+            $title = "{$categoryName}: {$this->name}";
+            $description = $this->description;
+            $target = [
+                'kabkota_id'=> $this->kabkota_id,
+                'kec_id'=> $this->kec_id,
+                'kel_id'=> $this->kel_id,
+                'rw'=> $this->rw,
+            ];
+            $meta = [
+                'target'=> 'polling',
+                'id'=>$this->id
+            ];
 
-                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
-            }
+            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
         }
 
         return parent::afterSave($insert, $changedAttributes);

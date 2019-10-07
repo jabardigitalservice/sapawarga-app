@@ -123,26 +123,24 @@ class Survey extends ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
-            if ($isSendNotification) {
-                $categoryName = Notification::CATEGORY_LABEL_SURVEY;
-                $title = "{$categoryName}: {$this->title}";
-                $description = null;
-                $target = [
-                    'kabkota_id'=> $this->kabkota_id,
-                    'kec_id'=> $this->kec_id,
-                    'kel_id'=> $this->kel_id,
-                    'rw'=> $this->rw,
-                ];
-                $meta = [
-                    'target'=> 'survey',
-                    'url'=>$this->external_url
-                ];
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_SURVEY;
+            $title = "{$categoryName}: {$this->title}";
+            $description = null;
+            $target = [
+                'kabkota_id'=> $this->kabkota_id,
+                'kec_id'=> $this->kec_id,
+                'kel_id'=> $this->kel_id,
+                'rw'=> $this->rw,
+            ];
+            $meta = [
+                'target'=> 'survey',
+                'url'=>$this->external_url
+            ];
 
-                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
-            }
+            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
         }
 
         return parent::afterSave($insert, $changedAttributes);

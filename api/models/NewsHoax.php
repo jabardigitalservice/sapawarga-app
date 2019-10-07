@@ -147,21 +147,19 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
     /** @inheritdoc */
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
-            if ($isSendNotification) {
-                $categoryName = Notification::CATEGORY_LABEL_NEWSHOAX;
-                $title = "{$categoryName}: {$this->title}";
-                $description = null;
-                $target = [];
-                $meta = [
-                    'target'=> 'saber-hoax',
-                    'id'=>$this->id
-                ];
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_NEWSHOAX;
+            $title = "{$categoryName}: {$this->title}";
+            $description = null;
+            $target = [];
+            $meta = [
+                'target'=> 'saber-hoax',
+                'id'=>$this->id
+            ];
 
-                ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
-            }
+            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
         }
 
         return parent::afterSave($insert, $changedAttributes);

@@ -40,13 +40,16 @@ class ModelHelper
      */
     public static function isSendNotification($insert, $changedAttributes, $model)
     {
-        if ($insert) { // Model is created
-            return $model->status == $model::STATUS_PUBLISHED;
-        } else { // Model is updated
-            if (array_key_exists('status', $changedAttributes)) {
+        if (!YII_ENV_TEST) {
+            if ($insert) { // Model is created
                 return $model->status == $model::STATUS_PUBLISHED;
+            } else { // Model is updated
+                if (array_key_exists('status', $changedAttributes)) {
+                    return $model->status == $model::STATUS_PUBLISHED;
+                }
             }
         }
+        return false;
     }
 
     /**

@@ -241,32 +241,30 @@ class Notification extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
-            if ($isSendNotification) {
-                $this->data = $this->generateData();
-                // By default,  send notification to all users
-                $topic = self::TOPIC_DEFAULT;
-                if ($this->kel_id && $this->rw) {
-                    $topic = "{$this->kel_id}_{$this->rw}";
-                } elseif ($this->kel_id) {
-                    $topic = (string) $this->kel_id;
-                } elseif ($this->kec_id) {
-                    $topic = (string) $this->kec_id;
-                } elseif ($this->kabkota_id) {
-                    $topic = (string) $this->kabkota_id;
-                }
-
-                $notifModel = new Message();
-                $notifModel->setAttributes([
-                    'title'         => $this->title,
-                    'description'   => $this->description,
-                    'data'          => $this->data,
-                    'topic'         => $topic,
-                ]);
-                $notifModel->send();
+        if ($isSendNotification) {
+            $this->data = $this->generateData();
+            // By default,  send notification to all users
+            $topic = self::TOPIC_DEFAULT;
+            if ($this->kel_id && $this->rw) {
+                $topic = "{$this->kel_id}_{$this->rw}";
+            } elseif ($this->kel_id) {
+                $topic = (string) $this->kel_id;
+            } elseif ($this->kec_id) {
+                $topic = (string) $this->kec_id;
+            } elseif ($this->kabkota_id) {
+                $topic = (string) $this->kabkota_id;
             }
+
+            $notifModel = new Message();
+            $notifModel->setAttributes([
+                'title'         => $this->title,
+                'description'   => $this->description,
+                'data'          => $this->data,
+                'topic'         => $topic,
+            ]);
+            $notifModel->send();
         }
 
         return parent::afterSave($insert, $changedAttributes);
