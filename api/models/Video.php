@@ -135,17 +135,20 @@ class Video extends ActiveRecord implements ActiveStatus
 
         if ($isSendNotification) {
             $categoryName = Notification::CATEGORY_LABEL_VIDEO;
-            $title = "{$categoryName}: {$this->title}";
-            $description = null;
-            $target = [
-                'kabkota_id'=> $this->kabkota_id,
-            ];
-            $meta = [
-                'target'    => 'url',
-                'url'       => $this->video_url,
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "{$categoryName}: {$this->title}",
+                'description'   => null,
+                'target'        => [
+                    'kabkota_id'    => $this->kabkota_id,
+                ],
+                'meta'          => [
+                    'target'    => 'url',
+                    'url'       => $this->video_url,
+                ],
             ];
 
-            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
+            ModelHelper::sendNewContentNotification($payload);
         }
 
         return parent::afterSave($insert, $changedAttributes);

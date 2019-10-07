@@ -151,15 +151,18 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
 
         if ($isSendNotification) {
             $categoryName = Notification::CATEGORY_LABEL_NEWSHOAX;
-            $title = "{$categoryName}: {$this->title}";
-            $description = null;
-            $target = [];
-            $meta = [
-                'target'=> 'saber-hoax',
-                'id'=>$this->id
+            $payload = [
+                'categoryName' => $categoryName,
+                'title'        => "{$categoryName}: {$this->title}",
+                'description'  => null,
+                'target'       => [],
+                'meta'         => [
+                    'target'    => 'saber-hoax',
+                    'id'        => $this->id,
+                ],
             ];
 
-            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
+            ModelHelper::sendNewContentNotification($payload);
         }
 
         return parent::afterSave($insert, $changedAttributes);

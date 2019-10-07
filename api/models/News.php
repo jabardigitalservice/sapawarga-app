@@ -185,17 +185,20 @@ class News extends ActiveRecord implements ActiveStatus
 
         if ($isSendNotification) {
             $categoryName = Notification::CATEGORY_LABEL_NEWS;
-            $title = "{$categoryName}: {$this->title}";
-            $description = null;
-            $target = [
-                'kabkota_id'=> $this->kabkota_id,
-            ];
-            $meta = [
-                'target'=> 'news',
-                'id'=>$this->id
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "{$categoryName}: {$this->title}",
+                'description'   => null,
+                'target'        => [
+                    'kabkota_id'    => $this->kabkota_id,
+                ],
+                'meta'          => [
+                    'target'    => 'news',
+                    'id'        => $this->id,
+                ],
             ];
 
-            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
+            ModelHelper::sendNewContentNotification($payload);
         }
 
         return parent::afterSave($insert, $changedAttributes);

@@ -127,20 +127,23 @@ class Survey extends ActiveRecord
 
         if ($isSendNotification) {
             $categoryName = Notification::CATEGORY_LABEL_SURVEY;
-            $title = "{$categoryName}: {$this->title}";
-            $description = null;
-            $target = [
-                'kabkota_id'=> $this->kabkota_id,
-                'kec_id'=> $this->kec_id,
-                'kel_id'=> $this->kel_id,
-                'rw'=> $this->rw,
-            ];
-            $meta = [
-                'target'=> 'survey',
-                'url'=>$this->external_url
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "{$categoryName}: {$this->title}",
+                'description'   => null,
+                'target'        => [
+                    'kabkota_id'    => $this->kabkota_id,
+                    'kec_id'        => $this->kec_id,
+                    'kel_id'        => $this->kel_id,
+                    'rw'            => $this->rw,
+                ],
+                'meta'          => [
+                    'target'    => 'survey',
+                    'url'       => $this->external_url,
+                ],
             ];
 
-            ModelHelper::sendNewContentNotification($categoryName, $title, $description, $target, $meta);
+            ModelHelper::sendNewContentNotification($payload);
         }
 
         return parent::afterSave($insert, $changedAttributes);

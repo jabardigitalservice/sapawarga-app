@@ -43,10 +43,10 @@ class ModelHelper
         if (!YII_ENV_TEST) {
             if ($insert) { // Model is created
                 return $model->status == $model::STATUS_PUBLISHED;
-            } else { // Model is updated
-                if (array_key_exists('status', $changedAttributes)) {
-                    return $model->status == $model::STATUS_PUBLISHED;
-                }
+            }
+            // Model is updated
+            if (array_key_exists('status', $changedAttributes)) {
+                return $model->status == $model::STATUS_PUBLISHED;
             }
         }
         return false;
@@ -55,24 +55,34 @@ class ModelHelper
     /**
      * Create a new notification to mobile app, notifying new content
      *
-     * @param $categoryName
-     * @param $model
-     * @param $meta
+     * @param array $payload
+     * $payload = [
+     *     'categoryName'
+     *     'title'
+     *     'description'
+     *     'target'      => [
+     *         'kabkota_id'
+     *         'kec_id'
+     *         'kel_id'
+     *         'rw'
+     *     ]
+     *     'meta' => []
+     * ]
      */
-    public static function sendNewContentNotification($categoryName, $title, $description, $target, $meta)
+    public static function sendNewContentNotification($payload)
     {
-        $category_id = Category::findOne(['name' => $categoryName])->id;
+        $category_id = Category::findOne(['name' => $payload['categoryName']])->id;
         $notifModel = new Notification();
         $notifModel->setAttributes([
             'category_id' => $category_id,
-            'title'=> $title,
-            'description'=> $description,
-            'kabkota_id'=> Arr::get($target, 'kabkota_id', null),
-            'kec_id'=> Arr::get($target, 'kec_id', null),
-            'kel_id'=> Arr::get($target, 'kel_id', null),
-            'rw'=> Arr::get($target, 'rw', null),
+            'title'=> $payload['title'],
+            'description'=> $payload['description'],
+            'kabkota_id'=> Arr::get($payload['target'], 'kabkota_id', null),
+            'kec_id'=> Arr::get($payload['target'], 'kec_id', null),
+            'kel_id'=> Arr::get($payload['target'], 'kel_id', null),
+            'rw'=> Arr::get($payload['target'], 'rw', null),
             'status'=> Notification::STATUS_PUBLISHED,
-            'meta' => $meta,
+            'meta' => $payload['meta'],
         ]);
         $notifModel->save(false);
     }
