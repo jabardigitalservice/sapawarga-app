@@ -45,7 +45,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_POLLING    => 'notifikasi',
         self::CATEGORY_LABEL_NEWS       => 'notifikasi',
         self::CATEGORY_LABEL_NEWSHOAX   => 'notifikasi',
-        self::CATEGORY_LABEL_VIDEO      => 'url',
+        self::CATEGORY_LABEL_VIDEO      => 'notifikasi',
         self::CATEGORY_LABEL_UPDATE     => 'url',
     ];
 
