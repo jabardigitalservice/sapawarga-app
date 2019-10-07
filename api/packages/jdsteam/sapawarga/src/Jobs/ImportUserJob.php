@@ -8,16 +8,18 @@ use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 class ImportUserJob extends BaseObject implements JobInterface
 {
-    public $filePath;
+    public $file;
 
     public function execute($queue)
     {
         $reader = ReaderEntityFactory::createCSVReader();
-        $reader->open($this->filePath);
+        $reader->open($this->file);
 
         foreach ($reader->getSheetIterator() as $sheet) {
             foreach ($sheet->getRowIterator() as $row) {
-                //
+                $cells = $row->getCells();
+
+                var_dump($cells); exit;
             }
         }
 
