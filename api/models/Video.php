@@ -36,6 +36,7 @@ class Video extends ActiveRecord implements ActiveStatus
     use HasArea, HasCategory, HasActiveStatus;
 
     const CATEGORY_TYPE = 'video';
+    const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}
@@ -125,5 +126,31 @@ class Video extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
+    }
+
+    /** @inheritdoc */
+    public function afterSave($insert, $changedAttributes)
+    {
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_VIDEO;
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "{$categoryName}: {$this->title}",
+                'description'   => null,
+                'target'        => [
+                    'kabkota_id'    => $this->kabkota_id,
+                ],
+                'meta'          => [
+                    'target'    => 'url',
+                    'url'       => $this->video_url,
+                ],
+            ];
+
+            ModelHelper::sendNewContentNotification($payload);
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
     }
 }
