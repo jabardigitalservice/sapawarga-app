@@ -2,9 +2,8 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use Illuminate\Support\Arr;
-use Yii;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -38,7 +37,7 @@ class CategorySearch extends Category
 
         $sortBy    = Arr::get($params, 'sort_by', 'name');
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
-        $sortOrder = $this->getSortOrder($sortOrder);
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         $pageLimit = Arr::get($params, 'limit');
 
@@ -58,6 +57,7 @@ class CategorySearch extends Category
             return $dataProvider;
         }
 
+        $query->andFilterWhere(['<>', 'status', Category::STATUS_DELETED]);
         $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
         $query->andFilterWhere(['like', 'type', Arr::get($params, 'type')]);
 
@@ -67,18 +67,5 @@ class CategorySearch extends Category
         }
 
         return $dataProvider;
-    }
-
-    protected function getSortOrder($sortOrder)
-    {
-        switch ($sortOrder) {
-            case 'descending':
-                return SORT_DESC;
-                break;
-            case 'ascending':
-            default:
-                return SORT_ASC;
-                break;
-        }
     }
 }
