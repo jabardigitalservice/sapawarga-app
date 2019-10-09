@@ -19,7 +19,7 @@ class m191008_102316_add_trainer_role extends CustomMigration
         $auth->add($trainerRole);
 
         $rwRole = $auth->getRole('staffRW');
-        $auth->addChild($rwRole, $trainerRole);
+        $auth->addChild($trainerRole, $rwRole);
     }
 
     /**
@@ -31,7 +31,7 @@ class m191008_102316_add_trainer_role extends CustomMigration
 
         $trainerRole = $auth->getRole('trainer');
         $rwRole = $auth->getRole('staffRW');
-        $auth->removeChild($rwRole, $trainerRole);
+        $auth->removeChild($trainerRole, $rwRole);
         $auth->remove($trainerRole);
     }
 
