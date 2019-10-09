@@ -34,19 +34,4 @@ class m191008_102316_add_trainer_role extends CustomMigration
         $auth->removeChild($trainerRole, $rwRole);
         $auth->remove($trainerRole);
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m191008_102316_add_trainer_role cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

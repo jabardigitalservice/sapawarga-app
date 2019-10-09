@@ -2,7 +2,6 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\NewsFeatured;
 use app\models\User;
 use app\models\News;
@@ -14,7 +13,6 @@ use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
