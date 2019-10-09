@@ -56,6 +56,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
     // Constants for User's role and status
     const ROLE_USER = 10;
+    const ROLE_TRAINER = 49;
     const ROLE_STAFF_RW = 50;
     const ROLE_STAFF_KEL = 60;
     const ROLE_STAFF_KEC = 70;
@@ -77,6 +78,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         'staffKec' => self::ROLE_STAFF_KEC,
         'staffKel' => self::ROLE_STAFF_KEL,
         'staffRW' => self::ROLE_STAFF_RW,
+        'trainer' => self::ROLE_TRAINER,
         'user' => self::ROLE_USER,
     ];
 
@@ -473,6 +475,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         switch ($this->role) {
             case self::ROLE_USER:
                 $roleLabel = Yii::t('app', 'role.user');
+                break;
+            case self::ROLE_TRAINER:
+                $roleLabel = Yii::t('app', 'role.trainer');
                 break;
             case self::ROLE_STAFF_RW:
                 $roleLabel = Yii::t('app', 'role.staffRW');
@@ -1033,6 +1038,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         switch ($this->role) {
             case self::ROLE_USER:
                 $roleName = 'user';
+                break;
+            case self::ROLE_TRAINER:
+                $roleName = 'trainer';
                 break;
             case self::ROLE_STAFF_RW:
                 $roleName = 'staffRW';

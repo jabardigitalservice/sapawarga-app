@@ -41,6 +41,7 @@ return [
     'role.staffKec' => 'Staff Kecamatan',
     'role.staffKel' => 'Staff Desa/Kelurahan',
     'role.staffRW' => 'RW',
+    'role.trainer' => 'Trainer',
     'role.user' => 'User',
 
     'status.active'   => 'Active',

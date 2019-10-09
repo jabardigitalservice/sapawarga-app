@@ -268,6 +268,7 @@ class UserController extends ActiveController
     {
         $roles = [
             User::ROLE_STAFF_RW,
+            User::ROLE_TRAINER,
             User::ROLE_USER,
         ];
         return $this->login($roles);
@@ -414,7 +415,7 @@ class UserController extends ActiveController
     {
         $model = new PasswordResetForm();
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
-        
+
         if ($model->validate() && $model->resetPassword()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
