@@ -426,7 +426,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
 
         // If role is staff and admin, then return permissions
-        if ($this->role >= self::ROLE_STAFF_RW && $this->role <= self::ROLE_ADMIN) {
+        if ($this->role >= self::ROLE_TRAINER && $this->role <= self::ROLE_ADMIN) {
             $fields['permissions'] = function () {
                 $authManager = Yii::$app->authManager;
 
@@ -971,7 +971,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         if ($this->scenario == self::SCENARIO_REGISTER) {
             // Assign default permissions based on role
             if ($this->role != self::ROLE_STAFF_SABERHOAX) {
-                if ($this->role >= self::ROLE_STAFF_RW && $this->role < self::ROLE_ADMIN) {
+                if ($this->role >= self::ROLE_TRAINER && $this->role < self::ROLE_ADMIN) {
                     $authItem = $authManager->getPermission('manageUsers');
                     $authManager->assign($authItem, $this->getId());
                     // Only assign 'manageStaffs' when role is higher than staffRW
@@ -983,7 +983,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             }
         } elseif (!empty($this->permissions)) {
             // permissions only allow to be entered if the role is staff
-            if ($this->role >= self::ROLE_STAFF_RW && $this->role < self::ROLE_ADMIN) {
+            if ($this->role > self::ROLE_STAFF_RW && $this->role < self::ROLE_ADMIN) {
                 $existingPermissions = $authManager->getPermissionsByUser($this->getId());
                 foreach ($this->permissions as $permissionKey => $permission) {
                     if ($permission['checked'] == true) {

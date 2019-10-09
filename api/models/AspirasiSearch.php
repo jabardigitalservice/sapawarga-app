@@ -151,7 +151,7 @@ class AspirasiSearch extends Aspirasi
         $filterStatusList = [];
 
         // Jika User, hanya bisa melihat yang status published
-        if (in_array($this->user->role, [User::ROLE_USER, User::ROLE_STAFF_RW])) {
+        if (in_array($this->user->role, [User::ROLE_USER, User::ROLE_STAFF_RW, User::ROLE_TRAINER])) {
             $filterStatusList = [
                 Aspirasi::STATUS_PUBLISHED,
             ];

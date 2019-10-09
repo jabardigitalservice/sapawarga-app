@@ -328,6 +328,7 @@ class StaffController extends ActiveController
             User::ROLE_STAFF_KEC => ['level' => 'kec', 'name' => 'Kecamatan'],
             User::ROLE_STAFF_KEL => ['level' => 'kel', 'name' => 'Desa/Kelurahan'],
             User::ROLE_STAFF_RW => ['level' => 'rw', 'name' => 'RW'],
+            User::ROLE_TRAINER => ['level' => 'trainer', 'name' => 'Pelatih/PLD'],
         ];
 
         $currentUser = User::findIdentity(\Yii::$app->user->getId());
