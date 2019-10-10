@@ -143,6 +143,91 @@ deploy_staging_aws:
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
 
+
+deploy_staging_eks:
+  stage: deploy_staging_eks
+  image: dtzar/helm-kubectl
+  when: manual
+  environment:
+    name: staging
+  only:
+    - branches
+  dependencies:
+    - versioning
+  before_script:
+    - export VERSION=$(cat ./version)
+    - kubectl config set-cluster k8s --server="${EKS_SERVER_V2}"
+    - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA_V2}
+    - kubectl config set-credentials gitlab-eks-admin-development --token="${EKS_TOKEN_V2}"
+    - kubectl config set-context default --cluster=k8s --user=gitlab-eks-admin-development
+    - kubectl config use-context default
+    - kubectl cluster-info
+  script:
+    - cp kubernetes/backend-variables-sample-v1.yaml kubernetes/backend-variables.yaml
+    - cat kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
+
+    # Mysql STAGING #
+    - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+    # Push Notif Staging #
+    - sed -i "s/%FCM_KEY%/${FCM_KEY_STAGING}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
+
+    # Sentry STAGING
+    - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_STAGING}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
+
+    # Mailer STAGING #
+    - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_USER%/${MAILER_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
+
+    # AWS S3 STAGING#
+    - sed -i "s/%APP_STORAGE_FS%/${APP_STORAGE_FS}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_PUBLIC_URL%/${APP_STORAGE_PUBLIC_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_S3_BUCKET_REGION%/${APP_STORAGE_S3_BUCKET_REGION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
+
+    # Versioning api
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
+    - cat kubernetes/backend-variables.yaml
+    - cat kubernetes/backend-api-deployment.yaml
+    - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
+        -f kubernetes/backend-mysql-pv-claim.yaml
+        -f kubernetes/backend-mysql-deployment.yaml
+        -f kubernetes/backend-mysql-service.yaml
+        -f kubernetes/backend-api-pv-claim.yaml
+        -f kubernetes/backend-api-deployment.yaml
+        -f kubernetes/backend-api-service.yaml
+        -f kubernetes/backend-memcached-deployment.yaml
+        -f kubernetes/backend-memcached-service.yaml
+    - kubectl apply -f kubernetes/backend-variables.yaml
+        -f kubernetes/backend-mysql-pv-claim.yaml
+        -f kubernetes/backend-mysql-deployment.yaml
+        -f kubernetes/backend-mysql-service.yaml
+        -f kubernetes/backend-api-pv-claim.yaml
+        -f kubernetes/backend-api-deployment.yaml
+        -f kubernetes/backend-api-service.yaml
+        -f kubernetes/backend-memcached-deployment.yaml
+        -f kubernetes/backend-memcached-service.yaml
+    - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-job.yaml
+
+
 deploy_prod_eks:
   stage: deploy_prod
   image: dtzar/helm-kubectl
@@ -231,6 +316,7 @@ deploy_prod_eks_v2:
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${EKS_APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
+    # MYSQL PRODUCTION #
     - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
@@ -240,14 +326,14 @@ deploy_prod_eks_v2:
     - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
-    # Mailer Replace
+    # Mailer PRODUCTION
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_USER%/${MAILER_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
-    # AWS S3 Replace #
+    # AWS S3 PRODUCTION #
     - sed -i "s/%APP_STORAGE_FS%/${APP_STORAGE_FS}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_PUBLIC_URL%/${APP_STORAGE_PUBLIC_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_BUCKET_REGION%/${APP_STORAGE_S3_BUCKET_REGION}/g" kubernetes/backend-variables.yaml
