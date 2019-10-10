@@ -172,6 +172,7 @@ deploy_staging_eks:
     # Mysql STAGING #
     - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
 
@@ -255,6 +256,7 @@ deploy_prod_eks:
     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_HOST%/${AWS_PROD_MYSQL_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${AWS_PROD_MYSQL_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD%/${AWS_PROD_MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
@@ -323,6 +325,7 @@ deploy_prod_eks_v2:
     - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
