@@ -170,7 +170,7 @@ deploy_staging_eks:
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
 
     # Mysql STAGING #
-    - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST_STAGING}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
