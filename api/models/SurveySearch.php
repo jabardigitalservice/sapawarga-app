@@ -42,7 +42,7 @@ class SurveySearch extends Survey
                 ['and',
                 ['is', 'kabkota_id', NULL],
                 ['is', 'kec_id', NULL],
-                ['is', 'kel_id', NULL]],
+                ['is', 'kel_id', NULL],
                 ['is', 'rw', NULL]]
             );
         }
