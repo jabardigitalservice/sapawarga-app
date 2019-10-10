@@ -198,8 +198,8 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_S3_BUCKET_REGION%/${APP_STORAGE_S3_BUCKET_REGION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
-    - echo ${APP_STORAGE_S3_KEY}
-    - echo ${APP_STORAGE_S3_SECRET}
+    - echo "${APP_STORAGE_S3_KEY}"
+    - echo "${APP_STORAGE_S3_SECRET}"
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
     # Versioning api
