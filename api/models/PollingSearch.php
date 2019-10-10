@@ -50,12 +50,23 @@ class PollingSearch extends Polling
     {
         $query = Polling::find()->with('category', 'kelurahan', 'kecamatan', 'kabkota', 'answers');
 
+        $allLocation = Arr::get($params, 'all_location');
+
         // Filtering
         $query->andFilterWhere(['like', 'name', Arr::get($params, 'title')]);
 
         $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
 
         $this->filterByStatus($query, $params);
+
+        if ($allLocation == 'true') {
+            $query->andWhere(
+                ['and',
+                ['is', 'kabkota_id', NULL],
+                ['is', 'kec_id', NULL],
+                ['is', 'kel_id', NULL]]
+            );
+        }
 
         $query = ModelHelper::filterByArea($query, $params);
 

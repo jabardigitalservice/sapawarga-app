@@ -30,7 +30,8 @@ class NewsSearch extends News
         $query->andFilterWhere(['id' => $this->id]);
 
         $filterChannelId = Arr::get($params, 'channel_id');
-        $searchKeyword   = Arr::get($params, 'search');
+        $searchKeyword = Arr::get($params, 'search');
+        $allLocation = Arr::get($params, 'all_location');
 
         $this->filterByKabkota($query, $params);
 
@@ -42,6 +43,10 @@ class NewsSearch extends News
 
         if (Arr::has($params, 'status')) {
             $query->andFilterWhere(['news.status' => Arr::get($params, 'status')]);
+        }
+
+        if ($allLocation == 'true') {
+            $query->andWhere(['is', 'news.kabkota_id', NULL]);
         }
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
