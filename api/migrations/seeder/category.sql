@@ -30,4 +30,7 @@ VALUES
     ('newsHoax','Misinformasi',NULL,10,1557803314,1557803314),
     ('newsHoax','Fakta',NULL,10,1557803314,1557803314),
     ('newsHoax','Berita',NULL,10,1557803314,1557803314),
-    ('newsHoax','Klarifikasi',NULL,10,1557803314,1557803314);
+    ('newsHoax','Klarifikasi',NULL,10,1557803314,1557803314),
+    ('notification','Berita Terbaru',NULL,10,1557803314,1557803314),
+    ('notification','Berita Counter Hoaks Terbaru',NULL,10,1557803314,1557803314),
+    ('notification','Video Terbaru',NULL,10,1557803314,1557803314);

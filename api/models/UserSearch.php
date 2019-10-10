@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Carbon\Carbon;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
@@ -22,6 +23,9 @@ class UserSearch extends Model
     public $kel_id;
     public $rw;
 
+    public $last_access_start;
+    public $last_access_end;
+
     public $status;
 
     public $profile_completed;
@@ -34,6 +38,7 @@ class UserSearch extends Model
         return [
             [['search'], 'string', 'max' => 50],
             [['limit', 'status'], 'integer'],
+            [['last_access_start', 'last_access_end'], 'default'],
             [
                 [
                     'name', 'username', 'phone',
@@ -80,6 +85,14 @@ class UserSearch extends Model
         }
         if ($this->rw) {
             $query->andWhere(['rw' => $this->rw]);
+        }
+
+        if ($this->last_access_start && $this->last_access_end) {
+            $lastAccessStart = (new Carbon($this->last_access_start))->startOfDay();
+            $lastAccessEnd   = (new Carbon($this->last_access_end))->endOfDay();
+
+            $query->andWhere(['>=', 'last_access_at', $lastAccessStart]);
+            $query->andWhere(['<=', 'last_access_at', $lastAccessEnd]);
         }
 
         if ($this->search) {

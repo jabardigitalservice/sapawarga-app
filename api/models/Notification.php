@@ -33,6 +33,9 @@ class Notification extends \yii\db\ActiveRecord
 
     const CATEGORY_LABEL_SURVEY = 'Survey Terbaru';
     const CATEGORY_LABEL_POLLING = 'Polling Terbaru';
+    const CATEGORY_LABEL_NEWS = 'Berita Terbaru';
+    const CATEGORY_LABEL_NEWSHOAX = 'Berita Counter Hoaks Terbaru';
+    const CATEGORY_LABEL_VIDEO = 'Video Terbaru';
     const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
 
 
@@ -40,6 +43,9 @@ class Notification extends \yii\db\ActiveRecord
     const TARGET_MAP = [
         self::CATEGORY_LABEL_SURVEY     => 'notifikasi',
         self::CATEGORY_LABEL_POLLING    => 'notifikasi',
+        self::CATEGORY_LABEL_NEWS       => 'notifikasi',
+        self::CATEGORY_LABEL_NEWSHOAX   => 'notifikasi',
+        self::CATEGORY_LABEL_VIDEO      => 'notifikasi',
         self::CATEGORY_LABEL_UPDATE     => 'url',
     ];
 
@@ -235,32 +241,30 @@ class Notification extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST) {
-            $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
-            if ($isSendNotification) {
-                $this->data = $this->generateData();
-                // By default,  send notification to all users
-                $topic = self::TOPIC_DEFAULT;
-                if ($this->kel_id && $this->rw) {
-                    $topic = "{$this->kel_id}_{$this->rw}";
-                } elseif ($this->kel_id) {
-                    $topic = (string) $this->kel_id;
-                } elseif ($this->kec_id) {
-                    $topic = (string) $this->kec_id;
-                } elseif ($this->kabkota_id) {
-                    $topic = (string) $this->kabkota_id;
-                }
-
-                $notifModel = new Message();
-                $notifModel->setAttributes([
-                    'title'         => $this->title,
-                    'description'   => $this->description,
-                    'data'          => $this->data,
-                    'topic'         => $topic,
-                ]);
-                $notifModel->send();
+        if ($isSendNotification) {
+            $this->data = $this->generateData();
+            // By default,  send notification to all users
+            $topic = self::TOPIC_DEFAULT;
+            if ($this->kel_id && $this->rw) {
+                $topic = "{$this->kel_id}_{$this->rw}";
+            } elseif ($this->kel_id) {
+                $topic = (string) $this->kel_id;
+            } elseif ($this->kec_id) {
+                $topic = (string) $this->kec_id;
+            } elseif ($this->kabkota_id) {
+                $topic = (string) $this->kabkota_id;
             }
+
+            $notifModel = new Message();
+            $notifModel->setAttributes([
+                'title'         => $this->title,
+                'description'   => $this->description,
+                'data'          => $this->data,
+                'topic'         => $topic,
+            ]);
+            $notifModel->send();
         }
 
         return parent::afterSave($insert, $changedAttributes);

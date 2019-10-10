@@ -2,7 +2,10 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\SluggableBehavior;
@@ -26,15 +29,11 @@ use yii\db\ActiveRecord;
  * @property array $meta
  * @property int $status
  */
-class News extends ActiveRecord
+class News extends ActiveRecord implements ActiveStatus
 {
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_ACTIVE = 10;
+    use HasActiveStatus;
 
-    const META_DEFAULT = [
-        'read_count' => 0,
-    ];
+    const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}
@@ -124,34 +123,13 @@ class News extends ActiveRecord
             'total_viewers',
             'meta',
             'status',
-            'status_label' => function () {
-                return $this->getStatusLabel();
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
             'created_by',
         ];
 
         return $fields;
-    }
-
-    protected function getStatusLabel()
-    {
-        $statusLabel = '';
-
-        switch ($this->status) {
-            case self::STATUS_ACTIVE:
-                $statusLabel = Yii::t('app', 'status.active');
-                break;
-            case self::STATUS_DISABLED:
-                $statusLabel = Yii::t('app', 'status.inactive');
-                break;
-            case self::STATUS_DELETED:
-                $statusLabel = Yii::t('app', 'status.deleted');
-                break;
-        }
-
-        return $statusLabel;
     }
 
     /**
@@ -198,5 +176,31 @@ class News extends ActiveRecord
         }
 
         return parent::beforeSave($insert);
+    }
+
+    /** @inheritdoc */
+    public function afterSave($insert, $changedAttributes)
+    {
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_NEWS;
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "{$categoryName}: {$this->title}",
+                'description'   => null,
+                'target'        => [
+                    'kabkota_id'    => $this->kabkota_id,
+                ],
+                'meta'          => [
+                    'target'    => 'news',
+                    'id'        => $this->id,
+                ],
+            ];
+
+            ModelHelper::sendNewContentNotification($payload);
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
     }
 }
