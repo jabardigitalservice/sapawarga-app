@@ -228,7 +228,6 @@ deploy_staging_eks:
     - kubectl delete -f kubernetes/backend-queue-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
-    - cat kubernetes/
 
 
 deploy_prod_eks:
