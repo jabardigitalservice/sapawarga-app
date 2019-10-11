@@ -121,7 +121,8 @@ class Category extends ActiveRecord implements ActiveStatus
         if ($request->isPost || $request->isPut) {
             $existingName = Category::find()
                 ->where(['name' => $this->$attribute])
-                ->andWhere(['type' => $this->type]);
+                ->andWhere(['type' => $this->type])
+                ->andWhere(['<>', 'status', Category::STATUS_DELETED]);
 
             return $this->validateNameCreateOrUpdate($request, $existingName, $attribute);
         }
