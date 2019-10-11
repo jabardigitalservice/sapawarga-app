@@ -64,6 +64,18 @@ class CategoryCest
 
     public function getCategoryListAll(ApiTester $I)
     {
+        $I->haveInDatabase('categories', [
+            'type' =>'phonebook',
+            'name' =>'Deleted Category',
+            'status' => -1,
+        ]);
+
+        $I->haveInDatabase('categories', [
+            'type' =>'phonebook',
+            'name' =>'Disabled Category',
+            'status' => 0,
+        ]);
+
         $I->amStaff();
 
         $I->sendGET($this->endpointCategory);
@@ -83,12 +95,20 @@ class CategoryCest
             'type' => 'broadcast',
         ]);
 
+        $I->seeResponseContainsJson([
+            'name' => 'Disabled Category',
+        ]);
+
         $I->cantSeeResponseContainsJson([
             'type' => 'newsHoax',
         ]);
 
         $I->cantSeeResponseContainsJson([
             'type' => 'notification',
+        ]);
+
+        $I->cantSeeResponseContainsJson([
+            'name' => 'Deleted Category',
         ]);
     }
 
