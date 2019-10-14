@@ -29,6 +29,11 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: MYSQL_PASSWORD
+            - name: FCM_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: FCM_KEY
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
