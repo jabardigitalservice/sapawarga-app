@@ -49,6 +49,19 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_UPDATE     => 'url',
     ];
 
+    // Memetakan category name dengan default meta
+    const DEFAULT_META_MAP = [
+        self::CATEGORY_LABEL_SURVEY     => [ 'target'   => 'survey', ],
+        self::CATEGORY_LABEL_POLLING    => [ 'target'   => 'polling', ],
+        self::CATEGORY_LABEL_NEWS       => [ 'target'   => 'news', ],
+        self::CATEGORY_LABEL_NEWSHOAX   => [ 'target'   => 'saber-hoax', ],
+        self::CATEGORY_LABEL_VIDEO      => [ 'target'   => 'home-results', ],
+        self::CATEGORY_LABEL_UPDATE     => [
+            'target'    => 'url',
+            'url'       => self::URL_STORE_ANDROID,
+        ],
+    ];
+
     const URL_STORE_ANDROID = 'https://play.google.com/store/apps/details?id=com.sapawarga.jds';
 
     // Default topic untuk semua user
@@ -307,35 +320,6 @@ class Notification extends \yii\db\ActiveRecord
      */
     protected function generateMeta()
     {
-        switch ($this->category->name) {
-            case self::CATEGORY_LABEL_POLLING:
-                $this->meta = [
-                    'target'    => 'polling',
-                ];
-                break;
-            case self::CATEGORY_LABEL_SURVEY:
-                $this->meta = [
-                    'target'    => 'survey',
-                ];
-                break;
-            case self::CATEGORY_LABEL_UPDATE:
-                $this->meta = [
-                    'target'    => 'url',
-                    'url'       => self::URL_STORE_ANDROID,
-                ];
-                break;
-            case self::CATEGORY_LABEL_NEWS:
-                $this->meta = [
-                    'target'    => 'news',
-                ];
-                break;
-            case self::CATEGORY_LABEL_NEWSHOAX:
-                $this->meta = [
-                    'target'    => 'saber-hoax',
-                ];
-                break;
-            default:
-                break;
-        }
+        $this->meta = self::DEFAULT_META_MAP[$this->category->name];
     }
 }
