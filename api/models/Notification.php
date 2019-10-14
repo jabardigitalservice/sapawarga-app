@@ -324,6 +324,16 @@ class Notification extends \yii\db\ActiveRecord
                     'url'       => self::URL_STORE_ANDROID,
                 ];
                 break;
+            case self::CATEGORY_LABEL_NEWS:
+                $this->meta = [
+                    'target'    => 'news',
+                ];
+                break;
+            case self::CATEGORY_LABEL_NEWSHOAX:
+                $this->meta = [
+                    'target'    => 'saber-hoax',
+                ];
+                break;
             default:
                 break;
         }
