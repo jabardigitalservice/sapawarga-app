@@ -15,7 +15,7 @@ class m191008_102316_add_trainer_role extends CustomMigration
 
         // Add saber hoax role
         $trainerRole = $auth->createRole('trainer');
-        $trainerRole->description = 'Pelatih/PLD';
+        $trainerRole->description = 'Pelatih';
         $auth->add($trainerRole);
 
         $rwRole = $auth->getRole('staffRW');
