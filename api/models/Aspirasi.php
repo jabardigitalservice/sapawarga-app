@@ -163,10 +163,13 @@ class Aspirasi extends ActiveRecord
 
     protected function getAuthorField()
     {
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
         return [
             'id'         => $this->author->id,
             'name'       => $this->author->name,
             'photo_url'  => $this->author->photo_url,
+            'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
             'role_label' => $this->author->getRoleLabel(),
             'email'      => $this->author->email,
             'phone'      => $this->author->phone,

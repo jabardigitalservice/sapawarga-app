@@ -30,10 +30,22 @@ class SurveySearch extends Survey
     {
         $query = Survey::find()->with('category', 'kelurahan', 'kecamatan', 'kabkota');
 
+        $allLocation = Arr::get($params, 'all_location');
+
         // grid filtering conditions
         $query->andFilterWhere(['id' => $this->id]);
 
         $query->andFilterWhere(['<>', 'status', Survey::STATUS_DELETED]);
+
+        if ($allLocation == 'true') {
+            $query->andWhere(
+                ['and',
+                ['is', 'kabkota_id', NULL],
+                ['is', 'kec_id', NULL],
+                ['is', 'kel_id', NULL],
+                ['is', 'rw', NULL]]
+            );
+        }
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
