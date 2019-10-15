@@ -11,14 +11,11 @@ use app\models\PasswordResetTokenVerificationForm;
 use app\models\SignupConfirmForm;
 use app\models\SignupForm;
 use app\models\User;
-use app\models\UserPhotoUploadForm;
 use app\models\UserChangeProfileForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
-use Intervention\Image\ImageManager;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
-use yii\base\Exception;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
@@ -26,7 +23,6 @@ use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
 
 class UserController extends ActiveController
 {
@@ -268,6 +264,7 @@ class UserController extends ActiveController
     {
         $roles = [
             User::ROLE_STAFF_RW,
+            User::ROLE_TRAINER,
             User::ROLE_USER,
         ];
         return $this->login($roles);
@@ -414,7 +411,7 @@ class UserController extends ActiveController
     {
         $model = new PasswordResetForm();
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
-        
+
         if ($model->validate() && $model->resetPassword()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);

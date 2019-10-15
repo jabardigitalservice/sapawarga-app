@@ -151,14 +151,15 @@ class AspirasiSearch extends Aspirasi
         $filterStatusList = [];
 
         // Jika User, hanya bisa melihat yang status published
-        if (in_array($this->user->role, [User::ROLE_USER, User::ROLE_STAFF_RW])) {
+        if (Yii::$app->user->can('aspirasiMobile')) {
             $filterStatusList = [
                 Aspirasi::STATUS_PUBLISHED,
             ];
         }
 
         // Filter status untuk role Admin hingga staffKel
-        if ($this->user->role <= User::ROLE_ADMIN && $this->user->role >= User::ROLE_STAFF_KEL) {
+        if (Yii::$app->user->can('aspirasiWebadminManage')
+            || Yii::$app->user->can('aspirasiWebadminView')) {
             if (Arr::has($params, 'status')) {
                 $filterStatusList = [ $params['status'] ];
             } else {

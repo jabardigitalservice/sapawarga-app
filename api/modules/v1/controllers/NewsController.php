@@ -2,9 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\NewsFeatured;
-use app\models\User;
 use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
@@ -14,7 +12,6 @@ use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -226,10 +223,8 @@ class NewsController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        $userDetail = User::findIdentity(Yii::$app->user->getId());
-
         // Increment total views for specific role
-        if ($userDetail->role === User::ROLE_USER || $userDetail->role === User::ROLE_STAFF_RW) {
+        if (Yii::$app->user->can('newsList')) {
             $totalViewers = $model->total_viewers + 1;
 
             $this->saveNewsViewerPerUser($id);
