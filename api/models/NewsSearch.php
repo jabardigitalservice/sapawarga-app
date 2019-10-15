@@ -46,7 +46,7 @@ class NewsSearch extends News
         }
 
         if ($allLocation == 'true') {
-            $query->andWhere(['is', 'news.kabkota_id', NULL]);
+            $query->andWhere(['is', 'news.kabkota_id', null]);
         }
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
