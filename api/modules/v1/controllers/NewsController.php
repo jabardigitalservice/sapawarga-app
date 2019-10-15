@@ -224,7 +224,7 @@ class NewsController extends ActiveController
         }
 
         // Increment total views for specific role
-        if (Yii::$app->user->can('newsList') {
+        if (Yii::$app->user->can('newsList')) {
             $totalViewers = $model->total_viewers + 1;
 
             $this->saveNewsViewerPerUser($id);
