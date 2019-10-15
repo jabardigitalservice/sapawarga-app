@@ -130,7 +130,7 @@ class UserController extends ActiveController
     {
         $search = new UserSearch();
         $search->load(\Yii::$app->request->get());
-        $search->in_roles = [User::ROLE_USER];
+        $search->range_roles = [User::ROLE_USER];
         $search->not_in_status = [User::STATUS_DELETED];
         if (!$search->validate()) {
             throw new BadRequestHttpException(
