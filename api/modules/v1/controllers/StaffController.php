@@ -164,36 +164,31 @@ class StaffController extends ActiveController
         $params['rw'] = $params['rw'] ?? $currentUser->rw;
 
         $search = new UserExport();
-        $totalRows = $search->getUserExport($params)->getTotalCount();
-
-        // echo '<pre>'; print_r($totalRows); die();
+        $totalRows = $search->getUserExport($params)->count();
         $maxRowExport = User::MAX_ROWS_EXPORT;
-        if ($totalRows > $maxRoleRange) {
+        if ($totalRows > $maxRowExport) {
             throw new ServerErrorHttpException("User export have $totalRows rows, max rows is $maxRowExport.");
         }
 
-        $search = $search->getUserExport($params)->getModels();
-
+        // Write data to a file or to a PHP stream
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-
         $nowDate = date("Y-m-d-H-i-s");
         $filename = "export-user-$nowDate.csv";
         $filePath = Yii::getAlias('@webroot/storage') .'/'. $filename;
 
-        // $writer = WriterEntityFactory::createCSVWriter();
-        $writer = WriterEntityFactory::createWriterFromFile($filePath);
+        $writer = WriterEntityFactory::createCSVWriter($filePath);
+        // $writer = WriterEntityFactory::createWriterFromFile($filePath);
         $writer->setFieldDelimiter(',');
         $writer->setFieldEnclosure('"');
         $writer->setShouldAddBOM(false);
-
-        // Write data to a file or to a PHP stream
         $writer->openToFile($filePath);
 
         $titleRow = ['id', 'role', 'username', 'name', 'email', 'confirmed_at', 'status', 'created_at', 'updated_at', 'phone', 'address', 'kabkota', 'kecamatan', 'kelurahan', 'rw', 'rt', 'password_updated_at', 'profile_updated_at', 'last_access_at'];
 
         $writer->addRow(WriterEntityFactory::createRowFromArray($titleRow));
 
-        foreach ($search as $key => $user) {
+        $search = $search->getUserExport($params);
+        foreach ($search->each() as $key => $user) {
             $row = [
                 $user['id'],
                 $user['role'],
