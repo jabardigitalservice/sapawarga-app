@@ -40,10 +40,10 @@ class SurveySearch extends Survey
         if ($allLocation == 'true') {
             $query->andWhere(
                 ['and',
-                ['is', 'kabkota_id', NULL],
-                ['is', 'kec_id', NULL],
-                ['is', 'kel_id', NULL],
-                ['is', 'rw', NULL]]
+                ['is', 'kabkota_id', null],
+                ['is', 'kec_id', null],
+                ['is', 'kel_id', null],
+                ['is', 'rw', null]]
             );
         }
 
