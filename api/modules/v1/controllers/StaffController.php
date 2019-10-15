@@ -6,6 +6,7 @@ use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserSearch;
+use app\models\UserExport;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
@@ -18,6 +19,9 @@ use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Common\Entity\Row;
+use Carbon\Carbon;
 
 class StaffController extends ActiveController
 {
@@ -60,6 +64,7 @@ class StaffController extends ActiveController
                 'getPermissions' => ['get'],
                 'photo-upload' => ['post'],
                 'me' => ['get', 'post'],
+                'export' => ['get'],
             ],
         ];
 
@@ -141,6 +146,83 @@ class StaffController extends ActiveController
         }
 
         return $search->getDataProvider();
+    }
+
+    public function actionExport()
+    {
+        # Get data users
+        $currentUser = User::findIdentity(\Yii::$app->user->getId());
+        $role = $currentUser->role;
+        $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
+
+        $params = Yii::$app->request->getQueryParams();
+        $params['max_roles'] = $maxRoleRange;
+        $params['show_saberhoax'] = ($currentUser->role == User::ROLE_ADMIN) ? true : false;
+        $params['kabkota_id'] = $params['kabkota_id'] ?? $currentUser->kabkota_id;
+        $params['kec_id'] = $params['kec_id'] ?? $currentUser->kec_id;
+        $params['kel_id'] = $params['kel_id'] ?? $currentUser->kel_id;
+        $params['rw'] = $params['rw'] ?? $currentUser->rw;
+
+        $search = new UserExport();
+        $totalRows = $search->getUserExport($params)->getTotalCount();
+
+        // echo '<pre>'; print_r($totalRows); die();
+        $maxRowExport = User::MAX_ROWS_EXPORT;
+        if ($totalRows > $maxRoleRange) {
+            throw new ServerErrorHttpException("User export have $totalRows rows, max rows is $maxRowExport.");
+        }
+
+        $search = $search->getUserExport($params)->getModels();
+
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        $nowDate = date("Y-m-d-H-i-s");
+        $filename = "export-user-$nowDate.csv";
+        $filePath = Yii::getAlias('@webroot/storage') .'/'. $filename;
+
+        // $writer = WriterEntityFactory::createCSVWriter();
+        $writer = WriterEntityFactory::createWriterFromFile($filePath);
+        $writer->setFieldDelimiter(',');
+        $writer->setFieldEnclosure('"');
+        $writer->setShouldAddBOM(false);
+
+        // Write data to a file or to a PHP stream
+        $writer->openToFile($filePath);
+
+        $titleRow = ['id', 'role', 'username', 'name', 'email', 'confirmed_at', 'status', 'created_at', 'updated_at', 'phone', 'address', 'kabkota', 'kecamatan', 'kelurahan', 'rw', 'rt', 'password_updated_at', 'profile_updated_at', 'last_access_at'];
+
+        $writer->addRow(WriterEntityFactory::createRowFromArray($titleRow));
+
+        foreach ($search as $key => $user) {
+            $row = [
+                $user['id'],
+                $user['role'],
+                $user['username'],
+                $user['name'],
+                $user['email'],
+                $user['confirmed_at'],
+                $user['status'],
+                $user['created_at'],
+                $user['updated_at'],
+                $user['phone'],
+                $user['address'],
+                $user['kabkota_name'],
+                $user['kec_name'],
+                $user['kel_name'],
+                $user['rw'],
+                $user['rt'],
+                $user['password_updated_at'],
+                $user['profile_updated_at'],
+                $user['last_access_at'],
+            ];
+            $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+        }
+
+        $writer->close();
+
+        $filePath = $publicBaseUrl . '/'. $filename;
+
+        return $filePath;
     }
 
     /**
