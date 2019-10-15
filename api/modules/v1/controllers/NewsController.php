@@ -3,7 +3,6 @@
 namespace app\modules\v1\controllers;
 
 use app\models\NewsFeatured;
-use app\models\User;
 use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
@@ -224,10 +223,8 @@ class NewsController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        $userDetail = User::findIdentity(Yii::$app->user->getId());
-
         // Increment total views for specific role
-        if (in_array($userDetail->role, [User::ROLE_USER, User::ROLE_STAFF_RW, User::ROLE_TRAINER])) {
+        if (Yii::$app->user->can('newsList') {
             $totalViewers = $model->total_viewers + 1;
 
             $this->saveNewsViewerPerUser($id);
