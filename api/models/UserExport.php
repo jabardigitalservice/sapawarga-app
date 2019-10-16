@@ -101,7 +101,7 @@ class UserExport extends Model
         }
 
         if (Arr::get($params, 'profile_completed')) {
-            $conditional = (Arr::get($params, 'profile_completed') === 'true') ? 'is not' : 'is';
+            $conditional = (Arr::get($params, 'profile_completed') == 'true') ? 'is not' : 'is';
             $query->andWhere([$conditional, 'user.profile_updated_at', null]);
         }
 

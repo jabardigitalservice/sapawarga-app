@@ -120,7 +120,7 @@ class UserSearch extends Model
         }
 
         if (isset($this->profile_completed)) {
-            $conditional = ($this->profile_completed === 'true') ? 'is not' : 'is';
+            $conditional = ($this->profile_completed == 'true') ? 'is not' : 'is';
             $query->andWhere([$conditional, 'user.profile_updated_at', null]);
         }
 

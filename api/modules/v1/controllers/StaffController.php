@@ -22,6 +22,7 @@ use yii\web\ServerErrorHttpException;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 use Carbon\Carbon;
+use creocoder\flysystem\Filesystem;
 
 class StaffController extends ActiveController
 {
@@ -177,7 +178,6 @@ class StaffController extends ActiveController
         $filePath = Yii::getAlias('@webroot/storage') . '/' . $filename;
 
         $writer = WriterEntityFactory::createCSVWriter($filePath);
-        // $writer = WriterEntityFactory::createWriterFromFile($filePath);
         $writer->setFieldDelimiter(',');
         $writer->setFieldEnclosure('"');
         $writer->setShouldAddBOM(false);
@@ -214,6 +214,9 @@ class StaffController extends ActiveController
         }
 
         $writer->close();
+
+        $contents = Yii::$app->fs->readAndDelete($filename);
+        Yii::$app->fs->write($filename, $contents);
 
         $filePath = $publicBaseUrl . '/' . $filename;
 
