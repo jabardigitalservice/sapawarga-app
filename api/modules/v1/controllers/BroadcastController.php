@@ -91,10 +91,6 @@ class BroadcastController extends ActiveController
 
         $params = Yii::$app->request->getQueryParams();
 
-        if (!Arr::has($params, 'test')) {
-            $model->setEnableSendPushNotif(true);
-        }
-
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
         $model->author_id = Yii::$app->user->getId();

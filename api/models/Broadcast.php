@@ -2,10 +2,8 @@
 
 namespace app\models;
 
-use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
-use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
@@ -89,6 +87,9 @@ class Broadcast extends ActiveRecord
             ['is_scheduled', 'required'],
             ['is_scheduled', 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
             ['scheduled_datetime', 'default'],
+            ['scheduled_datetime', 'required', 'when' => function ($model) {
+                return $model->is_scheduled === true;
+            }],
             ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];
 
@@ -202,10 +203,5 @@ class Broadcast extends ActiveRecord
             'data'          => $data,
             'topic'         => $topic,
         ];
-    }
-
-    public function setEnableSendPushNotif($boolean)
-    {
-        $this->enableSendPushNotif = $boolean;
     }
 }
