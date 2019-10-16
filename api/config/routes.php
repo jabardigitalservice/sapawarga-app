@@ -57,6 +57,8 @@ return [
             'GET me' => 'me',
             'POST me' => 'me-update',
             'OPTIONS me' => 'options',
+            'GET export' => 'export',
+            'OPTIONS export' => 'options',
         ]
     ],
     [
