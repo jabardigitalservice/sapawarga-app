@@ -11,6 +11,7 @@ class m191016_040701_add_broadcast_scheduled_datetime extends CustomMigration
      */
     public function safeUp()
     {
+        $this->addColumn('broadcasts', 'is_scheduled', $this->boolean()->defaultValue(false));
         $this->addColumn('broadcasts', 'scheduled_datetime', $this->timestamp()->null());
         $this->addColumn('broadcasts', 'created_by', $this->integer()->null());
         $this->addColumn('broadcasts', 'updated_by', $this->integer()->null());
@@ -21,6 +22,7 @@ class m191016_040701_add_broadcast_scheduled_datetime extends CustomMigration
      */
     public function safeDown()
     {
+        $this->dropColumn('broadcasts', 'is_scheduled');
         $this->dropColumn('broadcasts', 'scheduled_datetime');
         $this->dropColumn('broadcasts', 'created_by');
         $this->dropColumn('broadcasts', 'updated_by');

@@ -20,6 +20,7 @@ class BroadcastTest extends \Codeception\Test\Unit
         $model->kel_id      = 1;
         $model->rw          = '001';
         $model->status      = 10;
+        $model->is_scheduled = false;
 
         $this->assertTrue($model->validate());
     }
@@ -36,11 +37,13 @@ class BroadcastTest extends \Codeception\Test\Unit
         $model->kel_id      = null;
         $model->rw          = null;
         $model->status      = null;
+        $model->is_scheduled = null;
 
         $this->assertFalse($model->validate());
 
         $this->assertTrue($model->hasErrors('title'));
         $this->assertTrue($model->hasErrors('status'));
+        $this->assertTrue($model->hasErrors('is_scheduled'));
 
         $this->assertFalse($model->hasErrors('description'));
         $this->assertFalse($model->hasErrors('kabkota_id'));

@@ -11,6 +11,7 @@ use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "broadcasts".
@@ -25,9 +26,11 @@ use yii\behaviors\TimestampBehavior;
  * @property int $kel_id
  * @property string $rw
  * @property mixed $meta
+ * @property bool $is_scheduled
+ * @property mixed $scheduled_datetime
  * @property int $status
  */
-class Broadcast extends \yii\db\ActiveRecord
+class Broadcast extends ActiveRecord
 {
     use HasArea, HasCategory;
 
@@ -85,6 +88,10 @@ class Broadcast extends \yii\db\ActiveRecord
             ['rw', 'default'],
             [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
+            ['is_scheduled', 'required'],
+            ['is_scheduled', 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
+            ['scheduled_datetime', 'default'],
+            ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];
 
         return array_merge($rules, $this->rulesCategory());
@@ -114,22 +121,10 @@ class Broadcast extends \yii\db\ActiveRecord
             'kelurahan' => 'KelurahanField',
             'rw',
             'meta',
+            'is_scheduled',
+            'scheduled_datetime',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_PUBLISHED:
-                        $statusLabel = Yii::t('app', 'status.published');
-                        break;
-                    case self::STATUS_DRAFT:
-                        $statusLabel = Yii::t('app', 'status.draft');
-                        break;
-                    case self::STATUS_DELETED:
-                        $statusLabel = Yii::t('app', 'status.deleted');
-                        break;
-                }
-                return $statusLabel;
-            },
+            'status_label' => 'StatusLabel',
             'data' => function () {
                 return $this->data;
             },
@@ -138,6 +133,19 @@ class Broadcast extends \yii\db\ActiveRecord
         ];
 
         return $fields;
+    }
+
+    public function getStatusLabel()
+    {
+        $statuses = [
+            self::STATUS_PUBLISHED => Yii::t('app', 'status.published'),
+            self::STATUS_SCHEDULED => Yii::t('app', 'status.scheduled'),
+            self::STATUS_CANCELED  => Yii::t('app', 'status.canceled'),
+            self::STATUS_DRAFT     => Yii::t('app', 'status.draft'),
+            self::STATUS_DELETED   => Yii::t('app', 'status.deleted'),
+        ];
+
+        return $statuses[$this->status];
     }
 
     /** @inheritdoc */
@@ -208,16 +216,5 @@ class Broadcast extends \yii\db\ActiveRecord
     public function setEnableSendPushNotif($boolean)
     {
         $this->enableSendPushNotif = $boolean;
-    }
-
-    /**
-     * Checks if category type is broadcast
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 }

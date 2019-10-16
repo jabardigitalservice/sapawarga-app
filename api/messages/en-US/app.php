@@ -48,6 +48,8 @@ return [
     'status.inactive' => 'Not Active',
     'status.deleted'  => 'Deleted',
     'status.draft'  => 'Draft',
+    'status.canceled'  => 'Canceled',
+    'status.scheduled'  => 'Scheduled',
     'status.sent'   => 'Sent',
     'status.published'   => 'Published',
     'status.approval-pending'  => 'Sent',
