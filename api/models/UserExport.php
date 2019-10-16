@@ -43,7 +43,8 @@ class UserExport extends Model
             ->from('user')
             ->leftJoin('areas kabkota', '`kabkota`.`id` = `user`.`kabkota_id`')
             ->leftJoin('areas kec', '`kec`.`id` = `user`.`kec_id`')
-            ->leftJoin('areas kel', '`kel`.`id` = `user`.`kel_id`');
+            ->leftJoin('areas kel', '`kel`.`id` = `user`.`kel_id`')
+            ->where(['<>', 'user.status', User::STATUS_DELETED]);
 
         // Filtering by role
         if (Arr::get($params, 'show_saberhoax')) {
