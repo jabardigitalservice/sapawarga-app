@@ -9,6 +9,7 @@ use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -44,9 +45,6 @@ class Broadcast extends ActiveRecord
 
     // Default topic untuk semua user
     const TOPIC_DEFAULT = 'kabkota';
-
-    /** @var  array push notification metadata */
-    public $data;
 
     /**
      * @var bool
@@ -102,13 +100,7 @@ class Broadcast extends ActiveRecord
         $fields = [
             'id',
             'author_id',
-            'author' => function () {
-                return [
-                    'id'            => $this->author->id,
-                    'name'          => $this->author->name,
-                    'role_label'    => $this->author->getRoleLabel(),
-                ];
-            },
+            'author' => 'AuthorField',
             'category_id',
             'category' => 'CategoryField',
             'title',
@@ -125,14 +117,20 @@ class Broadcast extends ActiveRecord
             'scheduled_datetime',
             'status',
             'status_label' => 'StatusLabel',
-            'data' => function () {
-                return $this->data;
-            },
             'created_at',
             'updated_at',
         ];
 
         return $fields;
+    }
+
+    public function getAuthorField()
+    {
+        return [
+            'id'            => $this->author->id,
+            'name'          => $this->author->name,
+            'role_label'    => $this->author->getRoleLabel(),
+        ];
     }
 
     public function getStatusLabel()
@@ -158,26 +156,18 @@ class Broadcast extends ActiveRecord
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_scheduled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterValidate' => false,
+                'typecastBeforeSave' => false,
+                'typecastAfterFind' => true,
+            ],
             BlameableBehavior::class,
             AreaBehavior::class,
         ];
-    }
-
-    public function afterSave($insert, $changedAttributes)
-    {
-        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
-        if ($isSendNotification) {
-            // Send job queue to insert user_messages per user
-            Yii::$app->queue->push(new MessageJob([
-                'type' => self::CATEGORY_TYPE,
-                'sender_id' => $this->author_id,
-                'instance' => $this,
-                'enable_push_notif' => $this->enableSendPushNotif,
-                'push_notif_payload' => $this->getPushNotifPayload(),
-            ]));
-        }
-
-        return parent::afterSave($insert, $changedAttributes);
     }
 
     public function getPushNotifPayload()
@@ -195,6 +185,7 @@ class Broadcast extends ActiveRecord
 
         // By default, send notification to all users
         $topic = Broadcast::TOPIC_DEFAULT;
+
         if ($this->kel_id && $this->rw) {
             $topic = "{$this->kel_id}_{$this->rw}";
         } elseif ($this->kel_id) {
