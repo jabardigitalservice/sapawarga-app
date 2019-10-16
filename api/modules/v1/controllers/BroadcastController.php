@@ -97,6 +97,8 @@ class BroadcastController extends ActiveController
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
+        $model->author_id = Yii::$app->user->getId();
+
         if ($model->validate() && $model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);

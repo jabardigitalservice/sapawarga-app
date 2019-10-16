@@ -6,9 +6,11 @@ use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Jobs\MessageJob;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
-use yii\queue\db\Queue;
 
 /**
  * This is the model class for table "broadcasts".
@@ -27,6 +29,8 @@ use yii\queue\db\Queue;
  */
 class Broadcast extends \yii\db\ActiveRecord
 {
+    use HasArea, HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
     const STATUS_CANCELED = 1;
@@ -59,32 +63,12 @@ class Broadcast extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['title', 'status'], 'required'],
             [['title', 'description', 'rw', 'meta'], 'trim'],
             ['title', 'string', 'max' => 100],
@@ -99,10 +83,11 @@ class Broadcast extends \yii\db\ActiveRecord
                 'message' => Yii::t('app', 'error.rw.pattern')
             ],
             ['rw', 'default'],
-            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['category_id', 'validateCategoryID'],
+            [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
         ];
+
+        return array_merge($rules, $this->rulesCategory());
     }
 
     public function fields()
@@ -118,47 +103,15 @@ class Broadcast extends \yii\db\ActiveRecord
                 ];
             },
             'category_id',
-            'category' => function () {
-                return [
-                    'id'   => $this->category->id,
-                    'name' => $this->category->name,
-                ];
-            },
+            'category' => 'CategoryField',
             'title',
             'description',
             'kabkota_id',
-            'kabkota' => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'kec_id',
-            'kecamatan' => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kel_id',
-            'kelurahan' => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'rw',
             'meta',
             'status',
@@ -197,16 +150,9 @@ class Broadcast extends \yii\db\ActiveRecord
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
+            BlameableBehavior::class,
             AreaBehavior::class,
         ];
-    }
-
-    /** @inheritdoc */
-    public function beforeSave($insert)
-    {
-        $this->author_id = Yii::$app->user->getId();
-
-        return parent::beforeSave($insert);
     }
 
     public function afterSave($insert, $changedAttributes)
