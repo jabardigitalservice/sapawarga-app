@@ -29,6 +29,8 @@ class Broadcast extends \yii\db\ActiveRecord
 {
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
+    const STATUS_CANCELED = 1;
+    const STATUS_SCHEDULED = 5;
     const STATUS_PUBLISHED = 10;
 
     const CATEGORY_TYPE = 'broadcast';
