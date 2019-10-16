@@ -172,9 +172,9 @@ class StaffController extends ActiveController
 
         // Write data to a file or to a PHP stream
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-        $nowDate = date("Y-m-d-H-i-s");
+        $nowDate = date('Y-m-d-H-i-s');
         $filename = "export-user-$nowDate.csv";
-        $filePath = Yii::getAlias('@webroot/storage') .'/'. $filename;
+        $filePath = Yii::getAlias('@webroot/storage') . '/' . $filename;
 
         $writer = WriterEntityFactory::createCSVWriter($filePath);
         // $writer = WriterEntityFactory::createWriterFromFile($filePath);
@@ -215,7 +215,7 @@ class StaffController extends ActiveController
 
         $writer->close();
 
-        $filePath = $publicBaseUrl . '/'. $filename;
+        $filePath = $publicBaseUrl . '/' . $filename;
 
         return $filePath;
     }
