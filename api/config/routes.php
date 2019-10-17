@@ -266,4 +266,15 @@ return [
             'OPTIONS {id}' => 'options',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/popup',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+        ]
+    ],
 ];
