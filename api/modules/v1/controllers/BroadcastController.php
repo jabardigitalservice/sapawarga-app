@@ -83,15 +83,22 @@ class BroadcastController extends ActiveController
         return $actions;
     }
 
+    /**
+     * Create and send Broadcast message (or just set scheduled status for a scheduled message type)
+     *
+     * @return string
+     * @throws \yii\web\ServerErrorHttpException
+     */
     public function actionCreate()
     {
         /* @var $model \yii\db\ActiveRecord|Broadcast */
         $model = new $this->modelClass();
 
+        // create model and populate property values
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
-
         $model->author_id = Yii::$app->user->getId();
 
+        // validating broadcast message
         if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
@@ -99,20 +106,25 @@ class BroadcastController extends ActiveController
             return $model->getErrors();
         }
 
+        // save broadcast message to database
         if ($model->save() === false) {
             throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
         }
 
+        // send broadcast message if not a scheduled message,
+        // or just change the status if it's a scheduled message
+        if ($model->isScheduled()) {
+            $model->update(false, ['status' => Broadcast::STATUS_SCHEDULED]);
+        }else{
+            $this->pushMesssageJob($model);
+            $model->update(false, ['status' => Broadcast::STATUS_PUBLISHED]);
+        }
+
+        // prepare and send API response
         $response = Yii::$app->getResponse();
         $response->setStatusCode(201);
 
-        if ($model->isScheduled()) {
-            $model->update(false, ['status' => Broadcast::STATUS_SCHEDULED]);
-            return $model;
-        }
-
-        $model->update(false, ['status' => Broadcast::STATUS_PUBLISHED]);
-        return $this->pushMesssageJob($model);
+        return $model;
     }
 
     public function actionUpdate($id)
