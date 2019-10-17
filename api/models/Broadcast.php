@@ -204,4 +204,19 @@ class Broadcast extends ActiveRecord
             'topic'         => $topic,
         ];
     }
+
+    /** @inheritdoc */
+    public function beforeSave($insert)
+    {
+        if ($this->is_scheduled === false) {
+            $this->scheduled_datetime = null;
+        }
+
+        return parent::beforeSave($insert);
+    }
+
+    public function setEnableSendPushNotif($boolean)
+    {
+        $this->enableSendPushNotif = $boolean;
+    }
 }
