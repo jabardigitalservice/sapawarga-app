@@ -238,6 +238,8 @@ return [
             'OPTIONS aspirasi-geo' => 'options',
             'GET polling-latest' => 'polling-latest',
             'OPTIONS polling-latest' => 'options',
+            'GET news-most-likes' => 'news-most-likes',
+            'OPTIONS news-most-likes' => 'options',
         ]
     ],
     [
