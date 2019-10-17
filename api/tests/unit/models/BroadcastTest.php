@@ -52,6 +52,58 @@ class BroadcastTest extends \Codeception\Test\Unit
         $this->assertFalse($model->hasErrors('rw'));
     }
 
+    public function testScheduledDateTimeShouldRequired()
+    {
+        $model               = new Broadcast();
+        $model->is_scheduled = false;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('scheduled_datetime'));
+
+        $model               = new Broadcast();
+        $model->is_scheduled = true;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+    }
+
+    public function testScheduledDateTimeShouldValidFormat()
+    {
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = '2019-10-10 10:00:00';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = '2019-10-10';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = '10:00:00';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = 'xxx';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+    }
+
     public function testTitleMaximumCharactersShouldSuccess()
     {
         $model        = new Broadcast();
