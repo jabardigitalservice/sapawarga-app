@@ -2,15 +2,12 @@
 
 namespace app\models;
 
-use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasAttachments;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
-use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
-use app\validator\IsArrayValidator;
 use yii\db\ActiveRecord;
 
 /**
@@ -126,7 +123,8 @@ class Aspirasi extends ActiveRecord
                 'approval_note',
                 'required',
                 'when' => function ($model) {
-                    return $model->status === self::STATUS_APPROVAL_REJECTED;
+                    return $model->status === self::STATUS_APPROVAL_REJECTED
+                     || $model->status === self::STATUS_PUBLISHED;
                 },
             ]
         ];
