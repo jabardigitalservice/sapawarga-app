@@ -321,9 +321,11 @@ class BroadcastController extends ActiveController
         Yii::$app->queue->push(new MessageJob([
             'type'               => $broadcast::CATEGORY_TYPE,
             'sender_id'          => $broadcast->author_id,
+            'title'              => $broadcast->title,
+            'content'            => $broadcast->description,
             'instance'           => $broadcast->toArray(),
             'enable_push_notif'  => $this->isEnableSendPushNotif(),
-            'push_notif_payload' => $broadcast->createPushNotifPayload(),
+            'push_notif_payload' => $broadcast->buildPushNotificationPayload(),
         ]));
 
         return $broadcast;

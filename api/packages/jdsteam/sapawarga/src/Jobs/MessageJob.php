@@ -13,6 +13,8 @@ use app\components\ModelHelper;
 class MessageJob extends BaseObject implements JobInterface
 {
     public $type;
+    public $title;
+    public $content;
     public $instance;
     public $sender_id;
     public $enable_push_notif;
@@ -23,65 +25,71 @@ class MessageJob extends BaseObject implements JobInterface
         $instance = $this->instance;
 
         $params = [
-            'kabkota_id' => $instance->kabkota_id,
-            'kec_id' => $instance->kec_id,
-            'kel_id' => $instance->kel_id,
-            'rw' => $instance->rw,
+            'kabkota_id' => $instance['kabkota_id'],
+            'kec_id'     => $instance['kec_id'],
+            'kel_id'     => $instance['kel_id'],
+            'rw'         => $instance['rw'],
         ];
 
         // Get userIds
-        $usersTarget = User::find()->select('id')
+        $usersQuery = User::find()->select('id')
             ->andWhere(['status' => User::STATUS_ACTIVE])
             ->andWhere(['not', ['last_login_at' => null]]);
 
-        $usersTarget = ModelHelper::filterByAreaTopDown($usersTarget, $params);
+        $users = ModelHelper::filterByAreaTopDown($usersQuery, $params);
 
         // Do nothing if empty
-        if ($usersTarget->count() == 0) {
-            exit();
+        if ($users->count() === 0) {
+            return true;
         }
 
         // Delete first when any update broadcast
-        UserMessage::deleteAll(['message_id' => $instance->id]);
+        UserMessage::deleteAll(['message_id' => $instance['id']]);
 
-        $this->insertUserMessages($usersTarget, $instance);
+        $this->insertUserMessages($users->all(), [
+            'type'        => $this->type,
+            'sender_id'   => $this->sender_id,
+            'instance_id' => $instance['id'],
+            'title'       => $this->title,
+            'description' => $this->content,
+        ]);
 
         if ($this->enable_push_notif) {
             $this->sendPushNotification();
         }
     }
 
-    public function insertUserMessages($usersTarget, $instance)
+    public function insertUserMessages($users, array $attributes)
     {
-        // Insert to user_messages per user
-        foreach ($usersTarget->all() as $key => $user) {
+        foreach ($users as $index => $user) {
             $model = new UserMessage();
             $model->setAttributes([
-                'type' => $this->type,
-                'message_id' => $instance->id,
-                'sender_id' => $this->sender_id,
+                'type'         => $attributes['type'],
+                'message_id'   => $attributes['instance_id'],
+                'sender_id'    => $attributes['sender_id'],
                 'recipient_id' => $user->id,
-                'title' => $instance->title,
-                'excerpt' => null,
-                'content' => $instance->description,
-                'status' => 10,
-                'meta' => null,
-                'read_at' => null,
+                'title'        => $attributes['title'],
+                'excerpt'      => null,
+                'content'      => $attributes['description'],
+                'status'       => 10,
+                'meta'         => null,
+                'read_at'      => null,
             ]);
 
             if ($model->save()) {
-                echo sprintf("Job executed! type = %s, id = %s, recipient_id = %s \n", $this->type, $instance->id, $user->id);
+                echo sprintf("Job executed! type = %s, id = %s, recipient_id = %s \n", $attributes['type'], $attributes['instance_id'], $user->id);
             } else {
-                echo sprintf("Job failed! type = %s, id = %s, recipient_id = %s \n", $this->type, $instance->id, $user->id);
+                echo sprintf("Job failed! type = %s, id = %s, recipient_id = %s \n", $attributes['type'], $attributes['instance_id'], $user->id);
             }
         }
 
-        echo sprintf("Total jobs = %s, finished at = %s \n\n", $key+1, date("d-m-Y H:i:s"));
+        echo sprintf("Total jobs = %s, finished at = %s \n\n", $index+1, date("d-m-Y H:i:s"));
     }
 
     public function sendPushNotification()
     {
         echo sprintf("Sending push notification for type = %s, id = %s\n", $this->type, $this->instance->id);
+
         $notifModel = new Message();
         $notifModel->setAttributes($this->push_notif_payload);
         $notifModel->send();

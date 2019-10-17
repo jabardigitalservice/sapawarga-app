@@ -166,7 +166,7 @@ class Broadcast extends ActiveRecord
         ];
     }
 
-    public function createPushNotifPayload()
+    public function buildPushNotificationPayload(): array
     {
         $data = [
             'target'            => 'broadcast',
@@ -180,7 +180,7 @@ class Broadcast extends ActiveRecord
         ];
 
         // By default, send notification to all users
-        $topic = Broadcast::TOPIC_DEFAULT;
+        $topic = self::TOPIC_DEFAULT;
 
         if ($this->kel_id && $this->rw) {
             $topic = "{$this->kel_id}_{$this->rw}";
