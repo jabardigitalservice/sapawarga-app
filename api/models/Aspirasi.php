@@ -27,6 +27,7 @@ use yii\db\ActiveRecord;
  * @property int $status
  * @property string $approval_note
  * @property int $approved_by
+ * @property int $approved_at
  */
 class Aspirasi extends ActiveRecord
 {
@@ -257,10 +258,6 @@ class Aspirasi extends ActiveRecord
     {
         if ($insert) {
             $this->author_id = Yii::$app->user->getId();
-        }
-
-        if ($this->status == self::STATUS_PUBLISHED) {
-            $this->approval_note = null;
         }
 
         return parent::beforeSave($insert);
