@@ -57,6 +57,8 @@ return [
             'GET me' => 'me',
             'POST me' => 'me-update',
             'OPTIONS me' => 'options',
+            'GET export' => 'export',
+            'OPTIONS export' => 'options',
         ]
     ],
     [
@@ -256,6 +258,17 @@ return [
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/banner',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/popup',
         'pluralize' => true,
         'tokens' => [
             '{id}' => '<id:\d+>',
