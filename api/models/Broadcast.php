@@ -70,13 +70,6 @@ class Broadcast extends ActiveRecord
             ['description', 'string', 'max' => 1000],
             ['description', InputCleanValidator::class],
             ['rw', 'string', 'length' => 3],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern')
-            ],
-            ['rw', 'default'],
             [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
             ['is_scheduled', 'required'],
@@ -89,7 +82,7 @@ class Broadcast extends ActiveRecord
             ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];
 
-        return array_merge($rules, $this->rulesCategory());
+        return array_merge($rules, $this->rulesRw(), $this->rulesCategory());
     }
 
     public function fields()
@@ -180,6 +173,16 @@ class Broadcast extends ActiveRecord
             'push_notification' => true,
         ];
 
+        return [
+            'title'         => $this->title,
+            'description'   => $this->description,
+            'data'          => $data,
+            'topic'         => $this->buildTopicName(),
+        ];
+    }
+
+    protected function buildTopicName(): string
+    {
         // By default, send notification to all users
         $topic = self::TOPIC_DEFAULT;
 
@@ -193,12 +196,7 @@ class Broadcast extends ActiveRecord
             $topic = (string) $this->kabkota_id;
         }
 
-        return [
-            'title'         => $this->title,
-            'description'   => $this->description,
-            'data'          => $data,
-            'topic'         => $topic,
-        ];
+        return $topic;
     }
 
     /** @inheritdoc */
