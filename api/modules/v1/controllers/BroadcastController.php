@@ -8,6 +8,7 @@ use app\models\BroadcastSearch;
 use app\models\UserMessage;
 use app\models\User;
 use Illuminate\Support\Arr;
+use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Yii;
 use yii\base\Model;
 use yii\filters\AccessControl;
@@ -85,66 +86,63 @@ class BroadcastController extends ActiveController
     public function actionCreate()
     {
         /* @var $model \yii\db\ActiveRecord|Broadcast */
-        $model = new $this->modelClass([
-            'scenario' => Model::SCENARIO_DEFAULT,
-        ]);
-
-        $params = Yii::$app->request->getQueryParams();
-
-        if (!Arr::has($params, 'test')) {
-            $model->setEnableSendPushNotif(true);
-        }
+        $model = new $this->modelClass();
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
         $model->author_id = Yii::$app->user->getId();
 
-        if ($model->validate() && $model->save()) {
+        if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
-            $response->setStatusCode(201);
-        } elseif (!$model->hasErrors()) {
-            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
-        } else {
-            // Validation error
-            $response = \Yii::$app->getResponse();
             $response->setStatusCode(422);
 
             return $model->getErrors();
         }
 
-        return $model;
+        if ($model->save() === false) {
+            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(201);
+
+        if ($model->isScheduled()) {
+            $model->update(false, ['status' => Broadcast::STATUS_SCHEDULED]);
+            return $model;
+        }
+
+        $model->update(false, ['status' => Broadcast::STATUS_PUBLISHED]);
+        return $this->pushMesssageJob($model);
     }
 
     public function actionUpdate($id)
     {
         $model = Broadcast::findOne($id);
 
-        if (empty($model)) {
+        if ($model === null) {
             throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        $params = Yii::$app->request->getQueryParams();
-
-        if (!Arr::has($params, 'test')) {
-            $model->setEnableSendPushNotif(true);
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        if ($model->validate() && $model->save()) {
+        if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
-            $response->setStatusCode(200);
-        } elseif (!$model->hasErrors()) {
-            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
-        } else {
-            // Validation error
-            $response = \Yii::$app->getResponse();
             $response->setStatusCode(422);
 
             return $model->getErrors();
         }
 
-        return $model;
+        if ($model->save() === false) {
+            throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+        }
+
+        if ($model->isScheduled()) {
+            $model->update(false, ['status' => Broadcast::STATUS_SCHEDULED]);
+            return $model;
+        }
+
+        $model->update(false, ['status' => Broadcast::STATUS_PUBLISHED]);
+        return $this->pushMesssageJob($model);
     }
 
     /**
@@ -316,5 +314,25 @@ class BroadcastController extends ActiveController
         }
 
         return $search->searchStaff($params);
+    }
+
+    protected function pushMesssageJob(Broadcast $broadcast)
+    {
+        Yii::$app->queue->push(new MessageJob([
+            'type'               => $broadcast::CATEGORY_TYPE,
+            'sender_id'          => $broadcast->author_id,
+            'instance'           => $broadcast->toArray(),
+            'enable_push_notif'  => $this->isEnableSendPushNotif(),
+            'push_notif_payload' => $broadcast->createPushNotifPayload(),
+        ]));
+
+        return $broadcast;
+    }
+
+    protected function isEnableSendPushNotif(): bool
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        return Arr::has($params, 'test') === false;
     }
 }

@@ -45,11 +45,6 @@ class Broadcast extends ActiveRecord
     const TOPIC_DEFAULT = 'kabkota';
 
     /**
-     * @var bool
-     */
-    protected $enableSendPushNotif = false;
-
-    /**
      * {@inheritdoc}
      */
     public static function tableName()
@@ -171,7 +166,7 @@ class Broadcast extends ActiveRecord
         ];
     }
 
-    public function getPushNotifPayload()
+    public function createPushNotifPayload()
     {
         $data = [
             'target'            => 'broadcast',
@@ -215,8 +210,8 @@ class Broadcast extends ActiveRecord
         return parent::beforeSave($insert);
     }
 
-    public function setEnableSendPushNotif($boolean)
+    public function isScheduled(): bool
     {
-        $this->enableSendPushNotif = $boolean;
+        return $this->is_scheduled;
     }
 }
