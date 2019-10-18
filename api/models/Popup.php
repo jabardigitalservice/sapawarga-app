@@ -3,8 +3,6 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
-use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
-use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -15,11 +13,12 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $title
+ * @property string $description
  * @property string $image_path
  * @property string $type
  * @property string $link_url
- * @property int $internal_category
- * @property int $internal_entity_id
+ * @property int $internal_object
+ * @property int $internal_object_id
  * @property int $status
  * @property datetime $start_date
  * @property datetime $end_date
@@ -29,9 +28,14 @@ use yii\db\ActiveRecord;
  * @property int $updated_at
  */
 
-class Popup extends ActiveRecord implements ActiveStatus
+class Popup extends ActiveRecord
 {
-    use HasActiveStatus;
+    const STATUS_DELETED = -1;
+    const STATUS_ACTIVE = 10;
+    const STATUS_STARTED = 15;
+
+    const SCENARIO_CREATE = 'create';
+    const SCENARIO_UPDATE = 'update';
 
     /**
      * {@inheritdoc}
@@ -47,12 +51,12 @@ class Popup extends ActiveRecord implements ActiveStatus
     public function rules()
     {
         return [
-            [['title', 'image_path', 'type', 'status', 'start_date', 'end_date'],'required'],
+            [['title', 'image_path', 'type', 'start_date', 'end_date', 'description'],'required'],
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
-            [['title', 'image_path', 'type', 'link_url', 'internal_entity_name'], 'trim'],
-            [['title', 'image_path', 'type', 'link_url', 'internal_entity_name'], 'safe'],
+            [['title', 'image_path', 'type', 'link_url', 'internal_object_name'], 'trim'],
+            [['title', 'image_path', 'type', 'link_url', 'internal_object_name'], 'safe'],
 
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d H:i:s'],
             ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
@@ -62,11 +66,14 @@ class Popup extends ActiveRecord implements ActiveStatus
             ['type', 'validateTypeInternal'],
             ['type', 'validateTypeExternal'],
 
-            ['link_url', 'url'],
-            ['internal_category', 'in', 'range' => ['news', 'polling', 'survey']],
-            [['status', 'internal_entity_id'], 'integer'],
+            [['start_date', 'end_date'], 'validateRangeDate', 'on' => 'create'],
+            [['start_date', 'end_date'], 'validateRangeDateNotMe', 'on' => 'update'],
 
-            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_DISABLED, self::STATUS_ACTIVE]],
+            ['link_url', 'url'],
+            ['internal_object', 'in', 'range' => ['news', 'polling', 'survey']],
+            [['status', 'internal_object_id'], 'integer'],
+
+            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_ACTIVE]],
         ];
     }
 
@@ -75,6 +82,7 @@ class Popup extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'title',
+            'description',
             'image_path',
             'image_path_url' => function () {
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
@@ -82,9 +90,9 @@ class Popup extends ActiveRecord implements ActiveStatus
             },
             'type',
             'link_url',
-            'internal_category',
-            'internal_entity_id',
-            'internal_entity_name',
+            'internal_object',
+            'internal_object_id',
+            'internal_object_name',
             'status',
             'status_label' => 'StatusLabel',
             'start_date',
@@ -105,9 +113,6 @@ class Popup extends ActiveRecord implements ActiveStatus
             case self::STATUS_ACTIVE:
                 $statusLabel = Yii::t('app', 'status.active');
                 break;
-            case self::STATUS_DISABLED:
-                $statusLabel = Yii::t('app', 'status.inactive');
-                break;
             case self::STATUS_DELETED:
                 $statusLabel = Yii::t('app', 'status.deleted');
                 break;
@@ -124,12 +129,13 @@ class Popup extends ActiveRecord implements ActiveStatus
         return [
             'id' => 'ID',
             'title' => 'Judul',
+            'description' => 'Deskripsi',
             'image_path' => 'Image Path',
             'type' => 'Tipe',
             'link_url' => 'URL',
-            'internal_category' => 'Internal kategori',
-            'internal_entity_id' => 'Internal ID',
-            'internal_entity_name' => 'Internal Entity Name',
+            'internal_object' => 'Internal kategori',
+            'internal_object_id' => 'Internal ID',
+            'internal_object_name' => 'Internal Entity Name',
             'start_date' => 'Waktu Mulai',
             'end_date' => 'Waktu Berakhir',
             'status' => 'Status',
@@ -153,7 +159,7 @@ class Popup extends ActiveRecord implements ActiveStatus
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_entity_id) && empty($this->internal_category)) {
+            if (empty($this->internal_object_id) && empty($this->internal_object)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }
@@ -166,5 +172,38 @@ class Popup extends ActiveRecord implements ActiveStatus
                 $this->addError($attribute, Yii::t('app', 'error.empty.externalfill'));
             }
         }
+    }
+
+    public function validateRangeDate($attribute, $params)
+    {
+        $checkExist = $this->checkExistRangeDate()->one();
+
+        if (! empty($checkExist)) {
+            $this->addError($attribute, Yii::t('app', 'error.validation.rangedatefill'));
+        }
+    }
+
+    public function validateRangeDateNotMe($attribute, $params)
+    {
+        $checkExist = $this->checkExistRangeDate()
+                ->andWhere(['not in', 'id', $this->id])
+                ->one();
+
+        if (! empty($checkExist)) {
+            $this->addError($attribute, Yii::t('app', 'error.validation.rangedatefill'));
+        }
+    }
+
+    public function checkExistRangeDate()
+    {
+        $query = Popup::find()
+            ->where(['<>', 'status', Popup::STATUS_DELETED])
+            ->andWhere([
+                'and',
+                ['<=', 'start_date', $this->end_date],
+                ['>=', 'end_date', $this->start_date],
+            ]);
+
+        return $query;
     }
 }
