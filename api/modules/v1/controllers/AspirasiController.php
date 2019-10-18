@@ -188,20 +188,18 @@ class AspirasiController extends ActiveController
         $currentUserId = Yii::$app->user->getId();
 
         if ($action === 'APPROVE') {
-            $model->status        = Aspirasi::STATUS_PUBLISHED;
-            $model->approval_note = $note;
-            $model->approved_by   = $currentUserId;
-            $model->touch('approved_at');
+            $model->status = Aspirasi::STATUS_PUBLISHED;
         } elseif ($action === 'REJECT') {
-            $model->status        = Aspirasi::STATUS_APPROVAL_REJECTED;
-            $model->approval_note = $note;
-            $model->approved_by   = $currentUserId;
-            $model->touch('approved_at');
+            $model->status = Aspirasi::STATUS_APPROVAL_REJECTED;
         } else {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(400);
             return 'Bad Request: Invalid Action';
         }
+
+        $model->approval_note = $note;
+        $model->approved_by   = $currentUserId;
+        $model->touch('approved_at');
 
         if ($model->save(false) === false) {
             throw new ServerErrorHttpException('Failed to process the object for unknown reason.');

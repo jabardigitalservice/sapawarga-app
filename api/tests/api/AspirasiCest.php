@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Arr;
+use app\models\Aspirasi;
 
 class AspirasiCest
 {
@@ -649,7 +649,73 @@ class AspirasiCest
             'status'  => 403,
         ]);
     }
-    
+
+    public function staffProvRejectTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'title',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => Aspirasi::STATUS_APPROVAL_PENDING,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 1,
+        ]);
+
+        $data = [
+            'action' => 'REJECT',
+            'note'   => 'note',
+        ];
+
+        $I->amStaff('staffprov');
+        $I->sendPOST('/v1/aspirasi/approval/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('aspirasi', [
+            'id'            => 1,
+            'status'        => Aspirasi::STATUS_APPROVAL_REJECTED,
+            'approved_by'   => 2,
+            'approval_note' => 'note',
+        ]);
+    }
+
+    public function staffProvPublishTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'title',
+            'description' => 'description',
+            'kabkota_id'  => 22,
+            'kec_id'      => 431,
+            'kel_id'      => 6093,
+            'status'      => Aspirasi::STATUS_APPROVAL_PENDING,
+            'category_id' => 9,
+            'author_id'   => 1,
+            'created_at'  => 1,
+        ]);
+
+        $data = [
+            'action' => 'APPROVE',
+            'note'   => 'note',
+        ];
+
+        $I->amStaff('staffprov');
+        $I->sendPOST('/v1/aspirasi/approval/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('aspirasi', [
+            'id'            => 1,
+            'status'        => Aspirasi::STATUS_PUBLISHED,
+            'approved_by'   => 2,
+            'approval_note' => 'note',
+        ]);
+    }
+
     public function getStaffList(ApiTester $I)
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
@@ -779,5 +845,5 @@ class AspirasiCest
 
         $I->assertEquals(1, count($data[0]));
         $I->assertEquals(1, $data[0][0]['id']);
-    }    
+    }
 }
