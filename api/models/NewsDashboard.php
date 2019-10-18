@@ -8,12 +8,12 @@ use Carbon\Carbon;
 use Yii;
 
 /**
- * NewsDashboard represents the model behind the search form of `app\models\News`.
+ * NewsDashboard is model to represents for collect news data in the dashboard.
  */
 class NewsDashboard extends News
 {
     /**
-     * Creates data provider instance applied for get news most likes
+     * Creates data provider instance applied for get news most likes per province / kabkota
      *
      * @param array $paramsSql
      *
