@@ -28,6 +28,7 @@ use yii\db\ActiveRecord;
  * @property string $approval_note
  * @property int $approved_by
  * @property int $approved_at
+ * @property int $submitted_at
  */
 class Aspirasi extends ActiveRecord
 {
@@ -157,6 +158,8 @@ class Aspirasi extends ActiveRecord
             'attachments'  => 'AttachmentsField',
             'created_at',
             'updated_at',
+            'approved_at',
+            'submitted_at',
         ];
     }
 
@@ -258,6 +261,11 @@ class Aspirasi extends ActiveRecord
     {
         if ($insert) {
             $this->author_id = Yii::$app->user->getId();
+        }
+
+        //Add timestamp when submitting a new Aspirasi / revision of rejected Aspirasi
+        if ($this->status == self::STATUS_APPROVAL_PENDING) {
+            $this->submitted_at = time();
         }
 
         return parent::beforeSave($insert);
