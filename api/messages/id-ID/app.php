@@ -48,8 +48,6 @@ return [
     'status.active'   => 'Aktif',
     'status.inactive' => 'Tidak Aktif',
     'status.deleted'  => 'Dihapus',
-    'status.started'  => 'Sedang Berlangsung',
-    'status.ended'  => 'Berakhir',
     'status.draft'  => 'Draft',
     'status.sent'   => 'Terkirim',
     'status.published'   => 'Dipublikasikan',
