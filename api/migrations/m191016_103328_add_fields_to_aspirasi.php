@@ -21,19 +21,4 @@ class m191016_103328_add_fields_to_aspirasi extends CustomMigration
     {
         $this->dropColumn('aspirasi', 'submitted_at');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m191016_103328_add_fields_to_aspirasi cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

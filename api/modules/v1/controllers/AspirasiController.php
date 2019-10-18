@@ -6,7 +6,6 @@ use app\models\Aspirasi;
 use app\models\AspirasiSearch;
 use app\models\User;
 use Yii;
-use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
