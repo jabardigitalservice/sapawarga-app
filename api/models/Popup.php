@@ -17,7 +17,7 @@ use yii\db\ActiveRecord;
  * @property string $image_path
  * @property string $type
  * @property string $link_url
- * @property int $internal_object
+ * @property int $internal_object_type
  * @property int $internal_object_id
  * @property int $status
  * @property datetime $start_date
@@ -70,7 +70,7 @@ class Popup extends ActiveRecord
             [['start_date', 'end_date'], 'validateRangeDateNotMe', 'on' => 'update'],
 
             ['link_url', 'url'],
-            ['internal_object', 'in', 'range' => ['news', 'polling', 'survey']],
+            ['internal_object_type', 'in', 'range' => ['news', 'polling', 'survey']],
             [['status', 'internal_object_id'], 'integer'],
 
             ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_ACTIVE]],
@@ -90,7 +90,7 @@ class Popup extends ActiveRecord
             },
             'type',
             'link_url',
-            'internal_object',
+            'internal_object_type',
             'internal_object_id',
             'internal_object_name',
             'status',
@@ -133,7 +133,7 @@ class Popup extends ActiveRecord
             'image_path' => 'Image Path',
             'type' => 'Tipe',
             'link_url' => 'URL',
-            'internal_object' => 'Internal kategori',
+            'internal_object_type' => 'Internal Object Type',
             'internal_object_id' => 'Internal ID',
             'internal_object_name' => 'Internal Entity Name',
             'start_date' => 'Waktu Mulai',
@@ -159,7 +159,7 @@ class Popup extends ActiveRecord
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_object_id) && empty($this->internal_object)) {
+            if (empty($this->internal_object_id) && empty($this->internal_object_type)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }
