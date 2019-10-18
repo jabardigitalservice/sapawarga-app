@@ -69,11 +69,73 @@ class PopupController extends ActiveController
 
         // Override Delete Action
         unset($actions['delete']);
+        unset($actions['create']);
+        unset($actions['update']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * Create new popup content
+     *
+     * @return Popup
+     * @throws HttpException
+     * @throws InvalidConfigException
+     */
+    public function actionCreate()
+    {
+        $model = new Popup();
+        $model->scenario = Popup::SCENARIO_CREATE;
+        $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+        } else {
+            // Validation error
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    /**
+     * Update popup content
+     *
+     * @return Popup
+     * @throws HttpException
+     * @throws InvalidConfigException
+     */
+    public function actionUpdate($id)
+    {
+        $model = Popup::findOne($id);
+
+        if (empty($model)) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        $params = Yii::$app->request->getQueryParams();
+        $model->scenario = Popup::SCENARIO_UPDATE;
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
+        } else {
+            // Validation error
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
     }
 
     /**

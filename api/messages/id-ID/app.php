@@ -33,6 +33,7 @@ return [
     'error.password.old.same' => 'Kata sandi baru tidak boleh sama dengan kata sandi lama.',
     'error.empty.internalfill' => 'Silahkan mengisi internal entity id  dan internal category',
     'error.empty.externalfill' => 'Silahkan mengisi link url',
+    'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
 
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',

@@ -26,6 +26,7 @@ class PopupSearch extends Popup
     public function search($params)
     {
         $query = Popup::find();
+        $query->andFilterWhere(['<>', 'status', Popup::STATUS_DELETED]);
 
         if ($this->scenario === self::SCENARIO_LIST_STAFF) {
             return $this->getQueryListStaff($query, $params);
@@ -39,7 +40,6 @@ class PopupSearch extends Popup
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
         $query->andFilterWhere(['=', 'type', Arr::get($params, 'type')]);
-        $query->andFilterWhere(['<>', 'status', Popup::STATUS_DELETED]);
 
         if (Arr::has($params, 'status')) {
             $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
@@ -53,7 +53,7 @@ class PopupSearch extends Popup
         $params['limit'] = self::LIMIT_LIST_USER;
 
         $todayDateTime = new Carbon();
-        $query->andFilterWhere(['=', 'status', Popup::STATUS_ACTIVE]);
+
         $query->andFilterWhere([
                     'and',
                     ['<=', 'start_date', $todayDateTime],

@@ -45,6 +45,7 @@ class PopupCest
 
         $data = [
             'title' => 'Lorem ipsum dolor sit amet',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'external',
             'link_url' => 'https://google.com/',
@@ -65,6 +66,7 @@ class PopupCest
         $I->seeInDatabase('popups', [
             'id' => 1,
             'title' => 'Lorem ipsum dolor sit amet',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'external',
             'link_url' => 'https://google.com/',
@@ -78,12 +80,13 @@ class PopupCest
 
         $data = [
             'title' => 'Lorem ipsum dolor sit amet',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'internal',
-            'internal_category' => 'news',
-            'internal_entity_id' => 1,
-            'internal_entity_name' => 'Judul News',
-            'link_url' => 'https://google.com/',
+            'internal_object_type' => 'news',
+            'internal_object_id' => 1,
+            'internal_object_name' => 'Judul News',
+            'link_url' => '',
             'status' => 10,
             'start_date' => '2019-09-09 00:00:00',
             'end_date' => '2019-09-30 00:00:00',
@@ -100,29 +103,71 @@ class PopupCest
 
         $I->seeInDatabase('popups', [
             'title' => 'Lorem ipsum dolor sit amet',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'internal',
-            'internal_category' => 'news',
-            'internal_entity_id' => 1,
-            'internal_entity_name' => 'Judul News',
-            'link_url' => 'https://google.com/',
+            'internal_object_type' => 'news',
+            'internal_object_id' => 1,
+            'internal_object_name' => 'Judul News',
+            'link_url' => '',
             'status' => 10,
             'start_date' => '2019-09-09 00:00:00',
             'end_date' => '2019-09-30 00:00:00',
         ]);
     }
 
+    public function postExistRangeDateWithinTest(ApiTester $I)
+    {
+        $I->haveInDatabase('popups', [
+            'id' =>1,
+            'title' =>'Popup ulang tahun Jawa Barat',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'image_path' =>'https://cdn.images.com',
+            'type' =>'external',
+            'link_url' =>'https://news.detik.com/berita-datang-ke-mk',
+            'internal_object_type' =>null,
+            'internal_object_id' =>null,
+            'status' => 10,
+            'start_date'  => (new Carbon()),
+            'end_date'    => (new Carbon())->addDays(7),
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 1,
+            'updated_by' => 1
+        ]);
+
+        $I->amStaff();
+
+        $data = [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'image_path' => 'https://cdn.images.com',
+            'type' => 'internal',
+            'internal_object_type' => 'news',
+            'internal_object_id' => 1,
+            'internal_object_name' => 'Judul News',
+            'link_url' => 'https://google.com/',
+            'status' => 10,
+            'start_date'  => (new Carbon())->addDays(1),
+            'end_date'    => (new Carbon())->addDays(8),
+        ];
+
+        $I->sendPOST('/v1/popups', $data);
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseIsJson();
+    }
 
     public function postUserUpdateUnauthorizedTest(ApiTester $I)
     {
         $I->haveInDatabase('popups', [
             'id' =>1,
             'title' =>'Popup ulang tahun Jawa Barat',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' =>'https://cdn.images.com',
             'type' =>'external',
             'link_url' =>'https://news.detik.com/berita-datang-ke-mk',
-            'internal_category' =>null,
-            'internal_entity_id' =>null,
+            'internal_object_type' =>null,
+            'internal_object_id' =>null,
             'status' => 10,
             'start_date'  => (new Carbon()),
             'end_date'    => (new Carbon())->addDays(7),
@@ -154,11 +199,12 @@ class PopupCest
         $I->haveInDatabase('popups', [
             'id' =>1,
             'title' =>'Popup ulang tahun Jawa Barat',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' =>'https://cdn.images.com',
             'type' =>'external',
             'link_url' =>'https://news.detik.com/berita-datang-ke-mk',
-            'internal_category' =>null,
-            'internal_entity_id' =>null,
+            'internal_object_type' =>null,
+            'internal_object_id' =>null,
             'status' => 10,
             'start_date'  => (new Carbon()),
             'end_date'    => (new Carbon())->addDays(7),
