@@ -128,6 +128,4 @@ class DashboardController extends ActiveController
 
         return $newsMostLikes->getNewsMostLikes($params);
     }
-
-
 }

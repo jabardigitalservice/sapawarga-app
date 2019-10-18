@@ -7,7 +7,6 @@ use yii\db\Query;
 use Carbon\Carbon;
 use Yii;
 
-
 /**
  * NewsDashboard represents the model behind the search form of `app\models\News`.
  */
@@ -38,6 +37,7 @@ class NewsDashboard extends News
             ->where(['=', 'status', News::STATUS_PUBLISHED])
             ->andWhere(['>', 'total_viewers', 0])
             ->andWhere(['>=', 'created_at', $lastTwoWeeks])
+            ->orderBy(['total_viewers' => SORT_DESC])
             ->limit(5);
 
         // Filtering
