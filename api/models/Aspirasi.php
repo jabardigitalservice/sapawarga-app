@@ -91,9 +91,7 @@ class Aspirasi extends ActiveRecord
             ['description', 'string', 'max' => 1024 * 3],
             ['description', InputCleanValidator::class],
             [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['meta', 'default'],
-            ['approved_by', 'default'],
-            ['approved_at', 'default'],
+            [['meta', 'approved_by', 'approved_at', 'submitted_at'], 'default'],
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
         ];
@@ -134,7 +132,7 @@ class Aspirasi extends ActiveRecord
 
     public function fields()
     {
-        return [
+        $fields = [
             'id',
             'author_id',
             'author' => 'AuthorField',
@@ -156,6 +154,13 @@ class Aspirasi extends ActiveRecord
             'status_label' => 'StatusLabel',
             'approval_note',
             'attachments'  => 'AttachmentsField',
+        ];
+        return array_merge($fields, $this->fieldsTimestamp());
+    }
+
+    protected function fieldsTimestamp()
+    {
+        return [
             'created_at',
             'updated_at',
             'approved_at',
