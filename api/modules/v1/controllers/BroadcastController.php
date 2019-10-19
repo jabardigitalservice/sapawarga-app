@@ -86,11 +86,14 @@ class BroadcastController extends ActiveController
     /**
      * Create and send Broadcast message (or just set scheduled status for a scheduled message type)
      *
-     * @return string
+     * @return array|string
      * @throws \yii\web\ServerErrorHttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionCreate()
     {
+        $response = Yii::$app->getResponse();
+
         /* @var $model \yii\db\ActiveRecord|Broadcast */
         $model = new $this->modelClass();
 
@@ -100,7 +103,6 @@ class BroadcastController extends ActiveController
 
         // validating broadcast message
         if ($model->validate() === false) {
-            $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
 
             return $model->getErrors();
@@ -111,18 +113,24 @@ class BroadcastController extends ActiveController
             throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
         }
 
-        // send broadcast message if not a scheduled message,
-        // or just change the status if it's a scheduled message
-        if ($model->isScheduled()) {
-            $model->update(false, ['status' => Broadcast::STATUS_SCHEDULED]);
-        }else{
-            $this->pushMesssageJob($model);
-            $model->update(false, ['status' => Broadcast::STATUS_PUBLISHED]);
+        // prepare  API response
+        $response->setStatusCode(201);
+
+        // if created as draft, do nothing
+        if ($model->isDraft()) {
+            return $model;
         }
 
-        // prepare and send API response
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(201);
+        // if record has scheduled attribute, change status to scheduled
+        if ($model->isScheduled()) {
+            $model->status = Broadcast::STATUS_SCHEDULED;
+            $model->save();
+        }
+
+        // send broadcast message if not a scheduled message,
+        if ($model->isSendNow()) {
+            $this->pushMesssageJob($model);
+        }
 
         return $model;
     }
@@ -148,13 +156,23 @@ class BroadcastController extends ActiveController
             throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
         }
 
-        if ($model->isScheduled()) {
-            $model->update(false, ['status' => Broadcast::STATUS_SCHEDULED]);
+        // if created as draft, do nothing
+        if ($model->isDraft()) {
             return $model;
         }
 
-        $model->update(false, ['status' => Broadcast::STATUS_PUBLISHED]);
-        return $this->pushMesssageJob($model);
+        // if record has scheduled attribute, change status to scheduled
+        if ($model->isScheduled()) {
+            $model->status = Broadcast::STATUS_SCHEDULED;
+            $model->save();
+        }
+
+        // send broadcast message if not a scheduled message,
+        if ($model->isSendNow()) {
+            $this->pushMesssageJob($model);
+        }
+
+        return $model;
     }
 
     /**

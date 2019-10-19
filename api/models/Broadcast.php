@@ -209,8 +209,18 @@ class Broadcast extends ActiveRecord
         return parent::beforeSave($insert);
     }
 
+    public function isDraft(): bool
+    {
+        return $this->status === self::STATUS_DRAFT;
+    }
+
     public function isScheduled(): bool
     {
         return $this->is_scheduled;
+    }
+
+    public function isSendNow(): bool
+    {
+        return $this->isDraft() === false && $this->isScheduled() === false;
     }
 }
