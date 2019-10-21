@@ -42,6 +42,9 @@ class Aspirasi extends ActiveRecord
     const STATUS_APPROVAL_PENDING = 5;
     const STATUS_PUBLISHED = 10;
 
+    const ACTION_APPROVE = 'APPROVE';
+    const ACTION_REJECT = 'REJECT';
+
     const CATEGORY_TYPE = 'aspirasi';
 
     const SCENARIO_USER_CREATE = 'user-create';

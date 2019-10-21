@@ -666,7 +666,7 @@ class AspirasiCest
         ]);
 
         $data = [
-            'action' => 'REJECT',
+            'action' => Aspirasi::ACTION_REJECT,
             'note'   => 'note',
         ];
 
@@ -699,7 +699,7 @@ class AspirasiCest
         ]);
 
         $data = [
-            'action' => 'APPROVE',
+            'action' => Aspirasi::ACTION_APPROVE,
             'note'   => 'note',
         ];
 

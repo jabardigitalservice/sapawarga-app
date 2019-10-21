@@ -186,9 +186,9 @@ class AspirasiController extends ActiveController
 
         $currentUserId = Yii::$app->user->getId();
 
-        if ($action === 'APPROVE') {
+        if ($action === Aspirasi::ACTION_APPROVE) {
             $model->status = Aspirasi::STATUS_PUBLISHED;
-        } elseif ($action === 'REJECT') {
+        } elseif ($action === Aspirasi::ACTION_REJECT) {
             $model->status = Aspirasi::STATUS_APPROVAL_REJECTED;
         } else {
             $response = Yii::$app->getResponse();
