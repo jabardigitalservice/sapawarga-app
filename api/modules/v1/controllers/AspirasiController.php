@@ -2,13 +2,11 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\Aspirasi;
 use app\models\AspirasiSearch;
 use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -188,18 +186,19 @@ class AspirasiController extends ActiveController
 
         $currentUserId = Yii::$app->user->getId();
 
-        if ($action === 'APPROVE') {
-            $model->status      = Aspirasi::STATUS_PUBLISHED;
-            $model->approved_by = $currentUserId;
-        } elseif ($action === 'REJECT') {
-            $model->status        = Aspirasi::STATUS_APPROVAL_REJECTED;
-            $model->approval_note = $note;
-            $model->approved_by   = $currentUserId;
+        if ($action === Aspirasi::ACTION_APPROVE) {
+            $model->status = Aspirasi::STATUS_PUBLISHED;
+        } elseif ($action === Aspirasi::ACTION_REJECT) {
+            $model->status = Aspirasi::STATUS_APPROVAL_REJECTED;
         } else {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(400);
             return 'Bad Request: Invalid Action';
         }
+
+        $model->approval_note = $note;
+        $model->approved_by   = $currentUserId;
+        $model->touch('approved_at');
 
         if ($model->save(false) === false) {
             throw new ServerErrorHttpException('Failed to process the object for unknown reason.');

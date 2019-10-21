@@ -2,15 +2,12 @@
 
 namespace app\models;
 
-use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasAttachments;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
-use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
-use app\validator\IsArrayValidator;
 use yii\db\ActiveRecord;
 
 /**
@@ -30,6 +27,9 @@ use yii\db\ActiveRecord;
  * @property int $status
  * @property string $approval_note
  * @property int $approved_by
+ * @property int $approved_at
+ * @property int $submitted_at
+ * @property int $last_revised_at
  */
 class Aspirasi extends ActiveRecord
 {
@@ -41,6 +41,9 @@ class Aspirasi extends ActiveRecord
     const STATUS_APPROVAL_REJECTED = 3;
     const STATUS_APPROVAL_PENDING = 5;
     const STATUS_PUBLISHED = 10;
+
+    const ACTION_APPROVE = 'APPROVE';
+    const ACTION_REJECT = 'REJECT';
 
     const CATEGORY_TYPE = 'aspirasi';
 
@@ -92,9 +95,7 @@ class Aspirasi extends ActiveRecord
             ['description', 'string', 'max' => 1024 * 3],
             ['description', InputCleanValidator::class],
             [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['meta', 'default'],
-            ['approved_by', 'default'],
-            ['approved_at', 'default'],
+            [['meta', 'approved_by', 'approved_at', 'submitted_at', 'last_revised_at'], 'default'],
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
         ];
@@ -126,7 +127,8 @@ class Aspirasi extends ActiveRecord
                 'approval_note',
                 'required',
                 'when' => function ($model) {
-                    return $model->status === self::STATUS_APPROVAL_REJECTED;
+                    return $model->status === self::STATUS_APPROVAL_REJECTED
+                     || $model->status === self::STATUS_PUBLISHED;
                 },
             ]
         ];
@@ -134,7 +136,7 @@ class Aspirasi extends ActiveRecord
 
     public function fields()
     {
-        return [
+        $fields = [
             'id',
             'author_id',
             'author' => 'AuthorField',
@@ -156,8 +158,18 @@ class Aspirasi extends ActiveRecord
             'status_label' => 'StatusLabel',
             'approval_note',
             'attachments'  => 'AttachmentsField',
+        ];
+        return array_merge($fields, $this->fieldsTimestamp());
+    }
+
+    protected function fieldsTimestamp()
+    {
+        return [
             'created_at',
             'updated_at',
+            'approved_at',
+            'submitted_at',
+            'last_revised_at',
         ];
     }
 
@@ -261,8 +273,13 @@ class Aspirasi extends ActiveRecord
             $this->author_id = Yii::$app->user->getId();
         }
 
-        if ($this->status == self::STATUS_PUBLISHED) {
-            $this->approval_note = null;
+        //Add timestamp when submitting a new Aspirasi / revision of rejected Aspirasi
+        if ($this->status == self::STATUS_APPROVAL_PENDING) {
+            if (!$this->submitted_at) {
+                $this->submitted_at = time();
+            } else {
+                $this->last_revised_at = time();
+            }
         }
 
         return parent::beforeSave($insert);
