@@ -36,27 +36,30 @@ class Notification extends \yii\db\ActiveRecord
     const CATEGORY_LABEL_NEWS = 'Berita Terbaru';
     const CATEGORY_LABEL_NEWSHOAX = 'Berita Counter Hoaks Terbaru';
     const CATEGORY_LABEL_VIDEO = 'Video Terbaru';
+    const CATEGORY_LABEL_ASPIRASI_STATUS = 'Perubahan Status Usulan';
     const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
 
 
     // Memetakan category name dengan target name
     const TARGET_MAP = [
-        self::CATEGORY_LABEL_SURVEY     => 'notifikasi',
-        self::CATEGORY_LABEL_POLLING    => 'notifikasi',
-        self::CATEGORY_LABEL_NEWS       => 'notifikasi',
-        self::CATEGORY_LABEL_NEWSHOAX   => 'notifikasi',
-        self::CATEGORY_LABEL_VIDEO      => 'notifikasi',
-        self::CATEGORY_LABEL_UPDATE     => 'url',
+        self::CATEGORY_LABEL_SURVEY             => 'notifikasi',
+        self::CATEGORY_LABEL_POLLING            => 'notifikasi',
+        self::CATEGORY_LABEL_NEWS               => 'notifikasi',
+        self::CATEGORY_LABEL_NEWSHOAX           => 'notifikasi',
+        self::CATEGORY_LABEL_VIDEO              => 'notifikasi',
+        self::CATEGORY_LABEL_ASPIRASI_STATUS    => 'notifikasi',
+        self::CATEGORY_LABEL_UPDATE             => 'url',
     ];
 
     // Memetakan category name dengan default meta
     const DEFAULT_META_MAP = [
-        self::CATEGORY_LABEL_SURVEY     => [ 'target'   => 'survey', ],
-        self::CATEGORY_LABEL_POLLING    => [ 'target'   => 'polling', ],
-        self::CATEGORY_LABEL_NEWS       => [ 'target'   => 'news', ],
-        self::CATEGORY_LABEL_NEWSHOAX   => [ 'target'   => 'saber-hoax', ],
-        self::CATEGORY_LABEL_VIDEO      => [ 'target'   => 'home-results', ],
-        self::CATEGORY_LABEL_UPDATE     => [
+        self::CATEGORY_LABEL_SURVEY             => [ 'target'   => 'survey', ],
+        self::CATEGORY_LABEL_POLLING            => [ 'target'   => 'polling', ],
+        self::CATEGORY_LABEL_NEWS               => [ 'target'   => 'news', ],
+        self::CATEGORY_LABEL_NEWSHOAX           => [ 'target'   => 'saber-hoax', ],
+        self::CATEGORY_LABEL_VIDEO              => [ 'target'   => 'home-results', ],
+        self::CATEGORY_LABEL_ASPIRASI_STATUS    => [ 'target'   => 'aspirasi', ],
+        self::CATEGORY_LABEL_UPDATE             => [
             'target'    => 'url',
             'url'       => self::URL_STORE_ANDROID,
         ],
