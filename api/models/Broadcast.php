@@ -162,6 +162,11 @@ class Broadcast extends ActiveRecord
         ];
     }
 
+    /**
+     * Build array of information for FCM
+     *
+     * @return array
+     */
     public function buildPushNotificationPayload(): array
     {
         $data = [
@@ -183,6 +188,11 @@ class Broadcast extends ActiveRecord
         ];
     }
 
+    /**
+     * Build topic name for Push Notification targets
+     *
+     * @return string
+     */
     protected function buildTopicName(): string
     {
         // By default, send notification to all users
@@ -226,6 +236,12 @@ class Broadcast extends ActiveRecord
         return $this->isDraft() === false && $this->isScheduled() === false;
     }
 
+    /**
+     * Custom validation rules for input Scheduled Datetime
+     * Scheduled Datetime must greater than now
+     *
+     * @throws \Exception
+     */
     public function validateScheduledDateTime()
     {
         $selectedDateTime = (new Carbon($this->scheduled_datetime));

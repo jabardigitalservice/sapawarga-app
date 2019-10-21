@@ -2,9 +2,9 @@
 
 namespace Jdsteam\Sapawarga\Jobs;
 
+use Yii;
 use yii\base\BaseObject;
 use yii\queue\JobInterface;
-
 use app\models\Message;
 use app\models\User;
 use app\models\UserMessage;
@@ -17,8 +17,7 @@ class MessageJob extends BaseObject implements JobInterface
     public $content;
     public $instance;
     public $sender_id;
-    public $enable_push_notif;
-    public $push_notif_payload;
+    public $pushNotifyPayload;
 
     public function execute($queue)
     {
@@ -54,9 +53,8 @@ class MessageJob extends BaseObject implements JobInterface
             'description' => $this->content,
         ]);
 
-        if ($this->enable_push_notif) {
-            $this->sendPushNotification();
-        }
+        // if insert to users inbox has been done, then send Push Notification
+        $this->sendPushNotification();
     }
 
     public function insertUserMessages($users, array $attributes)
@@ -77,13 +75,13 @@ class MessageJob extends BaseObject implements JobInterface
             ]);
 
             if ($model->save()) {
-                echo sprintf("Job executed! type = %s, id = %s, recipient_id = %s \n", $attributes['type'], $attributes['instance_id'], $user->id);
+                Yii::info(sprintf("Job executed! type = %s, id = %s, recipient_id = %s \n", $attributes['type'], $attributes['instance_id'], $user->id));
             } else {
-                echo sprintf("Job failed! type = %s, id = %s, recipient_id = %s \n", $attributes['type'], $attributes['instance_id'], $user->id);
+                Yii::info(sprintf("Job failed! type = %s, id = %s, recipient_id = %s \n", $attributes['type'], $attributes['instance_id'], $user->id));
             }
         }
 
-        echo sprintf("Total jobs = %s, finished at = %s \n\n", $index+1, date("d-m-Y H:i:s"));
+        Yii::info(sprintf("Total jobs = %s, finished at = %s \n\n", $index+1, date('d-m-Y H:i:s')));
     }
 
     public function sendPushNotification()
@@ -91,7 +89,7 @@ class MessageJob extends BaseObject implements JobInterface
         echo sprintf("Sending push notification for type = %s, id = %s\n", $this->type, $this->instance->id);
 
         $notifModel = new Message();
-        $notifModel->setAttributes($this->push_notif_payload);
+        $notifModel->setAttributes($this->pushNotifyPayload);
         $notifModel->send();
     }
 }
