@@ -297,12 +297,12 @@ class Aspirasi extends ActiveRecord
                 'categoryName'  => $categoryName,
                 'title'         => "Usulan Anda dengan judul \"{$this->title}\" telah {$this->getStatusLabel()}",
                 'description'   => $this->description,
-                //TODO target should be user's area ids instead of Aspirasi's target
+                // Sets target to author's area ids
                 'target'        => [
-                    'kabkota_id'    => $this->kabkota_id,
-                    'kec_id'        => $this->kec_id,
-                    'kel_id'        => $this->kel_id,
-                    'rw'            => $this->rw,
+                    'kabkota_id'    => $this->author->kabkota_id,
+                    'kec_id'        => $this->author->kec_id,
+                    'kel_id'        => $this->author->kel_id,
+                    'rw'            => $this->author->rw,
                 ],
                 'meta'          => [
                     'target'    => 'aspirasi',
