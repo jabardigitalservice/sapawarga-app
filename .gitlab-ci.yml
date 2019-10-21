@@ -192,6 +192,8 @@ deploy_staging_eks:
     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_FROM_EMAIL%/${MAILER_FROM_EMAIL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_FROM_NAME%/${MAILER_FROM_NAME}/g" kubernetes/backend-variables.yaml
 
     # AWS S3 STAGING#
     - sed -i "s/%APP_STORAGE_FS%/${APP_STORAGE_FS}/g" kubernetes/backend-variables.yaml
@@ -231,7 +233,7 @@ deploy_staging_eks:
     - kubectl apply -f kubernetes/backend-queue-job.yaml
 
 
-deploy_prod_eks_v2:
+deploy_prod_eks:
   stage: deploy_prod
   image: dtzar/helm-kubectl
   when: manual
@@ -273,6 +275,8 @@ deploy_prod_eks_v2:
     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_FROM_EMAIL%/${MAILER_FROM_EMAIL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MAILER_FROM_NAME%/${MAILER_FROM_NAME}/g" kubernetes/backend-variables.yaml
     # AWS S3 PRODUCTION #
     - sed -i "s/%APP_STORAGE_FS%/${APP_STORAGE_FS}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_PUBLIC_URL%/${APP_STORAGE_PUBLIC_URL}/g" kubernetes/backend-variables.yaml
