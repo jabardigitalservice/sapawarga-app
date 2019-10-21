@@ -111,7 +111,9 @@ class BroadcastController extends ActiveController
         // prepare  API response
         $response->setStatusCode(201);
 
-        return $this->saveAndBuildSuccessResponse($model);
+        $this->sendOrScheduleMessage($model);
+
+        return $model;
     }
 
     /**
@@ -141,7 +143,9 @@ class BroadcastController extends ActiveController
             throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
         }
 
-        return $this->saveAndBuildSuccessResponse($model);
+        $this->sendOrScheduleMessage($model);
+
+        return $model;
     }
 
     /**
@@ -164,7 +168,7 @@ class BroadcastController extends ActiveController
      * @param \app\models\Broadcast $model
      * @return \app\models\Broadcast
      */
-    protected function saveAndBuildSuccessResponse(Broadcast $model)
+    protected function sendOrScheduleMessage(Broadcast $model)
     {
         // if created as draft, do nothing
         if ($model->isDraft()) {
@@ -172,14 +176,12 @@ class BroadcastController extends ActiveController
         }
 
         // if record has scheduled attribute, change status to scheduled
+        // if not a scheduled message, create queue for send broadcast message now
+
         if ($model->isScheduled()) {
             $model->status = Broadcast::STATUS_SCHEDULED;
             $model->save();
-        }
-
-        // if not a scheduled message,
-        // create queue for send broadcast message
-        if ($model->isSendNow()) {
+        } else {
             $this->pushMesssageJob($model);
         }
 

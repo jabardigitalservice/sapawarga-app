@@ -232,11 +232,6 @@ class Broadcast extends ActiveRecord
         return $this->is_scheduled;
     }
 
-    public function isSendNow(): bool
-    {
-        return $this->isDraft() === false && $this->isScheduled() === false;
-    }
-
     /**
      * Custom validation rules for input Scheduled Datetime
      * Scheduled Datetime must greater than now
