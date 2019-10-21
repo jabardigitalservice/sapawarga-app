@@ -29,6 +29,7 @@ use yii\db\ActiveRecord;
  * @property int $approved_by
  * @property int $approved_at
  * @property int $submitted_at
+ * @property int $last_revised_at
  */
 class Aspirasi extends ActiveRecord
 {
@@ -91,7 +92,7 @@ class Aspirasi extends ActiveRecord
             ['description', 'string', 'max' => 1024 * 3],
             ['description', InputCleanValidator::class],
             [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            [['meta', 'approved_by', 'approved_at', 'submitted_at'], 'default'],
+            [['meta', 'approved_by', 'approved_at', 'submitted_at', 'last_revised_at'], 'default'],
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_CREATE],
             ['status', 'in', 'range' => [0, 5], 'on' => self::SCENARIO_USER_UPDATE],
         ];
@@ -165,6 +166,7 @@ class Aspirasi extends ActiveRecord
             'updated_at',
             'approved_at',
             'submitted_at',
+            'last_revised_at',
         ];
     }
 
@@ -270,7 +272,11 @@ class Aspirasi extends ActiveRecord
 
         //Add timestamp when submitting a new Aspirasi / revision of rejected Aspirasi
         if ($this->status == self::STATUS_APPROVAL_PENDING) {
-            $this->submitted_at = time();
+            if (!$this->submitted_at) {
+                $this->submitted_at = time();
+            } else {
+                $this->last_revised_at = time();
+            }
         }
 
         return parent::beforeSave($insert);

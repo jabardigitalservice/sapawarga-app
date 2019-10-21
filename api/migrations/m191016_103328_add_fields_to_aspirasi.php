@@ -12,6 +12,7 @@ class m191016_103328_add_fields_to_aspirasi extends CustomMigration
     public function safeUp()
     {
         $this->addColumn('aspirasi', 'submitted_at', $this->integer()->null());
+        $this->addColumn('aspirasi', 'last_revised_at', $this->integer()->null());
     }
 
     /**
@@ -19,6 +20,7 @@ class m191016_103328_add_fields_to_aspirasi extends CustomMigration
      */
     public function safeDown()
     {
+        $this->dropColumn('aspirasi', 'last_revised_at');
         $this->dropColumn('aspirasi', 'submitted_at');
     }
 }
