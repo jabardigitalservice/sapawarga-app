@@ -151,7 +151,7 @@ deploy_staging_eks:
   environment:
     name: staging
   only:
-    - master
+    - branches
   dependencies:
     - versioning
   before_script:
