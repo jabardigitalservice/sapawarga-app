@@ -10,8 +10,9 @@ use yii\filters\auth\CompositeAuth;
 use app\filters\auth\HttpBearerAuth;
 use yii\web\ServerErrorHttpException;
 
-use app\models\AspirasiDashboard;
 use app\models\DashboardPolling;
+use app\models\AspirasiDashboard;
+use app\models\NewsDashboard;
 
 /**
  * DashboardController for implements the prepared data
@@ -70,11 +71,11 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo'], //only be applied to
+            'only' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo'],
+                    'actions' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'],
                     'roles' => ['dashboardList'],
                 ],
             ],
@@ -117,5 +118,14 @@ class DashboardController extends ActiveController
         $pollingLatest = new DashboardPolling();
 
         return $pollingLatest->getPollingLatest($params);
+    }
+
+    public function actionNewsMostLikes()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $newsMostLikes = new NewsDashboard();
+
+        return $newsMostLikes->getNewsMostLikes($params);
     }
 }
