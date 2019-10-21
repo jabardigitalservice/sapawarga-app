@@ -2,20 +2,17 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
+use app\components\ModelHelper;
 use app\models\Broadcast;
 use app\models\BroadcastSearch;
-use app\models\UserMessage;
 use app\models\User;
+use app\models\UserMessage;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Yii;
-use yii\base\Model;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use app\components\ModelHelper;
 
 /**
  * BroadcastController implements the CRUD actions for Broadcast model.
@@ -103,9 +100,7 @@ class BroadcastController extends ActiveController
 
         // validating broadcast message
         if ($model->validate() === false) {
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
+            return $this->buildValidationFailedResponse($model);
         }
 
         // save broadcast message to database
@@ -116,25 +111,18 @@ class BroadcastController extends ActiveController
         // prepare  API response
         $response->setStatusCode(201);
 
-        // if created as draft, do nothing
-        if ($model->isDraft()) {
-            return $model;
-        }
-
-        // if record has scheduled attribute, change status to scheduled
-        if ($model->isScheduled()) {
-            $model->status = Broadcast::STATUS_SCHEDULED;
-            $model->save();
-        }
-
-        // send broadcast message if not a scheduled message,
-        if ($model->isSendNow()) {
-            $this->pushMesssageJob($model);
-        }
-
-        return $model;
+        return $this->saveAndBuildSuccessResponse($model);
     }
 
+    /**
+     * Update existing record and send Broadcast message (or just set scheduled status for a scheduled message type)
+     *
+     * @param $id
+     * @return \app\models\Broadcast|array
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\web\ServerErrorHttpException
+     */
     public function actionUpdate($id)
     {
         $model = Broadcast::findOne($id);
@@ -146,16 +134,38 @@ class BroadcastController extends ActiveController
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
         if ($model->validate() === false) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
+            return $this->buildValidationFailedResponse($model);
         }
 
         if ($model->save() === false) {
             throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
         }
 
+        return $this->saveAndBuildSuccessResponse($model);
+    }
+
+    /**
+     * Build validation error response
+     *
+     * @param \app\models\Broadcast $model
+     * @return array
+     */
+    protected function buildValidationFailedResponse(Broadcast $model): array
+    {
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    /**
+     * Update Broadcast status depends on schedule input, or send broadcast if not scheduled
+     *
+     * @param \app\models\Broadcast $model
+     * @return \app\models\Broadcast
+     */
+    protected function saveAndBuildSuccessResponse(Broadcast $model)
+    {
         // if created as draft, do nothing
         if ($model->isDraft()) {
             return $model;
@@ -346,6 +356,12 @@ class BroadcastController extends ActiveController
         return $search->searchStaff($params);
     }
 
+    /**
+     * Send broadcast message to users using Job/Queue (async)
+     *
+     * @param \app\models\Broadcast $broadcast
+     * @return \app\models\Broadcast
+     */
     protected function pushMesssageJob(Broadcast $broadcast)
     {
         Yii::$app->queue->push(new MessageJob([
