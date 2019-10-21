@@ -34,6 +34,8 @@ return [
     'error.empty.internalfill' => 'Silahkan mengisi internal entity id  dan internal category',
     'error.empty.externalfill' => 'Silahkan mengisi link url',
 
+    'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
+
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
     'role.staffSaberhoax' => 'Staf Saber Hoaks',

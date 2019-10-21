@@ -3,6 +3,7 @@
 namespace tests\unit\models;
 
 use app\models\Broadcast;
+use Carbon\Carbon;
 
 class BroadcastTest extends \Codeception\Test\Unit
 {
@@ -73,7 +74,7 @@ class BroadcastTest extends \Codeception\Test\Unit
     {
         $model                     = new Broadcast();
         $model->is_scheduled       = true;
-        $model->scheduled_datetime = '2019-10-10 10:00:00';
+        $model->scheduled_datetime = (new Carbon())->addDay()->toDateTimeString();
 
         $model->validate();
 
@@ -81,7 +82,7 @@ class BroadcastTest extends \Codeception\Test\Unit
 
         $model                     = new Broadcast();
         $model->is_scheduled       = true;
-        $model->scheduled_datetime = '2019-10-10';
+        $model->scheduled_datetime = (new Carbon())->addDay()->toDateString();
 
         $model->validate();
 
@@ -89,7 +90,7 @@ class BroadcastTest extends \Codeception\Test\Unit
 
         $model                     = new Broadcast();
         $model->is_scheduled       = true;
-        $model->scheduled_datetime = '10:00:00';
+        $model->scheduled_datetime = (new Carbon())->addDay()->toTimeString();
 
         $model->validate();
 
@@ -102,6 +103,25 @@ class BroadcastTest extends \Codeception\Test\Unit
         $model->validate();
 
         $this->assertTrue($model->hasErrors('scheduled_datetime'));
+    }
+
+    public function testScheduledDateTimeShouldAfterNow()
+    {
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->subDay()->toDateTimeString();
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->addDay()->toDateTimeString();
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('scheduled_datetime'));
     }
 
     public function testTitleMaximumCharactersShouldSuccess()

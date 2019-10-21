@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
+use Carbon\Carbon;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
@@ -79,6 +80,7 @@ class Broadcast extends ActiveRecord
                 return $model->is_scheduled === true;
             }],
             ['scheduled_datetime', 'date', 'format' => 'php:Y-m-d H:i:s'],
+            ['scheduled_datetime', 'validateScheduledDateTime'],
             ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];
 
@@ -222,5 +224,18 @@ class Broadcast extends ActiveRecord
     public function isSendNow(): bool
     {
         return $this->isDraft() === false && $this->isScheduled() === false;
+    }
+
+    public function validateScheduledDateTime()
+    {
+        $selectedDateTime = (new Carbon($this->scheduled_datetime));
+        $now              = Carbon::now();
+
+        if ($selectedDateTime->isBefore($now)) {
+            $this->addError(
+                'scheduled_datetime',
+                Yii::t('app', 'error.scheduled_datetime.must_after_now')
+            );
+        }
     }
 }

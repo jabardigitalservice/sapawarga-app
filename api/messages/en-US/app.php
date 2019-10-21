@@ -34,6 +34,8 @@ return [
     'error.empty.internalfill' => 'Please fill internal entity id  and internal category',
     'error.empty.externalfill' => 'Please fill link url',
 
+    'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
+
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staff Provinsi',
     'role.staffSaberhoax' => 'Staff Saber Hoaks',
