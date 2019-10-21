@@ -61,6 +61,11 @@ class MessageJob extends BaseObject implements JobInterface
     {
         foreach ($users as $index => $user) {
             $model = new UserMessage();
+
+            /**
+             * Attributes
+             * type: Category type for message. Each categories have different behavior/action in mobile app
+             */
             $model->setAttributes([
                 'type'         => $attributes['type'],
                 'message_id'   => $attributes['instance_id'],

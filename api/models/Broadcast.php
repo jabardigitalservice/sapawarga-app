@@ -40,6 +40,7 @@ class Broadcast extends ActiveRecord
     const STATUS_SCHEDULED = 5;
     const STATUS_PUBLISHED = 10;
 
+    // Category type for message user, see MessageJob on insertUserMessages()
     const CATEGORY_TYPE = 'broadcast';
 
     // Default topic untuk semua user
