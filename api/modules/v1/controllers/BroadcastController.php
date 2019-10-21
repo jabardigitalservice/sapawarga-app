@@ -2,19 +2,17 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
+use app\components\ModelHelper;
 use app\models\Broadcast;
 use app\models\BroadcastSearch;
-use app\models\UserMessage;
 use app\models\User;
+use app\models\UserMessage;
 use Illuminate\Support\Arr;
+use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Yii;
-use yii\base\Model;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use app\components\ModelHelper;
 
 /**
  * BroadcastController implements the CRUD actions for Broadcast model.
@@ -82,64 +80,109 @@ class BroadcastController extends ActiveController
         return $actions;
     }
 
+    /**
+     * Create and send Broadcast message (or just set scheduled status for a scheduled message type)
+     *
+     * @return array|string
+     * @throws \yii\web\ServerErrorHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionCreate()
     {
+        $response = Yii::$app->getResponse();
+
         /* @var $model \yii\db\ActiveRecord|Broadcast */
-        $model = new $this->modelClass([
-            'scenario' => Model::SCENARIO_DEFAULT,
-        ]);
+        $model = new $this->modelClass();
 
-        $params = Yii::$app->request->getQueryParams();
-
-        if (!Arr::has($params, 'test')) {
-            $model->setEnableSendPushNotif(true);
-        }
-
+        // create model and populate property values
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $model->author_id = Yii::$app->user->getId();
 
-        if ($model->validate() && $model->save()) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(201);
-        } elseif (!$model->hasErrors()) {
-            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
-        } else {
-            // Validation error
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
+        // validating broadcast message
+        if ($model->validate() === false) {
+            return $this->buildValidationFailedResponse($model);
         }
+
+        // save broadcast message to database
+        if ($model->save() === false) {
+            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
+        }
+
+        // prepare  API response
+        $response->setStatusCode(201);
+
+        $this->sendOrScheduleMessage($model);
 
         return $model;
     }
 
+    /**
+     * Update existing record and send Broadcast message (or just set scheduled status for a scheduled message type)
+     *
+     * @param $id
+     * @return \app\models\Broadcast|array
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\web\ServerErrorHttpException
+     */
     public function actionUpdate($id)
     {
         $model = Broadcast::findOne($id);
 
-        if (empty($model)) {
+        if ($model === null) {
             throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        $params = Yii::$app->request->getQueryParams();
-
-        if (!Arr::has($params, 'test')) {
-            $model->setEnableSendPushNotif(true);
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        if ($model->validate() && $model->save()) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(200);
-        } elseif (!$model->hasErrors()) {
-            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
-        } else {
-            // Validation error
-            $response = \Yii::$app->getResponse();
-            $response->setStatusCode(422);
+        if ($model->validate() === false) {
+            return $this->buildValidationFailedResponse($model);
+        }
 
-            return $model->getErrors();
+        if ($model->save() === false) {
+            throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+        }
+
+        $this->sendOrScheduleMessage($model);
+
+        return $model;
+    }
+
+    /**
+     * Build validation error response
+     *
+     * @param \app\models\Broadcast $model
+     * @return array
+     */
+    protected function buildValidationFailedResponse(Broadcast $model): array
+    {
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    /**
+     * Update Broadcast status depends on schedule input, or send broadcast if not scheduled
+     *
+     * @param \app\models\Broadcast $model
+     * @return \app\models\Broadcast
+     */
+    protected function sendOrScheduleMessage(Broadcast $model)
+    {
+        // if created as draft, do nothing
+        if ($model->isDraft()) {
+            return $model;
+        }
+
+        // if record has scheduled attribute, change status to scheduled
+        // if not a scheduled message, create queue for send broadcast message now
+
+        if ($model->isScheduled()) {
+            $model->status = Broadcast::STATUS_SCHEDULED;
+            $model->save();
+        } else {
+            $this->pushMesssageJob($model);
         }
 
         return $model;
@@ -314,5 +357,25 @@ class BroadcastController extends ActiveController
         }
 
         return $search->searchStaff($params);
+    }
+
+    /**
+     * Insert new queue for broadcast message to users (async)
+     *
+     * @param \app\models\Broadcast $broadcast
+     * @return \app\models\Broadcast
+     */
+    protected function pushMesssageJob(Broadcast $broadcast)
+    {
+        Yii::$app->queue->push(new MessageJob([
+            'type'              => $broadcast::CATEGORY_TYPE,
+            'senderId'          => $broadcast->author_id,
+            'title'             => $broadcast->title,
+            'content'           => $broadcast->description,
+            'instance'          => $broadcast->toArray(),
+            'pushNotifyPayload' => $broadcast->buildPushNotificationPayload(),
+        ]));
+
+        return $broadcast;
     }
 }

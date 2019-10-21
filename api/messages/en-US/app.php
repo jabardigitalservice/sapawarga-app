@@ -35,6 +35,8 @@ return [
     'error.empty.externalfill' => 'Please fill link url',
     'error.validation.rangedatefill' => 'The range date has been used',
 
+    'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
+
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staff Provinsi',
     'role.staffSaberhoax' => 'Staff Saber Hoaks',
@@ -49,6 +51,8 @@ return [
     'status.inactive' => 'Not Active',
     'status.deleted'  => 'Deleted',
     'status.draft'  => 'Draft',
+    'status.canceled'  => 'Canceled',
+    'status.scheduled'  => 'Scheduled',
     'status.sent'   => 'Sent',
     'status.published'   => 'Published',
     'status.approval-pending'  => 'Sent',

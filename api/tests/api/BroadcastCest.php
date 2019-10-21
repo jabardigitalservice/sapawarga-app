@@ -35,14 +35,15 @@ class BroadcastCest
         $I->amStaff('staffprov');
 
         $I->sendPOST('/v1/broadcasts?test=1', [
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => null,
-            'kec_id'      => null,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => null,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
 
         $I->canSeeResponseCodeIs(201);
@@ -54,15 +55,16 @@ class BroadcastCest
         ]);
 
         $I->seeInDatabase('broadcasts', [
-            'author_id'   => 2,
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => null,
-            'kec_id'      => null,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => null,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
     }
 
@@ -71,14 +73,15 @@ class BroadcastCest
         $I->amStaff('staffkabkota');
 
         $I->sendPOST('/v1/broadcasts?test=1', [
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => 22,
-            'kec_id'      => null,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
 
         $I->canSeeResponseCodeIs(201);
@@ -90,15 +93,16 @@ class BroadcastCest
         ]);
 
         $I->seeInDatabase('broadcasts', [
-            'author_id'   => 3,
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => 22,
-            'kec_id'      => null,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'author_id'    => 3,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
     }
 
@@ -107,14 +111,15 @@ class BroadcastCest
         $I->amStaff('staffkec');
 
         $I->sendPOST('/v1/broadcasts?test=1', [
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'kec_id'       => 431,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
 
         $I->canSeeResponseCodeIs(201);
@@ -126,15 +131,16 @@ class BroadcastCest
         ]);
 
         $I->seeInDatabase('broadcasts', [
-            'author_id'   => 5,
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'author_id'    => 5,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'kec_id'       => 431,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
     }
 
@@ -143,14 +149,15 @@ class BroadcastCest
         $I->amStaff('staffkel');
 
         $I->sendPOST('/v1/broadcasts?test=1', [
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => null,
-            'status'      => 10,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'kec_id'       => 431,
+            'kel_id'       => 6093,
+            'rw'           => null,
+            'status'       => 10,
         ]);
 
         $I->canSeeResponseCodeIs(201);
@@ -162,15 +169,16 @@ class BroadcastCest
         ]);
 
         $I->seeInDatabase('broadcasts', [
-            'author_id'   => 9,
-            'category_id' => 5,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => null,
-            'status'      => 10,
+            'author_id'    => 9,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'kec_id'       => 431,
+            'kel_id'       => 6093,
+            'rw'           => null,
+            'status'       => 10,
         ]);
     }
 
@@ -219,15 +227,16 @@ class BroadcastCest
     public function updateBroadcast(ApiTester $I)
     {
         $I->haveInDatabase('broadcasts', [
-            'id'          => 1,
-            'category_id' => 5,
-            'author_id'   => 1,
-            'title'       => 'Kegiatan Gubernur.',
-            'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 22,
-            'status'      => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
+            'id'           => 1,
+            'category_id'  => 5,
+            'author_id'    => 1,
+            'title'        => 'Kegiatan Gubernur.',
+            'description'  => 'Lorem ipsum.',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'status'       => 10,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
         ]);
 
         $I->amStaff();
@@ -248,15 +257,16 @@ class BroadcastCest
     public function deleteBroadcast(ApiTester $I)
     {
         $I->haveInDatabase('broadcasts', [
-            'id'          => 1,
-            'category_id' => 5,
-            'author_id'   => 1,
-            'title'       => 'Kegiatan Gubernur.',
-            'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 22,
-            'status'      => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
+            'id'           => 1,
+            'category_id'  => 5,
+            'author_id'    => 1,
+            'title'        => 'Kegiatan Gubernur.',
+            'description'  => 'Lorem ipsum.',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'status'       => 10,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
         ]);
 
         $I->amStaff();
@@ -270,15 +280,16 @@ class BroadcastCest
         $I->amStaff();
 
         $I->sendPOST($this->endpointBroadcast, [
-            'author_id'   => 1,
-            'category_id' => 0,
-            'title'       => 'Broadcast Title',
-            'description' => 'Broadcast Description',
-            'kabkota_id'  => null,
-            'kec_id'      => null,
-            'kel_id'      => null,
-            'rw'          => null,
-            'status'      => 10,
+            'author_id'    => 1,
+            'category_id'  => 0,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => false,
+            'kabkota_id'   => null,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
         ]);
 
         $I->canSeeResponseCodeIs(422);
@@ -293,27 +304,29 @@ class BroadcastCest
     public function getBroadcastListAll(ApiTester $I)
     {
         $I->haveInDatabase('broadcasts', [
-            'id'          => 1,
-            'category_id' => 5,
-            'author_id'   => 1,
-            'title'       => 'Lorem.',
-            'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 22,
-            'status'      => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
+            'id'           => 1,
+            'category_id'  => 5,
+            'author_id'    => 1,
+            'title'        => 'Lorem.',
+            'description'  => 'Lorem ipsum.',
+            'is_scheduled' => false,
+            'kabkota_id'   => 22,
+            'status'       => 10,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
         ]);
 
         $I->haveInDatabase('broadcasts', [
-            'id'          => 2,
-            'category_id' => 5,
-            'author_id'   => 1,
-            'title'       => 'Lorem.',
-            'description' => 'Lorem ipsum.',
-            'kabkota_id'  => 23,
-            'status'      => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
+            'id'           => 2,
+            'category_id'  => 5,
+            'author_id'    => 1,
+            'title'        => 'Lorem.',
+            'description'  => 'Lorem ipsum.',
+            'is_scheduled' => false,
+            'kabkota_id'   => 23,
+            'status'       => 10,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
         ]);
 
         $I->amStaff();

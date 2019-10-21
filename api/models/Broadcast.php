@@ -2,13 +2,16 @@
 
 namespace app\models;
 
-use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
+use Carbon\Carbon;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
-use Jdsteam\Sapawarga\Jobs\MessageJob;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
-use yii\queue\db\Queue;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "broadcasts".
@@ -23,26 +26,25 @@ use yii\queue\db\Queue;
  * @property int $kel_id
  * @property string $rw
  * @property mixed $meta
+ * @property bool $is_scheduled
+ * @property mixed $scheduled_datetime
  * @property int $status
  */
-class Broadcast extends \yii\db\ActiveRecord
+class Broadcast extends ActiveRecord
 {
+    use HasArea, HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
+    const STATUS_CANCELED = 1;
+    const STATUS_SCHEDULED = 5;
     const STATUS_PUBLISHED = 10;
 
+    // Category type for message user, see MessageJob on insertUserMessages()
     const CATEGORY_TYPE = 'broadcast';
 
     // Default topic untuk semua user
     const TOPIC_DEFAULT = 'kabkota';
-
-    /** @var  array push notification metadata */
-    public $data;
-
-    /**
-     * @var bool
-     */
-    protected $enableSendPushNotif = false;
 
     /**
      * {@inheritdoc}
@@ -57,32 +59,12 @@ class Broadcast extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['title', 'status'], 'required'],
             [['title', 'description', 'rw', 'meta'], 'trim'],
             ['title', 'string', 'max' => 100],
@@ -90,17 +72,20 @@ class Broadcast extends \yii\db\ActiveRecord
             ['description', 'string', 'max' => 1000],
             ['description', InputCleanValidator::class],
             ['rw', 'string', 'length' => 3],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern')
-            ],
-            ['rw', 'default'],
-            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['category_id', 'validateCategoryID'],
+            [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
+            ['is_scheduled', 'required'],
+            ['is_scheduled', 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
+            ['scheduled_datetime', 'default'],
+            ['scheduled_datetime', 'required', 'when' => function ($model) {
+                return $model->is_scheduled === true;
+            }],
+            ['scheduled_datetime', 'datetime', 'timestampAttribute' => 'scheduled_datetime'],
+            ['scheduled_datetime', 'validateScheduledDateTime'],
+            ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];
+
+        return array_merge($rules, $this->rulesRw(), $this->rulesCategory());
     }
 
     public function fields()
@@ -108,81 +93,50 @@ class Broadcast extends \yii\db\ActiveRecord
         $fields = [
             'id',
             'author_id',
-            'author' => function () {
-                return [
-                    'id'            => $this->author->id,
-                    'name'          => $this->author->name,
-                    'role_label'    => $this->author->getRoleLabel(),
-                ];
-            },
+            'author' => 'AuthorField',
             'category_id',
-            'category' => function () {
-                return [
-                    'id'   => $this->category->id,
-                    'name' => $this->category->name,
-                ];
-            },
+            'category' => 'CategoryField',
             'title',
             'description',
             'kabkota_id',
-            'kabkota' => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'kec_id',
-            'kecamatan' => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kel_id',
-            'kelurahan' => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'rw',
             'meta',
+            'is_scheduled',
+            'scheduled_datetime',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_PUBLISHED:
-                        $statusLabel = Yii::t('app', 'status.published');
-                        break;
-                    case self::STATUS_DRAFT:
-                        $statusLabel = Yii::t('app', 'status.draft');
-                        break;
-                    case self::STATUS_DELETED:
-                        $statusLabel = Yii::t('app', 'status.deleted');
-                        break;
-                }
-                return $statusLabel;
-            },
-            'data' => function () {
-                return $this->data;
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
         ];
 
         return $fields;
+    }
+
+    public function getAuthorField()
+    {
+        return [
+            'id'            => $this->author->id,
+            'name'          => $this->author->name,
+            'role_label'    => $this->author->getRoleLabel(),
+        ];
+    }
+
+    public function getStatusLabel()
+    {
+        $statuses = [
+            self::STATUS_PUBLISHED => Yii::t('app', 'status.published'),
+            self::STATUS_SCHEDULED => Yii::t('app', 'status.scheduled'),
+            self::STATUS_CANCELED  => Yii::t('app', 'status.canceled'),
+            self::STATUS_DRAFT     => Yii::t('app', 'status.draft'),
+            self::STATUS_DELETED   => Yii::t('app', 'status.deleted'),
+        ];
+
+        return $statuses[$this->status];
     }
 
     /** @inheritdoc */
@@ -195,36 +149,26 @@ class Broadcast extends \yii\db\ActiveRecord
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_scheduled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterValidate' => false,
+                'typecastBeforeSave' => false,
+                'typecastAfterFind' => true,
+            ],
+            BlameableBehavior::class,
             AreaBehavior::class,
         ];
     }
 
-    /** @inheritdoc */
-    public function beforeSave($insert)
-    {
-        $this->author_id = Yii::$app->user->getId();
-
-        return parent::beforeSave($insert);
-    }
-
-    public function afterSave($insert, $changedAttributes)
-    {
-        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
-        if ($isSendNotification) {
-            // Send job queue to insert user_messages per user
-            Yii::$app->queue->push(new MessageJob([
-                'type' => self::CATEGORY_TYPE,
-                'sender_id' => $this->author_id,
-                'instance' => $this,
-                'enable_push_notif' => $this->enableSendPushNotif,
-                'push_notif_payload' => $this->getPushNotifPayload(),
-            ]));
-        }
-
-        return parent::afterSave($insert, $changedAttributes);
-    }
-
-    public function getPushNotifPayload()
+    /**
+     * Build array of information for FCM
+     *
+     * @return array
+     */
+    public function buildPushNotificationPayload(): array
     {
         $data = [
             'target'            => 'broadcast',
@@ -237,8 +181,24 @@ class Broadcast extends \yii\db\ActiveRecord
             'push_notification' => true,
         ];
 
+        return [
+            'title'         => $this->title,
+            'description'   => $this->description,
+            'data'          => $data,
+            'topic'         => $this->buildTopicName(),
+        ];
+    }
+
+    /**
+     * Build topic name for Push Notification targets
+     *
+     * @return string
+     */
+    protected function buildTopicName(): string
+    {
         // By default, send notification to all users
-        $topic = Broadcast::TOPIC_DEFAULT;
+        $topic = self::TOPIC_DEFAULT;
+
         if ($this->kel_id && $this->rw) {
             $topic = "{$this->kel_id}_{$this->rw}";
         } elseif ($this->kel_id) {
@@ -249,27 +209,45 @@ class Broadcast extends \yii\db\ActiveRecord
             $topic = (string) $this->kabkota_id;
         }
 
-        return [
-            'title'         => $this->title,
-            'description'   => $this->description,
-            'data'          => $data,
-            'topic'         => $topic,
-        ];
+        return $topic;
     }
 
-    public function setEnableSendPushNotif($boolean)
+    /** @inheritdoc */
+    public function beforeSave($insert)
     {
-        $this->enableSendPushNotif = $boolean;
+        if ($this->is_scheduled === false) {
+            $this->scheduled_datetime = null;
+        }
+
+        return parent::beforeSave($insert);
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status === self::STATUS_DRAFT;
+    }
+
+    public function isScheduled(): bool
+    {
+        return $this->is_scheduled;
     }
 
     /**
-     * Checks if category type is broadcast
+     * Custom validation rules for input Scheduled Datetime
+     * Scheduled Datetime must greater than now
      *
-     * @param $attribute
-     * @param $params
+     * @throws \Exception
      */
-    public function validateCategoryID($attribute, $params)
+    public function validateScheduledDateTime()
     {
-        ModelHelper::validateCategoryID($this, $attribute);
+        $selectedDateTime = (new Carbon($this->scheduled_datetime));
+        $now              = Carbon::now();
+
+        if ($selectedDateTime->isBefore($now)) {
+            $this->addError(
+                'scheduled_datetime',
+                Yii::t('app', 'error.scheduled_datetime.must_after_now')
+            );
+        }
     }
 }
