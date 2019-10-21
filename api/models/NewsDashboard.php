@@ -15,7 +15,7 @@ class NewsDashboard extends News
     /**
      * Creates data provider instance applied to get news most likes per provinsi / kabkota
      *
-     * @param string $location For separated news provinsi / kabkota, sample value is `provinsi` / `kabkota`
+     * @param string $location For separated news provinsi / kabkota, value is only `provinsi` / `kabkota`
      * @param string $start_date (optional) Default value is last two week
      * @param string $end_date (optional) Default value is today
      *
