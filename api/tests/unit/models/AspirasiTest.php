@@ -3,8 +3,6 @@
 namespace tests\unit\models;
 
 use app\models\Aspirasi;
-use Yii;
-use Mockery as m;
 
 class AspirasiTest extends \Codeception\Test\Unit
 {
@@ -22,6 +20,7 @@ class AspirasiTest extends \Codeception\Test\Unit
         $model->kel_id      = 1;
         $model->author_id   = 1;
         $model->category_id = 1;
+        $model->approval_note = 'test';
 
         $this->assertTrue($model->validate());
     }
@@ -350,7 +349,7 @@ class AspirasiTest extends \Codeception\Test\Unit
         $this->assertFalse($model->hasErrors('status'));
     }
 
-    public function testApprovalNoteRequired()
+    public function testApprovalNoteRequiredOnRejected()
     {
         $model = new Aspirasi();
         $model->status = Aspirasi::STATUS_APPROVAL_REJECTED;
@@ -359,6 +358,20 @@ class AspirasiTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('approval_note'));
 
         $model->approval_note = 'reason for rejection';
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('approval_note'));
+    }
+
+    public function testApprovalNoteRequiredOnPublished()
+    {
+        $model = new Aspirasi();
+        $model->status = Aspirasi::STATUS_PUBLISHED;
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('approval_note'));
+
+        $model->approval_note = 'approval note';
         $model->validate();
 
         $this->assertFalse($model->hasErrors('approval_note'));
