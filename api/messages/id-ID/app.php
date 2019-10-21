@@ -35,6 +35,8 @@ return [
     'error.empty.externalfill' => 'Silahkan mengisi link url',
     'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
 
+    'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
+
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
     'role.staffSaberhoax' => 'Staf Saber Hoaks',
@@ -49,6 +51,8 @@ return [
     'status.inactive' => 'Tidak Aktif',
     'status.deleted'  => 'Dihapus',
     'status.draft'  => 'Draft',
+    'status.canceled'  => 'Dibatalkan',
+    'status.scheduled'  => 'Dijadwalkan',
     'status.sent'   => 'Terkirim',
     'status.published'   => 'Dipublikasikan',
     'status.approval-pending'  => 'Terkirim',

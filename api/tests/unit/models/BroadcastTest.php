@@ -3,6 +3,7 @@
 namespace tests\unit\models;
 
 use app\models\Broadcast;
+use Carbon\Carbon;
 
 class BroadcastTest extends \Codeception\Test\Unit
 {
@@ -20,6 +21,7 @@ class BroadcastTest extends \Codeception\Test\Unit
         $model->kel_id      = 1;
         $model->rw          = '001';
         $model->status      = 10;
+        $model->is_scheduled = false;
 
         $this->assertTrue($model->validate());
     }
@@ -36,17 +38,90 @@ class BroadcastTest extends \Codeception\Test\Unit
         $model->kel_id      = null;
         $model->rw          = null;
         $model->status      = null;
+        $model->is_scheduled = null;
 
         $this->assertFalse($model->validate());
 
         $this->assertTrue($model->hasErrors('title'));
         $this->assertTrue($model->hasErrors('status'));
+        $this->assertTrue($model->hasErrors('is_scheduled'));
 
         $this->assertFalse($model->hasErrors('description'));
         $this->assertFalse($model->hasErrors('kabkota_id'));
         $this->assertFalse($model->hasErrors('kec_id'));
         $this->assertFalse($model->hasErrors('kel_id'));
         $this->assertFalse($model->hasErrors('rw'));
+    }
+
+    public function testScheduledDateTimeShouldRequired()
+    {
+        $model               = new Broadcast();
+        $model->is_scheduled = false;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('scheduled_datetime'));
+
+        $model               = new Broadcast();
+        $model->is_scheduled = true;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+    }
+
+    public function testScheduledDateTimeShouldValidFormat()
+    {
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->addDay()->getTimestamp();
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->addDay()->toDateString();
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->addDay()->toTimeString();
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = 'xxx';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+    }
+
+    public function testScheduledDateTimeShouldAfterNow()
+    {
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->subDay()->getTimestamp();
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('scheduled_datetime'));
+
+        $model                     = new Broadcast();
+        $model->is_scheduled       = true;
+        $model->scheduled_datetime = (new Carbon())->addDay()->getTimestamp();
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('scheduled_datetime'));
     }
 
     public function testTitleMaximumCharactersShouldSuccess()

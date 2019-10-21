@@ -3,5 +3,6 @@ exclude_patterns:
   - assets/
   - api/vendor/
   - api/tests/
+  - api/messages/
   - api/web/
   - api/migrations/
