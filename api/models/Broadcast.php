@@ -79,7 +79,7 @@ class Broadcast extends ActiveRecord
             ['scheduled_datetime', 'required', 'when' => function ($model) {
                 return $model->is_scheduled === true;
             }],
-            ['scheduled_datetime', 'date', 'format' => 'php:Y-m-d H:i:s'],
+            ['scheduled_datetime', 'datetime', 'timestampAttribute' => 'scheduled_datetime'],
             ['scheduled_datetime', 'validateScheduledDateTime'],
             ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];

@@ -74,7 +74,7 @@ class BroadcastTest extends \Codeception\Test\Unit
     {
         $model                     = new Broadcast();
         $model->is_scheduled       = true;
-        $model->scheduled_datetime = (new Carbon())->addDay()->toDateTimeString();
+        $model->scheduled_datetime = (new Carbon())->addDay()->getTimestamp();
 
         $model->validate();
 
@@ -109,7 +109,7 @@ class BroadcastTest extends \Codeception\Test\Unit
     {
         $model                     = new Broadcast();
         $model->is_scheduled       = true;
-        $model->scheduled_datetime = (new Carbon())->subDay()->toDateTimeString();
+        $model->scheduled_datetime = (new Carbon())->subDay()->getTimestamp();
 
         $model->validate();
 
@@ -117,7 +117,7 @@ class BroadcastTest extends \Codeception\Test\Unit
 
         $model                     = new Broadcast();
         $model->is_scheduled       = true;
-        $model->scheduled_datetime = (new Carbon())->addDay()->toDateTimeString();
+        $model->scheduled_datetime = (new Carbon())->addDay()->getTimestamp();
 
         $model->validate();
 
