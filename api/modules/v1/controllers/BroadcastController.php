@@ -177,7 +177,8 @@ class BroadcastController extends ActiveController
             $model->save();
         }
 
-        // send broadcast message if not a scheduled message,
+        // if not a scheduled message,
+        // create queue for send broadcast message
         if ($model->isSendNow()) {
             $this->pushMesssageJob($model);
         }
@@ -357,7 +358,7 @@ class BroadcastController extends ActiveController
     }
 
     /**
-     * Send broadcast message to users using Job/Queue (async)
+     * Insert new queue for broadcast message to users (async)
      *
      * @param \app\models\Broadcast $broadcast
      * @return \app\models\Broadcast
@@ -366,7 +367,7 @@ class BroadcastController extends ActiveController
     {
         Yii::$app->queue->push(new MessageJob([
             'type'              => $broadcast::CATEGORY_TYPE,
-            'sender_id'         => $broadcast->author_id,
+            'senderId'          => $broadcast->author_id,
             'title'             => $broadcast->title,
             'content'           => $broadcast->description,
             'instance'          => $broadcast->toArray(),
