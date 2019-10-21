@@ -13,15 +13,14 @@ use Yii;
 class NewsDashboard extends News
 {
     /**
-     * Creates data provider instance applied to get news most likes per province / kabkota
+     * Creates data provider instance applied to get news most likes per provinsi / kabkota
      *
-     * @param string $location
-     * @param string $start_date (optional)
-     * @param string $end_date (optional)
+     * @param string $location For separated news provinsi / kabkota, sample value is `provinsi` / `kabkota`
+     * @param string $start_date (optional) Default value is last two week
+     * @param string $end_date (optional) Default value is today
      *
-     * @return SqlDataProvider
+     * @return Query
      */
-
     public function getNewsMostLikes($params)
     {
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'] . '/';
@@ -45,7 +44,7 @@ class NewsDashboard extends News
             ->limit(5);
 
         // Filtering location
-        if ($location == 'province') {
+        if ($location == 'provinsi') {
             $query->andWhere(['is', 'kabkota_id', null]);
         }
         if ($location == 'kabkota') {

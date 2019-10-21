@@ -9,7 +9,7 @@ class NewsDashboardCest
         Yii::$app->db->createCommand('TRUNCATE news')->execute();
     }
 
-    public function getNewsMostLikeProvinceTest(ApiTester $I)
+    public function getNewsMostLikeProvinsiTest(ApiTester $I)
     {
         $todayDate = Carbon::now()->timestamp;
 
@@ -62,7 +62,7 @@ class NewsDashboardCest
 
         $I->amStaff();
 
-        $I->sendGET('/v1/dashboards/news-most-likes?location=province');
+        $I->sendGET('/v1/dashboards/news-most-likes?location=provinsi');
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
