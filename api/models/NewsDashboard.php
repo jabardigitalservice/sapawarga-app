@@ -32,15 +32,15 @@ class NewsDashboard extends News
         $location = Arr::get($params, 'location');
 
         $query = new Query;
-        $query->select([
-                    'id',
-                    'title',
-                    "CONCAT('$publicBaseUrl', cover_path) AS cover_path_url",
-                    'total_viewers',
-            ])
+        $query->select([ 'id', 'title', "CONCAT('$publicBaseUrl', cover_path) AS cover_path_url", 'total_viewers'])
             ->from('news')
             ->where(['=', 'status', News::STATUS_PUBLISHED])
             ->andWhere(['>', 'total_viewers', 0])
+            ->andWhere([
+                'and',
+                ['>=', 'created_at', strtotime($startDate)],
+                ['<=', 'created_at', strtotime($endDate)]
+            ])
             ->orderBy(['total_viewers' => SORT_DESC])
             ->limit(5);
 
@@ -50,15 +50,6 @@ class NewsDashboard extends News
         }
         if ($location == 'kabkota') {
             $query->andWhere(['is not', 'kabkota_id', null]);
-        }
-
-        // Filtering range date
-        if (! empty($startDate) && ! empty($endDate)) {
-            $query->andWhere([
-                'and',
-                ['>=', 'created_at', strtotime($startDate)],
-                ['<=', 'created_at', strtotime($endDate)]
-            ]);
         }
 
         return $query->all();
