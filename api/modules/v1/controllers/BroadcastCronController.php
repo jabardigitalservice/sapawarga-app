@@ -8,7 +8,7 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
 
-class CronController extends Controller
+class BroadcastCronController extends Controller
 {
     /**
      * Scheduler for checking any scheduled messages
@@ -17,25 +17,31 @@ class CronController extends Controller
      * @return \yii\web\Response
      * @throws \Throwable
      */
-    public function actionBroadcasts()
+    public function actionIndex()
     {
         $query = Broadcast::find();
         $query->andWhere(['status' => Broadcast::STATUS_SCHEDULED]);
         $query->andWhere(['not', ['scheduled_datetime' => null]]);
 
         /**
+         * Consider change $query limit result if needed
+         * Keep process small and make sure not hit execution time limit
+         *
          * @var Broadcast[] $scheduledBroadcasts
          */
-        $scheduledBroadcasts = $query->all();
+        $scheduledBroadcasts = $query->limit(5)->all();
+
+        $processedRecords = [];
 
         foreach ($scheduledBroadcasts as $scheduledBroadcast) {
             if ($scheduledBroadcast->isDue()) {
-                $this->sendBroadcast($scheduledBroadcast);
+                $processedRecords[$scheduledBroadcast->id] = $this->sendBroadcast($scheduledBroadcast);
             }
         }
 
-        $response = new Response();
-        $response->statusCode = 200;
+        $response         = Yii::$app->getResponse();
+        $response->format = Response::FORMAT_JSON;
+        $response->data   = json_encode(['records' => $processedRecords]);
 
         return $response;
     }
@@ -44,17 +50,14 @@ class CronController extends Controller
      * Insert new queue for broadcast message to users (async)
      *
      * @param \app\models\Broadcast $broadcast
-     * @return void
-     * @throws \yii\web\ServerErrorHttpException
+     * @return bool
      */
-    protected function sendBroadcast(Broadcast $broadcast): void
+    protected function sendBroadcast(Broadcast $broadcast): bool
     {
         Broadcast::pushSendMessageToUserJob($broadcast);
 
         $broadcast->status = Broadcast::STATUS_PUBLISHED;
 
-        if ($broadcast->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
-        }
+        return $broadcast->save(false);
     }
 }
