@@ -155,6 +155,18 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_PORT
+            
+            - name: MAILER_FROM_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_FROM_EMAIL
+
+            - name: MAILER_FROM_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_FROM_NAME
        
             - name: APP_STORAGE_S3_BUCKET
               valueFrom:

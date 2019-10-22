@@ -47,7 +47,7 @@ $config = [
         ],
         'mailer' => include __DIR__ . '/components/mailer.php',
         'log' => include __DIR__ . '/components/log.php',
-        'queue' => include __DIR__ . '/queue.php',
+        'queue' => include __DIR__ . '/components/queue.db.php',
         'db' => include __DIR__ . '/db.php',
 
         'urlManager' => [

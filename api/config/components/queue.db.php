@@ -6,4 +6,6 @@ return [
     'tableName' => '{{%queue}}',
     'channel' => 'default',
     'mutex' => \yii\mutex\MysqlMutex::class,
+    'serializer' => \yii\queue\serializers\JsonSerializer::class,
+    'as log' => \yii\queue\LogBehavior::class,
 ];
