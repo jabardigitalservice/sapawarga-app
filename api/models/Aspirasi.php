@@ -7,6 +7,7 @@ use Jdsteam\Sapawarga\Models\Concerns\HasAttachments;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use yii\db\ActiveRecord;
 
@@ -283,5 +284,52 @@ class Aspirasi extends ActiveRecord
         }
 
         return parent::beforeSave($insert);
+    }
+
+    /** @inheritdoc */
+    public function afterSave($insert, $changedAttributes)
+    {
+        $isSendNotification = $this->isSendNotification($insert, $changedAttributes, $this);
+
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_ASPIRASI_STATUS;
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "Usulan Anda dengan judul \"{$this->title}\" telah {$this->getStatusLabel()}",
+                'description'   => $this->approval_note,
+                // Sets target to author's area ids
+                'target'        => [
+                    'kabkota_id'    => $this->author->kabkota_id,
+                    'kec_id'        => $this->author->kec_id,
+                    'kel_id'        => $this->author->kel_id,
+                    'rw'            => $this->author->rw,
+                ],
+                'meta'          => [
+                    'target'    => 'aspirasi',
+                    'id'        => $this->id,
+                ],
+            ];
+
+            ModelHelper::sendNewContentNotification($payload);
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    protected function isSendNotification($insert, $changedAttributes)
+    {
+        if (!YII_ENV_TEST && !$insert) { // Model is updated
+            if (array_key_exists('status', $changedAttributes)) {
+                $initialStatus = $changedAttributes['status'];
+                $currentStatus = $this->status;
+                return ($initialStatus == $this::STATUS_APPROVAL_PENDING
+                    && (
+                        $currentStatus == self::STATUS_APPROVAL_REJECTED
+                        || $currentStatus == self::STATUS_PUBLISHED
+                    )
+                );
+            }
+        }
+        return false;
     }
 }
