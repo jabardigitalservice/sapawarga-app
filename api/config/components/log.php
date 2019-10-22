@@ -1,13 +1,14 @@
 <?php
 
 use Jdsteam\Yii2Sentry\SentryTarget;
+use yii\log\FileTarget;
 
 return [
     'traceLevel' => YII_DEBUG ? 3 : 0,
     'targets' => [
         [
-            'class' => 'yii\log\FileTarget',
-            'levels' => ['error', 'warning'],
+            'class' => FileTarget::class,
+            'levels' => ['error', 'warning', 'info'],
         ],
         [
             'class' => SentryTarget::class,

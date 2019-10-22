@@ -27,7 +27,7 @@ $config = [
             ],
         ],
         'mailer' => include __DIR__ . '/components/mailer.php',
-        'queue' => include __DIR__ . '/queue.php',
+        'queue' => include __DIR__ . '/components/queue.db.php',
         'db' => $db,
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
