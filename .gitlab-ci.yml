@@ -127,7 +127,7 @@ deploy_staging_aws:
   image: docker:stable
   stage: deploy_staging
   only:
-    - master
+    - branches
   dependencies:
     - versioning
   before_script:
@@ -151,7 +151,7 @@ deploy_staging_eks:
   environment:
     name: staging
   only:
-    - branches
+    - master
   dependencies:
     - versioning
   before_script:
