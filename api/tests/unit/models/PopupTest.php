@@ -39,38 +39,38 @@ class PopupTest extends Unit
         $this->assertTrue($model->hasErrors('title'));
     }
 
-    public function testInternalCategoryIdMustInRange()
+    public function testInternalObjectTypeMustInRange()
     {
         $model = new Popup();
 
-        $model->internal_category = 'news';
+        $model->internal_object_type = 'news';
 
         $model->validate();
 
-        $this->assertFalse($model->hasErrors('internal_category'));
+        $this->assertFalse($model->hasErrors('internal_object_type'));
 
-        $model->internal_category = 111;
+        $model->internal_object_type = 111;
 
         $model->validate();
 
-        $this->assertTrue($model->hasErrors('internal_category'));
+        $this->assertTrue($model->hasErrors('internal_object_type'));
     }
 
-    public function testInternalEntityIdMustInteger()
+    public function testInternalObjectIdMustInteger()
     {
         $model = new Popup();
 
-        $model->internal_entity_id = 1;
+        $model->internal_object_id = 1;
 
         $model->validate();
 
-        $this->assertFalse($model->hasErrors('internal_entity_id'));
+        $this->assertFalse($model->hasErrors('internal_object_id'));
 
-        $model->internal_entity_id = 'xxx';
+        $model->internal_object_id = 'xxx';
 
         $model->validate();
 
-        $this->assertTrue($model->hasErrors('internal_entity_id'));
+        $this->assertTrue($model->hasErrors('internal_object_id'));
     }
 
     public function testUrlScheme()
@@ -269,7 +269,7 @@ class PopupTest extends Unit
     {
         $model = new Popup();
 
-        $model->status = 0;
+        $model->status = Popup::STATUS_ACTIVE;
 
         $model->validate();
 
@@ -281,21 +281,21 @@ class PopupTest extends Unit
         $model = new Popup();
 
         // Status = DELETED
-        $model->status = -1;
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('status'));
-
-        // Status = DISABLED
-        $model->status = 0;
+        $model->status = Popup::STATUS_DELETED;
 
         $model->validate();
 
         $this->assertFalse($model->hasErrors('status'));
 
         // Status = ACTIVE
-        $model->status = 10;
+        $model->status = Popup::STATUS_ACTIVE;
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('status'));
+
+        // Status = STARTED
+        $model->status = Popup::STATUS_STARTED;
 
         $model->validate();
 

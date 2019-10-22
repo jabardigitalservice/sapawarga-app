@@ -276,6 +276,7 @@ class Aspirasi extends ActiveRecord
 
         //Add timestamp when submitting a new Aspirasi / revision of rejected Aspirasi
         if ($this->status == self::STATUS_APPROVAL_PENDING) {
+            $this->approval_note = null;
             if (!$this->submitted_at) {
                 $this->submitted_at = time();
             } else {
@@ -289,7 +290,7 @@ class Aspirasi extends ActiveRecord
     /** @inheritdoc */
     public function afterSave($insert, $changedAttributes)
     {
-        $isSendNotification = $this->isSendNotification($insert, $changedAttributes, $this);
+        $isSendNotification = $this->isSendNotification($insert, $changedAttributes);
 
         if ($isSendNotification) {
             $categoryName = Notification::CATEGORY_LABEL_ASPIRASI_STATUS;
