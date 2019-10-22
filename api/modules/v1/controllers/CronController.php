@@ -6,6 +6,7 @@ use app\models\Broadcast;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 class CronController extends Controller
 {
@@ -15,7 +16,6 @@ class CronController extends Controller
      *
      * @return \yii\web\Response
      * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     public function actionBroadcasts()
     {
@@ -24,12 +24,14 @@ class CronController extends Controller
         $query->andWhere(['not', ['scheduled_datetime' => null]]);
 
         /**
-         * @var Broadcast[] $broadcasts
+         * @var Broadcast[] $scheduledBroadcasts
          */
-        $broadcasts = $query->all();
+        $scheduledBroadcasts = $query->all();
 
-        foreach ($broadcasts as $broadcast) {
-            $this->sendBroadcast($broadcast);
+        foreach ($scheduledBroadcasts as $scheduledBroadcast) {
+            if ($scheduledBroadcast->isDue()) {
+                $this->sendBroadcast($scheduledBroadcast);
+            }
         }
 
         $response = new Response();
@@ -43,12 +45,16 @@ class CronController extends Controller
      *
      * @param \app\models\Broadcast $broadcast
      * @return void
+     * @throws \yii\web\ServerErrorHttpException
      */
     protected function sendBroadcast(Broadcast $broadcast): void
     {
         Broadcast::pushSendMessageToUserJob($broadcast);
 
         $broadcast->status = Broadcast::STATUS_PUBLISHED;
-        $broadcast->save();
+
+        if ($broadcast->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+        }
     }
 }

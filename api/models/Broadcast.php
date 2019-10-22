@@ -234,6 +234,18 @@ class Broadcast extends ActiveRecord
     }
 
     /**
+     * Check if scheduled datetime passed
+     *
+     * @return bool
+     */
+    public function isDue(): bool
+    {
+        $now = time();
+
+        return $now >= $this->scheduled_datetime;
+    }
+
+    /**
      * Custom validation rules for input Scheduled Datetime
      * Scheduled Datetime must greater than now
      *
@@ -241,10 +253,9 @@ class Broadcast extends ActiveRecord
      */
     public function validateScheduledDateTime()
     {
-        $selectedDateTime = (new Carbon($this->scheduled_datetime));
-        $now              = Carbon::now();
+        $now = time();
 
-        if ($selectedDateTime->isBefore($now)) {
+        if ($this->scheduled_datetime <= $now) {
             $this->addError(
                 'scheduled_datetime',
                 Yii::t('app', 'error.scheduled_datetime.must_after_now')
