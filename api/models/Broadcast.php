@@ -5,6 +5,7 @@ namespace app\models;
 use app\validator\InputCleanValidator;
 use Carbon\Carbon;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
@@ -233,6 +234,18 @@ class Broadcast extends ActiveRecord
     }
 
     /**
+     * Check if scheduled datetime passed
+     *
+     * @return bool
+     */
+    public function isDue(): bool
+    {
+        $now = time();
+
+        return $now >= $this->scheduled_datetime;
+    }
+
+    /**
      * Custom validation rules for input Scheduled Datetime
      * Scheduled Datetime must greater than now
      *
@@ -240,14 +253,31 @@ class Broadcast extends ActiveRecord
      */
     public function validateScheduledDateTime()
     {
-        $selectedDateTime = (new Carbon($this->scheduled_datetime));
-        $now              = Carbon::now();
+        $now = time();
 
-        if ($selectedDateTime->isBefore($now)) {
+        if ($this->scheduled_datetime <= $now) {
             $this->addError(
                 'scheduled_datetime',
                 Yii::t('app', 'error.scheduled_datetime.must_after_now')
             );
         }
+    }
+
+    /**
+     * Insert new queue for broadcast message to users (async)
+     *
+     * @param \app\models\Broadcast $broadcast
+     * @return void
+     */
+    public static function pushSendMessageToUserJob(Broadcast $broadcast): void
+    {
+        Yii::$app->queue->push(new MessageJob([
+            'type'              => $broadcast::CATEGORY_TYPE,
+            'senderId'          => $broadcast->author_id,
+            'title'             => $broadcast->title,
+            'content'           => $broadcast->description,
+            'instance'          => $broadcast->toArray(),
+            'pushNotifyPayload' => $broadcast->buildPushNotificationPayload(),
+        ]));
     }
 }

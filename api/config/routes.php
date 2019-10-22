@@ -2,6 +2,7 @@
 
 return [
     'ping' => 'site/ping',
+    'v1/cron/broadcasts' => 'v1/broadcast-cron',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/user',
