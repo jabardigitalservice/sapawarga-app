@@ -51,7 +51,7 @@ class Popup extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'image_path', 'type', 'start_date', 'end_date', 'description'],'required'],
+            [['title', 'image_path', 'type', 'start_date', 'end_date', 'description', 'status'],'required'],
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
@@ -73,7 +73,7 @@ class Popup extends ActiveRecord
             ['internal_object_type', 'in', 'range' => ['news', 'polling', 'survey']],
             [['status', 'internal_object_id'], 'integer'],
 
-            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_ACTIVE]],
+            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_ACTIVE, self::STATUS_STARTED]],
         ];
     }
 
