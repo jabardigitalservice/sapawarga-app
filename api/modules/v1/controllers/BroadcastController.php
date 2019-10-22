@@ -182,7 +182,7 @@ class BroadcastController extends ActiveController
             $model->status = Broadcast::STATUS_SCHEDULED;
             $model->save();
         } else {
-            $this->pushMesssageJob($model);
+            Broadcast::pushSendMessageToUserJob($model);
         }
 
         return $model;
@@ -357,25 +357,5 @@ class BroadcastController extends ActiveController
         }
 
         return $search->searchStaff($params);
-    }
-
-    /**
-     * Insert new queue for broadcast message to users (async)
-     *
-     * @param \app\models\Broadcast $broadcast
-     * @return \app\models\Broadcast
-     */
-    protected function pushMesssageJob(Broadcast $broadcast)
-    {
-        Yii::$app->queue->push(new MessageJob([
-            'type'              => $broadcast::CATEGORY_TYPE,
-            'senderId'          => $broadcast->author_id,
-            'title'             => $broadcast->title,
-            'content'           => $broadcast->description,
-            'instance'          => $broadcast->toArray(),
-            'pushNotifyPayload' => $broadcast->buildPushNotificationPayload(),
-        ]));
-
-        return $broadcast;
     }
 }

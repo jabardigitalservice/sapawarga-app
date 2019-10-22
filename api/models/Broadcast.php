@@ -5,6 +5,7 @@ namespace app\models;
 use app\validator\InputCleanValidator;
 use Carbon\Carbon;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
@@ -249,5 +250,23 @@ class Broadcast extends ActiveRecord
                 Yii::t('app', 'error.scheduled_datetime.must_after_now')
             );
         }
+    }
+
+    /**
+     * Insert new queue for broadcast message to users (async)
+     *
+     * @param \app\models\Broadcast $broadcast
+     * @return void
+     */
+    public static function pushSendMessageToUserJob(Broadcast $broadcast): void
+    {
+        Yii::$app->queue->push(new MessageJob([
+            'type'              => $broadcast::CATEGORY_TYPE,
+            'senderId'          => $broadcast->author_id,
+            'title'             => $broadcast->title,
+            'content'           => $broadcast->description,
+            'instance'          => $broadcast->toArray(),
+            'pushNotifyPayload' => $broadcast->buildPushNotificationPayload(),
+        ]));
     }
 }
