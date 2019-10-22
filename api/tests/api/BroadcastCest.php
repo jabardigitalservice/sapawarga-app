@@ -695,6 +695,82 @@ class BroadcastCest
         ]);
     }
 
+    public function processScheduledBroadcast(ApiTester $I)
+    {
+        $I->haveInDatabase('broadcasts', [
+            'id'                 => 1,
+            'category_id'        => 5,
+            'author_id'          => 1,
+            'title'              => 'Kegiatan Gubernur.',
+            'description'        => 'Lorem ipsum.',
+            'kabkota_id'         => 22,
+            'status'             => 0, // DRAFT
+            'scheduled_datetime' => null,
+            'is_scheduled'       => false,
+            'created_at'         => '1554706345',
+            'updated_at'         => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'                 => 2,
+            'category_id'        => 5,
+            'author_id'          => 1,
+            'title'              => 'Kegiatan Gubernur.',
+            'description'        => 'Lorem ipsum.',
+            'kabkota_id'         => 22,
+            'status'             => 10, // PUBLISHED
+            'scheduled_datetime' => null,
+            'is_scheduled'       => false,
+            'created_at'         => '1554706345',
+            'updated_at'         => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'                 => 3,
+            'category_id'        => 5,
+            'author_id'          => 1,
+            'title'              => 'Kegiatan Gubernur.',
+            'description'        => 'Lorem ipsum.',
+            'kabkota_id'         => 22,
+            'status'             => 5, // SCHEDULED
+            'scheduled_datetime' => time() + 3600,
+            'is_scheduled'       => true,
+            'created_at'         => '1554706345',
+            'updated_at'         => '1554706345',
+        ]);
+
+        $I->haveInDatabase('broadcasts', [
+            'id'                 => 4,
+            'category_id'        => 5,
+            'author_id'          => 1,
+            'title'              => 'Kegiatan Gubernur.',
+            'description'        => 'Lorem ipsum.',
+            'kabkota_id'         => 22,
+            'status'             => 5, // SCHEDULED
+            'scheduled_datetime' => time() - 3600,
+            'is_scheduled'       => true,
+            'created_at'         => '1554706345',
+            'updated_at'         => '1554706345',
+        ]);
+
+        $I->amStaff();
+
+        $I->sendGET('/v1/cron/broadcasts');
+        $I->canSeeResponseCodeIs(200);
+
+        // Keep in scheduled, because schedule datetime is not due
+        $I->seeInDatabase('broadcasts', [
+            'id'        => 3,
+            'status'    => 5,
+        ]);
+
+        // Published, because scheduled datetime is due
+        $I->seeInDatabase('broadcasts', [
+            'id'        => 4,
+            'status'    => 10,
+        ]);
+    }
+
     public function _after(ApiTester $I)
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();

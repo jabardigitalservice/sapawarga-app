@@ -314,4 +314,17 @@ class BroadcastTest extends \Codeception\Test\Unit
         $this->assertNull($model->kel_id);
         $this->assertNull($model->rw);
     }
+
+    public function testScheduledDateDue()
+    {
+        $model = new Broadcast();
+        $model->scheduled_datetime = time() + 3600;
+
+        $this->assertFalse($model->isDue());
+
+        $model = new Broadcast();
+        $model->scheduled_datetime = time() - 3600;
+
+        $this->assertTrue($model->isDue());
+    }
 }
