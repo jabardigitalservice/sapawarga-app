@@ -296,7 +296,7 @@ class Aspirasi extends ActiveRecord
             $payload = [
                 'categoryName'  => $categoryName,
                 'title'         => "Usulan Anda dengan judul \"{$this->title}\" telah {$this->getStatusLabel()}",
-                'description'   => $this->description,
+                'description'   => $this->approval_note,
                 // Sets target to author's area ids
                 'target'        => [
                     'kabkota_id'    => $this->author->kabkota_id,
