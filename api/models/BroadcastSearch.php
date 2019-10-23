@@ -87,10 +87,11 @@ class BroadcastSearch extends Model
         } else {
             $query->andFilterWhere([
                 'or',
-                ['status' => $model::STATUS_PUBLISHED],
+                ['status' => Broadcast::STATUS_PUBLISHED],
+                ['status' => Broadcast::STATUS_SCHEDULED],
                 [
                     'and',
-                    ['status' => $model::STATUS_DRAFT],
+                    ['status' => Broadcast::STATUS_DRAFT],
                     ['author_id' => $this->user_id],
                 ]
             ]);
