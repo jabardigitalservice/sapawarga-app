@@ -38,6 +38,7 @@ class UserMessageController extends ActiveController
             'actions' => [
                 'index' => ['get'],
                 'view' => ['get'],
+                'delete' => ['delete'],
             ],
         ];
 
@@ -59,7 +60,7 @@ class UserMessageController extends ActiveController
             'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET'],
+                'Access-Control-Request-Method' => ['GET', 'DELETE'],
                 'Access-Control-Request-Headers' => ['*'],
             ],
         ];
@@ -77,11 +78,11 @@ class UserMessageController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view'], //only be applied to
+            'only' => ['index', 'view', 'delete'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
+                    'actions' => ['index', 'view', 'delete'],
                     'roles' => ['userMessageList'],
                 ],
             ],
@@ -93,6 +94,8 @@ class UserMessageController extends ActiveController
     public function actions()
     {
         $actions = parent::actions();
+
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         $actions['view']['findModel'] = [$this, 'findModel'];
@@ -126,9 +129,11 @@ class UserMessageController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        // Update time read_at
-        $model->touch('read_at');
-        $model->save(false);
+        if (Yii::$app->request->isGet) {
+            // Update time read_at
+            $model->touch('read_at');
+            $model->save(false);
+        }
 
         return $model;
     }
@@ -144,5 +149,30 @@ class UserMessageController extends ActiveController
         $search = new UserMessageSearch();
 
         return $search->search($params);
+    }
+
+    /**
+     * Delete entity with soft delete / status flagging
+     *
+     * @param $id
+     * @return string
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\web\ServerErrorHttpException
+     */
+    public function actionDelete($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->status = UserMessage::STATUS_DELETED;
+
+        if ($model->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(204);
+
+        return 'ok';
     }
 }

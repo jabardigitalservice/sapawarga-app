@@ -225,6 +225,6 @@ class UserMessageCest
         $I->sendDELETE('/v1/user-messages/z9AY9');
         $I->canSeeResponseCodeIs(204);
 
-        $I->seeInDatabase('popups', ['id' => 1, 'status' => -1]);
+        $I->seeInDatabase('user_messages', ['id' => 1, 'status' => -1]);
     }
 }
