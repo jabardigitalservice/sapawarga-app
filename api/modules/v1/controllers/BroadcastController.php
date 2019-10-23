@@ -239,12 +239,13 @@ class BroadcastController extends ActiveController
      */
     public function findModel($id)
     {
-        $status = [Broadcast::STATUS_PUBLISHED];
+        $status = [
+            Broadcast::STATUS_DRAFT,
+            Broadcast::STATUS_SCHEDULED,
+            Broadcast::STATUS_PUBLISHED,
+        ];
+
         $user = User::findIdentity(Yii::$app->user->getId());
-        // Admin dan staf dapat mencari broadcast yang mempunyai status sebagai draft
-        if ($user->role > User::ROLE_STAFF_RW) {
-            \array_push($status, Broadcast::STATUS_DRAFT);
-        }
 
         $model = Broadcast::find()
             ->where(['id' => $id])
@@ -285,38 +286,7 @@ class BroadcastController extends ActiveController
 
     public function prepareDataProvider()
     {
-        $authUser = Yii::$app->user;
-
-        if ($authUser->can('staffRW') || $authUser->can('user')) {
-            return $this->dataProviderUser();
-        }
-
         return $this->dataProviderStaff();
-    }
-
-    protected function dataProviderUser()
-    {
-        /**
-         * @var \app\models\User $authUserModel
-         */
-        $authUser      = Yii::$app->user;
-        $authUserModel = $authUser->identity;
-
-        $authKabKotaId = $authUserModel->kabkota_id;
-        $authKecId     = $authUserModel->kec_id;
-        $authKelId     = $authUserModel->kel_id;
-        $authRW        = $authUserModel->rw;
-
-        $search           = new BroadcastSearch();
-        $search->scenario = BroadcastSearch::SCENARIO_LIST_USER_DEFAULT;
-
-        return $search->searchUser([
-            'start_datetime' => $authUserModel->last_login_at,
-            'kabkota_id'     => $authKabKotaId,
-            'kec_id'         => $authKecId,
-            'kel_id'         => $authKelId,
-            'rw'             => $authRW,
-        ]);
     }
 
     protected function dataProviderStaff()
@@ -335,7 +305,7 @@ class BroadcastController extends ActiveController
 
         $search           = new BroadcastSearch();
         $search->scenario = BroadcastSearch::SCENARIO_LIST_STAFF_DEFAULT;
-        $search->user_id = ModelHelper::getLoggedInUserId();
+        $search->user_id  = ModelHelper::getLoggedInUserId();
 
         $params = $queryParams;
 

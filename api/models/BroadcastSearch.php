@@ -17,39 +17,7 @@ class BroadcastSearch extends Model
 {
     public $user_id;
 
-    const SCENARIO_LIST_USER_DEFAULT  = 'list-user-default';
     const SCENARIO_LIST_STAFF_DEFAULT = 'list-staff-default';
-
-
-    /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     *
-     * @return ActiveDataProvider
-     */
-    public function searchUser(array $params)
-    {
-        $query = Broadcast::find();
-
-        // Hanya menampilkan pesan broadcast yang masih aktif
-        $query->andFilterWhere(['status' => Broadcast::STATUS_PUBLISHED]);
-
-        // Hanya menampilkan pesan broadcast yang di-publish setelah user melakukan login
-        $startDatetime = Arr::get($params, 'start_datetime');
-
-        $query->andFilterWhere(['>=', 'updated_at', $startDatetime]);
-
-        // Filter berdasarkan area pengguna
-        $params['kabkota_id'] = Arr::get($params, 'kabkota_id');
-        $params['kec_id']     = Arr::get($params, 'kec_id');
-        $params['kel_id']     = Arr::get($params, 'kel_id');
-        $params['rw']         = Arr::get($params, 'rw');
-
-        $query = ModelHelper::filterByArea($query, $params);
-
-        return $this->createActiveDataProvider($query, $params);
-    }
 
     /**
      * Creates data provider instance with search query applied
