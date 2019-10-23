@@ -66,4 +66,18 @@ class ActiveController extends BaseActiveController
 
         return $this->behaviorAccess($behaviors);
     }
+
+    protected function applySoftDelete($model)
+    {
+        $model->status = $model::STATUS_DELETED;
+
+        if ($model->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(204);
+
+        return 'ok';
+    }
 }

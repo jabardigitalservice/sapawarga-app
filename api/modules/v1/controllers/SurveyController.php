@@ -77,16 +77,7 @@ class SurveyController extends ActiveController
 
         $this->checkAccess('delete', $model, $id);
 
-        $model->status = Survey::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return parent::applySoftDelete($model);
     }
 
     /**

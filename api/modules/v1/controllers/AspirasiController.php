@@ -153,16 +153,7 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('delete', $model);
 
-        $model->status = Aspirasi::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return parent::applySoftDelete($model);
     }
 
     public function actionApproval($id)
