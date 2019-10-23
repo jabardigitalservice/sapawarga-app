@@ -206,4 +206,25 @@ class UserMessageCest
         $I->assertEquals(17, $data[0]['recipient_id']);
         $I->assertNotNull($data[0]['read_at']);
     }
+
+    public function deleteUserMessageTest(ApiTester $I)
+    {
+        $I->haveInDatabase('user_messages', [
+            'id' => 1,
+            'type' => 'broadcast',
+            'message_id' => 1,
+            'sender_id' => 1,
+            'recipient_id' => 17, // as a userrw
+            'title' => 'Lorem Ipsum',
+            'content' => 'Lorem ipsum dolor sit amet',
+            'status' => 10,
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendDELETE('/v1/user-messages/z9AY9');
+        $I->canSeeResponseCodeIs(204);
+
+        $I->seeInDatabase('popups', ['id' => 1, 'status' => -1]);
+    }
 }
