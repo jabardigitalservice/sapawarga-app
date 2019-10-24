@@ -110,10 +110,9 @@ class UserMessageController extends ActiveController
      */
     public function findModel($id)
     {
-        $hashids = new Hashids(\Yii::$app->params['hashidSaltSecret'], \Yii::$app->params['hashidLengthPad']);
-        $idDecode = $hashids->decode($id);
+        $idDecode = $this->decodeHashIds([$id]);
 
-        if (empty($idDecode)) {
+        if (empty($idDecode[0])) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
@@ -187,5 +186,20 @@ class UserMessageController extends ActiveController
         $response->setStatusCode(204);
 
         return 'ok';
+    }
+
+    protected function decodeHashIds($hashIds)
+    {
+        $decoder = new Hashids(\Yii::$app->params['hashidSaltSecret'], \Yii::$app->params['hashidLengthPad']);
+        $decodedIds = [];
+        foreach ($hashIds as $hashId) {
+            $id = $decoder->decode($hashId);
+            // handles invalid hashId
+            if (empty($id)) {
+                $id = [''];
+            }
+            array_push($decodedIds, $id[0]);
+        }
+        return $decodedIds;
     }
 }
