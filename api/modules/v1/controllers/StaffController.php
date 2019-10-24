@@ -174,7 +174,7 @@ class StaffController extends ActiveController
 
         // Check validation max record
         $totalRows = $search->getUserExport($params)->count();
-        $maxRowExport = User::MAX_ROWS_EXPORT;
+        $maxRowExport = User::MAX_ROWS_EXPORT_ALLOWED;
         if ($totalRows > $maxRowExport) {
             throw new ServerErrorHttpException("User export have $totalRows rows, max rows is $maxRowExport.");
         }
