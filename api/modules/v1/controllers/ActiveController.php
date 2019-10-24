@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
+use Yii;
 
 class ActiveController extends BaseActiveController
 {
