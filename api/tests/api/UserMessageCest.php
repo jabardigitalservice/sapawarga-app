@@ -260,7 +260,7 @@ class UserMessageCest
                 '7Lbmv'
             ],
         ];
-        $I->sendPOST('/v1/user-messages', $data);
+        $I->sendPOST('/v1/user-messages/delete-all', $data);
         $I->canSeeResponseCodeIs(204);
 
         $I->seeInDatabase('user_messages', ['id' => 1, 'status' => -1]);

@@ -6,6 +6,8 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserMessage;
 use app\models\UserMessageSearch;
+use Hashids\Hashids;
+use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
@@ -13,7 +15,6 @@ use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use Hashids\Hashids;
 
 /**
  * MessageController implements the CRUD actions for User Message model.
@@ -39,6 +40,7 @@ class UserMessageController extends ActiveController
                 'index' => ['get'],
                 'view' => ['get'],
                 'delete' => ['delete'],
+                'delete-all' => ['post'],
             ],
         ];
 
@@ -60,7 +62,7 @@ class UserMessageController extends ActiveController
             'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'DELETE'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'DELETE'],
                 'Access-Control-Request-Headers' => ['*'],
             ],
         ];
@@ -78,11 +80,11 @@ class UserMessageController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'delete'], //only be applied to
+            'only' => ['index', 'view', 'delete', 'delete-all'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'delete'],
+                    'actions' => ['index', 'view', 'delete', 'delete-all'],
                     'roles' => ['userMessageList'],
                 ],
             ],
@@ -181,6 +183,23 @@ class UserMessageController extends ActiveController
         if ($model->save(false) === false) {
             throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
         }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(204);
+
+        return 'ok';
+    }
+
+    public function actionDeleteAll()
+    {
+        $request = Yii::$app->getRequest()->getBodyParams();
+        $deletedIds = $this->decodeHashIds(Arr::get($request, 'ids'));
+
+        // bulk soft-delete
+        UserMessage::updateAll(
+            ['status' => UserMessage::STATUS_DELETED],
+            ['in', 'id', $deletedIds]
+        );
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(204);

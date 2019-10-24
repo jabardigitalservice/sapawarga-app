@@ -249,7 +249,11 @@ return [
         'pluralize' => true,
         'tokens' => [
             '{id}' => '<id:[A-Za-z0-9]+>',
-        ]
+        ],
+        'extraPatterns' => [
+            'POST delete-all' => 'delete-all',
+            'OPTIONS delete-all' => 'options',
+        ],
     ],
     [
         'class' => 'yii\rest\UrlRule',
