@@ -38,7 +38,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => null,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -76,7 +75,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -97,7 +95,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -114,7 +111,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => 431,
             'kel_id'       => null,
@@ -152,7 +148,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => 431,
             'kel_id'       => 6093,
@@ -179,6 +174,91 @@ class BroadcastCest
             'kel_id'       => 6093,
             'rw'           => null,
             'status'       => 10,
+        ]);
+    }
+
+    public function staffCanCreateScheduledBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $scheduledDatetime = time() + 3600;
+
+        $I->sendPOST('/v1/broadcasts', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 5,
+        ]);
+    }
+
+    public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $scheduledDatetime = time() + 3600;
+
+        $I->sendPOST('/v1/broadcasts', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 0,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 0,
         ]);
     }
 
