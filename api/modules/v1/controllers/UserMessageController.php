@@ -95,10 +95,10 @@ class UserMessageController extends ActiveController
     {
         $actions = parent::actions();
 
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
     }
@@ -129,12 +129,6 @@ class UserMessageController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        if (Yii::$app->request->isGet) {
-            // Update time read_at
-            $model->touch('read_at');
-            $model->save(false);
-        }
-
         return $model;
     }
 
@@ -149,6 +143,25 @@ class UserMessageController extends ActiveController
         $search = new UserMessageSearch();
 
         return $search->search($params);
+    }
+
+    /**
+     * @param $id
+     * @return mixed|\app\models\UserMessage
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id);
+
+        // Mark UserMessage as read
+        $model->touch('read_at');
+        $model->save(false);
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return $model;
     }
 
     /**
