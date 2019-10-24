@@ -75,6 +75,7 @@ class Broadcast extends ActiveRecord
             ['rw', 'string', 'length' => 3],
             [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
+            ['is_scheduled', 'default', 'value' => false],
             ['is_scheduled', 'required'],
             ['is_scheduled', 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
             ['scheduled_datetime', 'default'],
