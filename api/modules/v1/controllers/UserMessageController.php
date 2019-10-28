@@ -6,6 +6,8 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserMessage;
 use app\models\UserMessageSearch;
+use Hashids\Hashids;
+use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
@@ -13,7 +15,6 @@ use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use Hashids\Hashids;
 
 /**
  * MessageController implements the CRUD actions for User Message model.
@@ -39,6 +40,7 @@ class UserMessageController extends ActiveController
                 'index' => ['get'],
                 'view' => ['get'],
                 'delete' => ['delete'],
+                'bulk-delete' => ['post'],
             ],
         ];
 
@@ -60,7 +62,7 @@ class UserMessageController extends ActiveController
             'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'DELETE'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'DELETE'],
                 'Access-Control-Request-Headers' => ['*'],
             ],
         ];
@@ -78,11 +80,11 @@ class UserMessageController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'delete'], //only be applied to
+            'only' => ['index', 'view', 'delete', 'bulk-delete'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'delete'],
+                    'actions' => ['index', 'view', 'delete', 'bulk-delete'],
                     'roles' => ['userMessageList'],
                 ],
             ],
@@ -95,10 +97,10 @@ class UserMessageController extends ActiveController
     {
         $actions = parent::actions();
 
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
     }
@@ -110,10 +112,9 @@ class UserMessageController extends ActiveController
      */
     public function findModel($id)
     {
-        $hashids = new Hashids(\Yii::$app->params['hashidSaltSecret'], \Yii::$app->params['hashidLengthPad']);
-        $idDecode = $hashids->decode($id);
+        $idDecode = $this->decodeHashIds([$id]);
 
-        if (empty($idDecode)) {
+        if (empty($idDecode[0])) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
@@ -127,12 +128,6 @@ class UserMessageController extends ActiveController
 
         if ($model === null) {
             throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        if (Yii::$app->request->isGet) {
-            // Update time read_at
-            $model->touch('read_at');
-            $model->save(false);
         }
 
         return $model;
@@ -152,6 +147,25 @@ class UserMessageController extends ActiveController
     }
 
     /**
+     * @param $id
+     * @return mixed|\app\models\UserMessage
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id);
+
+        // Mark UserMessage as read
+        $model->touch('read_at');
+        $model->save(false);
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return $model;
+    }
+
+    /**
      * Delete entity with soft delete / status flagging
      *
      * @param $id
@@ -165,5 +179,37 @@ class UserMessageController extends ActiveController
         $model = $this->findModel($id);
 
         return parent::applySoftDelete($model);
+    }
+
+    public function actionBulkDelete()
+    {
+        $request = Yii::$app->getRequest()->getBodyParams();
+        $deletedIds = $this->decodeHashIds(Arr::get($request, 'ids'));
+
+        // bulk soft-delete
+        UserMessage::updateAll(
+            ['status' => UserMessage::STATUS_DELETED],
+            ['in', 'id', $deletedIds]
+        );
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(204);
+
+        return 'ok';
+    }
+
+    protected function decodeHashIds($hashIds)
+    {
+        $decoder = new Hashids(\Yii::$app->params['hashidSaltSecret'], \Yii::$app->params['hashidLengthPad']);
+        $decodedIds = [];
+        foreach ($hashIds as $hashId) {
+            $id = $decoder->decode($hashId);
+            // handles invalid hashId
+            if (empty($id)) {
+                $id = [''];
+            }
+            array_push($decodedIds, $id[0]);
+        }
+        return $decodedIds;
     }
 }

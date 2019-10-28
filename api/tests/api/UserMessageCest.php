@@ -227,4 +227,43 @@ class UserMessageCest
 
         $I->seeInDatabase('user_messages', ['id' => 1, 'status' => -1]);
     }
+
+    public function deleteMultipleUserMessageTest(ApiTester $I)
+    {
+        $I->haveInDatabase('user_messages', [
+            'id' => 1,
+            'type' => 'broadcast',
+            'message_id' => 1,
+            'sender_id' => 1,
+            'recipient_id' => 17,
+            'title' => 'Lorem Ipsum',
+            'content' => 'Lorem ipsum dolor sit amet',
+            'status' => 10,
+        ]);
+
+        $I->haveInDatabase('user_messages', [
+            'id' => 2,
+            'type' => 'broadcast',
+            'message_id' => 2,
+            'sender_id' => 1,
+            'recipient_id' => 17,
+            'title' => 'Lorem Ipsum',
+            'content' => 'Lorem ipsum dolor sit amet',
+            'status' => 10,
+        ]);
+
+        $I->amUser('staffrw');
+
+        $data = [
+            'ids' => [
+                'z9AY9',
+                '7Lbmv'
+            ],
+        ];
+        $I->sendPOST('/v1/user-messages/bulk-delete', $data);
+        $I->canSeeResponseCodeIs(204);
+
+        $I->seeInDatabase('user_messages', ['id' => 1, 'status' => -1]);
+        $I->seeInDatabase('user_messages', ['id' => 2, 'status' => -1]);
+    }
 }
