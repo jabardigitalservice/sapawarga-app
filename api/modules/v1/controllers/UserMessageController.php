@@ -40,7 +40,7 @@ class UserMessageController extends ActiveController
                 'index' => ['get'],
                 'view' => ['get'],
                 'delete' => ['delete'],
-                'delete-all' => ['post'],
+                'bulk-delete' => ['post'],
             ],
         ];
 
@@ -80,11 +80,11 @@ class UserMessageController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'delete', 'delete-all'], //only be applied to
+            'only' => ['index', 'view', 'delete', 'bulk-delete'], //only be applied to
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'delete', 'delete-all'],
+                    'actions' => ['index', 'view', 'delete', 'bulk-delete'],
                     'roles' => ['userMessageList'],
                 ],
             ],
@@ -190,7 +190,7 @@ class UserMessageController extends ActiveController
         return 'ok';
     }
 
-    public function actionDeleteAll()
+    public function actionBulkDelete()
     {
         $request = Yii::$app->getRequest()->getBodyParams();
         $deletedIds = $this->decodeHashIds(Arr::get($request, 'ids'));
