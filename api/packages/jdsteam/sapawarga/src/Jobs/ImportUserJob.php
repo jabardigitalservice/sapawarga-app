@@ -2,6 +2,7 @@
 
 namespace Jdsteam\Sapawarga\Jobs;
 
+use Carbon\Carbon;
 use Yii;
 use app\models\Area;
 use app\models\User;
@@ -16,8 +17,15 @@ class ImportUserJob extends BaseObject implements JobInterface
     public $file;
     public $uploaderEmail;
 
+    /**
+     * @var Carbon
+     */
+    protected $startedTime;
+
     public function execute($queue)
     {
+        $this->startedTime = Carbon::now();
+
         $reader = ReaderEntityFactory::createCSVReader();
         $reader->open($this->file);
 
@@ -98,6 +106,8 @@ class ImportUserJob extends BaseObject implements JobInterface
             $textBody .= sprintf("%s : %s\n", $row['username'], $message);
         }
 
+        $textBody .= $this->debugProcessTime();
+
         Yii::$app->mailer->compose()
             ->setFrom([$fromEmail => $fromName])
             ->setTo($this->uploaderEmail)
@@ -111,7 +121,8 @@ class ImportUserJob extends BaseObject implements JobInterface
         $fromEmail = Yii::$app->params['adminEmail'];
         $fromName  = Yii::$app->params['adminEmailName'];
 
-        $textBody  = sprintf('Total imported rows: %s', $rows->count());
+        $textBody  = sprintf("Total imported rows: %s\n", $rows->count());
+        $textBody .= $this->debugProcessTime();
 
         Yii::$app->mailer->compose()
             ->setFrom([$fromEmail => $fromName])
@@ -176,5 +187,16 @@ class ImportUserJob extends BaseObject implements JobInterface
         }
 
         return [$kabkota, $kecamatan, $kelurahan];
+    }
+
+    protected function debugProcessTime()
+    {
+        $finishedAt = Carbon::now();
+
+        $textBody  = "\n\n";
+        $textBody .= sprintf("Started at: %s\n", $this->startedTime->toDateTimeString());
+        $textBody .= sprintf("Finished at: %s\n", $finishedAt->toDateTimeString());
+
+        return $textBody;
     }
 }
