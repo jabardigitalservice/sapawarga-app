@@ -2,8 +2,8 @@
 
 namespace Jdsteam\Sapawarga\Jobs;
 
+use app\models\User;
 use app\models\UserImport;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use yii\base\BaseObject;
 use yii\queue\JobInterface;
@@ -18,51 +18,97 @@ class ImportUserJob extends BaseObject implements JobInterface
         $reader = ReaderEntityFactory::createCSVReader();
         $reader->open($this->file);
 
-        $importedCollection = new Collection();
+        $importedRows = new Collection();
+        $failedRows   = new Collection();
+
         $rowNum = 0;
 
         foreach ($reader->getSheetIterator() as $sheet) {
             foreach ($sheet->getRowIterator() as $row) {
                 $rowNum++;
 
+                // Skip header row
                 if ($rowNum === 1) {
                     continue;
                 }
 
                 $cells = $row->getCells();
 
-                $importedRow = [
-                    'username'  => $cells[0]->getValue(),
-                    'email'     => $cells[1]->getValue(),
-                    'password'  => $cells[2]->getValue(),
-                    'role'      => $cells[3]->getValue(),
-                    'name'      => $cells[4]->getValue(),
-                    'phone'     => $cells[5]->getValue(),
-                    'address'   => $cells[6]->getValue(),
-                    'rt'        => $cells[7]->getValue(),
-                    'rw'        => $cells[8]->getValue(),
-                    'kabkota'   => $cells[9]->getValue(),
-                    'kecamatan' => $cells[10]->getValue(),
-                    'kelurahan' => $cells[11]->getValue(),
-                ];
-
-                $importedRow = Arr::except($importedRow, ['kabkota', 'kecamatan', 'kelurahan']);
+                $importedRow = $this->parseRows($cells);
 
                 $model = new UserImport();
                 $model->load($importedRow, '');
 
                 if ($model->validate() === false) {
-                    exit('Invalid data input.');
+                    $failedRows->push([
+                        'username' => $model->username,
+                        'message'  => $model->getFirstErrors(),
+                    ]);
                 }
 
-                $importedCollection->push($model);
-
-                echo "Row: $rowNum\n";
+                $importedRows->push($model);
             }
         }
 
         $reader->close();
 
-        // var_dump($importedCollection->take(5)); exit;
+        if ($failedRows->count() > 0) {
+            return $this->notifyImportFailed($failedRows);
+        }
+
+        return $this->saveImportedRows($importedRows);
+    }
+
+    protected function parseRows($cells)
+    {
+        return [
+            'username'  => $cells[0]->getValue(),
+            'email'     => $cells[1]->getValue(),
+            'password'  => $cells[2]->getValue(),
+            'role'      => $cells[3]->getValue(),
+            'name'      => $cells[4]->getValue(),
+            'phone'     => $cells[5]->getValue(),
+            'address'   => $cells[6]->getValue(),
+            'rt'        => $cells[7]->getValue(),
+            'rw'        => $cells[8]->getValue(),
+            'kabkota'   => $cells[9]->getValue(),
+            'kecamatan' => $cells[10]->getValue(),
+            'kelurahan' => $cells[11]->getValue(),
+        ];
+    }
+
+    protected function notifyImportFailed(Collection $rows)
+    {
+        exit('Failed !');
+    }
+
+    protected function notifyImportSuccess(Collection $rows)
+    {
+        exit('Success !');
+    }
+
+    protected function saveImportedRows(Collection $rows)
+    {
+        $rows->each(function ($row) {
+            $user             = new User();
+            $user->username   = $row->username;
+            $user->email      = $row->email;
+            $user->name       = $row->name;
+            $user->phone      = $row->phone;
+            $user->address    = $row->address;
+            $user->rt         = $row->rt;
+            $user->rw         = $row->rw;
+            $user->kabkota_id = null;
+            $user->kec_id     = null;
+            $user->kel_id     = null;
+            $user->role       = User::ROLE_STAFF_RW;
+            $user->setPassword($row['password']);
+
+            $user->save(false);
+
+            // Attach to Role
+        });
+
+        return $this->notifyImportSuccess($rows);
     }
 }

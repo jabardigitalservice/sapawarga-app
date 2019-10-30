@@ -920,7 +920,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $this->confirmed_at = Yii::$app->formatter->asTimestamp(date('Y-m-d H:i:s'));
 
         // Fill registration ip with current ip address if empty
-        if ($this->registration_ip == '') {
+        if ($this->registration_ip === '' && Yii::$app instanceof \yii\web\Application) {
             $this->registration_ip = Yii::$app->request->userIP;
         }
 

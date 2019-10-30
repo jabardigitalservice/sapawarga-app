@@ -49,15 +49,12 @@ class UserImport extends Model
             ['email', 'trim'],
             ['email', 'email'],
             ['email', 'string', 'max' => User::MAX_LENGTH],
-//            [
-//                'email',
-//                'unique',
-//                'targetClass' => '\app\models\User',
-//                'message' => Yii::t('app', 'error.email.taken'),
-//                'filter' => function ($query) {
-//                    $query->andWhere(['!=', 'id', $this->id]);
-//                }
-//            ],
+            [
+                'email',
+                'unique',
+                'targetClass' => User::class,
+                'message' => Yii::t('app', 'error.email.taken'),
+            ],
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
