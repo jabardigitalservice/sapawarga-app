@@ -2,19 +2,15 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\Video;
 use app\models\VideoSearch;
 use app\models\VideoStatistics;
-use app\models\Like;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 
 /**

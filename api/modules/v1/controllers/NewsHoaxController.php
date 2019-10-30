@@ -7,7 +7,6 @@ use app\models\NewsHoaxSearch;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 
 /**
  * NewsHoaxController implements the CRUD actions for NewsHoax model.

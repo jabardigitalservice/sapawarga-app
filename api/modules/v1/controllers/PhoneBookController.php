@@ -2,7 +2,6 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\PhoneBook;
 use app\models\PhoneBookSearch;
 use app\models\User;
@@ -11,9 +10,6 @@ use Yii;
 use yii\base\Model;
 use yii\db\Expression;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
-use yii\helpers\Url;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
