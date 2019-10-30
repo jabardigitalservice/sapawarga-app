@@ -243,7 +243,7 @@ class UserController extends ActiveController
     {
         $model = $this->actionView($id);
 
-        return parent::applySoftDelete($model);
+        return $this->applySoftDelete($model);
     }
 
     /**

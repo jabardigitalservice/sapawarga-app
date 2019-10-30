@@ -153,7 +153,7 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('delete', $model);
 
-        return parent::applySoftDelete($model);
+        return $this->applySoftDelete($model);
     }
 
     public function actionApproval($id)

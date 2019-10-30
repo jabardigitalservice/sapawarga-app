@@ -71,7 +71,7 @@ class NewsHoaxController extends ActiveController
     {
         $model = $this->findModel($id);
 
-        return parent::applySoftDelete($model);
+        return $this->applySoftDelete($model);
     }
 
     /**
