@@ -18,9 +18,9 @@ class UserImport extends Model
     public $address;
     public $rt;
     public $rw;
-//    public $kel_id;
-//    public $kec_id;
-//    public $kabkota_id;
+    public $kel_id;
+    public $kec_id;
+    public $kabkota_id;
     public $role;
 
     /**
@@ -37,15 +37,12 @@ class UserImport extends Model
                 'pattern' => '/^[a-z0-9_.]{4,255}$/',
                 'message' => Yii::t('app', 'error.username.pattern')
             ],
-//            [
-//                'username',
-//                'unique',
-//                'targetClass' => '\app\models\User',
-//                'message' => Yii::t('app', 'error.username.taken'),
-//                'filter' => function ($query) {
-//                    $query->andWhere(['!=', 'id', $this->id]);
-//                }
-//            ],
+            [
+                'username',
+                'unique',
+                'targetClass' => User::class,
+                'message' => Yii::t('app', 'error.username.taken'),
+            ],
             ['email', 'trim'],
             ['email', 'email'],
             ['email', 'string', 'max' => User::MAX_LENGTH],
@@ -58,7 +55,21 @@ class UserImport extends Model
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
-            ['role', 'default'],
+
+            [['role', 'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt'], 'default'],
+
+            ['kabkota_id', 'required', 'when' => function ($model) {
+                return $model->role <= User::ROLE_STAFF_KABKOTA;
+            }],
+            ['kec_id', 'required', 'when' => function ($model) {
+                return $model->role <= User::ROLE_STAFF_KEC;
+            }],
+            ['kel_id', 'required', 'when' => function ($model) {
+                return $model->role <= User::ROLE_STAFF_KEL;
+            }],
+            ['rw', 'required', 'when' => function ($model) {
+                return $model->role <= User::ROLE_STAFF_RW;
+            }],
         ];
     }
 }
