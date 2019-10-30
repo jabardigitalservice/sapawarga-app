@@ -2,22 +2,17 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\Polling;
 use app\models\PollingAnswer;
 use app\models\PollingSearch;
 use app\models\PollingVote;
-use app\models\User;
 use app\models\DashboardPolling;
 use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use app\components\ModelHelper;
 
 /**
  * PollingController implements the CRUD actions for Polling model.
@@ -169,16 +164,7 @@ class PollingController extends ActiveController
 
         $this->checkAccess('delete', $model, $id);
 
-        $model->status = Polling::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     public function actionVote($id)

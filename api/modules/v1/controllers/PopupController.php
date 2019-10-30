@@ -2,17 +2,12 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
-use app\models\User;
 use app\models\Popup;
 use app\models\PopupSearch;
-use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 
 /**
@@ -153,16 +148,7 @@ class PopupController extends ActiveController
 
         $this->checkAccess('delete', $model, $id);
 
-        $model->status = Popup::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     /**

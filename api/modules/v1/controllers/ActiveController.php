@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
+use Yii;
 
 class ActiveController extends BaseActiveController
 {
@@ -65,5 +66,19 @@ class ActiveController extends BaseActiveController
         $behaviors['authenticator']['except'] = ['options', 'public'];
 
         return $this->behaviorAccess($behaviors);
+    }
+
+    protected function applySoftDelete($model)
+    {
+        $model->status = $model::STATUS_DELETED;
+
+        if ($model->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(204);
+
+        return 'ok';
     }
 }

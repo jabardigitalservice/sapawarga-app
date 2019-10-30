@@ -7,7 +7,6 @@ use app\models\NewsHoaxSearch;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 
 /**
  * NewsHoaxController implements the CRUD actions for NewsHoax model.
@@ -71,16 +70,7 @@ class NewsHoaxController extends ActiveController
     {
         $model = $this->findModel($id);
 
-        $model->status = NewsHoax::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     /**

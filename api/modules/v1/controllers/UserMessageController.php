@@ -14,7 +14,6 @@ use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 
 /**
  * MessageController implements the CRUD actions for User Message model.
@@ -178,16 +177,7 @@ class UserMessageController extends ActiveController
     {
         $model = $this->findModel($id);
 
-        $model->status = UserMessage::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     public function actionBulkDelete()

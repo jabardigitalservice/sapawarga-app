@@ -2,19 +2,15 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\Video;
 use app\models\VideoSearch;
 use app\models\VideoStatistics;
-use app\models\Like;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 
 /**
@@ -100,16 +96,7 @@ class VideoController extends ActiveController
 
         $this->checkAccess('delete', $model, $id);
 
-        $model->status = Video::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     public function actionStatistics()

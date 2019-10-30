@@ -9,7 +9,6 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -124,16 +123,7 @@ class CategoryController extends ActiveController
 
         $this->checkAccess('delete', $model);
 
-        $model->status = Category::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     public function actionTypes()

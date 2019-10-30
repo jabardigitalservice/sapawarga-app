@@ -20,9 +20,6 @@ use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Box\Spout\Common\Entity\Row;
-use Carbon\Carbon;
-use creocoder\flysystem\Filesystem;
 
 class StaffController extends ActiveController
 {
@@ -371,15 +368,7 @@ class StaffController extends ActiveController
     {
         $model = $this->actionView($id);
 
-        $model->status = User::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = \Yii::$app->getResponse();
-        $response->setStatusCode(204);
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     /**

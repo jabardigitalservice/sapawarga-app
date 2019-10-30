@@ -2,7 +2,6 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\PhoneBook;
 use app\models\PhoneBookSearch;
 use app\models\User;
@@ -11,9 +10,6 @@ use Yii;
 use yii\base\Model;
 use yii\db\Expression;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
-use yii\helpers\Url;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -119,16 +115,7 @@ class PhoneBookController extends ActiveController
 
         $this->checkAccess('delete', $model, $id);
 
-        $model->status = PhoneBook::STATUS_DELETED;
-
-        if ($model->save(false) === false) {
-            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(204);
-
-        return 'ok';
+        return $this->applySoftDelete($model);
     }
 
     public function actionCheckExist()
