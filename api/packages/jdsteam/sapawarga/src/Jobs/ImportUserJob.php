@@ -101,14 +101,27 @@ class ImportUserJob extends BaseObject implements JobInterface
             $user->kabkota_id = null;
             $user->kec_id     = null;
             $user->kel_id     = null;
-            $user->role       = User::ROLE_STAFF_RW;
+            $user->role       = $this->getRoleValue($row->role);
             $user->setPassword($row['password']);
 
             $user->save(false);
-
-            // Attach to Role
         });
 
         return $this->notifyImportSuccess($rows);
+    }
+
+    protected function getRoleValue($key)
+    {
+        // @TODO Dynamic Roles?
+        $availableRoles = [
+            'STAFF_PROV'    => User::ROLE_STAFF_PROV,
+            'STAFF_KABKOTA' => User::ROLE_STAFF_KABKOTA,
+            'STAFF_KEC'     => User::ROLE_STAFF_KEC,
+            'STAFF_KEL'     => User::ROLE_STAFF_KEL,
+            'TRAINER'       => User::ROLE_TRAINER,
+            'RW'            => User::ROLE_STAFF_RW,
+        ];
+
+        return $availableRoles[$key];
     }
 }

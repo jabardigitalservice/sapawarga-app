@@ -58,6 +58,7 @@ class UserImport extends Model
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
+            ['role', 'default'],
         ];
     }
 }
