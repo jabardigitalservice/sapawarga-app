@@ -2,6 +2,7 @@
 
 namespace Jdsteam\Sapawarga\Jobs;
 
+use Yii;
 use app\models\Area;
 use app\models\User;
 use app\models\UserImport;
@@ -13,6 +14,7 @@ use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 class ImportUserJob extends BaseObject implements JobInterface
 {
     public $file;
+    public $uploaderEmail;
 
     public function execute($queue)
     {
@@ -86,12 +88,37 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailed(Collection $rows)
     {
-        exit('Failed !');
+        $fromEmail = Yii::$app->params['adminEmail'];
+        $fromName  = Yii::$app->params['adminEmailName'];
+
+        $textBody  = "Validation failed:\n";
+
+        foreach ($rows as $row) {
+            $message   = implode(', ', $row['message']);
+            $textBody .= sprintf("%s : %s\n", $row['username'], $message);
+        }
+
+        Yii::$app->mailer->compose()
+            ->setFrom([$fromEmail => $fromName])
+            ->setTo($this->uploaderEmail)
+            ->setSubject('Import User Failed')
+            ->setTextBody($textBody)
+            ->send();
     }
 
     protected function notifyImportSuccess(Collection $rows)
     {
-        exit('Success !');
+        $fromEmail = Yii::$app->params['adminEmail'];
+        $fromName  = Yii::$app->params['adminEmailName'];
+
+        $textBody  = sprintf('Total imported rows: %s', $rows->count());
+
+        Yii::$app->mailer->compose()
+            ->setFrom([$fromEmail => $fromName])
+            ->setTo($this->uploaderEmail)
+            ->setSubject('Import User Success')
+            ->setTextBody($textBody)
+            ->send();
     }
 
     protected function saveImportedRows(Collection $rows)
