@@ -14,7 +14,7 @@ use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 class ImportUserJob extends BaseObject implements JobInterface
 {
-    public $file;
+    public $filePath;
     public $uploaderEmail;
 
     /**
@@ -27,7 +27,7 @@ class ImportUserJob extends BaseObject implements JobInterface
         $this->startedTime = Carbon::now();
 
         $reader = ReaderEntityFactory::createCSVReader();
-        $reader->open($this->file);
+        $reader->open($this->filePath);
 
         $importedRows = new Collection();
         $failedRows   = new Collection();

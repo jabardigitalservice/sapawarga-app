@@ -60,6 +60,8 @@ return [
             'OPTIONS me' => 'options',
             'GET export' => 'export',
             'OPTIONS export' => 'options',
+            'POST import' => 'import',
+            'OPTIONS import' => 'options',
         ]
     ],
     [

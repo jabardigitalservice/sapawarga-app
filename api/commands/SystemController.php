@@ -27,7 +27,7 @@ class SystemController extends Controller
     {
         Yii::$app->queue->push(new ImportUserJob([
             'uploaderEmail' => 'yohang88@gmail.com',
-            'file' => __DIR__ . '/../web/export.csv',
+            'filePath' => __DIR__ . '/../web/export.csv',
         ]));
     }
 }

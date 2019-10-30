@@ -5,10 +5,12 @@ namespace app\modules\v1\controllers;
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
+use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
 use app\models\UserExport;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
+use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
@@ -20,6 +22,13 @@ use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+<<<<<<< HEAD
+=======
+use Box\Spout\Common\Entity\Row;
+use Carbon\Carbon;
+use creocoder\flysystem\Filesystem;
+use yii\web\UploadedFile;
+>>>>>>> [Import User] handling HTTP post upload file and dispatch job
 
 class StaffController extends ActiveController
 {
@@ -63,6 +72,7 @@ class StaffController extends ActiveController
                 'photo-upload' => ['post'],
                 'me' => ['get', 'post'],
                 'export' => ['get'],
+                'import' => ['post'],
             ],
         ];
 
@@ -99,7 +109,8 @@ class StaffController extends ActiveController
                     'actions' => [
                         'index', 'view', 'create',
                         'update', 'delete', 'me', 'count', 'photo-upload',
-                        'getPermissions'
+                        'import',
+                        'getPermissions',
                     ],
                     'roles' => ['admin', 'manageStaffs'],
                 ],
@@ -228,6 +239,38 @@ class StaffController extends ActiveController
         $filePath = $publicBaseUrl . '/' . $filename;
 
         return $filePath;
+    }
+
+    public function actionImport()
+    {
+        $currentUser = User::findIdentity(Yii::$app->user->getId());
+
+        $model       = new UserImportCsvUploadForm();
+        $model->file = UploadedFile::getInstanceByName('file');
+
+        if ($model->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        // Upload to S3 and push new queue job for async/later processing
+        if ($filePath = $model->upload()) {
+            $this->pushQueueJob($currentUser, $filePath);
+
+            return ['file_path' => $filePath];
+        }
+
+        throw new ServerErrorHttpException('Failed to upload the object for unknown reason.');
+    }
+
+    protected function pushQueueJob($user, $filePath)
+    {
+        Yii::$app->queue->push(new ImportUserJob([
+            'filePath'      => $filePath,
+            'uploaderEmail' => $user->email,
+        ]));
     }
 
     /**
