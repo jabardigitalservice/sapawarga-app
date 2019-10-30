@@ -78,6 +78,8 @@ class PopupSearch extends Popup
                     'title',
                     'type',
                     'status',
+                    'start_date',
+                    'end_date',
                     'created_at',
                 ],
             ],
