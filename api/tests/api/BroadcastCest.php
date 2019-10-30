@@ -38,7 +38,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => null,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -76,7 +75,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -97,7 +95,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -114,7 +111,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => 431,
             'kel_id'       => null,
@@ -152,7 +148,6 @@ class BroadcastCest
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
             'description'  => 'Broadcast Description',
-            'is_scheduled' => false,
             'kabkota_id'   => 22,
             'kec_id'       => 431,
             'kel_id'       => 6093,
@@ -179,6 +174,91 @@ class BroadcastCest
             'kel_id'       => 6093,
             'rw'           => null,
             'status'       => 10,
+        ]);
+    }
+
+    public function staffCanCreateScheduledBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $scheduledDatetime = time() + 3600;
+
+        $I->sendPOST('/v1/broadcasts', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 5,
+        ]);
+    }
+
+    public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $scheduledDatetime = time() + 3600;
+
+        $I->sendPOST('/v1/broadcasts', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 0,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'description'  => 'Broadcast Description',
+            'is_scheduled' => true,
+            'scheduled_datetime' => $scheduledDatetime,
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 0,
         ]);
     }
 
@@ -347,100 +427,6 @@ class BroadcastCest
         $I->seeResponseContainsJson([
             'kabkota_id' => 23,
         ]);
-    }
-
-    // Test cases for RW/users
-    public function rwGetBroadcastListSameKelurahan(ApiTester $I)
-    {
-        $area = [
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => null,
-        ];
-
-        $I->amUser('staffrw');
-
-        $this->addNewBroadcast($I, 1, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(1, count($data));
-        $I->assertEquals(1, $data[0]['id']);
-
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
-        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
-
-        $I->amUser('staffrw2');
-
-        $this->addNewBroadcast($I, 2, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(1, count($data));
-        $I->assertEquals(2, $data[0]['id']);
-    }
-
-    public function rwGetBroadcastListSameKelurahanDifferentRW(ApiTester $I)
-    {
-        $area = [
-            'kabkota_id'  => 22,
-            'kec_id'      => 431,
-            'kel_id'      => 6093,
-            'rw'          => '001',
-        ];
-
-        $I->amUser('staffrw');
-
-        $this->addNewBroadcast($I, 1, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(1, count($data));
-        $I->assertEquals(1, $data[0]['id']);
-
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
-        Yii::$app->db->createCommand('TRUNCATE broadcasts')->execute();
-
-        $I->amUser('staffrw2');
-
-        $this->addNewBroadcast($I, 2, $area);
-
-        $I->sendGET($this->endpointBroadcast);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(0, count($data));
     }
 
     public function getBroadcastListFilterCategory(ApiTester $I)

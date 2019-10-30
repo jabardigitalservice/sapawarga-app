@@ -149,6 +149,12 @@ class StaffController extends ActiveController
         return $search->getDataProvider();
     }
 
+    /**
+     * User Export to csv
+     *
+     * @return string URL
+     * @throws ServerErrorHttpException
+     */
     public function actionExport()
     {
         # Get data users
@@ -165,23 +171,26 @@ class StaffController extends ActiveController
         $params['rw'] = $params['rw'] ?? $currentUser->rw;
 
         $search = new UserExport();
+
+        // Check validation max record
         $totalRows = $search->getUserExport($params)->count();
-        $maxRowExport = User::MAX_ROWS_EXPORT;
-        if ($totalRows > $maxRowExport) {
-            throw new ServerErrorHttpException("User export have $totalRows rows, max rows is $maxRowExport.");
+        if ($totalRows > User::MAX_ROWS_EXPORT_ALLOWED) {
+            throw new ServerErrorHttpException("User export have $totalRows rows, max rows is " . User::MAX_ROWS_EXPORT_ALLOWED);
         }
 
-        // Write data to a file or to a PHP stream
+        // Initial varieble location, filename, path
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
         $nowDate = date('Y-m-d-H-i-s');
         $filename = "export-user-$nowDate.csv";
-        $filePath = Yii::getAlias('@webroot/storage') . '/' . $filename;
+        $filenameTemp = "temp-export-user-$nowDate.csv";
+        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $filenameTemp;
 
-        $writer = WriterEntityFactory::createCSVWriter($filePath);
+        // Write to temp file
+        $writer = WriterEntityFactory::createCSVWriter($filePathTemp);
         $writer->setFieldDelimiter(',');
         $writer->setFieldEnclosure('"');
         $writer->setShouldAddBOM(false);
-        $writer->openToFile($filePath);
+        $writer->openToFile($filePathTemp);
 
         $titleRow = ['id', 'role', 'username', 'name', 'email', 'confirmed_at', 'status', 'created_at', 'updated_at', 'phone', 'address', 'kabkota', 'kecamatan', 'kelurahan', 'rw', 'rt', 'password_updated_at', 'profile_updated_at', 'last_access_at'];
 
@@ -213,11 +222,12 @@ class StaffController extends ActiveController
             $writer->addRow(WriterEntityFactory::createRowFromArray($row));
         }
 
-        $writer->close();
+        // Open temp and save to flysystem
+        $stream = fopen($filePathTemp, 'r+');
+        Yii::$app->fs->writeStream($filename, $stream);
+        unlink($filePathTemp);
 
-        $contents = Yii::$app->fs->readAndDelete($filename);
-        Yii::$app->fs->write($filename, $contents);
-
+        // Return file url
         $filePath = $publicBaseUrl . '/' . $filename;
 
         return $filePath;

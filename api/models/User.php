@@ -68,7 +68,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const STATUS_DISABLED = 0;
     const STATUS_PENDING = 1;
     const STATUS_ACTIVE = 10;
-    const MAX_ROWS_EXPORT = 50000;
+    const MAX_ROWS_EXPORT_ALLOWED = 50000;
 
     // Mapping User role's id type (string to integer)
     const ROLE_MAP = [
