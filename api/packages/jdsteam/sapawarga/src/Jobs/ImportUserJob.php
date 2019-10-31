@@ -19,41 +19,51 @@ class ImportUserJob extends BaseObject implements JobInterface
     public $uploaderEmail;
 
     /**
+     * @var Collection
+     */
+    protected $importedRows;
+
+    /**
+     * @var Collection
+     */
+    protected $failedRows;
+
+    /**
      * @var Carbon
      */
     protected $startedTime;
 
     public function execute($queue)
     {
+        $this->notifyImportStarted();
         $this->startedTime = Carbon::now();
 
         $filePathTemp = $this->downloadAndCreateTemporaryFile();
-
         if ($filePathTemp === false) {
             throw new UserException('Failed to download from object storage.');
         }
 
-        // Read from temporary protocol
+        // Read from temporary file
         $reader = ReaderEntityFactory::createCSVReader();
         $reader->open($filePathTemp);
 
-        $importedRows = new Collection();
-        $failedRows   = new Collection();
+        $this->importedRows = new Collection();
+        $this->failedRows   = new Collection();
 
         foreach ($reader->getSheetIterator() as $sheet) {
-            [$importedRows, $failedRows] = $this->processEachRow($sheet, $importedRows, $failedRows);
+            $this->processEachRow($sheet);
         }
 
         $reader->close();
 
-        if ($failedRows->count() > 0) {
-            return $this->notifyImportFailed($failedRows);
+        if ($this->failedRows->count() > 0) {
+            return $this->notifyImportFailed($this->failedRows);
         }
 
-        return $this->saveImportedRows($importedRows);
+        return $this->saveImportedRows($this->importedRows);
     }
 
-    protected function processEachRow($sheet, $importedRows, $failedRows)
+    protected function processEachRow($sheet)
     {
         $rowNum = 0;
         foreach ($sheet->getRowIterator() as $row) {
@@ -64,28 +74,31 @@ class ImportUserJob extends BaseObject implements JobInterface
                 continue;
             }
 
-            $cells = $row->getCells();
+            $cells       = $row->getCells();
             $importedRow = $this->parseRows($cells);
 
-            $model = new UserImport();
-            $model->load($importedRow, '');
+            $this->validateRow($importedRow);
+        }
+    }
 
-            if ($model->validate() === false) {
-                $failedRows->push([
-                    'username' => $model->username,
-                    'message'  => $model->getFirstErrors(),
-                ]);
-            }
+    protected function validateRow($row)
+    {
+        $model = new UserImport();
+        $model->load($row, '');
 
-            $importedRows->push($model);
+        if ($model->validate() === false) {
+            $this->failedRows->push([
+                'username' => $model->username,
+                'message'  => $model->getFirstErrors(),
+            ]);
         }
 
-        return [$importedRows, $failedRows];
+        $this->importedRows->push($model);
     }
 
     protected function downloadAndCreateTemporaryFile()
     {
-        $contents = Yii::$app->fs->read($this->filePath);
+        $contents     = Yii::$app->fs->read($this->filePath);
         $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $this->filePath;
 
         // If success, return temporary file path
@@ -120,11 +133,15 @@ class ImportUserJob extends BaseObject implements JobInterface
         ];
     }
 
+    protected function notifyImportStarted()
+    {
+        $textBody = "Filename: {$this->filePath}";
+
+        $this->sendEmail('Import User Started', $textBody);
+    }
+
     protected function notifyImportFailed(Collection $rows)
     {
-        $fromEmail = Yii::$app->params['adminEmail'];
-        $fromName  = Yii::$app->params['adminEmailName'];
-
         $textBody  = "Validation failed:\n";
 
         foreach ($rows as $row) {
@@ -134,26 +151,26 @@ class ImportUserJob extends BaseObject implements JobInterface
 
         $textBody .= $this->debugProcessTime();
 
-        Yii::$app->mailer->compose()
-            ->setFrom([$fromEmail => $fromName])
-            ->setTo($this->uploaderEmail)
-            ->setSubject('Import User Failed')
-            ->setTextBody($textBody)
-            ->send();
+        $this->sendEmail('Import User Failed', $textBody);
     }
 
     protected function notifyImportSuccess(Collection $rows)
     {
-        $fromEmail = Yii::$app->params['adminEmail'];
-        $fromName  = Yii::$app->params['adminEmailName'];
-
         $textBody  = sprintf("Total imported rows: %s\n", $rows->count());
         $textBody .= $this->debugProcessTime();
+
+        $this->sendEmail('Import User Success', $textBody);
+    }
+
+    protected function sendEmail($subject, $textBody)
+    {
+        $fromEmail = Yii::$app->params['adminEmail'];
+        $fromName  = Yii::$app->params['adminEmailName'];
 
         Yii::$app->mailer->compose()
             ->setFrom([$fromEmail => $fromName])
             ->setTo($this->uploaderEmail)
-            ->setSubject('Import User Success')
+            ->setSubject($subject)
             ->setTextBody($textBody)
             ->send();
     }
