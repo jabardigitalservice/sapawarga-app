@@ -6,6 +6,7 @@ use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserExport;
+use app\models\UserImport;
 use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
@@ -96,14 +97,17 @@ class StaffController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'photo-upload', 'getPermissions'], //only be applied to
+            'only' => [
+                'index', 'view', 'create', 'update', 'delete',
+                'photo-upload', 'import', 'import-template', 'getPermissions'
+            ],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => [
                         'index', 'view', 'create',
                         'update', 'delete', 'me', 'count', 'photo-upload',
-                        'import',
+                        'import', 'import-template',
                         'getPermissions',
                     ],
                     'roles' => ['admin', 'manageStaffs'],
@@ -233,6 +237,18 @@ class StaffController extends ActiveController
         $filePath = $publicBaseUrl . '/' . $filename;
 
         return $filePath;
+    }
+
+    public function actionImportTemplate()
+    {
+        $response = Yii::$app->getResponse();
+
+        $path = UserImport::generateTemplateFile();
+
+        if (file_exists($path) === false) {
+            return $response->setStatusCode(404);
+        }
+        return $response->sendFile($path);
     }
 
     public function actionImport()

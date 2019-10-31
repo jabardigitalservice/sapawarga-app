@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Yii;
 use yii\base\Model;
 
@@ -85,5 +86,33 @@ class UserImport extends Model
                 'message' => Yii::t('app', 'error.email.taken'),
             ],
         ];
+    }
+
+    public static function generateTemplateFile()
+    {
+        $path = Yii::getAlias('@webroot/storage') . '/template-users-import.csv';
+
+        $writer = WriterEntityFactory::createCSVWriter();
+        $writer->openToFile($path);
+
+        $columnHeaders = [
+            'username', 'email', 'password', 'role', 'name',
+            'phone', 'address', 'rt', 'rw', 'kabkota', 'kecamatan', 'kelurahan',
+        ];
+
+        $writer->addRow(WriterEntityFactory::createRowFromArray($columnHeaders));
+
+        $writer->addRows([
+            WriterEntityFactory::createRowFromArray([
+                'username_pld1', 'email0@gmail.com', '123456', 'TRAINER', 'User Satu',
+                '0812123', 'Jl. Bogor', '01', '01', 'KAB. BOGOR', 'NANGGUNG', 'CISARUA',
+            ]),
+            WriterEntityFactory::createRowFromArray([
+                'username_pld2', 'email0@gmail.com', '123456', 'TRAINER', 'User Dua',
+                '0812123', 'Jl. Bogor', '01', '01', 'KAB. BOGOR', 'NANGGUNG', 'CISARUA',
+            ]),
+        ]);
+
+        return $path;
     }
 }

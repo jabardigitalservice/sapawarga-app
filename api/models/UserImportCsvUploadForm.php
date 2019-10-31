@@ -32,7 +32,7 @@ class UserImportCsvUploadForm extends Model
 
     public function upload()
     {
-        $contents = file_get_contents($this->file);
+        $contents = file_get_contents($this->file->tempName);
 
         $filePath = sprintf('import/user/%s.csv', date('Y-m-d-H-i-s'));
 
