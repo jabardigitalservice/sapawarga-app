@@ -27,7 +27,9 @@ class ImportUserJob extends BaseObject implements JobInterface
     {
         $this->startedTime = Carbon::now();
 
-        if (($filePathTemp = $this->downloadAndCreateTemporaryFile()) === false) {
+        $filePathTemp = $this->downloadAndCreateTemporaryFile();
+
+        if ($filePathTemp === false) {
             throw new UserException('Failed to download from object storage.');
         }
 
@@ -38,33 +40,8 @@ class ImportUserJob extends BaseObject implements JobInterface
         $importedRows = new Collection();
         $failedRows   = new Collection();
 
-        $rowNum = 0;
-
         foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $row) {
-                $rowNum++;
-
-                // Skip header row
-                if ($rowNum === 1) {
-                    continue;
-                }
-
-                $cells = $row->getCells();
-
-                $importedRow = $this->parseRows($cells);
-
-                $model = new UserImport();
-                $model->load($importedRow, '');
-
-                if ($model->validate() === false) {
-                    $failedRows->push([
-                        'username' => $model->username,
-                        'message'  => $model->getFirstErrors(),
-                    ]);
-                }
-
-                $importedRows->push($model);
-            }
+            [$importedRows, $failedRows] = $this->processEachRow($sheet, $importedRows, $failedRows);
         }
 
         $reader->close();
@@ -74,6 +51,36 @@ class ImportUserJob extends BaseObject implements JobInterface
         }
 
         return $this->saveImportedRows($importedRows);
+    }
+
+    protected function processEachRow($sheet, $importedRows, $failedRows)
+    {
+        $rowNum = 0;
+        foreach ($sheet->getRowIterator() as $row) {
+            $rowNum++;
+
+            // Skip header row
+            if ($rowNum === 1) {
+                continue;
+            }
+
+            $cells = $row->getCells();
+            $importedRow = $this->parseRows($cells);
+
+            $model = new UserImport();
+            $model->load($importedRow, '');
+
+            if ($model->validate() === false) {
+                $failedRows->push([
+                    'username' => $model->username,
+                    'message'  => $model->getFirstErrors(),
+                ]);
+            }
+
+            $importedRows->push($model);
+        }
+
+        return [$importedRows, $failedRows];
     }
 
     protected function downloadAndCreateTemporaryFile()
