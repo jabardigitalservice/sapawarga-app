@@ -62,6 +62,8 @@ return [
             'OPTIONS export' => 'options',
             'POST import' => 'import',
             'OPTIONS import' => 'options',
+            'GET import-template' => 'import-template',
+            'OPTIONS import-template' => 'options',
         ]
     ],
     [
