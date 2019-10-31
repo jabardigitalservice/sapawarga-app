@@ -81,7 +81,12 @@ class ImportUserJob extends BaseObject implements JobInterface
         $contents = Yii::$app->fs->read($this->filePath);
         $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $this->filePath;
 
-        return file_put_contents($filePathTemp, $contents);
+        // If success, return temporary file path
+        if (file_put_contents($filePathTemp, $contents) > 0) {
+            return $filePathTemp;
+        }
+
+        return false;
     }
 
     protected function parseRows($cells)
