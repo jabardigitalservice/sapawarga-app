@@ -9,6 +9,7 @@ use app\models\User;
 use app\models\UserImport;
 use Illuminate\Support\Collection;
 use yii\base\BaseObject;
+use yii\base\UserException;
 use yii\queue\JobInterface;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
@@ -26,8 +27,13 @@ class ImportUserJob extends BaseObject implements JobInterface
     {
         $this->startedTime = Carbon::now();
 
+        if (($filePathTemp = $this->downloadAndCreateTemporaryFile()) === false) {
+            throw new UserException('Failed to download from object storage.');
+        }
+
+        // Read from temporary protocol
         $reader = ReaderEntityFactory::createCSVReader();
-        $reader->open($this->filePath);
+        $reader->open($filePathTemp);
 
         $importedRows = new Collection();
         $failedRows   = new Collection();
@@ -68,6 +74,14 @@ class ImportUserJob extends BaseObject implements JobInterface
         }
 
         return $this->saveImportedRows($importedRows);
+    }
+
+    protected function downloadAndCreateTemporaryFile()
+    {
+        $contents = Yii::$app->fs->read($this->filePath);
+        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $this->filePath;
+
+        return file_put_contents($filePathTemp, $contents);
     }
 
     protected function parseRows($cells)
