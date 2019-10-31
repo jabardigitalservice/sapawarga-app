@@ -5,10 +5,14 @@ namespace app\modules\v1\controllers;
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
-use app\models\UserSearch;
 use app\models\UserExport;
+use app\models\UserImport;
+use app\models\UserImportCsvUploadForm;
+use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
+use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
@@ -19,7 +23,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use yii\web\UploadedFile;
 
 class StaffController extends ActiveController
 {
@@ -63,6 +67,7 @@ class StaffController extends ActiveController
                 'photo-upload' => ['post'],
                 'me' => ['get', 'post'],
                 'export' => ['get'],
+                'import' => ['post'],
             ],
         ];
 
@@ -92,14 +97,18 @@ class StaffController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'photo-upload', 'getPermissions'], //only be applied to
+            'only' => [
+                'index', 'view', 'create', 'update', 'delete',
+                'photo-upload', 'import', 'import-template', 'getPermissions'
+            ],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => [
                         'index', 'view', 'create',
                         'update', 'delete', 'me', 'count', 'photo-upload',
-                        'getPermissions'
+                        'import', 'import-template',
+                        'getPermissions',
                     ],
                     'roles' => ['admin', 'manageStaffs'],
                 ],
@@ -228,6 +237,50 @@ class StaffController extends ActiveController
         $filePath = $publicBaseUrl . '/' . $filename;
 
         return $filePath;
+    }
+
+    public function actionImportTemplate()
+    {
+        $response = Yii::$app->getResponse();
+
+        $path = UserImport::generateTemplateFile();
+
+        if (file_exists($path) === false) {
+            return $response->setStatusCode(404);
+        }
+        return $response->sendFile($path);
+    }
+
+    public function actionImport()
+    {
+        $currentUser = User::findIdentity(Yii::$app->user->getId());
+
+        $model       = new UserImportCsvUploadForm();
+        $model->file = UploadedFile::getInstanceByName('file');
+
+        if ($model->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        // Upload to S3 and push new queue job for async/later processing
+        if ($filePath = $model->upload()) {
+            $this->pushQueueJob($currentUser, $filePath);
+
+            return ['file_path' => $filePath];
+        }
+
+        throw new ServerErrorHttpException('Failed to upload the object for unknown reason.');
+    }
+
+    protected function pushQueueJob($user, $filePath)
+    {
+        Yii::$app->queue->push(new ImportUserJob([
+            'filePath'      => $filePath,
+            'uploaderEmail' => $user->email,
+        ]));
     }
 
     /**
