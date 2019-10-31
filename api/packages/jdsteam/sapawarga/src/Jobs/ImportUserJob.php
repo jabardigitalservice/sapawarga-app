@@ -111,6 +111,11 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function parseRows($cells)
     {
+        // if column counts is not equals as expected, something wrong with row, skip that
+        if (count($cells) !== 12) {
+            return null;
+        }
+
         [$kabkota, $kecamatan, $kelurahan] = $this->mapStringToArea([
             $cells[9]->getValue(),
             $cells[10]->getValue(),
