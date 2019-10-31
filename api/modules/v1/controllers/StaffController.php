@@ -5,10 +5,11 @@ namespace app\modules\v1\controllers;
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
+use app\models\UserExport;
 use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
-use app\models\UserExport;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
@@ -21,14 +22,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-<<<<<<< HEAD
-=======
-use Box\Spout\Common\Entity\Row;
-use Carbon\Carbon;
-use creocoder\flysystem\Filesystem;
 use yii\web\UploadedFile;
->>>>>>> [Import User] handling HTTP post upload file and dispatch job
 
 class StaffController extends ActiveController
 {
