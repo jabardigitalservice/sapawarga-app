@@ -7,6 +7,14 @@ class NewsDashboardCest
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
         Yii::$app->db->createCommand('TRUNCATE news')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+
+        $I->haveInDatabase('news_channels', [
+            'id'         => 1,
+            'name'       => 'Detik',
+            'created_at' => '1554706345',
+            'updated_at' => '1554706345',
+        ]);
     }
 
     public function getNewsMostLikeProvinsiTest(ApiTester $I)
