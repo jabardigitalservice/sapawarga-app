@@ -32,6 +32,8 @@ $config = [
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
         ],
+
+        'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
     ],
     'params' => $params,
     'controllerMap' => [
