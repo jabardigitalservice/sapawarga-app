@@ -4,6 +4,7 @@ namespace app\models;
 
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
+use Illuminate\Support\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -44,6 +45,9 @@ use yii\web\Request as WebRequest;
  * @property string $facebook
  * @property string $twitter
  * @property string $instagram
+ * @property string $birth_date
+ * @property int $job_type_id
+ * @property int $education_level_id
  * @property string $push_token
  * @property string $last_access_at
  * @property string $account_confirmed_at
@@ -309,6 +313,19 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->last_access_at !== null ? (new Carbon($this->last_access_at))->toISOString() : null;
     }
 
+    public function getEducationLevelField()
+    {
+        $configParams = include __DIR__ . '/../config/references/education_level.php';
+
+        $records = new Collection($configParams);
+
+        if ($this->education_level_id === null) {
+            return null;
+        }
+
+        return $records->where('id', '=', $this->education_level_id)->first();
+    }
+
     /** @inheritdoc */
     public function attributeLabels()
     {
@@ -426,6 +443,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'job_type_id',
             'job_type' => 'jobType',
             'education_level_id',
+            'education_level' => 'EducationLevelField',
             'birth_date',
             'last_login_at',
             'last_access_at' => 'LastAccessAtField',
