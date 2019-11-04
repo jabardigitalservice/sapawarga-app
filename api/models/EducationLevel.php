@@ -8,7 +8,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "job_types".
+ * This is the model class for table "education_levels".
  *
  * @property int $id
  * @property string $title
@@ -19,14 +19,14 @@ use yii\db\ActiveRecord;
  * @property int $created_at
  * @property int $updated_at
  */
-class JobType extends ActiveRecord
+class EducationLevel extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'job_types';
+        return 'education_levels';
     }
 
     /**
