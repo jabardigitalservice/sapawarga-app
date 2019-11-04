@@ -15,7 +15,7 @@ class m191029_084447_create_table_news_important extends CustomMigration
             'id' => $this->primaryKey(),
             'title' => $this->string()->notNull(),
             'category_id' => $this->integer()->notNull(),
-            'description' => $this->text()->notNull(),
+            'content' => $this->text()->notNull(),
             'source_url' => $this->string()->null(),
             'status' => $this->integer()->notNull(),
             'created_by' => $this->integer()->notNull(),

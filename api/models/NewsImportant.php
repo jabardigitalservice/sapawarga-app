@@ -16,7 +16,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $title
  * @property int $category_id
- * @property string $description
+ * @property string $content
  * @property string $source_url
  * @property string $status
  * @property int $created_by
@@ -48,15 +48,17 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
     public function rules()
     {
         return [
-            [['title', 'status', 'category_id'],'required'],
+            [['title', 'status', 'category_id', 'content'],'required'],
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
-            [['title', 'source_url', 'category_id', 'description'], 'trim'],
-            [['title', 'source_url', 'category_id', 'description'], 'safe'],
+            [['title', 'source_url', 'category_id', 'content'], 'trim'],
+            [['title', 'source_url', 'category_id', 'content'], 'safe'],
 
             ['source_url', 'url'],
-            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_DISABLED, self::STATUS_ACTIVE]],
+
+            ['status', 'integer'],
+            ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
 
@@ -68,7 +70,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'id',
             'title',
             'category_id',
-            'description',
+            'content',
             'source_url',
             'status',
             'attachments' => function () use ($publicBaseUrl) {
@@ -100,7 +102,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'id' => 'ID',
             'title' => 'Judul',
             'category_id' => 'Kategori',
-            'description' => 'Deskripsi',
+            'content' => 'Konten',
             'source_url' => 'URL Sumber',
             'status' => 'Status',
         ];
