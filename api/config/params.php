@@ -21,4 +21,5 @@ return [
     'storagePublicBaseUrl' => getenv('APP_STORAGE_PUBLIC_URL'),
     'hashidSaltSecret' => 'JDSSaltSecret',
     'hashidLengthPad' => 5,
+    'userImportMaximumRows' => 5000,
 ];

@@ -33,14 +33,21 @@ class ImportUserJob extends BaseObject implements JobInterface
      */
     protected $startedTime;
 
+    protected $maxRows;
+
     public function execute($queue)
     {
         $this->notifyImportStarted();
         $this->startedTime = Carbon::now();
+        $this->maxRows     = Yii::$app->params['userImportMaximumRows'];
 
         $filePathTemp = $this->downloadAndCreateTemporaryFile();
         if ($filePathTemp === false) {
             throw new UserException('Failed to download from object storage.');
+        }
+
+        if ($this->isExceededMaxRows($filePathTemp)) {
+            return $this->notifyImportFailedMaxRows();
         }
 
         // Read from temporary file
@@ -159,6 +166,15 @@ class ImportUserJob extends BaseObject implements JobInterface
         $this->sendEmail('Import User Failed', $textBody);
     }
 
+    protected function notifyImportFailedMaxRows()
+    {
+        $textBody  = sprintf('Total rows exceeded maximum: %s', $this->maxRows);
+
+        $textBody .= $this->debugProcessTime();
+
+        $this->sendEmail('Import User Failed', $textBody);
+    }
+
     protected function notifyImportSuccess(Collection $rows)
     {
         $textBody  = sprintf("Total imported rows: %s\n", $rows->count());
@@ -246,5 +262,26 @@ class ImportUserJob extends BaseObject implements JobInterface
         $textBody .= sprintf("Finished at: %s\n", $finishedAt->toDateTimeString());
 
         return $textBody;
+    }
+
+    protected function getLinesCount($file)
+    {
+        $f = fopen($file, 'rb');
+        $lines = 0;
+
+        while (!feof($f)) {
+            $lines += substr_count(fread($f, 8192), "\n");
+        }
+
+        fclose($f);
+
+        return $lines;
+    }
+
+    protected function isExceededMaxRows($filePathTemp)
+    {
+        $linesCount = $this->getLinesCount($filePathTemp);
+
+        return $linesCount > $this->maxRows;
     }
 }
