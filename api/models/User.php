@@ -121,6 +121,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
+    public function getJobType()
+    {
+        return $this->hasOne(JobType::class, ['id' => 'job_type_id']);
+    }
+
     /**
      * @inheritdoc
      */
@@ -418,6 +423,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'facebook',
             'twitter',
             'instagram',
+            'job_type_id',
+            'job_type' => 'jobType',
+            'education_level_id',
             'birth_date',
             'last_login_at',
             'last_access_at' => 'LastAccessAtField',
