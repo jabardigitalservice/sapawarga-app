@@ -418,6 +418,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'facebook',
             'twitter',
             'instagram',
+            'birth_date',
             'last_login_at',
             'last_access_at' => 'LastAccessAtField',
             'password_updated_at',
