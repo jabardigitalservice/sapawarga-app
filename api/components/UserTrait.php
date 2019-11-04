@@ -68,7 +68,7 @@ trait UserTrait
                 'name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kelurahan',
                 'kec_id', 'kecamatan', 'kabkota_id', 'kabkota', 'lat', 'lon',
                 'facebook', 'twitter', 'instagram', 'photo_url', 'last_login_at', 'last_access_at',
-                'password_updated_at', 'profile_updated_at'
+                'password_updated_at', 'profile_updated_at', 'birth_date',
             ]);
         } else {
             // Validation error
