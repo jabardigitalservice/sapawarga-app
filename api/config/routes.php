@@ -288,4 +288,12 @@ return [
             'OPTIONS {id}' => 'options',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/job_type',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
 ];

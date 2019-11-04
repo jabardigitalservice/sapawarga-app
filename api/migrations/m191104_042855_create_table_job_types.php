@@ -14,7 +14,8 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->createTable('job_types', [
             'id' => $this->primaryKey(),
             'title' => $this->string()->notNull(),
-            'seq' => $this->smallInteger()->defaultValue(0)->notNull(),
+            'seq' => $this->integer()->unsigned()->defaultValue(0)->notNull(),
+            'status' => $this->integer()->unsigned()->notNull(),
             'created_by' => $this->integer()->notNull(),
             'created_at' => $this->integer()->notNull(),
             'updated_by' => $this->integer()->notNull(),
@@ -26,6 +27,7 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->insert('job_types', [
             'title'      => 'Belum Bekerja',
             'seq'        => 0,
+            'status'     => 10,
             'created_by' => 1,
             'created_at' => $now,
             'updated_by' => 1,
@@ -35,6 +37,7 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->insert('job_types', [
             'title'      => 'Ibu Rumah Tangga',
             'seq'        => 1,
+            'status'     => 10,
             'created_by' => 1,
             'created_at' => $now,
             'updated_by' => 1,
@@ -44,6 +47,7 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->insert('job_types', [
             'title'      => 'Pelajar/Mahasiswa',
             'seq'        => 1,
+            'status'     => 10,
             'created_by' => 1,
             'created_at' => $now,
             'updated_by' => 1,
@@ -53,6 +57,7 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->insert('job_types', [
             'title'      => 'Pegawai Negeri',
             'seq'        => 1,
+            'status'     => 10,
             'created_by' => 1,
             'created_at' => $now,
             'updated_by' => 1,
@@ -62,6 +67,7 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->insert('job_types', [
             'title'      => 'Pegawai Swasta',
             'seq'        => 1,
+            'status'     => 10,
             'created_by' => 1,
             'created_at' => $now,
             'updated_by' => 1,
@@ -71,6 +77,7 @@ class m191104_042855_create_table_job_types extends CustomMigration
         $this->insert('job_types', [
             'title'      => 'Lainnya',
             'seq'        => 99,
+            'status'     => 10,
             'created_by' => 1,
             'created_at' => $now,
             'updated_by' => 1,
