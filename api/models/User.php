@@ -546,7 +546,13 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $attributes = ['username', 'email', 'password', 'status', 'role_id', 'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt', 'lat', 'lon', 'permissions', 'name', 'phone', 'address', 'photo_url', 'facebook', 'twitter', 'instagram'];
+        $attributes = [
+            'username', 'email', 'password', 'status', 'role_id',
+            'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt', 'lat', 'lon', 'permissions',
+            'name', 'phone', 'address', 'photo_url', 'facebook', 'twitter', 'instagram',
+            'birth_date', 'job_type_id', 'education_level_id',
+        ];
+
         $scenarios[self::SCENARIO_REGISTER] = $attributes;
         $scenarios[self::SCENARIO_UPDATE] = $attributes;
         return $scenarios;
