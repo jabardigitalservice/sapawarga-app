@@ -218,7 +218,7 @@ class NewsImportantController extends ActiveController
     private function saveAttachment($newsImportantId)
     {
         $params = Yii::$app->getRequest()->getBodyParams();
-        if (count($params['attachments']) > 0) {
+        if (!empty($params['attachments'])) {
             foreach ($params['attachments'] as $val) {
                 $model = new NewsImportantAttachment();
                 $model->news_important_id = $newsImportantId;
@@ -235,7 +235,7 @@ class NewsImportantController extends ActiveController
     private function prepareDeleteAttachment($newsImportantId)
     {
         $params = Yii::$app->getRequest()->getBodyParams();
-        if (count($params['attachments']) > 0) {
+        if (!empty($params['attachments']) > 0) {
             $newsImportant = NewsImportantAttachment::find()->where(['news_important_id' => $newsImportantId])->all();
             foreach ($newsImportant as $val) {
                 $this->deleteAttachment($val->id, $val->file_path);
