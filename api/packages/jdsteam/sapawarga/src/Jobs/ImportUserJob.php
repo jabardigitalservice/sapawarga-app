@@ -107,7 +107,8 @@ class ImportUserJob extends BaseObject implements JobInterface
     protected function downloadAndCreateTemporaryFile()
     {
         $contents     = Yii::$app->fs->read($this->filePath);
-        $filePathTemp = __DIR__ . '/../../../../../web/storage/' . $this->filePath; // Cannot use @alias to web/storage
+        $filename     = basename($this->filePath);
+        $filePathTemp = __DIR__ . '/../../../../../web/storage/' . $filename; // Cannot use @alias to web/storage
 
         // If success, return temporary file path
         if (file_put_contents($filePathTemp, $contents) > 0) {
