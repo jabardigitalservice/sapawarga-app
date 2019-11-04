@@ -3,6 +3,7 @@
 namespace Jdsteam\Sapawarga\Jobs;
 
 use Carbon\Carbon;
+use Exception;
 use Yii;
 use app\models\Area;
 use app\models\User;
@@ -181,6 +182,11 @@ class ImportUserJob extends BaseObject implements JobInterface
         $textBody .= $this->debugProcessTime();
 
         $this->sendEmail('Import User Success', $textBody);
+    }
+
+    public function notifyError(Exception $exception)
+    {
+        $this->sendEmail('Import User Error', $exception->getMessage());
     }
 
     protected function sendEmail($subject, $textBody)
