@@ -34,6 +34,8 @@ class UserImport extends Model
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
 
+            [['username', 'name', 'email', 'password', 'role'], 'required'],
+
             [['role', 'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt'], 'default'],
 
             ['kabkota_id', 'required', 'when' => function ($model) {
