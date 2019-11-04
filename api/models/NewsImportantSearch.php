@@ -39,7 +39,7 @@ class NewsImportantSearch extends NewsImportant
     {
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $query->andFilterWhere(['=', 'type', Arr::get($params, 'type')]);
+        $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
 
         if (Arr::has($params, 'status')) {
             $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
@@ -50,9 +50,6 @@ class NewsImportantSearch extends NewsImportant
 
     protected function getQueryListUser($query, $params)
     {
-        // list home limit 3
-        // list
-
         $params['limit'] = self::LIMIT_LIST_USER;
 
         return $this->getQueryAll($query, $params);
@@ -71,7 +68,7 @@ class NewsImportantSearch extends NewsImportant
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
                     'title',
-                    'type',
+                    'category_id',
                     'status',
                     'created_at',
                 ],
