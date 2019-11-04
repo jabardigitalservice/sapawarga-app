@@ -320,4 +320,99 @@ class UserCest
 
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
     }
+
+    public function userCanViewUserBirthdate(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'auth_key'          => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'birth_date'        => '1988-11-15',
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff/100');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'birth_date' => '1988-11-15',
+            ]
+        ]);
+    }
+
+    public function userCanViewUserJobType(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'auth_key'          => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'job_type_id'       => 1,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff/100');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'job_type_id' => 1,
+                'job_type'    => [
+                    'id'    => 1,
+                    'title' => 'Belum Bekerja',
+                ],
+            ]
+        ]);
+    }
+
+    public function userCanViewUserEducationLevel(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'auth_key'           => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'email'              => 'user@test.com',
+            'unconfirmed_email'  => 'user@test.com',
+            'confirmed_at'       => time(),
+            'role'               => 50,
+            'education_level_id' => 1,
+            'status'             => 10,
+            'created_at'         => time(),
+            'updated_at'         => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff/100');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'education_level_id' => 1,
+                'education_level'    => [
+                    'id'    => 1,
+                    'title' => 'Tidak Ada',
+                ],
+            ]
+        ]);
+    }
 }
