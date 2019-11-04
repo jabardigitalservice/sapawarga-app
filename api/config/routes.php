@@ -290,7 +290,7 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
-        'controller' => 'v1/job_type',
+        'controller' => 'v1/job-type',
         'pluralize' => true,
         'tokens' => [
             '{id}' => '<id:\d+>',

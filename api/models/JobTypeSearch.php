@@ -29,8 +29,8 @@ class JobTypeSearch extends Model
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
+        $sortBy    = Arr::get($params, 'sort_by', 'seq');
+        $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([

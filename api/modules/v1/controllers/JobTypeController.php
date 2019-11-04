@@ -2,7 +2,9 @@
 
 namespace app\modules\v1\controllers;
 
-use app\models\Release;
+use app\models\JobType;
+use app\models\JobTypeSearch;
+use Yii;
 use yii\filters\AccessControl;
 
 /**
@@ -10,7 +12,7 @@ use yii\filters\AccessControl;
  */
 class JobTypeController extends ActiveController
 {
-    public $modelClass = Release::class;
+    public $modelClass = JobType::class;
 
     public function behaviors()
     {
@@ -27,12 +29,27 @@ class JobTypeController extends ActiveController
             'rules' => [
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles'   => ['admin'],
+                    'actions' => ['index'],
+                    'roles'   => ['@'],
                 ],
             ],
         ];
 
         return $behaviors;
+    }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+        return $actions;
+    }
+
+    public function prepareDataProvider()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $search = new JobTypeSearch();
+
+        return $search->search($params);
     }
 }
