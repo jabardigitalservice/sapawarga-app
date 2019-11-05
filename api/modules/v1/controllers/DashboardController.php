@@ -102,6 +102,15 @@ class DashboardController extends ActiveController
         return $aspirasiCounts->getAspirasiCounts($params);
     }
 
+    public function actionAspirasiCategoryCounts()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $aspirasiCounts = new AspirasiDashboard();
+
+        return $aspirasiCounts->getAspirasiCategoryCounts($params);
+    }
+
     public function actionAspirasiGeo()
     {
         $params = Yii::$app->request->getQueryParams();
