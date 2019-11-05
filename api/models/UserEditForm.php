@@ -28,6 +28,10 @@ class UserEditForm extends Model
     public $facebook;
     public $twitter;
     public $instagram;
+    public $birth_date;
+    public $job_type_id;
+    public $education_level_id;
+
     /** @var User */
     private $_user = false;
 
@@ -83,6 +87,7 @@ class UserEditForm extends Model
 
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
             [['name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
+            [['birth_date', 'education_level_id', 'job_type_id'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
         ];
@@ -98,16 +103,8 @@ class UserEditForm extends Model
         if ($this->validate()) {
             $this->getUserByID();
 
-
-            if ($this->_user->email != $this->email) {
-                $this->_user->unconfirmed_email = $this->email;
-                $this->_user->email = $this->email;
-                $this->_user->confirmed_at = Yii::$app->formatter->asTimestamp(date('Y-m-d H:i:s'));
-                $this->_user->generateAuthKey();
-            }
-
             // If password is not null, then update password
-            if ($this->password != '') {
+            if ($this->isNotEmptyInputAttribute('password')) {
                 $this->_user->setPassword($this->password);
             }
 
@@ -115,18 +112,25 @@ class UserEditForm extends Model
             $excluded_attributes = ['password'];
             $attribute_names = $this->attributes();
             $attribute_names = array_diff($attribute_names, $excluded_attributes);
-            foreach ($attribute_names as $name) {
-                $this->_user[$name] = $this[$name];
-            }
 
+            foreach ($attribute_names as $attribute) {
+                if ($this->isNotEmptyInputAttribute($attribute)) {
+                    $this->_user->$attribute = $this->$attribute;
+                }
+            }
 
             if ($this->_user->save(false)) {
                 return true;
-            } else {
-                $this->addError('generic', Yii::t('app', 'The system could not update the information.'));
             }
+
+            $this->addError('generic', Yii::t('app', 'The system could not update the information.'));
         }
         return false;
+    }
+
+    protected function isNotEmptyInputAttribute($attribute)
+    {
+        return $this->$attribute !== NULL && $this->$attribute !== '';
     }
 
     /**

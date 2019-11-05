@@ -415,4 +415,100 @@ class UserCest
             ]
         ]);
     }
+
+    public function userCanUpdateBirthdate(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => '1988-11-15',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'birth_date' => '1988-11-15',
+        ]);
+    }
+
+    public function userCanUpdateJobType(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'job_type_id'       => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'job_type_id' => 1,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'          => 100,
+            'job_type_id' => 1,
+        ]);
+    }
+
+    public function userCanUpdateEducationLevel(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'              => 'user@test.com',
+            'unconfirmed_email'  => 'user@test.com',
+            'confirmed_at'       => time(),
+            'role'               => 50,
+            'education_level_id' => null,
+            'status'             => 10,
+            'created_at'         => time(),
+            'updated_at'         => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'education_level_id' => 1,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'          => 100,
+            'education_level_id' => 1,
+        ]);
+    }
 }
