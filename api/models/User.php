@@ -4,6 +4,7 @@ namespace app\models;
 
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
+use Illuminate\Support\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -44,6 +45,9 @@ use yii\web\Request as WebRequest;
  * @property string $facebook
  * @property string $twitter
  * @property string $instagram
+ * @property string $birth_date
+ * @property int $job_type_id
+ * @property int $education_level_id
  * @property string $push_token
  * @property string $last_access_at
  * @property string $account_confirmed_at
@@ -119,6 +123,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getKabkota()
     {
         return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+    }
+
+    public function getJobType()
+    {
+        return $this->hasOne(JobType::class, ['id' => 'job_type_id']);
     }
 
     /**
@@ -304,6 +313,19 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->last_access_at !== null ? (new Carbon($this->last_access_at))->toISOString() : null;
     }
 
+    public function getEducationLevelField()
+    {
+        $configParams = include __DIR__ . '/../config/references/education_level.php';
+
+        $records = new Collection($configParams);
+
+        if ($this->education_level_id === null) {
+            return null;
+        }
+
+        return $records->where('id', '=', $this->education_level_id)->first();
+    }
+
     /** @inheritdoc */
     public function attributeLabels()
     {
@@ -418,6 +440,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'facebook',
             'twitter',
             'instagram',
+            'job_type_id',
+            'job_type' => 'jobType',
+            'education_level_id',
+            'education_level' => 'EducationLevelField',
+            'birth_date',
             'last_login_at',
             'last_access_at' => 'LastAccessAtField',
             'password_updated_at',
@@ -519,7 +546,13 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $attributes = ['username', 'email', 'password', 'status', 'role_id', 'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt', 'lat', 'lon', 'permissions', 'name', 'phone', 'address', 'photo_url', 'facebook', 'twitter', 'instagram'];
+        $attributes = [
+            'username', 'email', 'password', 'status', 'role_id',
+            'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt', 'lat', 'lon', 'permissions',
+            'name', 'phone', 'address', 'photo_url', 'facebook', 'twitter', 'instagram',
+            'birth_date', 'job_type_id', 'education_level_id',
+        ];
+
         $scenarios[self::SCENARIO_REGISTER] = $attributes;
         $scenarios[self::SCENARIO_UPDATE] = $attributes;
         return $scenarios;
@@ -573,7 +606,15 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ['rw', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
                 return $model->role <= self::ROLE_STAFF_RW;
             }],
-            [['name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
+            [
+                [
+                    'name', 'phone', 'address',
+                    'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id',
+                    'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram',
+                    'birth_date', 'job_type_id', 'education_level_id',
+                ],
+                'default'
+            ],
             [['name', 'phone', 'address', 'rt', 'rw', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'trim'],
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],

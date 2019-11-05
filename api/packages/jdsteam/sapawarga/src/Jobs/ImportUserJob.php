@@ -3,6 +3,7 @@
 namespace Jdsteam\Sapawarga\Jobs;
 
 use Carbon\Carbon;
+use Exception;
 use Yii;
 use app\models\Area;
 use app\models\User;
@@ -33,14 +34,21 @@ class ImportUserJob extends BaseObject implements JobInterface
      */
     protected $startedTime;
 
+    protected $maxRows;
+
     public function execute($queue)
     {
         $this->notifyImportStarted();
         $this->startedTime = Carbon::now();
+        $this->maxRows     = Yii::$app->params['userImportMaximumRows'];
 
         $filePathTemp = $this->downloadAndCreateTemporaryFile();
         if ($filePathTemp === false) {
             throw new UserException('Failed to download from object storage.');
+        }
+
+        if ($this->isExceededMaxRows($filePathTemp)) {
+            return $this->notifyImportFailedMaxRows();
         }
 
         // Read from temporary file
@@ -99,7 +107,8 @@ class ImportUserJob extends BaseObject implements JobInterface
     protected function downloadAndCreateTemporaryFile()
     {
         $contents     = Yii::$app->fs->read($this->filePath);
-        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $this->filePath;
+        $filename     = basename($this->filePath);
+        $filePathTemp = __DIR__ . '/../../../../../web/storage/' . $filename; // Cannot use @alias to web/storage
 
         // If success, return temporary file path
         if (file_put_contents($filePathTemp, $contents) > 0) {
@@ -159,12 +168,26 @@ class ImportUserJob extends BaseObject implements JobInterface
         $this->sendEmail('Import User Failed', $textBody);
     }
 
+    protected function notifyImportFailedMaxRows()
+    {
+        $textBody  = sprintf('Total rows exceeded maximum: %s', $this->maxRows);
+
+        $textBody .= $this->debugProcessTime();
+
+        $this->sendEmail('Import User Failed', $textBody);
+    }
+
     protected function notifyImportSuccess(Collection $rows)
     {
         $textBody  = sprintf("Total imported rows: %s\n", $rows->count());
         $textBody .= $this->debugProcessTime();
 
         $this->sendEmail('Import User Success', $textBody);
+    }
+
+    public function notifyError(Exception $exception)
+    {
+        $this->sendEmail('Import User Error', $exception->getMessage());
     }
 
     protected function sendEmail($subject, $textBody)
@@ -246,5 +269,26 @@ class ImportUserJob extends BaseObject implements JobInterface
         $textBody .= sprintf("Finished at: %s\n", $finishedAt->toDateTimeString());
 
         return $textBody;
+    }
+
+    protected function getLinesCount($file)
+    {
+        $f = fopen($file, 'rb');
+        $lines = 0;
+
+        while (!feof($f)) {
+            $lines += substr_count(fread($f, 8192), "\n");
+        }
+
+        fclose($f);
+
+        return $lines;
+    }
+
+    protected function isExceededMaxRows($filePathTemp)
+    {
+        $linesCount = $this->getLinesCount($filePathTemp);
+
+        return $linesCount > $this->maxRows;
     }
 }

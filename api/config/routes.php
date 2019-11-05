@@ -299,4 +299,20 @@ return [
             'OPTIONS {id}' => 'options'
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/job-type',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/education-level',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
 ];

@@ -243,12 +243,28 @@ class StaffController extends ActiveController
     {
         $response = Yii::$app->getResponse();
 
-        $path = UserImport::generateTemplateFile();
+        $filePath = UserImport::generateTemplateFile();
 
-        if (file_exists($path) === false) {
+        if (file_exists($filePath) === false) {
             return $response->setStatusCode(404);
         }
-        return $response->sendFile($path);
+
+        $fileUrl = $this->copyTemplateToStorage($filePath);
+
+        return ['file_url' => $fileUrl];
+    }
+
+    protected function copyTemplateToStorage($sourcePath)
+    {
+        $destinationPath = 'template-users-import.csv';
+
+        $contents = file_get_contents($sourcePath);
+
+        Yii::$app->fs->put($destinationPath, $contents);
+
+        $fileUrl = sprintf('%s/%s', Yii::$app->params['storagePublicBaseUrl'], $destinationPath);
+
+        return $fileUrl;
     }
 
     public function actionImport()

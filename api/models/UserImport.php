@@ -34,6 +34,8 @@ class UserImport extends Model
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
 
+            [['username', 'name', 'email', 'password', 'role'], 'required'],
+
             [['role', 'kabkota_id', 'kec_id', 'kel_id', 'rw', 'rt'], 'default'],
 
             ['kabkota_id', 'required', 'when' => function ($model) {
@@ -93,6 +95,9 @@ class UserImport extends Model
         $path = Yii::getAlias('@webroot/storage') . '/template-users-import.csv';
 
         $writer = WriterEntityFactory::createCSVWriter();
+        $writer->setFieldDelimiter(',');
+        $writer->setFieldEnclosure('"');
+        $writer->setShouldAddBOM(false);
         $writer->openToFile($path);
 
         $columnHeaders = [
@@ -104,11 +109,11 @@ class UserImport extends Model
 
         $writer->addRows([
             WriterEntityFactory::createRowFromArray([
-                'username_pld1', 'email0@gmail.com', '123456', 'TRAINER', 'User Satu',
+                'username_pld1', 'email1@gmail.com', '123456', 'TRAINER', 'User Satu',
                 '0812123', 'Jl. Bogor', '01', '01', 'KAB. BOGOR', 'NANGGUNG', 'CISARUA',
             ]),
             WriterEntityFactory::createRowFromArray([
-                'username_pld2', 'email0@gmail.com', '123456', 'TRAINER', 'User Dua',
+                'username_pld2', 'email2@gmail.com', '123456', 'TRAINER', 'User Dua',
                 '0812123', 'Jl. Bogor', '01', '01', 'KAB. BOGOR', 'NANGGUNG', 'CISARUA',
             ]),
         ]);
