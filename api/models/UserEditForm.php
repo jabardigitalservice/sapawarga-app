@@ -130,7 +130,7 @@ class UserEditForm extends Model
 
     protected function isNotEmptyInputAttribute($attribute)
     {
-        return $this->$attribute !== NULL && $this->$attribute !== '';
+        return $this->$attribute !== '';
     }
 
     /**

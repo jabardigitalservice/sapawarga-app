@@ -444,7 +444,25 @@ class UserCest
 
         $I->seeInDatabase('user', [
             'id'         => 100,
+            'username'   => 'user.test',
+            'email'      => 'user@test.com',
             'birth_date' => '1988-11-15',
+        ]);
+
+        // Set to null
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => null,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'email'      => 'user@test.com',
+            'birth_date' => null,
         ]);
     }
 
@@ -476,7 +494,25 @@ class UserCest
 
         $I->seeInDatabase('user', [
             'id'          => 100,
+            'username'    => 'user.test',
+            'email'       => 'user@test.com',
             'job_type_id' => 1,
+        ]);
+
+        // Set to NULL
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'job_type_id' => null,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'          => 100,
+            'username'    => 'user.test',
+            'email'       => 'user@test.com',
+            'job_type_id' => null,
         ]);
     }
 
@@ -507,8 +543,26 @@ class UserCest
         $I->canSeeResponseCodeIs(200);
 
         $I->seeInDatabase('user', [
-            'id'          => 100,
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'email'              => 'user@test.com',
             'education_level_id' => 1,
+        ]);
+
+        // Set to null
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'education_level_id' => null,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'email'              => 'user@test.com',
+            'education_level_id' => null,
         ]);
     }
 }
