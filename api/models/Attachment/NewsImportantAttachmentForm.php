@@ -14,6 +14,11 @@ class NewsImportantAttachmentForm extends Model
      */
     public $file;
 
+    /**
+     * @var string
+     */
+    protected $relativeFilePath;
+
     public function rules()
     {
         $uploadMaxSize = Yii::$app->params['upload_max_size'];
@@ -31,14 +36,27 @@ class NewsImportantAttachmentForm extends Model
         ];
     }
 
+    /**
+     * @return string
+     */
+    public function createFilePath()
+    {
+        $filename = time() . '-' . Str::random(32);
+        $extension = $this->file->extension;
+
+        return sprintf('general/%s.%s', $filename, $extension);
+    }
+
+    /**
+     * @return bool
+     */
     public function upload()
     {
-        $filename = $this->file->baseName . '.' . $this->file->extension;
-
         if ($this->validate()) {
-            // Save temp file
-            $tempFilePath = Yii::getAlias('@webroot/storage') . '/temp-' . $filename;
-            $this->file->saveAs($tempFilePath);
+            $this->relativeFilePath = $this->createFilePath();
+
+            $stream = fopen($this->file->tempName, 'r+');
+            Yii::$app->fs->put($this->relativeFilePath, $stream);
 
             return true;
         } else {
@@ -51,17 +69,7 @@ class NewsImportantAttachmentForm extends Model
      */
     public function getRelativeFilePath()
     {
-        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-
-        // Open temp and save to flysystem
-        $filename = $this->file->baseName . '.' .  $this->file->extension;
-        $tempFilePath = Yii::getAlias('@webroot/storage') . '/temp-' . $filename;
-
-        $filename = time() . '.' .  $this->file->extension;
-        $stream = fopen($tempFilePath, 'r+');
-        Yii::$app->fs->put($filename, $stream);
-
-        return $filename;
+        return $this->relativeFilePath;
     }
 
     /**

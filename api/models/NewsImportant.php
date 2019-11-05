@@ -53,7 +53,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             [['title', 'status', 'category_id', 'content'],'required'],
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
-            ['title', InputCleanValidator::class],
+            [['title', 'content'], InputCleanValidator::class],
             [['title', 'source_url', 'category_id', 'content', 'image_path'], 'trim'],
             [['title', 'source_url', 'category_id', 'content', 'image_path'], 'safe'],
 
