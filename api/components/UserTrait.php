@@ -88,11 +88,13 @@ trait UserTrait
         $user = User::findIdentity(\Yii::$app->user->getId());
 
         if ($user) {
+            $input = Yii::$app->request->post('UserEditForm');
+
             $model = new UserEditForm();
-            $model->load(Yii::$app->request->post());
+            $model->load($input);
             $model->id = $user->id;
 
-            if ($model->validate() && $model->save()) {
+            if ($model->validate() && $model->save($input)) {
                 $response = \Yii::$app->getResponse();
                 $response->setStatusCode(200);
 

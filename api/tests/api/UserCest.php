@@ -166,19 +166,61 @@ class UserCest
 
     public function userUpdateProfile(ApiTester $I)
     {
-        $I->amUser('staffrw3');
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
 
-        $I->sendPOST("{$this->endpointProfile}", [
-            'username' => 'staffrw3',
-            'name' => 'Name Edited',
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => '1988-11-15',
+                'phone' => '',
+                'address' => null,
+            ]
         ]);
 
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
 
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'name'       => 'Test User',
+            'email'      => 'user@test.com',
+            'birth_date' => '1988-11-15',
+            'phone'      => null,
+            'address'    => null,
+        ]);
+
+        // Set to null
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => null,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'email'      => 'user@test.com',
+            'birth_date' => null,
+            'phone'      => null,
+            'address'    => null,
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Illuminate\Support\Arr;
 use Yii;
 use yii\base\Model;
 
@@ -86,7 +87,7 @@ class UserEditForm extends Model
             ],
 
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
-            [['name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
+            [['username', 'email', 'name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
             [['birth_date', 'education_level_id', 'job_type_id'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
@@ -96,41 +97,43 @@ class UserEditForm extends Model
     /**
      * Signs user up.
      *
+     * @param  array  $attributes
      * @return boolean the saved model or null if saving fails
+     * @throws \yii\base\Exception
      */
-    public function save()
+    public function save(array $attributes = [])
     {
         if ($this->validate()) {
             $this->getUserByID();
 
+            $attributes = $this->convertEmptyAttributesToNull($attributes);
+
             // If password is not null and not empty, then update password
-            if ($this->password !== null && $this->password !== '') {
-                $this->_user->setPassword($this->password);
+            $newPassword = Arr::get($attributes, 'password');
+            if ($newPassword !== '' && $newPassword !== null) {
+                $this->_user->updateAttributes([
+                    'password_hash' => Yii::$app->security->generatePasswordHash($newPassword),
+                ]);
             }
 
-            // Set all the other fields
-            $excluded_attributes = ['password'];
-            $attribute_names = $this->attributes();
-            $attribute_names = array_diff($attribute_names, $excluded_attributes);
+            // Update partial attributes from input
+            $this->_user->updateAttributes($attributes);
 
-            foreach ($attribute_names as $attribute) {
-                if ($this->isNotEmptyInputAttribute($attribute)) {
-                    $this->_user->$attribute = $this->$attribute;
-                }
-            }
-
-            if ($this->_user->save(false)) {
-                return true;
-            }
-
-            $this->addError('generic', Yii::t('app', 'The system could not update the information.'));
+            return true;
         }
+
         return false;
     }
 
-    protected function isNotEmptyInputAttribute($attribute)
+    protected function convertEmptyAttributesToNull(array $attributes = [])
     {
-        return $this->$attribute !== '';
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute === '') {
+                $attributes[$key] = null;
+            }
+        }
+
+        return $attributes;
     }
 
     /**
