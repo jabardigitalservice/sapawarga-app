@@ -3,8 +3,9 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
-use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -17,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property string $title
  * @property int $category_id
  * @property string $content
+ * @property string $image_path
  * @property string $source_url
  * @property string $status
  * @property int $created_by
@@ -27,7 +29,7 @@ use yii\db\ActiveRecord;
 
 class NewsImportant extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus;
+    use HasActiveStatus, HasCategory;
 
     /**
      * {@inheritdoc}
@@ -52,8 +54,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
-            [['title', 'source_url', 'category_id', 'content'], 'trim'],
-            [['title', 'source_url', 'category_id', 'content'], 'safe'],
+            [['title', 'source_url', 'category_id', 'content', 'image_path'], 'trim'],
+            [['title', 'source_url', 'category_id', 'content', 'image_path'], 'safe'],
 
             ['source_url', 'url'],
 
@@ -70,7 +72,12 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'id',
             'title',
             'category_id',
+            'category' => 'CategoryField',
             'content',
+            'image_path',
+            'image_path_url' => function () use ($publicBaseUrl) {
+                return "{$publicBaseUrl}/{$this->image_path}";
+            },
             'source_url',
             'status',
             'attachments' => function () use ($publicBaseUrl) {
@@ -103,6 +110,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'title' => 'Judul',
             'category_id' => 'Kategori',
             'content' => 'Konten',
+            'image_path' => 'Gambar',
             'source_url' => 'URL Sumber',
             'status' => 'Status',
         ];

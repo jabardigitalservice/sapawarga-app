@@ -7,7 +7,7 @@ use yii\base\Model;
 use yii\web\UploadedFile;
 use Illuminate\Support\Str;
 
-class NewsImportantUploadForm extends Model
+class NewsImportantAttachmentForm extends Model
 {
     /**
      * @var UploadedFile

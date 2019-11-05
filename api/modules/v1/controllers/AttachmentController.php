@@ -110,7 +110,8 @@ class AttachmentController extends ActiveController
             'banner_photo' => BannerPhotoForm::class,
             'popup_photo' => PopupPhotoForm::class,
             'user_photo' => UserPhotoUploadForm::class,
-            'news_important' => NewsImportantUploadForm::class,
+            'news_important' => NewsImportantPhotoForm::class,
+            'news_important_attachment' => NewsImportantAttachmentForm::class,
         ];
 
         if (Arr::has($types, $type)) {

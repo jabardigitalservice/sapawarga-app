@@ -16,6 +16,7 @@ class m191029_084447_create_table_news_important extends CustomMigration
             'title' => $this->string()->notNull(),
             'category_id' => $this->integer()->notNull(),
             'content' => $this->text()->notNull(),
+            'image_path' => $this->string()->null(),
             'source_url' => $this->string()->null(),
             'status' => $this->integer()->notNull(),
             'created_by' => $this->integer()->notNull(),
@@ -54,7 +55,7 @@ class m191029_084447_create_table_news_important extends CustomMigration
      */
     public function safeDown()
     {
-        $this->dropTable('news_important');
         $this->dropTable('news_important_attachment');
+        $this->dropTable('news_important');
     }
 }
