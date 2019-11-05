@@ -166,20 +166,243 @@ class UserCest
 
     public function userUpdateProfile(ApiTester $I)
     {
-        $I->amUser('staffrw3');
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
 
-        $I->sendPOST("{$this->endpointProfile}", [
-            'username' => 'staffrw3',
-            'name' => 'Name Edited',
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => '1988-11-15',
+                'phone' => '',
+                'address' => null,
+            ]
         ]);
 
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
 
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'name'       => 'Test User',
+            'email'      => 'user@test.com',
+            'birth_date' => '1988-11-15',
+            'phone'      => null,
+            'address'    => null,
         ]);
+
+        // Set to null
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => null,
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'email'      => 'user@test.com',
+            'birth_date' => null,
+            'phone'      => null,
+            'address'    => null,
+        ]);
+    }
+
+    public function userUpdateProfileChangePassword(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'password' => '1234567',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'name'       => 'Test User',
+            'email'      => 'user@test.com',
+            'birth_date' => null,
+            'phone'      => 'phone',
+            'address'    => 'address',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => '1234567',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+    }
+
+    public function userUpdateProfileChangePasswordCaseTwo(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'password' => '1234567',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'       => 100,
+            'username' => 'user.test',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => 'xxx',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsClientError();
+    }
+
+    public function userUpdateProfileChangePasswordCaseThree(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'password' => '',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'       => 100,
+            'username' => 'user.test',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+    }
+
+    public function userUpdateProfileChangePasswordCaseFour(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'username' => 'user.test',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'       => 100,
+            'username' => 'user.test',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
     }
 
     public function userChangePasswordSucessTest(ApiTester $I)
@@ -321,12 +544,12 @@ class UserCest
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
     }
 
-    public function userCanViewUserBirthdate(ApiTester $I)
+    public function userCanViewBirthdate(ApiTester $I)
     {
         $I->haveInDatabase('user', [
             'id'                => 100,
             'username'          => 'user.test',
-            'auth_key'          => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
             'email'             => 'user@test.com',
             'unconfirmed_email' => 'user@test.com',
             'confirmed_at'      => time(),
@@ -337,9 +560,9 @@ class UserCest
             'updated_at'        => time(),
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amUser('user.test');
 
-        $I->sendGET('/v1/staff/100');
+        $I->sendGET('/v1/user/me');
 
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseContainsJson([
@@ -350,12 +573,12 @@ class UserCest
         ]);
     }
 
-    public function userCanViewUserJobType(ApiTester $I)
+    public function userCanViewJobType(ApiTester $I)
     {
         $I->haveInDatabase('user', [
             'id'                => 100,
             'username'          => 'user.test',
-            'auth_key'          => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
             'email'             => 'user@test.com',
             'unconfirmed_email' => 'user@test.com',
             'confirmed_at'      => time(),
@@ -366,9 +589,9 @@ class UserCest
             'updated_at'        => time(),
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amUser('user.test');
 
-        $I->sendGET('/v1/staff/100');
+        $I->sendGET('/v1/user/me');
 
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseContainsJson([
@@ -383,12 +606,12 @@ class UserCest
         ]);
     }
 
-    public function userCanViewUserEducationLevel(ApiTester $I)
+    public function userCanViewEducationLevel(ApiTester $I)
     {
         $I->haveInDatabase('user', [
             'id'                 => 100,
             'username'           => 'user.test',
-            'auth_key'           => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
             'email'              => 'user@test.com',
             'unconfirmed_email'  => 'user@test.com',
             'confirmed_at'       => time(),
@@ -399,9 +622,9 @@ class UserCest
             'updated_at'         => time(),
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amUser('user.test');
 
-        $I->sendGET('/v1/staff/100');
+        $I->sendGET('/v1/user/me');
 
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseContainsJson([
@@ -416,116 +639,112 @@ class UserCest
         ]);
     }
 
-    public function canUpdateBirthDate(ApiTester $I)
+    public function userCanUpdateBirthdate(ApiTester $I)
     {
         $I->haveInDatabase('user', [
-            'id'                 => 100,
-            'username'           => 'user.test',
-            'auth_key'           => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
-            'email'              => 'user@test.com',
-            'unconfirmed_email'  => 'user@test.com',
-            'confirmed_at'       => time(),
-            'role'               => 50,
-            'birth_date'         => null,
-            'status'             => 10,
-            'created_at'         => time(),
-            'updated_at'         => time(),
+            'id'                => 100,
+            'username'          => 'user.test',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amUser('user.test');
 
-        // Update Value
-        $I->sendPUT('/v1/staff/100', ['birth_date' => '1988-11-15']);
-
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'birth_date' => '1988-11-15'
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => '1988-11-15',
             ]
         ]);
 
-        // Update to NULL
-        $I->sendPUT('/v1/staff/100', ['birth_date' => null]);
-
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'birth_date' => null
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'email'      => 'user@test.com',
+            'birth_date' => '1988-11-15',
+        ]);
+
+        // Set to null
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'birth_date' => null,
             ]
         ]);
 
-        // Update skip attribute
-        $I->sendPUT('/v1/staff/100', []);
-
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'birth_date' => null
-            ]
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'email'      => 'user@test.com',
+            'birth_date' => null,
         ]);
     }
 
-    public function canUpdateJobType(ApiTester $I)
+    public function userCanUpdateJobType(ApiTester $I)
     {
         $I->haveInDatabase('user', [
-            'id'                 => 100,
-            'username'           => 'user.test',
-            'auth_key'           => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
-            'email'              => 'user@test.com',
-            'unconfirmed_email'  => 'user@test.com',
-            'confirmed_at'       => time(),
-            'role'               => 50,
-            'job_type_id'        => null,
-            'status'             => 10,
-            'created_at'         => time(),
-            'updated_at'         => time(),
+            'id'                => 100,
+            'username'          => 'user.test',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'job_type_id'       => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amUser('user.test');
 
-        // Update Value
-        $I->sendPUT('/v1/staff/100', ['job_type_id' => 1]);
-
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'job_type_id' => 1
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'job_type_id' => 1,
             ]
         ]);
 
-        // Update to NULL
-        $I->sendPUT('/v1/staff/100', ['job_type_id' => null]);
-
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'job_type_id' => null
+
+        $I->seeInDatabase('user', [
+            'id'          => 100,
+            'username'    => 'user.test',
+            'email'       => 'user@test.com',
+            'job_type_id' => 1,
+        ]);
+
+        // Set to NULL
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'job_type_id' => null,
             ]
         ]);
 
-        // Update skip attribute
-        $I->sendPUT('/v1/staff/100', []);
-
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'job_type_id' => null
-            ]
+
+        $I->seeInDatabase('user', [
+            'id'          => 100,
+            'username'    => 'user.test',
+            'email'       => 'user@test.com',
+            'job_type_id' => null,
         ]);
     }
 
-    public function canUpdateEducationLevel(ApiTester $I)
+    public function userCanUpdateEducationLevel(ApiTester $I)
     {
         $I->haveInDatabase('user', [
             'id'                 => 100,
             'username'           => 'user.test',
-            'auth_key'           => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
             'email'              => 'user@test.com',
             'unconfirmed_email'  => 'user@test.com',
             'confirmed_at'       => time(),
@@ -536,39 +755,37 @@ class UserCest
             'updated_at'         => time(),
         ]);
 
-        $I->amStaff('staffprov');
+        $I->amUser('user.test');
 
-        // Update Value
-        $I->sendPUT('/v1/staff/100', ['education_level_id' => 1]);
-
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'education_level_id' => 1
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'education_level_id' => 1,
             ]
         ]);
 
-        // Update to NULL
-        $I->sendPUT('/v1/staff/100', ['education_level_id' => null]);
-
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'education_level_id' => null
+
+        $I->seeInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'email'              => 'user@test.com',
+            'education_level_id' => 1,
+        ]);
+
+        // Set to null
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'education_level_id' => null,
             ]
         ]);
 
-        // Update skip attribute
-        $I->sendPUT('/v1/staff/100', []);
-
         $I->canSeeResponseCodeIs(200);
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'data' => [
-                'education_level_id' => null
-            ]
+
+        $I->seeInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'email'              => 'user@test.com',
+            'education_level_id' => null,
         ]);
     }
 }

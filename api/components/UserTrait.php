@@ -68,7 +68,8 @@ trait UserTrait
                 'name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kelurahan',
                 'kec_id', 'kecamatan', 'kabkota_id', 'kabkota', 'lat', 'lon',
                 'facebook', 'twitter', 'instagram', 'photo_url', 'last_login_at', 'last_access_at',
-                'password_updated_at', 'profile_updated_at', 'birth_date',
+                'password_updated_at', 'profile_updated_at',
+                'birth_date', 'job_type', 'job_type_id', 'education_level', 'education_level_id',
             ]);
         } else {
             // Validation error
@@ -79,19 +80,22 @@ trait UserTrait
     /**
      * Update logged in user information
      *
+     * @param  array  $attributes
      * @return array|null|\yii\db\ActiveRecord
-     *
+     * @throws \yii\base\Exception
      */
-    public function updateCurrentUser()
+    public function updateCurrentUser(array $attributes = [])
     {
         $user = User::findIdentity(\Yii::$app->user->getId());
 
         if ($user) {
+            $attributes = $this->convertEmptyAttributesToNull($attributes);
+
             $model = new UserEditForm();
-            $model->load(Yii::$app->request->post());
+            $model->load($attributes);
             $model->id = $user->id;
 
-            if ($model->validate() && $model->save()) {
+            if ($model->validate() && $model->save($attributes)) {
                 $response = \Yii::$app->getResponse();
                 $response->setStatusCode(200);
 
@@ -108,5 +112,16 @@ trait UserTrait
         }
 
         throw new NotFoundHttpException('Object not found');
+    }
+
+    protected function convertEmptyAttributesToNull(array $attributes = [])
+    {
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute === '') {
+                $attributes[$key] = null;
+            }
+        }
+
+        return $attributes;
     }
 }

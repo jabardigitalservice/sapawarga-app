@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Illuminate\Support\Arr;
 use Yii;
 use yii\base\Model;
 
@@ -28,6 +29,10 @@ class UserEditForm extends Model
     public $facebook;
     public $twitter;
     public $instagram;
+    public $birth_date;
+    public $job_type_id;
+    public $education_level_id;
+
     /** @var User */
     private $_user = false;
 
@@ -82,57 +87,47 @@ class UserEditForm extends Model
             ],
 
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
-            [['name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
+            [['username', 'email', 'name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
+            [['birth_date', 'education_level_id', 'job_type_id'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
         ];
     }
 
     /**
-     * Signs user up.
+     * Update own Profile (with allow update partial attributes)
+     * POST /v1/user/me
+     * POST /v1/staff/me
      *
+     * @param  array  $attributes
      * @return boolean the saved model or null if saving fails
      */
-    public function save()
+    public function save(array $attributes = []): bool
     {
-        if ($this->validate()) {
-            $this->getUserByID();
+        $this->getUserByID();
 
-
-            if ($this->_user->email != $this->email) {
-                $this->_user->unconfirmed_email = $this->email;
-                $this->_user->email = $this->email;
-                $this->_user->confirmed_at = Yii::$app->formatter->asTimestamp(date('Y-m-d H:i:s'));
-                $this->_user->generateAuthKey();
-            }
-
-            // If password is not null, then update password
-            if ($this->password != '') {
-                $this->_user->setPassword($this->password);
-            }
-
-            // Set all the other fields
-            $excluded_attributes = ['password'];
-            $attribute_names = $this->attributes();
-            $attribute_names = array_diff($attribute_names, $excluded_attributes);
-            foreach ($attribute_names as $name) {
-                $this->_user[$name] = $this[$name];
-            }
-
-
-            if ($this->_user->save(false)) {
-                return true;
-            } else {
-                $this->addError('generic', Yii::t('app', 'The system could not update the information.'));
-            }
+        // If password is not null and not empty, then update password
+        $newPassword = Arr::get($attributes, 'password');
+        if ($newPassword !== null) {
+            $this->_user->setPassword($newPassword);
         }
-        return false;
+
+        // Remove password because password must set by hash method (already above)
+        Arr::forget($attributes, 'password');
+
+        // Update partial attributes from input
+        foreach ($attributes as $attribute => $value) {
+            $this->_user->$attribute = $value;
+        }
+
+        // Because we only update partial attributes, so don't need to fulfil User() validation
+        return $this->_user->save(false);
     }
 
     /**
      * Finds user by [[id]]
      *
-     * @return User|null
+     * @return User|null$attribute
      */
     public function getUserByID()
     {

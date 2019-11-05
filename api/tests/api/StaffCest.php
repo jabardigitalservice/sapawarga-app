@@ -342,8 +342,9 @@ class StaffCest
         $I->amStaff('staffprov');
 
         $I->sendPOST($this->endpointStaff . '/me', [
-            'username' => 'admin',
-            'name' => 'Name Edited'
+            'UserEditForm' => [
+                'name' => 'Name Edited'
+            ]
         ]);
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -352,13 +353,241 @@ class StaffCest
             'success' => true,
             'status'  => 200,
         ]);
+
+        $I->seeInDatabase('user', [
+            'username' => 'staffprov',
+            'name'     => 'Name Edited',
+        ]);
     }
 
-    public function staffDeleteStaff(ApiTester $I)
+
+    public function staffCanViewUserJobType(ApiTester $I)
     {
-        $I->amStaff();
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'auth_key'          => 'Tc4cif87I3Sm3PFnRZLZCpaZoaUnTDtj',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'job_type_id'       => 1,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
 
-        $I->sendDELETE($this->endpointStaff . '/2');
-        $I->canSeeResponseCodeIs(204);
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff/100');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'job_type_id' => 1,
+                'job_type'    => [
+                    'id'    => 1,
+                    'title' => 'Belum Bekerja',
+                ],
+            ]
+        ]);
     }
+
+    public function staffCanViewUserEducationLevel(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'              => 'user@test.com',
+            'unconfirmed_email'  => 'user@test.com',
+            'confirmed_at'       => time(),
+            'role'               => 50,
+            'education_level_id' => 1,
+            'status'             => 10,
+            'created_at'         => time(),
+            'updated_at'         => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff/100');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'education_level_id' => 1,
+                'education_level'    => [
+                    'id'    => 1,
+                    'title' => 'Tidak Ada',
+                ],
+            ]
+        ]);
+    }
+
+    public function canUpdateBirthDate(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'              => 'user@test.com',
+            'unconfirmed_email'  => 'user@test.com',
+            'confirmed_at'       => time(),
+            'role'               => 50,
+            'birth_date'         => null,
+            'status'             => 10,
+            'created_at'         => time(),
+            'updated_at'         => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        // Update Value
+        $I->sendPUT('/v1/staff/100', ['birth_date' => '1988-11-15']);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'birth_date' => '1988-11-15'
+            ]
+        ]);
+
+        // Update to NULL
+        $I->sendPUT('/v1/staff/100', ['birth_date' => null]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'birth_date' => null
+            ]
+        ]);
+
+        // Update skip attribute
+        $I->sendPUT('/v1/staff/100', []);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'birth_date' => null
+            ]
+        ]);
+    }
+
+    public function canUpdateJobType(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'              => 'user@test.com',
+            'unconfirmed_email'  => 'user@test.com',
+            'confirmed_at'       => time(),
+            'role'               => 50,
+            'job_type_id'        => null,
+            'status'             => 10,
+            'created_at'         => time(),
+            'updated_at'         => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        // Update Value
+        $I->sendPUT('/v1/staff/100', ['job_type_id' => 1]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'job_type_id' => 1
+            ]
+        ]);
+
+        // Update to NULL
+        $I->sendPUT('/v1/staff/100', ['job_type_id' => null]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'job_type_id' => null
+            ]
+        ]);
+
+        // Update skip attribute
+        $I->sendPUT('/v1/staff/100', []);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'job_type_id' => null
+            ]
+        ]);
+    }
+
+    public function canUpdateEducationLevel(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                 => 100,
+            'username'           => 'user.test',
+            'password_hash'      => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'              => 'user@test.com',
+            'unconfirmed_email'  => 'user@test.com',
+            'confirmed_at'       => time(),
+            'role'               => 50,
+            'education_level_id' => null,
+            'status'             => 10,
+            'created_at'         => time(),
+            'updated_at'         => time(),
+        ]);
+
+        $I->amStaff('staffprov');
+
+        // Update Value
+        $I->sendPUT('/v1/staff/100', ['education_level_id' => 1]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'education_level_id' => 1
+            ]
+        ]);
+
+        // Update to NULL
+        $I->sendPUT('/v1/staff/100', ['education_level_id' => null]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'education_level_id' => null
+            ]
+        ]);
+
+        // Update skip attribute
+        $I->sendPUT('/v1/staff/100', []);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'education_level_id' => null
+            ]
+        ]);
+    }
+
+//    public function staffDeleteStaff(ApiTester $I)
+//    {
+//        $I->amStaff();
+//
+//        $I->sendDELETE($this->endpointStaff . '/2');
+//        $I->canSeeResponseCodeIs(204);
+//    }
 }

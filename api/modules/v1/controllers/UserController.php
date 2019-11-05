@@ -14,6 +14,7 @@ use app\models\User;
 use app\models\UserChangeProfileForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
+use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
@@ -491,7 +492,15 @@ class UserController extends ActiveController
      */
     public function actionMeUpdate()
     {
-        return $this->updateCurrentUser();
+        $allowedAttributes = [
+            'username', 'email', 'password', 'name', 'phone', 'address',
+            'job_type_id', 'education_level_id', 'birth_date', 'rt', 'rw',
+            'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram',
+        ];
+
+        $attributes = Yii::$app->request->post('UserEditForm');
+
+        return $this->updateCurrentUser(Arr::only($attributes, $allowedAttributes));
     }
 
     public function actionMePhoto()
