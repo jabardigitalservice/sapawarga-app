@@ -11,6 +11,7 @@ use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
@@ -364,10 +365,20 @@ class StaffController extends ActiveController
      *
      * @return array|null|\yii\db\ActiveRecord
      *
+     * @throws \yii\base\Exception
      */
     public function actionMeUpdate()
     {
-        return $this->updateCurrentUser();
+        $allowedAttributes = [
+            'username', 'email', 'password', 'name', 'phone', 'address',
+            'job_type_id', 'education_level_id', 'birth_date', 'rt', 'rw',
+            'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram',
+            'status', 'role', 'kabkota_id', 'kec_id', 'kel_id',
+        ];
+
+        $attributes = Yii::$app->request->post('UserEditForm');
+
+        return $this->updateCurrentUser(Arr::only($attributes, $allowedAttributes));
     }
 
     /**

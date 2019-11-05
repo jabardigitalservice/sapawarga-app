@@ -80,15 +80,16 @@ trait UserTrait
     /**
      * Update logged in user information
      *
+     * @param  array  $attributes
      * @return array|null|\yii\db\ActiveRecord
-     *
+     * @throws \yii\base\Exception
      */
-    public function updateCurrentUser()
+    public function updateCurrentUser(array $attributes = [])
     {
         $user = User::findIdentity(\Yii::$app->user->getId());
 
         if ($user) {
-            $input = $this->convertEmptyAttributesToNull(Yii::$app->request->post('UserEditForm'));
+            $input = $this->convertEmptyAttributesToNull($attributes);
 
             $model = new UserEditForm();
             $model->load($input);
