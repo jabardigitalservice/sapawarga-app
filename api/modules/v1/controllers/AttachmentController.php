@@ -8,6 +8,8 @@ use app\models\Attachment\NewsPhotoForm;
 use app\models\Attachment\PhoneBookPhotoForm;
 use app\models\Attachment\BannerPhotoForm;
 use app\models\Attachment\PopupPhotoForm;
+use app\models\Attachment\NewsImportantPhotoForm;
+use app\models\Attachment\NewsImportantAttachmentForm;
 use app\models\AttachmentForm;
 use app\models\UserPhotoUploadForm;
 use Illuminate\Support\Arr;
@@ -104,11 +106,13 @@ class AttachmentController extends ActiveController
     {
         $types = [
             'phonebook_photo' => PhoneBookPhotoForm::class,
-            'aspirasi_photo'  => AspirasiPhotoForm::class,
-            'news_photo'      => NewsPhotoForm::class,
-            'banner_photo'    => BannerPhotoForm::class,
-            'popup_photo'     => PopupPhotoForm::class,
-            'user_photo'      => UserPhotoUploadForm::class,
+            'aspirasi_photo' => AspirasiPhotoForm::class,
+            'news_photo' => NewsPhotoForm::class,
+            'banner_photo' => BannerPhotoForm::class,
+            'popup_photo' => PopupPhotoForm::class,
+            'user_photo' => UserPhotoUploadForm::class,
+            'news_important' => NewsImportantPhotoForm::class,
+            'news_important_attachment' => NewsImportantAttachmentForm::class,
         ];
 
         if (Arr::has($types, $type)) {

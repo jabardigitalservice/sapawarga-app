@@ -290,6 +290,17 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/news-important',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options'
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/job-type',
         'pluralize' => true,
         'tokens' => [
