@@ -113,9 +113,7 @@ class AspirasiDashboard extends Aspirasi
             'pagination' => false,
         ]);
 
-        $data = $provider->getModels();
-
-        return $data;
+        return $provider->getModels();
     }
 
     /**
