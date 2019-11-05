@@ -29,7 +29,7 @@ class NewsImportantAttachmentForm extends Model
                 'file',
                 'file',
                 'skipOnEmpty' => false,
-                'extensions' => 'image/jpeg, image/jpg, image/png, pdf, doc, docx',
+                'extensions' => 'image/jpeg, image/jpg, image/png, pdf, doc, docx, ppt, pptx',
                 'checkExtensionByMimeType' => false,
                 'maxSize' => $uploadMaxSize,
             ],
