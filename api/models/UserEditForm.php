@@ -103,8 +103,8 @@ class UserEditForm extends Model
         if ($this->validate()) {
             $this->getUserByID();
 
-            // If password is not null, then update password
-            if ($this->isNotEmptyInputAttribute('password')) {
+            // If password is not null and not empty, then update password
+            if ($this->password !== null && $this->password !== '') {
                 $this->_user->setPassword($this->password);
             }
 

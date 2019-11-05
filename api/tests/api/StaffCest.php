@@ -337,24 +337,28 @@ class StaffCest
         ]);
     }
 
-//  @TODO bikin field malah kosong
+    public function staffUpdateOwnProfile(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
 
-//    public function staffUpdateOwnProfile(ApiTester $I)
-//    {
-//        $I->amStaff('staffprov');
-//
-//        $I->sendPOST($this->endpointStaff . '/me', [
-//            'username' => 'staffprov.edited',
-//            'name' => 'Name Edited'
-//        ]);
-//        $I->canSeeResponseCodeIs(200);
-//        $I->seeResponseIsJson();
-//
-//        $I->seeResponseContainsJson([
-//            'success' => true,
-//            'status'  => 200,
-//        ]);
-//    }
+        $I->sendPOST($this->endpointStaff . '/me', [
+            'UserEditForm' => [
+                'name' => 'Name Edited'
+            ]
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('user', [
+            'username' => 'staffprov',
+            'name'     => 'Name Edited',
+        ]);
+    }
 
 
     public function staffCanViewUserJobType(ApiTester $I)
@@ -579,11 +583,11 @@ class StaffCest
         ]);
     }
 
-    public function staffDeleteStaff(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $I->sendDELETE($this->endpointStaff . '/2');
-        $I->canSeeResponseCodeIs(204);
-    }
+//    public function staffDeleteStaff(ApiTester $I)
+//    {
+//        $I->amStaff();
+//
+//        $I->sendDELETE($this->endpointStaff . '/2');
+//        $I->canSeeResponseCodeIs(204);
+//    }
 }
