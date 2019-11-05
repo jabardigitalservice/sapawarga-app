@@ -95,7 +95,9 @@ class UserEditForm extends Model
     }
 
     /**
-     * Signs user up.
+     * Update own Profile
+     * POST /v1/user/me
+     * POST /v1/staff/me
      *
      * @param  array  $attributes
      * @return boolean the saved model or null if saving fails
@@ -103,43 +105,30 @@ class UserEditForm extends Model
      */
     public function save(array $attributes = [])
     {
-        if ($this->validate()) {
-            $this->getUserByID();
+        $this->getUserByID();
 
-            $attributes = $this->convertEmptyAttributesToNull($attributes);
-
-            // If password is not null and not empty, then update password
-            $newPassword = Arr::get($attributes, 'password');
-            if ($newPassword !== '' && $newPassword !== null) {
-                $this->_user->updateAttributes([
-                    'password_hash' => Yii::$app->security->generatePasswordHash($newPassword),
-                ]);
-            }
-
-            // Update partial attributes from input
-            $this->_user->updateAttributes($attributes);
-
-            return true;
+        // If password is not null and not empty, then update password
+        $newPassword = Arr::get($attributes, 'password');
+        if ($newPassword !== null) {
+            $this->_user->setPassword($newPassword);
         }
 
-        return false;
-    }
+        // Remove password because password must set by hash method (above)
+        Arr::forget($attributes, 'password');
 
-    protected function convertEmptyAttributesToNull(array $attributes = [])
-    {
-        foreach ($attributes as $key => $attribute) {
-            if ($attribute === '') {
-                $attributes[$key] = null;
-            }
+        // Update partial attributes from input
+        foreach ($attributes as $attribute => $value) {
+            $this->_user->$attribute = $value;
         }
 
-        return $attributes;
+        // Because we only update partial attributes, so don't need to fulfil User() validation
+        return $this->_user->save(false);
     }
 
     /**
      * Finds user by [[id]]
      *
-     * @return User|null
+     * @return User|null$attribute
      */
     public function getUserByID()
     {

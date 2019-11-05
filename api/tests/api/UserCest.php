@@ -224,6 +224,187 @@ class UserCest
         ]);
     }
 
+    public function userUpdateProfileChangePassword(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'password' => '1234567',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'         => 100,
+            'username'   => 'user.test',
+            'name'       => 'Test User',
+            'email'      => 'user@test.com',
+            'birth_date' => null,
+            'phone'      => 'phone',
+            'address'    => 'address',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => '1234567',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+    }
+
+    public function userUpdateProfileChangePasswordCaseTwo(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'password' => '1234567',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'       => 100,
+            'username' => 'user.test',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => 'xxx',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsClientError();
+    }
+
+    public function userUpdateProfileChangePasswordCaseThree(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'password' => '',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'       => 100,
+            'username' => 'user.test',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+    }
+
+    public function userUpdateProfileChangePasswordCaseFour(ApiTester $I)
+    {
+        $I->haveInDatabase('user', [
+            'id'                => 100,
+            'username'          => 'user.test',
+            'name'              => 'Test User',
+            'password_hash'     => '$2y$13$9Gouh1ZbewVEh4bQIGsifOs8/RWW/7RIs0CAGNd7tapXFm9.WxiXS',
+            'email'             => 'user@test.com',
+            'unconfirmed_email' => 'user@test.com',
+            'confirmed_at'      => time(),
+            'role'              => 50,
+            'phone'             => 'phone',
+            'address'           => 'address',
+            'birth_date'        => null,
+            'status'            => 10,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ]);
+
+        $I->amUser('user.test');
+
+        $I->sendPOST('/v1/user/me', [
+            'UserEditForm' => [
+                'username' => 'user.test',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+
+        $I->seeInDatabase('user', [
+            'id'       => 100,
+            'username' => 'user.test',
+        ]);
+
+        $I->sendPOST('/v1/user/login', [
+            'LoginForm' => [
+                'username' => 'user.test',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->canSeeResponseCodeIsSuccessful();
+    }
+
     public function userChangePasswordSucessTest(ApiTester $I)
     {
         $I->amUser('staffrw');

@@ -88,7 +88,7 @@ trait UserTrait
         $user = User::findIdentity(\Yii::$app->user->getId());
 
         if ($user) {
-            $input = Yii::$app->request->post('UserEditForm');
+            $input = $this->convertEmptyAttributesToNull(Yii::$app->request->post('UserEditForm'));
 
             $model = new UserEditForm();
             $model->load($input);
@@ -111,5 +111,16 @@ trait UserTrait
         }
 
         throw new NotFoundHttpException('Object not found');
+    }
+
+    protected function convertEmptyAttributesToNull(array $attributes = [])
+    {
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute === '') {
+                $attributes[$key] = null;
+            }
+        }
+
+        return $attributes;
     }
 }
