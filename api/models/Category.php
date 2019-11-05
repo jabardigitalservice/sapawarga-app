@@ -24,14 +24,15 @@ class Category extends ActiveRecord implements ActiveStatus
 
     // Memetakan category type id ke category type name
     const TYPE_MAP = [
-        Aspirasi::CATEGORY_TYPE     => 'Usulan Masyarakat',
-        Broadcast::CATEGORY_TYPE    => 'Pesan',
-        Notification::CATEGORY_TYPE => 'Notifikasi',
-        PhoneBook::CATEGORY_TYPE    => 'Nomor Penting',
-        Polling::CATEGORY_TYPE      => 'Polling',
-        Survey::CATEGORY_TYPE       => 'Survei',
-        Video::CATEGORY_TYPE        => 'Video',
-        NewsHoax::CATEGORY_TYPE     => 'Berita Saber Hoaks',
+        Aspirasi::CATEGORY_TYPE      => 'Usulan Masyarakat',
+        Broadcast::CATEGORY_TYPE     => 'Pesan',
+        Notification::CATEGORY_TYPE  => 'Notifikasi',
+        PhoneBook::CATEGORY_TYPE     => 'Nomor Penting',
+        Polling::CATEGORY_TYPE       => 'Polling',
+        Survey::CATEGORY_TYPE        => 'Survei',
+        Video::CATEGORY_TYPE         => 'Video',
+        NewsImportant::CATEGORY_TYPE => 'Info Penting',
+        NewsHoax::CATEGORY_TYPE      => 'Berita Saber Hoaks',
     ];
 
     // Daftar category type yang tidak bisa diedit oleh staff
