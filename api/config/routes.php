@@ -239,6 +239,8 @@ return [
             'OPTIONS aspirasi-most-likes' => 'options',
             'GET aspirasi-counts' => 'aspirasi-counts',
             'OPTIONS aspirasi-counts' => 'options',
+            'GET aspirasi-category-counts' => 'aspirasi-category-counts',
+            'OPTIONS aspirasi-category-counts' => 'options',
             'GET aspirasi-geo' => 'aspirasi-geo',
             'OPTIONS aspirasi-geo' => 'options',
             'GET polling-latest' => 'polling-latest',

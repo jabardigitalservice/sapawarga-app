@@ -90,6 +90,33 @@ class AspirasiDashboard extends Aspirasi
     }
 
     /**
+     * Creates data provider instance applied for get total aspirasi per category
+     *
+     * @return SqlDataProvider
+     */
+    public function getAspirasiCategoryCounts($params)
+    {
+        $limit = (int) Arr::get($params, 'limit', 20);
+
+        // Query
+        $sql = 'SELECT c.name, count(a.id) as total
+                FROM aspirasi a
+                LEFT JOIN categories c ON c.id = a.category_id
+                WHERE a.status > :status_draft
+                GROUP BY category_id
+                ORDER BY total DESC
+                LIMIT :limit';
+
+        $provider = new SqlDataProvider([
+            'sql' => $sql,
+            'params' => [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit],
+            'pagination' => false,
+        ]);
+
+        return $provider->getModels();
+    }
+
+    /**
      * Creates data provider instance applied for get total aspirasi group by kabkota
      *
      * @param array $paramsSql
