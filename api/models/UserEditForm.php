@@ -95,15 +95,14 @@ class UserEditForm extends Model
     }
 
     /**
-     * Update own Profile
+     * Update own Profile (with allow update partial attributes)
      * POST /v1/user/me
      * POST /v1/staff/me
      *
      * @param  array  $attributes
      * @return boolean the saved model or null if saving fails
-     * @throws \yii\base\Exception
      */
-    public function save(array $attributes = [])
+    public function save(array $attributes = []): bool
     {
         $this->getUserByID();
 
@@ -113,7 +112,7 @@ class UserEditForm extends Model
             $this->_user->setPassword($newPassword);
         }
 
-        // Remove password because password must set by hash method (above)
+        // Remove password because password must set by hash method (already above)
         Arr::forget($attributes, 'password');
 
         // Update partial attributes from input

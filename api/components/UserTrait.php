@@ -89,13 +89,13 @@ trait UserTrait
         $user = User::findIdentity(\Yii::$app->user->getId());
 
         if ($user) {
-            $input = $this->convertEmptyAttributesToNull($attributes);
+            $attributes = $this->convertEmptyAttributesToNull($attributes);
 
             $model = new UserEditForm();
-            $model->load($input);
+            $model->load($attributes);
             $model->id = $user->id;
 
-            if ($model->validate() && $model->save($input)) {
+            if ($model->validate() && $model->save($attributes)) {
                 $response = \Yii::$app->getResponse();
                 $response->setStatusCode(200);
 
