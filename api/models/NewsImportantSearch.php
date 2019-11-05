@@ -14,7 +14,6 @@ class NewsImportantSearch extends NewsImportant
 {
     const SCENARIO_LIST_STAFF = 'list-staff';
     const SCENARIO_LIST_USER = 'list-user';
-    const LIMIT_LIST_USER = 1;
 
     /**
      * Creates data provider instance with search query applied
@@ -50,8 +49,6 @@ class NewsImportantSearch extends NewsImportant
 
     protected function getQueryListUser($query, $params)
     {
-        $params['limit'] = self::LIMIT_LIST_USER;
-
         return $this->getQueryAll($query, $params);
     }
 

@@ -49,6 +49,33 @@ class NewsImportantTest extends Unit
         $this->assertFalse($model->hasErrors('content'));
     }
 
+    public function testContentAllowHtml()
+    {
+        $model = new NewsImportant();
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('content'));
+
+        $model->content = '';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('content'));
+
+        $model->content = 'Ini adalah judul';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('content'));
+
+        $model->content = '<p>Ini adalah judul dengan html</p>';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('content'));
+    }
+
     public function testTitleNotSafe()
     {
         $model = new NewsImportant();
