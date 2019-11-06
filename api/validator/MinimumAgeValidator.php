@@ -14,8 +14,8 @@ class MinimumAgeValidator extends Validator
         $date  = (new Carbon($value));
         $limit = Carbon::now();
 
-        if ($date->diffInYears($limit) < 10) {
-            $this->addError($model, $attribute, 'Usia minimal 10 tahun.');
+        if ($date->diffInYears($limit) < 20) {
+            $this->addError($model, $attribute, 'Usia minimal 20 tahun.');
         }
     }
 }
