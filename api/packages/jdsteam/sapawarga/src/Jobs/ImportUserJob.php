@@ -131,16 +131,19 @@ class ImportUserJob extends BaseObject implements JobInterface
             $cells[11]->getValue(),
         ]);
 
+        $roleId = $cells[3]->getValue();
+        $role   = $this->getRoleValue($cells[3]->getValue());
+
         return [
             'username'   => $cells[0]->getValue(),
             'email'      => $cells[1]->getValue(),
             'password'   => $cells[2]->getValue(),
-            'role'       => $this->getRoleValue($cells[3]->getValue()),
+            'role'       => $role,
             'name'       => $cells[4]->getValue(),
             'phone'      => $cells[5]->getValue(),
             'address'    => $cells[6]->getValue(),
-            'rt'         => $cells[7]->getValue(),
-            'rw'         => $cells[8]->getValue(),
+            'rt'         => in_array($roleId, ['TRAINER', 'RW']) ? $cells[7]->getValue() : null,
+            'rw'         => in_array($roleId, ['TRAINER', 'RW']) ? $cells[8]->getValue() : null,
             'kabkota_id' => $kabkota ? $kabkota->id : null,
             'kec_id'     => $kecamatan ? $kecamatan->id : null,
             'kel_id'     => $kelurahan ? $kelurahan->id : null,
@@ -258,12 +261,12 @@ class ImportUserJob extends BaseObject implements JobInterface
             $kabkota = Area::findOne(['depth' => 2, 'name' => $kabkota]);
         }
 
-        if ($kecamatan !== null) {
-            $kecamatan = Area::findOne(['depth' => 3, 'name' => $kecamatan]);
+        if ($kabkota !== null && $kecamatan !== null) {
+            $kecamatan = Area::findOne(['parent_id' => $kabkota->id, 'name' => $kecamatan]);
         }
 
-        if ($kelurahan !== null) {
-            $kelurahan = Area::findOne(['depth' => 4, 'name' => $kelurahan]);
+        if ($kecamatan !== null && $kelurahan !== null) {
+            $kelurahan = Area::findOne(['parent_id' => $kecamatan->id, 'name' => $kelurahan]);
         }
 
         return [$kabkota, $kecamatan, $kelurahan];
