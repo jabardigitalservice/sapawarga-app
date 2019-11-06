@@ -92,7 +92,7 @@ trait UserTrait
             $attributes = ModelHelper::convertEmptyAttributesToNull($attributes);
 
             $model = new UserEditForm();
-            $model->load($attributes);
+            $model->load($attributes, '');
             $model->id = $user->id;
 
             if ($model->validate() && $model->save($attributes)) {
