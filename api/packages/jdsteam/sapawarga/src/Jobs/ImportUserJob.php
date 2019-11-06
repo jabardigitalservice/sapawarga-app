@@ -156,7 +156,9 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailed(Collection $rows)
     {
-        $textBody  = "Validation failed:\n";
+        $textBody  = "Filename: {$this->filePath}\n";
+
+        $textBody .= "Validation failed:\n";
 
         foreach ($rows as $row) {
             $message   = implode(', ', $row['message']);
@@ -170,7 +172,9 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailedMaxRows()
     {
-        $textBody  = sprintf('Total rows exceeded maximum: %s', $this->maxRows);
+        $textBody  = "Filename: {$this->filePath}\n";
+
+        $textBody .= sprintf('Total rows exceeded maximum: %s', $this->maxRows);
 
         $textBody .= $this->debugProcessTime();
 
@@ -179,7 +183,9 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportSuccess(Collection $rows)
     {
-        $textBody  = sprintf("Total imported rows: %s\n", $rows->count());
+        $textBody  = "Filename: {$this->filePath}\n";
+
+        $textBody .= sprintf("Total imported rows: %s\n", $rows->count());
         $textBody .= $this->debugProcessTime();
 
         $this->sendEmail('Import User Success', $textBody);
@@ -187,7 +193,10 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     public function notifyError(Exception $exception)
     {
-        $this->sendEmail('Import User Error', $exception->getMessage());
+        $textBody  = "Filename: {$this->filePath}\n";
+        $textBody .= $exception->getMessage();
+
+        $this->sendEmail('Import User Error', $textBody);
     }
 
     protected function sendEmail($subject, $textBody)

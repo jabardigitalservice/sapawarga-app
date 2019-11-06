@@ -34,7 +34,7 @@ class UserImportCsvUploadForm extends Model
     {
         $contents = file_get_contents($this->file->tempName);
 
-        $filePath = sprintf('import/user/%s.csv', date('Y-m-d-H-i-s'));
+        $filePath = sprintf('import/user/%s-%s.csv', $this->file->baseName, date('Ymd-His'));
 
         if (Yii::$app->fs->put($filePath, $contents) === true) {
             return $filePath;
