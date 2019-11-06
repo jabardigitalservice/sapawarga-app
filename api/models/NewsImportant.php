@@ -86,6 +86,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 if ($this->attachments) {
                     foreach ($this->attachments as $key => $value) {
                         $attachments[$key]['id'] = $value->id;
+                        $attachments[$key]['title'] = $this->getTitleFile($value->file_path);
                         $attachments[$key]['file_path'] = $value->file_path;
                         $attachments[$key]['file_url'] = $publicBaseUrl . '/' . $value->file_path;
                     }
@@ -111,9 +112,9 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'id' => 'ID',
             'title' => 'Judul',
             'category_id' => 'Kategori',
-            'content' => 'Konten',
+            'content' => 'Deskripsi',
             'image_path' => 'Gambar',
-            'source_url' => 'URL Sumber',
+            'source_url' => 'Tautan',
             'status' => 'Status',
         ];
     }
@@ -130,5 +131,13 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
+    }
+
+    public function getTitleFile($filePath)
+    {
+        $explode = explode('/', $filePath);
+        $fileName = !empty($explode[1]) ? $explode[1] : $filePath;
+
+        return $fileName;
     }
 }

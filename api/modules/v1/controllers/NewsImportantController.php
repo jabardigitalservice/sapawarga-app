@@ -89,7 +89,6 @@ class NewsImportantController extends ActiveController
     public function actionCreate()
     {
         $model = new NewsImportant();
-        // $model->scenario = NewsImportant::SCENARIO_CREATE;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
 
         if ($model->validate() && $model->save()) {
