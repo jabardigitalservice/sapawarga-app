@@ -255,15 +255,15 @@ class ImportUserJob extends BaseObject implements JobInterface
         [$kabkota, $kecamatan, $kelurahan] = $row;
 
         if ($kabkota !== null) {
-            $kabkota = Area::findOne(['name' => $kabkota]);
+            $kabkota = Area::findOne(['depth' => 2, 'name' => $kabkota]);
         }
 
         if ($kecamatan !== null) {
-            $kecamatan = Area::findOne(['name' => $kecamatan]);
+            $kecamatan = Area::findOne(['depth' => 3, 'name' => $kecamatan]);
         }
 
         if ($kelurahan !== null) {
-            $kelurahan = Area::findOne(['name' => $kelurahan]);
+            $kelurahan = Area::findOne(['depth' => 4, 'name' => $kelurahan]);
         }
 
         return [$kabkota, $kecamatan, $kelurahan];

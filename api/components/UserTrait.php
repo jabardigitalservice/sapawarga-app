@@ -89,7 +89,7 @@ trait UserTrait
         $user = User::findIdentity(\Yii::$app->user->getId());
 
         if ($user) {
-            $attributes = $this->convertEmptyAttributesToNull($attributes);
+            $attributes = ModelHelper::convertEmptyAttributesToNull($attributes);
 
             $model = new UserEditForm();
             $model->load($attributes);
@@ -112,16 +112,5 @@ trait UserTrait
         }
 
         throw new NotFoundHttpException('Object not found');
-    }
-
-    protected function convertEmptyAttributesToNull(array $attributes = [])
-    {
-        foreach ($attributes as $key => $attribute) {
-            if ($attribute === '') {
-                $attributes[$key] = null;
-            }
-        }
-
-        return $attributes;
     }
 }

@@ -190,4 +190,15 @@ class ModelHelper
     public static function getLoggedInUserId() {
         return Yii::$app->user->getId();
     }
+
+    public static function convertEmptyAttributesToNull(array $attributes = [])
+    {
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute === '') {
+                $attributes[$key] = null;
+            }
+        }
+
+        return $attributes;
+    }
 }
