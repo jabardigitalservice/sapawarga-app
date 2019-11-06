@@ -36,7 +36,7 @@ class JobTypeSearch extends Model
         return new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
-                'defaultOrder' => [$sortBy => $sortOrder],
+                'defaultOrder' => ['seq' => SORT_ASC, 'title' => SORT_ASC],
             ],
             'pagination' => [
                 'pageSize' => $pageLimit,
