@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\validator\MinimumAgeValidator;
+use app\validator\DatePastValidator;
 use Illuminate\Support\Arr;
 use Yii;
 use yii\base\Model;
@@ -91,6 +93,10 @@ class UserEditForm extends Model
             [['birth_date', 'education_level_id', 'job_type_id'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
+
+            ['birth_date', 'date', 'format' => 'php:Y-m-d'],
+            ['birth_date', DatePastValidator::class],
+            ['birth_date', MinimumAgeValidator::class],
         ];
     }
 
