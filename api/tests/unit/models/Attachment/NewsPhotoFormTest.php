@@ -25,8 +25,8 @@ class NewsPhotoFormTest extends \Codeception\Test\Unit
     {
         $_FILES = [
             'file' => [
-                'tmp_name' => __DIR__ . '/../../../data/example.jpg',
-                'name'     => 'example.jpg',
+                'tmp_name' => __DIR__ . '/../../../data/1280x720.jpg',
+                'name'     => '1280x720.jpg',
                 'type'     => 'image/jpeg ',
                 'size'     => 47152,
                 'error'    => 0,
@@ -65,8 +65,8 @@ class NewsPhotoFormTest extends \Codeception\Test\Unit
     {
         $_FILES = [
             'file' => [
-                'tmp_name' => __DIR__ . '/../../../data/test-valid-mime.png',
-                'name'     => 'test-valid-mime.png',
+                'tmp_name' => __DIR__ . '/../../../data/1280x720.jpg',
+                'name'     => '1280x720.jpg',
                 'type'     => 'image/png',
                 'size'     => 2605,
                 'error'    => 0,
@@ -86,8 +86,8 @@ class NewsPhotoFormTest extends \Codeception\Test\Unit
     {
         $_FILES = [
             'file' => [
-                'tmp_name' => __DIR__ . '/../../../data/test-invalid-mime-jpeg.png',
-                'name'     => 'test-invalid-mime-jpeg.png',
+                'tmp_name' => __DIR__ . '/../../../data/1280x720.jpg',
+                'name'     => '1280x720.jpg',
                 'type'     => 'image/png',
                 'size'     => 2605,
                 'error'    => 0,
@@ -107,8 +107,8 @@ class NewsPhotoFormTest extends \Codeception\Test\Unit
     {
         $_FILES = [
             'file' => [
-                'tmp_name' => __DIR__ . '/../../../data/example.jpg',
-                'name'     => 'example.jpg',
+                'tmp_name' => __DIR__ . '/../../../data/1280x720.jpg',
+                'name'     => '1280x720.jpg',
                 'type'     => 'image/jpeg ',
                 'size'     => 1024 * 1024 * 2, // override
                 'error'    => 0,
@@ -126,10 +126,10 @@ class NewsPhotoFormTest extends \Codeception\Test\Unit
     {
         $_FILES = [
             'file' => [
-                'tmp_name' => __DIR__ . '/../../../data/example.jpg',
-                'name'     => 'example.jpg',
+                'tmp_name' => __DIR__ . '/../../../data/1280x720.jpg',
+                'name'     => '1280x720.jpg',
                 'type'     => 'image/jpeg ',
-                'size'     => 1024 * 1024 * 3, // override
+                'size'     => 1024 * 1024 * 10, // override
                 'error'    => 0,
             ],
         ];

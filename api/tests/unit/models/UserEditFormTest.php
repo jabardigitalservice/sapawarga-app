@@ -31,7 +31,7 @@ class UserEditFormTest extends Unit
     public function testBirthdateAllowedAge()
     {
         $model             = new UserEditForm();
-        $model->birth_date = (new Carbon())->subYears(10)->toDateString();
+        $model->birth_date = (new Carbon())->subYears(20)->toDateString();
 
         $model->validate();
 

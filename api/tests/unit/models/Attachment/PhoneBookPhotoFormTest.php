@@ -129,7 +129,7 @@ class PhoneBookPhotoFormTest extends \Codeception\Test\Unit
                 'tmp_name' => __DIR__ . '/../../../data/example.jpg',
                 'name'     => 'example.jpg',
                 'type'     => 'image/jpeg ',
-                'size'     => 1024 * 1024 * 3, // override
+                'size'     => 1024 * 1024 * 10, // override
                 'error'    => 0,
             ],
         ];
