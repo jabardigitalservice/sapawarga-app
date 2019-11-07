@@ -49,7 +49,8 @@
   "autoload": {
     "psr-4": {
       "Jdsteam\\Sapawarga\\": "packages/jdsteam/sapawarga/src",
-      "Jdsteam\\Yii2Sentry\\": "packages/jdsteam/yii2-sentry/src"
+      "Jdsteam\\Yii2Sentry\\": "packages/jdsteam/yii2-sentry/src",
+      "Jdsteam\\Yii2StreamLog\\": "packages/jdsteam/yii2-streamlog/src"
     }
   },
   "config": {

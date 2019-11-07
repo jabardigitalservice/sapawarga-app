@@ -1,14 +1,27 @@
 <?php
 
+use Jdsteam\Yii2StreamLog\StreamLogTarget;
 use Jdsteam\Yii2Sentry\SentryTarget;
 use yii\log\FileTarget;
 
 return [
-    'traceLevel' => YII_DEBUG ? 3 : 0,
+    'traceLevel' => 0,
     'targets' => [
         [
             'class' => FileTarget::class,
             'levels' => ['error', 'warning', 'info'],
+        ],
+        [
+            'class' => StreamLogTarget::class,
+            'url' => 'php://stdout',
+            'levels' => ['info','trace'],
+            'logVars' => [],
+        ],
+        [
+            'class' => StreamLogTarget::class,
+            'url' => 'php://stderr',
+            'levels' => ['error', 'warning'],
+            'logVars' => [],
         ],
         [
             'class' => SentryTarget::class,
