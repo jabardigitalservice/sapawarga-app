@@ -51,6 +51,7 @@ use yii\web\Request as WebRequest;
  * @property string $push_token
  * @property string $last_access_at
  * @property string $account_confirmed_at
+ * @property string $profile_updated_at
  *
  * @package app\models
  */

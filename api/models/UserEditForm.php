@@ -126,6 +126,8 @@ class UserEditForm extends Model
             $this->_user->$attribute = $value;
         }
 
+        $this->_user->touch('profile_updated_at');
+
         // Because we only update partial attributes, so don't need to fulfil User() validation
         return $this->_user->save(false);
     }
