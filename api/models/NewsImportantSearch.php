@@ -25,8 +25,6 @@ class NewsImportantSearch extends NewsImportant
     public function search($params)
     {
         $query = NewsImportant::find();
-        $query->andFilterWhere(['<>', 'status', NewsImportant::STATUS_DELETED]);
-
         if ($this->scenario === self::SCENARIO_LIST_STAFF) {
             return $this->getQueryListStaff($query, $params);
         }
@@ -36,6 +34,7 @@ class NewsImportantSearch extends NewsImportant
 
     protected function getQueryListStaff($query, $params)
     {
+        $query->andFilterWhere(['<>', 'status', NewsImportant::STATUS_DELETED]);
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
@@ -49,6 +48,8 @@ class NewsImportantSearch extends NewsImportant
 
     protected function getQueryListUser($query, $params)
     {
+        $query->andFilterWhere(['=', 'status', NewsImportant::STATUS_ACTIVE]);
+
         return $this->getQueryAll($query, $params);
     }
 
