@@ -310,7 +310,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
     public function getLastAccessAtField()
     {
-        return $this->last_access_at !== null ? (new Carbon($this->last_access_at))->toISOString() : null;
+        return $this->last_access_at !== null ? (new Carbon($this->last_access_at))->timestamp : null;
     }
 
     public function getEducationLevelField()
