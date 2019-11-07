@@ -34,13 +34,14 @@ class NewsImportantSearch extends NewsImportant
 
     protected function getQueryListStaff($query, $params)
     {
-        $query->andFilterWhere(['<>', 'status', NewsImportant::STATUS_DELETED]);
+        $query->joinWith(['category']);
+        $query->andFilterWhere(['<>', 'news_important.status', NewsImportant::STATUS_DELETED]);
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
 
         if (Arr::has($params, 'status')) {
-            $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+            $query->andFilterWhere(['news_important.status' => Arr::get($params, 'status')]);
         }
 
         return $this->getQueryAll($query, $params);
@@ -48,7 +49,7 @@ class NewsImportantSearch extends NewsImportant
 
     protected function getQueryListUser($query, $params)
     {
-        $query->andFilterWhere(['=', 'status', NewsImportant::STATUS_ACTIVE]);
+        $query->andFilterWhere(['=', 'news_important.status', NewsImportant::STATUS_ACTIVE]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -69,6 +70,10 @@ class NewsImportantSearch extends NewsImportant
                     'category_id',
                     'status',
                     'created_at',
+                    'category.name' => [
+                        'asc'  => ['categories.name' => SORT_ASC],
+                        'desc' => ['categories.name' => SORT_DESC],
+                    ],
                 ],
             ],
             'pagination' => [
