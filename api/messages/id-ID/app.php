@@ -37,6 +37,9 @@ return [
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
+    'error.image.invalid_format' => 'File "{file}" bukan berupa gambar',
+    'error.image.should_exact' => 'Gambar "{file}" harus berukuran {width, number}x{height, number} pixel.',
+
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
     'role.staffSaberhoax' => 'Staf Saber Hoaks',

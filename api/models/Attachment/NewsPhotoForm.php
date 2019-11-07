@@ -2,6 +2,7 @@
 
 namespace app\models\Attachment;
 
+use app\validator\ImageExactValidator;
 use Yii;
 use app\models\AttachmentForm;
 
@@ -15,11 +16,9 @@ class NewsPhotoForm extends AttachmentForm
             [['file', 'type'], 'required'],
             [
                 'file',
-                'image',
-                'minWidth'    => 1280,
-                'maxWidth'    => 1280,
-                'minHeight'   => 720,
-                'maxHeight'   => 720,
+                ImageExactValidator::class,
+                'exactWidth'  => 1280,
+                'exactHeight' => 720,
                 'skipOnEmpty' => false,
                 'mimeTypes'   => 'image/jpeg, image/jpg, image/png',
                 'maxSize'     => $uploadMaxSize,

@@ -37,6 +37,9 @@ return [
 
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 
+    'error.image.invalid_format' => 'The file "{file}" is not an image.',
+    'error.image.should_exact' => 'Image "{file}" should have size {width, number}x{height, number} pixel.',
+
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staff Provinsi',
     'role.staffSaberhoax' => 'Staff Saber Hoaks',
