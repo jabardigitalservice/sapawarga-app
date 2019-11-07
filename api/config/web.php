@@ -87,18 +87,8 @@ $config = [
                 return $response;
             },
         ],
-        'i18n' => [
-            'translations' => [
-                '*' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                    'sourceLanguage' => 'key',
-                    'forceTranslation' => true,
-                    'fileMap' => [
-                        'app' => 'app.php'
-                    ],
-                ],
-            ],
-        ],
+
+        'i18n' => include __DIR__ . '/components/i18n.php',
 
         'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
     ],

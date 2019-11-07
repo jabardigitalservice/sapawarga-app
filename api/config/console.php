@@ -33,6 +33,8 @@ $config = [
             'class' => 'yii\rbac\DbManager',
         ],
 
+        'i18n' => include __DIR__ . '/components/i18n.php',
+
         'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
     ],
     'params' => $params,

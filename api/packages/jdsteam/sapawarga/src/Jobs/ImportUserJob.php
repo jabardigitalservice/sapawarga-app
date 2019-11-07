@@ -4,6 +4,7 @@ namespace Jdsteam\Sapawarga\Jobs;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Arr;
 use Yii;
 use app\models\Area;
 use app\models\User;
@@ -91,6 +92,15 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function validateRow($row)
     {
+        $errors = $this->validateInCurrentFile($row);
+
+        if (count($errors) > 0) {
+            $this->failedRows->push([
+                'username' => Arr::get($row, 'username'),
+                'message'  => $errors,
+            ]);
+        }
+
         $model = new UserImport();
         $model->load($row, '');
 
@@ -102,6 +112,25 @@ class ImportUserJob extends BaseObject implements JobInterface
         }
 
         $this->importedRows->push($model);
+    }
+
+    protected function validateInCurrentFile($row): array
+    {
+        $errors = [];
+
+        $usernameExist = $this->importedRows->where('username', '=', $row['username'])->first();
+
+        if ($usernameExist !== null) {
+            $errors[] = 'Duplicated usernames.';
+        }
+
+        $emailExist = $this->importedRows->where('email', '=', $row['email'])->first();
+
+        if ($emailExist !== null) {
+            $errors[] = 'Duplicated emails.';
+        }
+
+        return $errors;
     }
 
     protected function downloadAndCreateTemporaryFile()
@@ -189,6 +218,11 @@ class ImportUserJob extends BaseObject implements JobInterface
         $textBody  = "Filename: {$this->filePath}\n";
 
         $textBody .= sprintf("Total imported rows: %s\n", $rows->count());
+
+        foreach ($rows as $row) {
+            $textBody .= sprintf("%s\n", $row['username']);
+        }
+
         $textBody .= $this->debugProcessTime();
 
         $this->sendEmail('Import User Success', $textBody);
