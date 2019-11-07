@@ -86,7 +86,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 if ($this->attachments) {
                     foreach ($this->attachments as $key => $value) {
                         $attachments[$key]['id'] = $value->id;
-                        $attachments[$key]['title'] = $this->getTitleFile($value->file_path);
+                        $attachments[$key]['name'] = $this->getTitleFile($value->file_path);
                         $attachments[$key]['file_path'] = $value->file_path;
                         $attachments[$key]['file_url'] = $publicBaseUrl . '/' . $value->file_path;
                     }
