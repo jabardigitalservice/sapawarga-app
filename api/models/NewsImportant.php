@@ -78,7 +78,9 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'content',
             'image_path',
             'image_path_url' => function () use ($publicBaseUrl) {
-                return "{$publicBaseUrl}/{$this->image_path}";
+                if (!empty($this->image_path)) {
+                    return "{$publicBaseUrl}/{$this->image_path}";
+                }
             },
             'source_url',
             'status',

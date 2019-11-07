@@ -41,7 +41,7 @@ class NewsImportantAttachmentForm extends Model
      */
     public function createFilePath()
     {
-        $filename = time() . '-' . Str::random(32);
+        $filename = substr($this->file->baseName, 0, 20) . '-' . time() . '-' . Str::random(5);
         $extension = $this->file->extension;
 
         return sprintf('general/%s.%s', $filename, $extension);
