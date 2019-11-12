@@ -105,8 +105,7 @@ class UserChangeProfileForm extends Model
     public function sendConfirmationEmail()
     {
         Yii::$app->queue->push(new SendConfirmationEmailJob([
-            'user' => $this->_user,
-            'email' => $this->email,
+            'userId' => $this->_user->id,
         ]));
     }
 }
