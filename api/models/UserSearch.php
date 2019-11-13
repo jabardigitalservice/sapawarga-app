@@ -4,7 +4,9 @@ namespace app\models;
 
 use Carbon\Carbon;
 use yii\base\Model;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 
 class UserSearch extends Model
 {
@@ -48,7 +50,7 @@ class UserSearch extends Model
                 ],
                 'string'
             ],
-            ['profile_completed', 'in', 'range' => ['true', 'false']],
+            ['profile_completed', 'boolean', 'trueValue' => 'true', 'falseValue' => 'false', 'strict' => true],
         ];
     }
 
@@ -59,6 +61,37 @@ class UserSearch extends Model
 
     public function getDataProvider()
     {
+        // Create default query;
+        $query = $this->newQuery();
+
+        // Filter by role
+        if ($this->role_id) {
+            $query->andWhere(['role' => User::ROLE_MAP[$this->role_id]]);
+        }
+
+        // Filter by area id
+        $query = $this->buildQueryArea($query);
+
+        // Filter by last access (between start/end)
+        $query = $this->buildQueryLastAccess($query);
+
+        // Filter by fields
+        $query = $this->buildQueryFields($query);
+
+        // Filter by Profile Completion
+        $query = $this->buildQueryProfileCompleted($query);
+
+        // Filter by Status
+        if (isset($this->status)) {
+            $query->andWhere(['user.status' => $this->status]);
+        }
+
+        return $this->buildActiveProvider($query);
+    }
+
+    protected function newQuery()
+    {
+        // TODO refactor this
         $query = User::find()
             ->where(['not in', 'user.status', $this->not_in_status])
             ->andWhere(['between', 'user.role', $this->range_roles[0], $this->range_roles[1]]);
@@ -68,12 +101,11 @@ class UserSearch extends Model
             $query->andWhere(['<>', 'user.role', User::ROLE_STAFF_SABERHOAX]);
         }
 
-        // Filter by role
-        if ($this->role_id) {
-            $query->andWhere(['role' => User::ROLE_MAP[$this->role_id]]);
-        }
+        return $query;
+    }
 
-        // Filter by area id
+    protected function buildQueryArea(ActiveQuery $query)
+    {
         if ($this->kabkota_id) {
             $query->andWhere(['kabkota_id' => $this->kabkota_id]);
         }
@@ -87,6 +119,11 @@ class UserSearch extends Model
             $query->andWhere(['rw' => $this->rw]);
         }
 
+        return $query;
+    }
+
+    protected function buildQueryLastAccess(ActiveQuery $query)
+    {
         if ($this->last_access_start && $this->last_access_end) {
             $lastAccessStart = (new Carbon($this->last_access_start))->startOfDay();
             $lastAccessEnd   = (new Carbon($this->last_access_end))->endOfDay();
@@ -95,14 +132,11 @@ class UserSearch extends Model
             $query->andWhere(['<=', 'last_access_at', $lastAccessEnd]);
         }
 
-        if ($this->search) {
-            $query->andWhere([
-                'or',
-                ['like', 'user.name', $this->search],
-                ['like', 'user.phone', $this->search],
-            ]);
-        }
+        return $query;
+    }
 
+    protected function buildQueryFields(ActiveQuery $query)
+    {
         if ($this->username) {
             $query->andWhere(['like', 'user.username', $this->username]);
         }
@@ -115,27 +149,31 @@ class UserSearch extends Model
             $query->andWhere(['like', 'user.phone', $this->phone]);
         }
 
-        if (isset($this->status)) {
-            $query->andWhere(['user.status' => $this->status]);
-        }
+        return $query;
+    }
 
+    protected function buildQueryProfileCompleted(ActiveQuery $query)
+    {
         if (isset($this->profile_completed)) {
-            $conditional = ($this->profile_completed == 'true') ? 'is not' : 'is';
+            $conditional = ($this->profile_completed) ? 'is not' : 'is';
             $query->andWhere([$conditional, 'user.profile_updated_at', null]);
         }
 
+        return $query;
+    }
+
+    protected function buildActiveProvider(ActiveQuery $query)
+    {
         $this->sort_by = $this->sort_by ?? 'name';
         $this->sort_order = $this->getSortOrder($this->sort_order);
 
-        $provider = new ActiveDataProvider([
+        return new ActiveDataProvider([
             'query' => $query,
             'sort'=> ['defaultOrder' => [$this->sort_by => $this->sort_order]],
             'pagination' => [
                 'pageSize' => $this->limit,
             ],
         ]);
-
-        return $provider;
     }
 
     protected function getSortOrder($sortOrder)
@@ -149,5 +187,21 @@ class UserSearch extends Model
                 return SORT_ASC;
                 break;
         }
+    }
+
+    public function behaviors()
+    {
+        return [
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    // from URL query, get string value :( (should be boolean)
+                    'profile_completed' => function ($value) {
+                        return $value === 'true';
+                    }
+                ],
+                'typecastAfterValidate' => true,
+            ],
+        ];
     }
 }
