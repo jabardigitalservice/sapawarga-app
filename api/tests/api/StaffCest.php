@@ -583,11 +583,30 @@ class StaffCest
         ]);
     }
 
-//    public function staffDeleteStaff(ApiTester $I)
-//    {
-//        $I->amStaff();
-//
-//        $I->sendDELETE($this->endpointStaff . '/2');
-//        $I->canSeeResponseCodeIs(204);
-//    }
+    public function staffDeleteStaff(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendDELETE($this->endpointStaff . '/5');
+        $I->canSeeResponseCodeIs(204);
+    }
+
+    public function canListStaffFilterByRole(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff?role_id=trainer');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'items' => [
+                    ['id' => 40]
+                ]
+            ]
+        ]);
+    }
 }
