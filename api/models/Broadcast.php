@@ -71,7 +71,6 @@ class Broadcast extends ActiveRecord
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
             ['description', 'string', 'max' => 1000],
-            ['description', InputCleanValidator::class],
             ['rw', 'string', 'length' => 3],
             [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],

@@ -37,7 +37,7 @@ class BroadcastCest
         $I->sendPOST('/v1/broadcasts?test=1', [
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
-            'description'  => 'Broadcast Description',
+            'description'  => '<p>Broadcast Description<p><br>',
             'kabkota_id'   => null,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -57,7 +57,7 @@ class BroadcastCest
             'author_id'    => 2,
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
-            'description'  => 'Broadcast Description',
+            'description'  => '<p>Broadcast Description<p><br>',
             'is_scheduled' => false,
             'kabkota_id'   => null,
             'kec_id'       => null,
