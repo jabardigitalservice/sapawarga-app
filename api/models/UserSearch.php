@@ -65,7 +65,9 @@ class UserSearch extends Model
         $query = $this->newQuery();
 
         // Filter by role
-        $query = $this->buildQueryRole($query);
+        if ($this->role_id) {
+            $query->andWhere(['role' => User::ROLE_MAP[$this->role_id]]);
+        }
 
         // Filter by area id
         $query = $this->buildQueryArea($query);
@@ -80,7 +82,9 @@ class UserSearch extends Model
         $query = $this->buildQueryProfileCompleted($query);
 
         // Filter by Status
-        $query = $this->buildQueryStatus($query);
+        if (isset($this->status)) {
+            $query->andWhere(['user.status' => $this->status]);
+        }
 
         return $this->buildActiveProvider($query);
     }
@@ -95,16 +99,6 @@ class UserSearch extends Model
         // Exclude saber hoax
         if (!$this->show_saberhoax) {
             $query->andWhere(['<>', 'user.role', User::ROLE_STAFF_SABERHOAX]);
-        }
-
-        return $query;
-    }
-
-    protected function buildQueryRole(ActiveQuery $query)
-    {
-        // Filter by role
-        if ($this->role_id) {
-            $query->andWhere(['role' => User::ROLE_MAP[$this->role_id]]);
         }
 
         return $query;
@@ -163,15 +157,6 @@ class UserSearch extends Model
         if (isset($this->profile_completed)) {
             $conditional = ($this->profile_completed) ? 'is not' : 'is';
             $query->andWhere([$conditional, 'user.profile_updated_at', null]);
-        }
-
-        return $query;
-    }
-
-    protected function buildQueryStatus(ActiveQuery $query)
-    {
-        if (isset($this->status)) {
-            $query->andWhere(['user.status' => $this->status]);
         }
 
         return $query;
