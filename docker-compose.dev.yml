@@ -1,6 +1,8 @@
 version: '3'
 services:
   nginx:
+    build: 
+      context: ./nginx
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-nginx:${VERSION}
     networks:
       - internal
@@ -10,13 +12,15 @@ services:
       - 8000:8000
 
   php-fpm:
+    build: 
+      context: ./api
     image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-php-fpm:${VERSION}
     networks:
       - internal
     depends_on:
       - database
     env_file:
-      - .env-dev
+      - .env
     volumes:
       - ./api:/srv
       - /srv/vendor
@@ -31,7 +35,7 @@ services:
     ports:
       - 3306:3306
     env_file:
-      - .env-dev
+      - .env
     volumes:
       - vol_mysql_data:/var/lib/mysql
 
