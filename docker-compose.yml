@@ -33,7 +33,8 @@ services:
     networks:
       -  internal
     depends_on:
-      - api
+      - nginx
+      - php-fpm
     env_file:
       - .env
     volumes:
