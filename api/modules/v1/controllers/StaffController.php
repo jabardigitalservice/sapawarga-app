@@ -22,6 +22,7 @@ use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
 use yii\rbac\Permission;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -396,31 +397,25 @@ class StaffController extends ActiveController
     {
         $currentUser = User::findIdentity(\Yii::$app->user->getId());
         $role = $currentUser->role;
+
         // Admins can see other admins, while staffs can only see staffs one level below them
         $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
 
-        $staff = User::find()->where(
-            [
-                'id' => $id
-            ]
-        )->andWhere(
-            [
-                '!=',
-                'status',
-                User::STATUS_DELETED
-            ]
-        )->andWhere(
-            [
-                'or',
-                ['between', 'role', 0, $maxRoleRange],
-                $id . '=' . (string) $currentUser->id
-            ]
-        )->one();
-        if ($staff) {
-            return $staff;
-        } else {
+        $staff = User::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', User::STATUS_DELETED])
+            //->andWhere(['or', ['between', 'role', 0, $maxRoleRange], $id . '=' . (string) $currentUser->id])
+            ->one();
+
+        if ($staff === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
+
+        if (Yii::$app->user->can('updateStaffWithinWorkArea', ['record' => $staff]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+        }
+
+        return $staff;
     }
 
     /**

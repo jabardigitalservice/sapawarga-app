@@ -4,6 +4,7 @@ namespace app\models;
 
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
