@@ -293,17 +293,18 @@ class Aspirasi extends ActiveRecord
         $isSendNotification = $this->isSendNotification($insert, $changedAttributes);
 
         if ($isSendNotification) {
+            // Send notification for a single user
             $categoryName = Notification::CATEGORY_LABEL_ASPIRASI_STATUS;
             $payload = [
                 'categoryName'  => $categoryName,
                 'title'         => "Usulan Anda dengan judul \"{$this->title}\" telah {$this->getStatusLabel()}",
                 'description'   => null,
-                // Sets target to author's area ids
                 'target'        => [
                     'kabkota_id'    => $this->author->kabkota_id,
                     'kec_id'        => $this->author->kec_id,
                     'kel_id'        => $this->author->kel_id,
                     'rw'            => $this->author->rw,
+                    'push_token'    => $this->author->push_token,
                 ],
                 'meta'          => [
                     'target'    => 'aspirasi',

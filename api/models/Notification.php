@@ -73,6 +73,9 @@ class Notification extends \yii\db\ActiveRecord
     /** @var  array push notification metadata */
     public $data;
 
+    /** @var string push token for user-specific notification */
+    public $push_token;
+
     /**
      * {@inheritdoc}
      */
@@ -260,6 +263,8 @@ class Notification extends \yii\db\ActiveRecord
         $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
         if ($isSendNotification) {
+            // TODO different logic for single-user notif
+
             $this->data = $this->generateData();
             // By default,  send notification to all users
             $topic = self::TOPIC_DEFAULT;
