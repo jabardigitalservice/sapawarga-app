@@ -353,6 +353,36 @@ class NewsHoaxCest
         ]);
     }
 
+    public function postStaffAdminCreateTest(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $data = [
+            'category_id' => 28,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+        ];
+
+        $I->sendPOST($this->endpoint, $data);
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('news_hoax', [
+            'category_id' => 28,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+        ]);
+    }
+
     public function postUserUpdateUnauthorizedTest(ApiTester $I)
     {
         $I->haveInDatabase('news_hoax', [
@@ -409,6 +439,42 @@ class NewsHoaxCest
         ]);
     }
 
+    public function postStaffAdminUpdateTest(ApiTester $I)
+    {
+        $I->haveInDatabase('news_hoax', [
+            'id'          => 1,
+            'category_id' => 28,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+        ]);
+
+        $I->amStaff();
+
+        $data = [
+            'title'       => 'Lorem ipsum edited',
+        ];
+
+        $I->sendPUT("{$this->endpoint}/1", $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('news_hoax', [
+            'id'          => 1,
+            'category_id' => 28,
+            'title'       => 'Lorem ipsum edited',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+        ]);
+    }
+
     public function deleteUserUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('staffrw');
@@ -418,6 +484,25 @@ class NewsHoaxCest
     }
 
     public function deleteStaffTest(ApiTester $I)
+    {
+        $I->haveInDatabase('news_hoax', [
+            'id'          => 1,
+            'category_id' => 28,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+        ]);
+
+        $I->amStaff('saberhoax');
+
+        $I->sendDELETE("{$this->endpoint}/1");
+        $I->canSeeResponseCodeIs(204);
+
+        $I->seeInDatabase('news_hoax', ['id' => 1, 'status' => -1]);
+    }
+
+    public function deleteStaffAdminTest(ApiTester $I)
     {
         $I->haveInDatabase('news_hoax', [
             'id'          => 1,
