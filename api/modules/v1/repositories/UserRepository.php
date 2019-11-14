@@ -10,13 +10,13 @@ class UserRepository
 {
     public function getUsersCountAllRolesByArea($selectedRoles, $kabKotaId, $kecId, $kelId): array
     {
-        $availableRoles = Yii::$app->authManager->getRoles();
+        $roles = Yii::$app->authManager->getRoles();
 
         $items = [];
         $index = 1;
 
-        foreach ($availableRoles as $role) {
-            if (in_array($role->name, $selectedRoles, true) === false) {
+        foreach ($roles as $role) {
+            if (in_array($role->name, $selectedRoles) === false) {
                 continue;
             }
 

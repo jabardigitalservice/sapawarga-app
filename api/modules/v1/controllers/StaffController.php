@@ -481,7 +481,7 @@ class StaffController extends ActiveController
      */
     public function actionCount()
     {
-        $currentUser = User::findIdentity(Yii::$app->user->getId());
+        $currentUser     = User::findIdentity(Yii::$app->user->getId());
 
         $filterKabkotaId = $currentUser->kabkota_id;
         $filterKecId     = $currentUser->kec_id;
@@ -492,14 +492,14 @@ class StaffController extends ActiveController
         // TODO should not hard coded here
         $selectedRoles = ['staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'staffSaberhoax', 'trainer'];
 
-        $counters = $repository->getUsersCountAllRolesByArea(
+        $items = $repository->getUsersCountAllRolesByArea(
             $selectedRoles,
             $filterKabkotaId,
             $filterKecId,
             $filterKelId
         );
 
-        return ['items' => $counters];
+        return ['items' => $items];
     }
 
     /**
