@@ -32,6 +32,8 @@ class WorkAreaRule extends Rule
         if ($this->hasScopeKelurahan($authUser)) {
             return $record->kel_id === $authUser->kel_id;
         }
+
+        return false;
     }
 
     /**

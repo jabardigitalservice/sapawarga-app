@@ -395,16 +395,9 @@ class StaffController extends ActiveController
      */
     public function actionView($id)
     {
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
-        $role = $currentUser->role;
-
-        // Admins can see other admins, while staffs can only see staffs one level below them
-        $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
-
         $staff = User::find()
             ->where(['id' => $id])
             ->andWhere(['!=', 'status', User::STATUS_DELETED])
-            //->andWhere(['or', ['between', 'role', 0, $maxRoleRange], $id . '=' . (string) $currentUser->id])
             ->one();
 
         if ($staff === null) {
