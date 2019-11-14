@@ -10,6 +10,7 @@ use app\models\UserImport;
 use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
+use app\modules\v1\repositories\UserRepository;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
@@ -480,64 +481,23 @@ class StaffController extends ActiveController
      */
     public function actionCount()
     {
-        $roleMap = [
-            User::ROLE_ADMIN => ['level' => 'all', 'name' => 'Semua'],
-            User::ROLE_STAFF_PROV => ['level' => 'prov', 'name' => 'Provinsi'],
-            User::ROLE_STAFF_KABKOTA => ['level' => 'kabkota', 'name' => 'Kabupaten/Kota'],
-            User::ROLE_STAFF_KEC => ['level' => 'kec', 'name' => 'Kecamatan'],
-            User::ROLE_STAFF_KEL => ['level' => 'kel', 'name' => 'Desa/Kelurahan'],
-            User::ROLE_STAFF_RW => ['level' => 'rw', 'name' => 'RW'],
-            User::ROLE_TRAINER => ['level' => 'trainer', 'name' => 'Pelatih'],
-        ];
+        $currentUser     = User::findIdentity(Yii::$app->user->getId());
 
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
+        $filterKabkotaId = $currentUser->kabkota_id;
+        $filterKecId     = $currentUser->kec_id;
+        $filterKelId     = $currentUser->kel_id;
 
-        if ($currentUser->role >= User::ROLE_STAFF_PROV) {
-            $roleMap[User::ROLE_STAFF_SABERHOAX] = ['level' => 'saberhoax', 'name' => 'Saber Hoax'];
-        }
+        $repository    = new UserRepository();
 
-        $kabkota_id = $currentUser->kabkota_id;
-        $kel_id = $currentUser->kel_id;
-        $kec_id = $currentUser->kec_id;
-        $rw = $currentUser->rw;
-        $role = $currentUser->role;
+        // TODO should not hard coded here
+        $selectedRoles = ['staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'staffSaberhoax', 'trainer'];
 
-        // Admin will get all user counts, while staffs below admin will get user counts only from areas below them
-        $items = [];
-        $index = 1;
-        foreach ($roleMap as $key => $value) {
-            if ($role == User::ROLE_ADMIN ||
-                $role < User::ROLE_ADMIN && $key < $role
-            ) {
-                $query = User::find();
-                if ($key < User::ROLE_ADMIN) {
-                    $query->where(['role' => $key]);
-                }
-
-                // filter by area (for staffProv and below)
-                if ($kabkota_id) {
-                    $query->andWhere(['kabkota_id' => $kabkota_id]);
-                }
-                if ($kec_id) {
-                    $query->andWhere(['kec_id' => $kec_id]);
-                }
-                if ($kel_id) {
-                    $query->andWhere(['kel_id' => $kel_id]);
-                }
-                if ($rw) {
-                    $query->andWhere(['rw' => $rw]);
-                }
-
-                $count = $query->count();
-                array_push($items, [
-                    'id' => $index,
-                    'level' => $value['level'],
-                    'name' => $value['name'],
-                    'value' => (int) $count,
-                ]);
-                $index++;
-            }
-        }
+        $items = $repository->getUsersCountAllRolesByArea(
+            $selectedRoles,
+            $filterKabkotaId,
+            $filterKecId,
+            $filterKelId
+        );
 
         return ['items' => $items];
     }
