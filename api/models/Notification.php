@@ -260,9 +260,7 @@ class Notification extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
-
-        if ($isSendNotification) {
+        if (ModelHelper::isSendNotification($insert, $changedAttributes, $this)) {
             $attributes = [
                 'title'         => $this->title,
                 'description'   => $this->description,
@@ -274,7 +272,6 @@ class Notification extends \yii\db\ActiveRecord
                 $attributes['push_token'] = $this->push_token;
             } else {
                 // Using topic for multiple notifs
-                // By default,  send notification to all users
                 $topic = self::TOPIC_DEFAULT;
                 if ($this->kel_id && $this->rw) {
                     $topic = "{$this->kel_id}_{$this->rw}";
