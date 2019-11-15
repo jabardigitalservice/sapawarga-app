@@ -263,28 +263,33 @@ class Notification extends \yii\db\ActiveRecord
         $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
         if ($isSendNotification) {
-            // TODO different logic for single-user notif
+            $attributes = [
+                'title'         => $this->title,
+                'description'   => $this->description,
+                'data'          => $this->generateData(),
+            ];
 
-            $this->data = $this->generateData();
-            // By default,  send notification to all users
-            $topic = self::TOPIC_DEFAULT;
-            if ($this->kel_id && $this->rw) {
-                $topic = "{$this->kel_id}_{$this->rw}";
-            } elseif ($this->kel_id) {
-                $topic = (string) $this->kel_id;
-            } elseif ($this->kec_id) {
-                $topic = (string) $this->kec_id;
-            } elseif ($this->kabkota_id) {
-                $topic = (string) $this->kabkota_id;
+            // If using push token for single-user notif
+            if ($this->push_token) {
+                array_push($attributes, ['push_token' => $this->push_token]);
+            } else {
+                // Using topic for multiple notifs
+                // By default,  send notification to all users
+                $topic = self::TOPIC_DEFAULT;
+                if ($this->kel_id && $this->rw) {
+                    $topic = "{$this->kel_id}_{$this->rw}";
+                } elseif ($this->kel_id) {
+                    $topic = (string) $this->kel_id;
+                } elseif ($this->kec_id) {
+                    $topic = (string) $this->kec_id;
+                } elseif ($this->kabkota_id) {
+                    $topic = (string) $this->kabkota_id;
+                }
+                array_push($attributes, ['topic' => $topic]);
             }
 
             $notifModel = new Message();
-            $notifModel->setAttributes([
-                'title'         => $this->title,
-                'description'   => $this->description,
-                'data'          => $this->data,
-                'topic'         => $topic,
-            ]);
+            $notifModel->setAttributes($attributes);
             $notifModel->send();
         }
 

@@ -13,6 +13,7 @@ use sngrl\PhpFirebaseCloudMessaging\Notification as PushNotification;
  * @property string $description
  * @property mixed $data
  * @property string $topic
+ * @property string $push_token
  */
 class Message extends Model
 {
@@ -24,6 +25,8 @@ class Message extends Model
     public $data;
     /** @var string */
     public $topic;
+    /** @var string */
+    public $push_token;
 
     /**
      * {@inheritdoc}
@@ -35,7 +38,7 @@ class Message extends Model
             [['title', 'description', 'data'], 'trim'],
             ['title', 'string', 'max' => 255],
             ['topic', 'default', 'value' => 'all'], // Default value for topic, send to all users
-            [['description', 'data'], 'default'],
+            [['description', 'data', 'push_token'], 'default'],
         ];
     }
 
@@ -46,6 +49,7 @@ class Message extends Model
             'description',
             'data',
             'topic',
+            'push_token',
         ];
         return $fields;
     }
@@ -86,9 +90,18 @@ class Message extends Model
         $notification->setSound('default');
         $notification->setClickAction('FCM_PLUGIN_ACTIVITY');
 
+        $recipient = null;
+        // If push_token is provided, set recipient to a single device
+        if ($this->push_token) {
+            $recipient = new Device($this->push_token);
+        } else {
+            // Set recipient to topic
+            $recipient = new Topic($this->topic);
+        }
+
         $message = new PushMessage();
         $message->setPriority('high');
-        $message->addRecipient(new Topic($this->topic));
+        $message->addRecipient($recipient);
         $message
             ->setNotification($notification)
             ->setData($this->data);
