@@ -17,22 +17,34 @@ class m191114_042541_insert_auth_rule_user_workarea extends CustomMigration
         $rule = new WorkAreaRule();
         $auth->add($rule);
 
-        $permission = $auth->createPermission('updateStaffWithinWorkArea');
-        $permission->description = 'Update Staff within his work area scopes';
-        $permission->ruleName = $rule->name;
-        $auth->add($permission);
+        $editPermission = $auth->createPermission('edit_user');
+        $editPermission->description = 'Edit User';
+        $auth->add($editPermission);
+
+        $editWorkAreaPermission = $auth->createPermission('edit_working-area_user');
+        $editWorkAreaPermission->description = 'Edit User within his work area scopes';
+        $editWorkAreaPermission->ruleName = $rule->name;
+
+        $auth->add($editWorkAreaPermission);
+        $auth->addChild($editWorkAreaPermission, $editPermission);
+
+        $role = $auth->getRole('admin');
+        $auth->addChild($role, $editWorkAreaPermission);
+
+        $role = $auth->getRole('staff');
+        $auth->addChild($role, $editWorkAreaPermission);
 
         $role = $auth->getRole('staffProv');
-        $auth->addChild($role, $permission);
+        $auth->addChild($role, $editWorkAreaPermission);
 
         $role = $auth->getRole('staffKabkota');
-        $auth->addChild($role, $permission);
+        $auth->addChild($role, $editWorkAreaPermission);
 
         $role = $auth->getRole('staffKec');
-        $auth->addChild($role, $permission);
+        $auth->addChild($role, $editWorkAreaPermission);
 
         $role = $auth->getRole('staffKel');
-        $auth->addChild($role, $permission);
+        $auth->addChild($role, $editWorkAreaPermission);
     }
 
     /**

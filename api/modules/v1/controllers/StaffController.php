@@ -404,7 +404,7 @@ class StaffController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        if (Yii::$app->user->can('updateStaffWithinWorkArea', ['record' => $staff]) === false) {
+        if (Yii::$app->user->can('edit_user', ['record' => $staff]) === false) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
         }
 
