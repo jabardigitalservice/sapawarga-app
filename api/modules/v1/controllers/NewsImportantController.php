@@ -127,7 +127,7 @@ class NewsImportantController extends ActiveController
 
         if ($model->validate() && $model->save()) {
             $this->prepareDeleteAttachment($model->id);
-            $this->saveAttachment($model->id);
+            $this->prepareSaveAttachment($model->id);
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(200);
