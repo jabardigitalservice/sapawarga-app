@@ -92,7 +92,7 @@ class NewsImportantController extends ActiveController
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
 
         if ($model->validate() && $model->save()) {
-            $this->saveAttachment($model->id);
+            $this->prepareSaveAttachment($model->id);
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
@@ -127,7 +127,7 @@ class NewsImportantController extends ActiveController
 
         if ($model->validate() && $model->save()) {
             $this->prepareDeleteAttachment($model->id);
-            $this->saveAttachment($model->id);
+            $this->prepareSaveAttachment($model->id);
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(200);
@@ -212,18 +212,30 @@ class NewsImportantController extends ActiveController
 
     /**
      * @param $newsImportantId
-     * @return mixed|\app\models\NewsImportant
+     * @return mixed|\app\models\NewsImportantAttachment
      */
-    private function saveAttachment($newsImportantId)
+    private function prepareSaveAttachment($newsImportantId)
     {
         $params = Yii::$app->getRequest()->getBodyParams();
         if (!empty($params['attachments'])) {
             foreach ($params['attachments'] as $val) {
-                $model = new NewsImportantAttachment();
-                $model->news_important_id = $newsImportantId;
-                $model->file_path = $val['file_path'];
-                $model->save(false);
+                $this->saveAttachment($newsImportantId, $val);
             }
+        }
+    }
+
+    /**
+     * @param $newsImportantId id of news important
+     * @param $val file path of atatchment
+     * @return mixed|\app\models\NewsImportantAttachment
+     */
+    private function saveAttachment($newsImportantId, $val)
+    {
+        if (!empty($val['file_path'])) {
+            $model = new NewsImportantAttachment();
+            $model->news_important_id = $newsImportantId;
+            $model->file_path = $val['file_path'];
+            $model->save(false);
         }
     }
 
