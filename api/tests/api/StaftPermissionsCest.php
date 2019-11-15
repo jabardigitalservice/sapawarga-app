@@ -14,7 +14,7 @@ class StaftPermissionsCest
     }
 
     // VIEW PERMISSION
-    public function staffProvCanViewCascaded(ApiTester $I)
+    public function staffProvViewCascaded(ApiTester $I)
     {
         $I->amStaff('staffprov');
 
@@ -49,12 +49,124 @@ class StaftPermissionsCest
         $I->canSeeResponseCodeIs(200);
     }
 
-    public function staffProvCanEditCascaded(ApiTester $I)
+    public function staffKabkotaViewCascaded(ApiTester $I)
+    {
+        $I->amStaff('staffkabkota');
+
+        $I->sendGET('/v1/staff/2'); // staffprov
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/3'); // staffkabkota
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/4'); // staffkabkota2
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/5'); // staffkec
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/6'); // staffkec2
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/7'); // staffkec3
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/8'); // staffkec4
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/9'); // staffkel
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/15'); // staffkel5
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/17'); // staffrw
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/25'); // staffrw9
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    public function staffKecamatanViewCascaded(ApiTester $I)
+    {
+        $I->amStaff('staffkec');
+
+        $I->sendGET('/v1/staff/2'); // staffprov
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/3'); // staffkabkota
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/4'); // staffkabkota2
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/5'); // staffkec
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/6'); // staffkec2
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/7'); // staffkec3
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/8'); // staffkec4
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/9'); // staffkel
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/15'); // staffkel5
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/17'); // staffrw
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/25'); // staffrw9
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    public function staffKelurahanViewCascaded(ApiTester $I)
+    {
+        $I->amStaff('staffkel');
+
+        $I->sendGET('/v1/staff/2'); // staffprov
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/3'); // staffkabkota
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/4'); // staffkabkota2
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/5'); // staffkec
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/6'); // staffkec2
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/7'); // staffkec3
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/8'); // staffkec4
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/9'); // staffkel
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/15'); // staffkel5
+        $I->canSeeResponseCodeIs(403);
+
+        $I->sendGET('/v1/staff/17'); // staffrw
+        $I->canSeeResponseCodeIs(200);
+
+        $I->sendGET('/v1/staff/25'); // staffrw9
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    // EDIT PERMISSION
+    public function staffProvEditCascaded(ApiTester $I)
     {
         $I->amStaff('staffprov');
-
-        $I->sendPUT('/v1/staff/2', ['name' => 'test']); // staffprov
-        $I->canSeeResponseCodeIs(200);
 
         $I->sendPUT('/v1/staff/3', ['name' => 'test']); // staffkabkota
         $I->canSeeResponseCodeIs(200);
@@ -84,12 +196,10 @@ class StaftPermissionsCest
         $I->canSeeResponseCodeIs(200);
     }
 
-    public function staffProvCanDeleteCascaded(ApiTester $I)
+    // DELETE PERMISSION
+    public function staffProvDeleteCascaded(ApiTester $I)
     {
         $I->amStaff('staffprov');
-
-        $I->sendDELETE('/v1/staff/2'); // staffprov
-        $I->canSeeResponseCodeIs(204);
 
         $I->sendDELETE('/v1/staff/3'); // staffkabkota
         $I->canSeeResponseCodeIs(204);
