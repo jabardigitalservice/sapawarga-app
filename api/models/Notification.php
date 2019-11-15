@@ -271,7 +271,7 @@ class Notification extends \yii\db\ActiveRecord
 
             // If using push token for single-user notif
             if ($this->push_token) {
-                array_push($attributes, ['push_token' => $this->push_token]);
+                $attributes['push_token'] = $this->push_token;
             } else {
                 // Using topic for multiple notifs
                 // By default,  send notification to all users
@@ -285,7 +285,7 @@ class Notification extends \yii\db\ActiveRecord
                 } elseif ($this->kabkota_id) {
                     $topic = (string) $this->kabkota_id;
                 }
-                array_push($attributes, ['topic' => $topic]);
+                $attributes['topic'] = $topic;
             }
 
             $notifModel = new Message();

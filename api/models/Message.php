@@ -5,6 +5,7 @@ namespace app\models;
 use yii\base\Model;
 use sngrl\PhpFirebaseCloudMessaging\Client;
 use sngrl\PhpFirebaseCloudMessaging\Message as PushMessage;
+use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
 use sngrl\PhpFirebaseCloudMessaging\Recipient\Topic;
 use sngrl\PhpFirebaseCloudMessaging\Notification as PushNotification;
 
@@ -90,18 +91,17 @@ class Message extends Model
         $notification->setSound('default');
         $notification->setClickAction('FCM_PLUGIN_ACTIVITY');
 
-        $recipient = null;
-        // If push_token is provided, set recipient to a single device
-        if ($this->push_token) {
-            $recipient = new Device($this->push_token);
-        } else {
-            // Set recipient to topic
-            $recipient = new Topic($this->topic);
-        }
-
         $message = new PushMessage();
         $message->setPriority('high');
-        $message->addRecipient($recipient);
+
+        // If push_token is provided, set recipient to a single device
+        if ($this->push_token) {
+            $message->addRecipient(new Device($this->push_token));
+        } else {
+            // Set recipient to topic
+            $message->addRecipient(new Topic($this->topic));
+        }
+
         $message
             ->setNotification($notification)
             ->setData($this->data);
