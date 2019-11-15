@@ -219,10 +219,12 @@ class NewsImportantController extends ActiveController
         $params = Yii::$app->getRequest()->getBodyParams();
         if (!empty($params['attachments'])) {
             foreach ($params['attachments'] as $val) {
-                $model = new NewsImportantAttachment();
-                $model->news_important_id = $newsImportantId;
-                $model->file_path = $val['file_path'];
-                $model->save(false);
+                if (!empty($val['file_path'])) {
+                    $model = new NewsImportantAttachment();
+                    $model->news_important_id = $newsImportantId;
+                    $model->file_path = $val['file_path'];
+                    $model->save(false);
+                }
             }
         }
     }
