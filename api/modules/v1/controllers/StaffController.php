@@ -313,6 +313,10 @@ class StaffController extends ActiveController
      */
     public function actionCreate()
     {
+        if (Yii::$app->user->can('create_user') === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+        }
+
         $model = new User();
         $model->scenario = User::SCENARIO_REGISTER;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
@@ -344,7 +348,19 @@ class StaffController extends ActiveController
      */
     public function actionUpdate($id)
     {
-        $model = $this->actionView($id);
+        $model = User::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', User::STATUS_DELETED])
+            ->one();
+
+        if ($model === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        if (Yii::$app->user->can('edit_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+        }
+
         $model->scenario = User::SCENARIO_UPDATE;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
 
@@ -395,20 +411,20 @@ class StaffController extends ActiveController
      */
     public function actionView($id)
     {
-        $staff = User::find()
+        $model = User::find()
             ->where(['id' => $id])
             ->andWhere(['!=', 'status', User::STATUS_DELETED])
             ->one();
 
-        if ($staff === null) {
+        if ($model === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        if (Yii::$app->user->can('edit_user', ['record' => $staff]) === false) {
+        if (Yii::$app->user->can('view_user', ['record' => $model]) === false) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
         }
 
-        return $staff;
+        return $model;
     }
 
     /**
@@ -435,7 +451,18 @@ class StaffController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->actionView($id);
+        $model = User::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', User::STATUS_DELETED])
+            ->one();
+
+        if ($model === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        if (Yii::$app->user->can('delete_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+        }
 
         return $this->applySoftDelete($model);
     }
