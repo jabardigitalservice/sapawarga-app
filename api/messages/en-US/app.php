@@ -17,8 +17,6 @@ return [
     'app.kec_id' => 'Kecamatan',
     'app.kabkota_id' => 'Kabupaten/Kota',
 
-    'error.http.forbidden' => 'You are not allowed to access this resource.',
-
     'error.login.incorrect' => 'Incorrect username or password.',
     'error.login.inactive' => 'Account is inactive. Please contact 082315192724 (SMS or WhatsApp) and email sapawarga@jabarprov.go.id to activate your account.',
     'error.email.taken' => 'This email address has already been taken.',

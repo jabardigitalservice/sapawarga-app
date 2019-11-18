@@ -17,6 +17,7 @@ use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\db\ActiveRecordInterface;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
@@ -156,6 +157,20 @@ class StaffController extends ActiveController
         }
 
         return $search->getDataProvider();
+    }
+
+    public function findModel($id)
+    {
+        $model = User::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', User::STATUS_DELETED])
+            ->one();
+
+        if (isset($model)) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException("Object not found: $id");
     }
 
     /**
@@ -314,7 +329,7 @@ class StaffController extends ActiveController
     public function actionCreate()
     {
         if (Yii::$app->user->can('create_user') === false) {
-            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
 
         $model = new User();
@@ -348,17 +363,10 @@ class StaffController extends ActiveController
      */
     public function actionUpdate($id)
     {
-        $model = User::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', User::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
+        $model = $this->findModel($id);
 
         if (Yii::$app->user->can('edit_user', ['record' => $model]) === false) {
-            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
 
         $model->scenario = User::SCENARIO_UPDATE;
@@ -411,17 +419,10 @@ class StaffController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = User::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', User::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
+        $model = $this->findModel($id);
 
         if (Yii::$app->user->can('view_user', ['record' => $model]) === false) {
-            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
 
         return $model;
@@ -451,17 +452,10 @@ class StaffController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = User::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', User::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
+        $model = $this->findModel($id);
 
         if (Yii::$app->user->can('delete_user', ['record' => $model]) === false) {
-            throw new ForbiddenHttpException(Yii::t('app', 'error.http.forbidden'));
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
 
         return $this->applySoftDelete($model);

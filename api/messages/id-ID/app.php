@@ -17,8 +17,6 @@ return [
     'app.kec_id' => 'Kecamatan',
     'app.kabkota_id' => 'Kabupaten/Kota',
 
-    'error.http.forbidden' => 'Anda tidak mempunyai hak akses.',
-
     'error.login.incorrect' => 'Username atau kata sandi salah.',
     'error.login.inactive' => 'Username belum aktif, Anda dapat menghubungi nomor 082315192724 (SMS dan WhatsApp) dan email sapawarga@jabarprov.go.id untuk mengaktifkan akun Anda.',
     'error.email.taken' => 'Alamat email sudah digunakan.',
