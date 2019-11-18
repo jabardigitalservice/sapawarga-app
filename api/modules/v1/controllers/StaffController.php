@@ -114,8 +114,7 @@ class StaffController extends ActiveController
                         'import', 'import-template',
                         'getPermissions',
                     ],
-                    // TODO check using permission instead of role
-                    'roles' => ['admin', 'manageStaffs', 'staffKabkota', 'staffKec', 'staffKel'],
+                    'roles' => ['admin', 'manageStaffs'],
                 ],
             ],
         ];

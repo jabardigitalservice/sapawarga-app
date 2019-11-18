@@ -253,6 +253,8 @@ class ImportUserJob extends BaseObject implements JobInterface
     {
         $rows->each(function ($row) {
             $user             = new User();
+            $user->scenario   = User::SCENARIO_REGISTER;
+
             $user->username   = $row->username;
             $user->email      = $row->email;
             $user->name       = $row->name;
