@@ -17,11 +17,13 @@ use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\db\ActiveRecordInterface;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
 use yii\rbac\Permission;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -155,6 +157,20 @@ class StaffController extends ActiveController
         }
 
         return $search->getDataProvider();
+    }
+
+    public function findModel($id)
+    {
+        $model = User::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', User::STATUS_DELETED])
+            ->one();
+
+        if (isset($model)) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException("Object not found: $id");
     }
 
     /**
@@ -312,6 +328,10 @@ class StaffController extends ActiveController
      */
     public function actionCreate()
     {
+        if (Yii::$app->user->can('create_user') === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        }
+
         $model = new User();
         $model->scenario = User::SCENARIO_REGISTER;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
@@ -343,7 +363,12 @@ class StaffController extends ActiveController
      */
     public function actionUpdate($id)
     {
-        $model = $this->actionView($id);
+        $model = $this->findModel($id);
+
+        if (Yii::$app->user->can('edit_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        }
+
         $model->scenario = User::SCENARIO_UPDATE;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
 
@@ -394,33 +419,13 @@ class StaffController extends ActiveController
      */
     public function actionView($id)
     {
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
-        $role = $currentUser->role;
-        // Admins can see other admins, while staffs can only see staffs one level below them
-        $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
+        $model = $this->findModel($id);
 
-        $staff = User::find()->where(
-            [
-                'id' => $id
-            ]
-        )->andWhere(
-            [
-                '!=',
-                'status',
-                User::STATUS_DELETED
-            ]
-        )->andWhere(
-            [
-                'or',
-                ['between', 'role', 0, $maxRoleRange],
-                $id . '=' . (string) $currentUser->id
-            ]
-        )->one();
-        if ($staff) {
-            return $staff;
-        } else {
-            throw new NotFoundHttpException("Object not found: $id");
+        if (Yii::$app->user->can('view_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
+
+        return $model;
     }
 
     /**
@@ -447,7 +452,11 @@ class StaffController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->actionView($id);
+        $model = $this->findModel($id);
+
+        if (Yii::$app->user->can('delete_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        }
 
         return $this->applySoftDelete($model);
     }
