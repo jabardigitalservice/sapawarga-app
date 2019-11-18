@@ -490,7 +490,11 @@ class StaffController extends ActiveController
      */
     public function actionCount()
     {
-        $currentUser     = User::findIdentity(Yii::$app->user->getId());
+        $currentUserId    = Yii::$app->user->getId();
+        $currentUser      = User::findIdentity($currentUserId);
+
+        $currentUserRoles = Yii::$app->authManager->getRolesByUser($currentUserId);
+        $currentUserRole  = Arr::first($currentUserRoles);
 
         $filterKabkotaId = $currentUser->kabkota_id;
         $filterKecId     = $currentUser->kec_id;
@@ -498,8 +502,12 @@ class StaffController extends ActiveController
 
         $repository    = new UserRepository();
 
-        // TODO should not hard coded here
-        $selectedRoles = ['staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'staffSaberhoax', 'trainer'];
+        // TODO Role should not hard coded here
+        $selectedRoles = ['staffKec', 'staffKel', 'staffRW'];
+
+        if (in_array($currentUserRole->name, ['admin', 'staffProv'])) {
+            $selectedRoles = array_merge($selectedRoles, ['staffProv', 'staffKabkota', 'staffSaberhoax', 'trainer']);
+        }
 
         $items = $repository->getUsersCountAllRolesByArea(
             $selectedRoles,
