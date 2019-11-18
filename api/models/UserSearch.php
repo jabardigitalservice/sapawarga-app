@@ -14,6 +14,7 @@ class UserSearch extends Model
     public $range_roles = [];
     public $not_in_status = [];
     public $show_saberhoax;
+    public $show_trainer;
 
     public $name;
     public $username;
@@ -95,6 +96,11 @@ class UserSearch extends Model
         $query = User::find()
             ->where(['not in', 'user.status', $this->not_in_status])
             ->andWhere(['between', 'user.role', $this->range_roles[0], $this->range_roles[1]]);
+
+        // Exclude Trainer
+        if (!$this->show_trainer) {
+            $query->andWhere(['<>', 'user.role', User::ROLE_TRAINER]);
+        }
 
         // Exclude saber hoax
         if (!$this->show_saberhoax) {

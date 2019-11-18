@@ -150,6 +150,11 @@ class StaffController extends ActiveController
         // Only admin can see saberhoax
         $search->show_saberhoax = ($currentUser->role == User::ROLE_ADMIN) ? true : false;
 
+        $search->show_trainer = false;
+        if (in_array($currentUser->role, [User::ROLE_STAFF_PROV, User::ROLE_ADMIN])) {
+            $search->show_trainer = true;
+        }
+
         if (!$search->validate()) {
             throw new BadRequestHttpException(
                 'Invalid parameters: ' . json_encode($search->getErrors())
