@@ -508,12 +508,7 @@ class StaffController extends ActiveController
 
         $repository    = new UserRepository();
 
-        // TODO Role should not hard coded here
-        $selectedRoles = ['staffKec', 'staffKel', 'staffRW'];
-
-        if (in_array($currentUserRole->name, ['admin', 'staffProv'])) {
-            $selectedRoles = array_merge($selectedRoles, ['staffProv', 'staffKabkota', 'staffSaberhoax', 'trainer']);
-        }
+        $selectedRoles = $repository->getDescendantRoles($currentUserRole->name);
 
         $items = $repository->getUsersCountAllRolesByArea(
             $selectedRoles,

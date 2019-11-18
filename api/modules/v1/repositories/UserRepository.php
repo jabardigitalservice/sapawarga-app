@@ -8,6 +8,38 @@ use app\models\User;
 
 class UserRepository
 {
+    public function getDescendantRoles($roleName)
+    {
+        // TODO Role should not hard coded here
+        $descendantRoles = [];
+
+        if ($roleName === 'staffKel') {
+            $descendantRoles = ['staffRW', 'user'];
+        }
+
+        if ($roleName === 'staffKec') {
+            $descendantRoles = ['staffRW', 'staffKel', 'user'];
+        }
+
+        if ($roleName === 'staffKabkota') {
+            $descendantRoles = ['staffRW', 'staffKel', 'staffKec', 'user'];
+        }
+
+        if ($roleName === 'staffProv') {
+            $descendantRoles = [
+                'staffRW', 'staffKel', 'staffKec', 'staffKabkota', 'trainer', 'user',
+            ];
+        }
+
+        if ($roleName === 'admin') {
+            $descendantRoles = [
+                'staffRW', 'staffKel', 'staffKec', 'staffKabkota','staffProv', 'staffSaberhoax', 'trainer', 'user',
+            ];
+        }
+
+        return $descendantRoles;
+    }
+    
     public function getUsersCountAllRolesByArea($selectedRoles, $kabKotaId, $kecId, $kelId): array
     {
         $roles = Yii::$app->authManager->getRoles();
@@ -52,6 +84,7 @@ class UserRepository
         }
 
         $query->andWhere(['status' => User::STATUS_ACTIVE]);
+        $query->andWhere(['!=', 'status', User::STATUS_DELETED]);
 
         return $query->count();
     }
