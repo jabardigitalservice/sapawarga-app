@@ -19,7 +19,7 @@ class m191114_042541_insert_auth_rule_user_workarea extends CustomMigration
 
         // CREATE PERMISSION
         $createPermission = $auth->createPermission('create_user');
-        $createPermission->description = 'Create User';
+        $createPermission->description = 'Membuat User';
         $auth->add($createPermission);
 
         $role = $auth->getRole('admin');
@@ -44,11 +44,11 @@ class m191114_042541_insert_auth_rule_user_workarea extends CustomMigration
 
         // VIEW PERMISSION
         $viewPermission = $auth->createPermission('view_user');
-        $viewPermission->description = 'View User';
+        $viewPermission->description = 'Melihat User';
         $auth->add($viewPermission);
 
         $viewCascadedPermission = $auth->createPermission('view_cascaded_user');
-        $viewCascadedPermission->description = 'View User within his work area scopes';
+        $viewCascadedPermission->description = 'Melihat user yang berada dibawah strukturnya.';
         $viewCascadedPermission->ruleName = $rule->name;
 
         $auth->add($viewCascadedPermission);
@@ -80,7 +80,7 @@ class m191114_042541_insert_auth_rule_user_workarea extends CustomMigration
         $auth->add($editPermission);
 
         $editCascadedPermission = $auth->createPermission('edit_cascaded_user');
-        $editCascadedPermission->description = 'Edit User within his work area scopes';
+        $editCascadedPermission->description = 'Mengedit user yang berada dibawah strukturnya.';
         $editCascadedPermission->ruleName = $rule->name;
 
         $auth->add($editCascadedPermission);
@@ -108,11 +108,11 @@ class m191114_042541_insert_auth_rule_user_workarea extends CustomMigration
 
         // DELETE PERMISSION
         $deletePermission = $auth->createPermission('delete_user');
-        $deletePermission->description = 'Delete User';
+        $deletePermission->description = 'Menghapus User';
         $auth->add($deletePermission);
 
         $deleteCascadedPermission = $auth->createPermission('delete_cascaded_user');
-        $deleteCascadedPermission->description = 'Edit User within his work area scopes';
+        $deleteCascadedPermission->description = 'Menghapus user yang berada dibawah strukturnya.';
         $deleteCascadedPermission->ruleName = $rule->name;
 
         $auth->add($deleteCascadedPermission);
