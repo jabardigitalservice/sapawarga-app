@@ -50,6 +50,11 @@ class UserExport extends Model
         if (Arr::get($params, 'show_saberhoax') == 'no') {
             $query->andWhere(['<>', 'user.role', User::ROLE_STAFF_SABERHOAX]);
         }
+
+        if (Arr::get($params, 'show_trainer') === false) {
+            $query->andWhere(['<>', 'user.role', User::ROLE_TRAINER]);
+        }
+
         if (Arr::get($params, 'role_id')) {
             $query->andWhere(['role' => User::ROLE_MAP[Arr::get($params, 'role_id')]]);
         }
