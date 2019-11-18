@@ -5,6 +5,7 @@ namespace app\models;
 use yii\base\Model;
 use sngrl\PhpFirebaseCloudMessaging\Client;
 use sngrl\PhpFirebaseCloudMessaging\Message as PushMessage;
+use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
 use sngrl\PhpFirebaseCloudMessaging\Recipient\Topic;
 use sngrl\PhpFirebaseCloudMessaging\Notification as PushNotification;
 
@@ -13,6 +14,7 @@ use sngrl\PhpFirebaseCloudMessaging\Notification as PushNotification;
  * @property string $description
  * @property mixed $data
  * @property string $topic
+ * @property string $push_token
  */
 class Message extends Model
 {
@@ -24,6 +26,8 @@ class Message extends Model
     public $data;
     /** @var string */
     public $topic;
+    /** @var string */
+    public $push_token;
 
     /**
      * {@inheritdoc}
@@ -35,7 +39,7 @@ class Message extends Model
             [['title', 'description', 'data'], 'trim'],
             ['title', 'string', 'max' => 255],
             ['topic', 'default', 'value' => 'all'], // Default value for topic, send to all users
-            [['description', 'data'], 'default'],
+            [['description', 'data', 'push_token'], 'default'],
         ];
     }
 
@@ -46,6 +50,7 @@ class Message extends Model
             'description',
             'data',
             'topic',
+            'push_token',
         ];
         return $fields;
     }
@@ -88,7 +93,15 @@ class Message extends Model
 
         $message = new PushMessage();
         $message->setPriority('high');
-        $message->addRecipient(new Topic($this->topic));
+
+        // If push_token is provided, set recipient to a single device
+        if ($this->push_token) {
+            $message->addRecipient(new Device($this->push_token));
+        } else {
+            // Set recipient to topic
+            $message->addRecipient(new Topic($this->topic));
+        }
+
         $message
             ->setNotification($notification)
             ->setData($this->data);

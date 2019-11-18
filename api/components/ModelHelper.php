@@ -84,6 +84,7 @@ class ModelHelper
             'status'=> Notification::STATUS_PUBLISHED,
             'meta' => $payload['meta'],
         ]);
+        $notifModel->push_token = Arr::get($payload['target'], 'push_token', null);
         $notifModel->save(false);
     }
 
