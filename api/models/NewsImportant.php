@@ -85,6 +85,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'source_url',
             'status',
             'attachments' => function () use ($publicBaseUrl) {
+                $attachments = [];
                 if ($this->attachments) {
                     foreach ($this->attachments as $key => $value) {
                         $attachments[$key]['id'] = $value->id;
@@ -92,9 +93,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                         $attachments[$key]['file_path'] = $value->file_path;
                         $attachments[$key]['file_url'] = $publicBaseUrl . '/' . $value->file_path;
                     }
-
-                    return $attachments;
                 }
+                return $attachments;
             },
             'status_label' => 'StatusLabel',
             'created_at',
