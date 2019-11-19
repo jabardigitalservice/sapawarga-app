@@ -110,8 +110,11 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('update', $model);
 
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
         // Allowed to update if status Draft & Rejected only except admin
-        if (! $this->isAdmin()) {
+        if (! $authUser->can('admin')) {
             if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
                 throw new ForbiddenHttpException();
             }
@@ -259,12 +262,15 @@ class AspirasiController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
         // Admin can do everything
-        if ($this->isAdmin()) {
+        if ($authUser->can('admin')) {
             return true;
         }
 
-        // Chack access update and delete
+        // Check access update and delete
         if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
@@ -300,21 +306,5 @@ class AspirasiController extends ActiveController
         }
 
         return $model;
-    }
-
-    /**
-     * Check user is admin
-     *
-     * @return mixed|Aspirasi
-     * @throws bool
-     */
-    private function isAdmin()
-    {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        if ($authUser->can('admin')) {
-            return true;
-        }
     }
 }
