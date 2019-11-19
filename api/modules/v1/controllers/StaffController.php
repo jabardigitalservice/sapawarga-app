@@ -6,18 +6,14 @@ use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserExport;
-use app\models\UserImport;
-use app\models\UserImportUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use app\modules\v1\repositories\UserRepository;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
-use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
-use yii\db\ActiveRecordInterface;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
@@ -27,7 +23,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
 
 class StaffController extends ActiveController
 {
