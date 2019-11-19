@@ -37,6 +37,11 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected $maxRows;
 
+    /**
+     * @var int
+     */
+    protected $rowNum;
+
     public function execute($queue)
     {
         $this->notifyImportStarted();
@@ -56,7 +61,7 @@ class ImportUserJob extends BaseObject implements JobInterface
         $this->failedRows   = new Collection();
 
         foreach ($reader->getSheetIterator() as $sheet) {
-            $this->processEachRow($sheet);
+            $this->processSheet($sheet);
         }
 
         $reader->close();
@@ -68,26 +73,32 @@ class ImportUserJob extends BaseObject implements JobInterface
         return $this->saveImportedRows($this->importedRows);
     }
 
-    protected function processEachRow($sheet)
+    protected function processSheet($sheet)
     {
-        $rowNum = 0;
+        $this->rowNum = 0;
+
         foreach ($sheet->getRowIterator() as $row) {
-            $rowNum++;
-
-            // Skip header row
-            if ($rowNum === 1) {
-                continue;
-            }
-
-            if ($rowNum > $this->maxRows) {
-                return $this->notifyImportFailedMaxRows();
-            }
-
-            $cells       = $row->getCells();
-            $importedRow = $this->parseRows($cells);
-
-            $this->validateRow($importedRow);
+            $this->processRow($row);
         }
+    }
+
+    protected function processRow($row)
+    {
+        $this->rowNum++;
+
+        // Skip header row
+        if ($this->rowNum === 1) {
+            return false;
+        }
+
+        if ($this->rowNum > $this->maxRows) {
+            return $this->notifyImportFailedMaxRows();
+        }
+
+        $cells       = $row->getCells();
+        $importedRow = $this->parseRows($cells);
+
+        $this->validateRow($importedRow);
     }
 
     protected function validateRow($row)
