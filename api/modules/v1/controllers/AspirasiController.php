@@ -110,9 +110,14 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('update', $model);
 
-        // Allowed to update if status Draft & Rejected only
-        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
-            throw new ForbiddenHttpException();
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        // Allowed to update if status Draft & Rejected only except admin
+        if (! $authUser->can('admin')) {
+            if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
+                throw new ForbiddenHttpException();
+            }
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -257,9 +262,31 @@ class AspirasiController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        // Admin can do everything
+        if ($authUser->can('admin')) {
+            return true;
+        }
+
+        // Check access update and delete
         if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
+    }
+
+    public function prepareDataProvider()
+    {
+        $userId = Yii::$app->user->getId();
+        $user   = User::findIdentity($userId);
+
+        $search = new AspirasiSearch();
+        $params = Yii::$app->request->getQueryParams();
+
+        $search->user = $user;
+
+        return $search->search($params);
     }
 
     /**
@@ -279,18 +306,5 @@ class AspirasiController extends ActiveController
         }
 
         return $model;
-    }
-
-    public function prepareDataProvider()
-    {
-        $userId = Yii::$app->user->getId();
-        $user   = User::findIdentity($userId);
-
-        $search = new AspirasiSearch();
-        $params = Yii::$app->request->getQueryParams();
-
-        $search->user = $user;
-
-        return $search->search($params);
     }
 }

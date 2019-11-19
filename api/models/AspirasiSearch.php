@@ -166,6 +166,7 @@ class AspirasiSearch extends Aspirasi
                 $filterStatusList = [
                     Aspirasi::STATUS_APPROVAL_PENDING,
                     Aspirasi::STATUS_APPROVAL_REJECTED,
+                    Aspirasi::STATUS_UNPUBLISHED,
                     Aspirasi::STATUS_PUBLISHED,
                 ];
             }

@@ -41,6 +41,7 @@ class Aspirasi extends ActiveRecord
 
     const STATUS_APPROVAL_REJECTED = 3;
     const STATUS_APPROVAL_PENDING = 5;
+    const STATUS_UNPUBLISHED = 7;
     const STATUS_PUBLISHED = 10;
 
     const ACTION_APPROVE = 'APPROVE';
@@ -210,6 +211,7 @@ class Aspirasi extends ActiveRecord
         if (in_array($this->status, [
             self::STATUS_DRAFT,
             self::STATUS_PUBLISHED,
+            self::STATUS_UNPUBLISHED,
             self::STATUS_APPROVAL_PENDING,
             self::STATUS_APPROVAL_REJECTED])
         ) {
@@ -226,6 +228,9 @@ class Aspirasi extends ActiveRecord
         switch ($this->status) {
             case self::STATUS_PUBLISHED:
                 $statusLabel = Yii::t('app', 'status.published');
+                break;
+            case self::STATUS_UNPUBLISHED:
+                $statusLabel = Yii::t('app', 'status.unpublished');
                 break;
             case self::STATUS_APPROVAL_PENDING:
                 $statusLabel = Yii::t('app', 'status.approval-pending');
