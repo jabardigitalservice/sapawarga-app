@@ -110,9 +110,11 @@ class AspirasiController extends ActiveController
 
         $this->checkAccess('update', $model);
 
-        // Allowed to update if status Draft & Rejected only
-        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
-            throw new ForbiddenHttpException();
+        // Allowed to update if status Draft & Rejected only except admin
+        if (! $this->isAdmin()) {
+            if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
+                throw new ForbiddenHttpException();
+            }
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -257,9 +259,28 @@ class AspirasiController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
+        // Admin can do everything
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        // Chack access update and delete
         if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
+    }
+
+    public function prepareDataProvider()
+    {
+        $userId = Yii::$app->user->getId();
+        $user   = User::findIdentity($userId);
+
+        $search = new AspirasiSearch();
+        $params = Yii::$app->request->getQueryParams();
+
+        $search->user = $user;
+
+        return $search->search($params);
     }
 
     /**
@@ -281,16 +302,19 @@ class AspirasiController extends ActiveController
         return $model;
     }
 
-    public function prepareDataProvider()
+    /**
+     * Check user is admin
+     *
+     * @return mixed|Aspirasi
+     * @throws bool
+     */
+    private function isAdmin()
     {
-        $userId = Yii::$app->user->getId();
-        $user   = User::findIdentity($userId);
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
 
-        $search = new AspirasiSearch();
-        $params = Yii::$app->request->getQueryParams();
-
-        $search->user = $user;
-
-        return $search->search($params);
+        if ($authUser->can('admin')) {
+            return true;
+        }
     }
 }
