@@ -48,12 +48,8 @@ class ImportUserJob extends BaseObject implements JobInterface
             throw new UserException('Failed to download from object storage.');
         }
 
-        if ($this->isExceededMaxRows($filePathTemp)) {
-            return $this->notifyImportFailedMaxRows();
-        }
-
         // Read from temporary file
-        $reader = ReaderEntityFactory::createCSVReader();
+        $reader = ReaderEntityFactory::createXLSXReader();
         $reader->open($filePathTemp);
 
         $this->importedRows = new Collection();
@@ -81,6 +77,10 @@ class ImportUserJob extends BaseObject implements JobInterface
             // Skip header row
             if ($rowNum === 1) {
                 continue;
+            }
+
+            if ($rowNum > $this->maxRows) {
+                return $this->notifyImportFailedMaxRows();
             }
 
             $cells       = $row->getCells();
@@ -331,12 +331,5 @@ class ImportUserJob extends BaseObject implements JobInterface
         fclose($f);
 
         return $lines;
-    }
-
-    protected function isExceededMaxRows($filePathTemp)
-    {
-        $linesCount = $this->getLinesCount($filePathTemp);
-
-        return $linesCount > $this->maxRows;
     }
 }

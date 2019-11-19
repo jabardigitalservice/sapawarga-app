@@ -7,7 +7,7 @@ use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserExport;
 use app\models\UserImport;
-use app\models\UserImportCsvUploadForm;
+use app\models\UserImportUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use app\modules\v1\repositories\UserRepository;
@@ -280,7 +280,7 @@ class StaffController extends ActiveController
 
     protected function copyTemplateToStorage($sourcePath)
     {
-        $destinationPath = 'template-users-import.csv';
+        $destinationPath = 'template-users-import.xlsx';
 
         $contents = file_get_contents($sourcePath);
 
@@ -295,7 +295,7 @@ class StaffController extends ActiveController
     {
         $currentUser = User::findIdentity(Yii::$app->user->getId());
 
-        $model       = new UserImportCsvUploadForm();
+        $model       = new UserImportUploadForm();
         $model->file = UploadedFile::getInstanceByName('file');
 
         if ($model->validate() === false) {
