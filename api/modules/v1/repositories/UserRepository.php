@@ -67,24 +67,24 @@ class UserRepository
 
     public function getUsersCountRoleByArea($roleName, $kabKotaId, $kecId, $kelId): int
     {
-        $userIds = Yii::$app->authManager->getUserIdsByRole($roleName);
-
-        $query = User::find()->where(['in', 'id', $userIds]);
+        $query = User::find()
+            ->select('user.*')
+            ->innerJoin('auth_assignment', '`auth_assignment`.`user_id` = `user`.`id`')
+            ->andWhere(['auth_assignment.item_name' => $roleName])
+            ->andWhere(['user.status' => User::STATUS_ACTIVE])
+            ->andWhere(['!=', 'user.status', User::STATUS_DELETED]);
 
         if ($kabKotaId) {
-            $query->andWhere(['kabkota_id' => $kabKotaId]);
+            $query->andWhere(['user.kabkota_id' => $kabKotaId]);
         }
 
         if ($kecId) {
-            $query->andWhere(['kec_id' => $kecId]);
+            $query->andWhere(['user.kec_id' => $kecId]);
         }
 
         if ($kelId) {
-            $query->andWhere(['kel_id' => $kelId]);
+            $query->andWhere(['user.kel_id' => $kelId]);
         }
-
-        $query->andWhere(['status' => User::STATUS_ACTIVE]);
-        $query->andWhere(['!=', 'status', User::STATUS_DELETED]);
 
         return $query->count();
     }
