@@ -329,18 +329,4 @@ class ImportUserJob extends BaseObject implements JobInterface
 
         return $textBody;
     }
-
-    protected function getLinesCount($file)
-    {
-        $f = fopen($file, 'rb');
-        $lines = 0;
-
-        while (!feof($f)) {
-            $lines += substr_count(fread($f, 8192), "\n");
-        }
-
-        fclose($f);
-
-        return $lines;
-    }
 }
