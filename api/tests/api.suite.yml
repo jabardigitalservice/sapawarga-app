@@ -4,7 +4,7 @@ modules:
         - Asserts
         - Yii2
         - REST:
-            url: http://localhost
+            url: 'http://localhost/index-test.php'
             depends: PhpBrowser
             part: Json
         - Db:

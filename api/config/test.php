@@ -1,46 +1,103 @@
 <?php
-$params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/test_db.php';
-$web = require __DIR__ . '/web.php';
 
-/**
- * Application configuration shared by all test types
- */
-return [
-    'id' => 'basic-tests',
+$params = include __DIR__ . '/params.php';
+
+$config = [
+    'id' => 'boilerplate-api-test',
     'basePath' => dirname(__DIR__),
+    'bootstrap' => ['log', 'queue'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm' => '@vendor/npm-asset',
+        '@npm'   => '@vendor/npm-asset',
     ],
-    'language' => 'en-US',
+    'sourceLanguage' => 'en-US',
+    'language' => 'id-ID',
     'components' => [
-        'db' => $db,
-        'mailer' => [
-            'useFileTransport' => true,
-        ],
-        'assetManager' => [
-            'basePath' => __DIR__ . '/../web/assets',
-        ],
-        'urlManager' => $web['components']['urlManager'],
-        'user' => [
-            'identityClass' => 'app\models\User',
-        ],
         'request' => [
-            'cookieValidationKey' => 'test',
-            'enableCsrfValidation' => false,
+            'cookieValidationKey' => getenv('COOKIE_VALIDATION_KEY'),
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
             ],
-            // but if you absolutely need it set cookie domain to localhost
-            /*
-            'csrfCookie' => [
-                'domain' => 'localhost',
-            ],
-            */
         ],
-        'response' => $web['components']['response'],
+        'cache' => [
+            'class' => 'yii\caching\MemCache',
+            'useMemcached' => getenv('CACHE_USE_MEMCACHED'),
+            'username' => getenv('CACHE_USERNAME'),
+            'password' => getenv('CACHE_PASSWORD'),
+            'servers' => [
+                [
+                    'host' => getenv('CACHE_SERVERS'),
+                    'port' => getenv('CACHE_PORT'),
+                    'weight' => getenv('CACHE_WEIGHT'),
+                ],
+            ],
+        ],
+        'user' => [
+            'identityClass' => 'app\models\User',
+            'enableAutoLogin' => true,
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
+        'assetManager' => [
+            'baseUrl' => '/assets',
+        ],
+        'errorHandler' => [
+            'errorAction' => 'site/error',
+        ],
+        'mailer' => include __DIR__ . '/components/mailer.php',
+        'log' => include __DIR__ . '/components/log.php',
+        'queue' => include __DIR__ . '/components/queue.sync.php',
+        'db' => include __DIR__ . '/db.php',
+
+        'urlManager' => [
+            'baseUrl' => '/',    // Added for
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'enableStrictParsing' => true,
+            'rules' => include __DIR__ . '/routes.php',
+        ],
+        'response' => [
+            'class' => 'yii\web\Response',
+            'on beforeSend' => function ($event) {
+                $response = $event->sender;
+                if ($response->format == 'html') {
+                    return $response;
+                }
+
+                $responseData = $response->data;
+
+                if (is_string($responseData) && json_decode($responseData)) {
+                    $responseData = json_decode($responseData, true);
+                }
+
+                if ($response->statusCode >= 200 && $response->statusCode <= 299) {
+                    $response->data = [
+                        'success' => true,
+                        'status' => $response->statusCode,
+                        'data' => $responseData,
+                    ];
+                } else {
+                    $response->data = [
+                        'success' => false,
+                        'status' => $response->statusCode,
+                        'data' => $responseData,
+                    ];
+                }
+                return $response;
+            },
+        ],
+
+        'i18n' => include __DIR__ . '/components/i18n.php',
+
+        'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
     ],
-    'modules' => $web['modules'],
+    'modules' => [
+        'v1' => [
+            'class' => 'app\modules\v1\Module',
+        ],
+    ],
     'params' => $params,
 ];
+
+return $config;
