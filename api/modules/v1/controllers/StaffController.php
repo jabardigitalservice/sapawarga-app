@@ -150,6 +150,11 @@ class StaffController extends ActiveController
             $search->show_trainer = true;
         }
 
+        $search->show_user = false;
+        if (in_array($currentUser->role, [User::ROLE_STAFF_PROV, User::ROLE_ADMIN])) {
+            $search->show_user = true;
+        }
+
         if (!$search->validate()) {
             throw new BadRequestHttpException(
                 'Invalid parameters: ' . json_encode($search->getErrors())

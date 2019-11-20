@@ -14,15 +14,15 @@ class UserRepository
         $descendantRoles = [];
 
         if ($roleName === 'staffKel') {
-            $descendantRoles = ['staffRW', 'user'];
+            $descendantRoles = ['staffRW'];
         }
 
         if ($roleName === 'staffKec') {
-            $descendantRoles = ['staffRW', 'staffKel', 'user'];
+            $descendantRoles = ['staffRW', 'staffKel'];
         }
 
         if ($roleName === 'staffKabkota') {
-            $descendantRoles = ['staffRW', 'staffKel', 'staffKec', 'user'];
+            $descendantRoles = ['staffRW', 'staffKel', 'staffKec'];
         }
 
         if ($roleName === 'staffProv') {

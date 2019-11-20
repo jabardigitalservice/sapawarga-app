@@ -15,6 +15,7 @@ class UserSearch extends Model
     public $not_in_status = [];
     public $show_saberhoax;
     public $show_trainer;
+    public $show_user;
 
     public $name;
     public $username;
@@ -105,6 +106,11 @@ class UserSearch extends Model
         // Exclude saber hoax
         if (!$this->show_saberhoax) {
             $query->andWhere(['<>', 'user.role', User::ROLE_STAFF_SABERHOAX]);
+        }
+
+        // Exclude User Pengguna
+        if (!$this->show_user) {
+            $query->andWhere(['<>', 'user.role', User::ROLE_USER]);
         }
 
         return $query;
