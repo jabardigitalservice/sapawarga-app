@@ -240,14 +240,16 @@ class NewsImportantController extends ActiveController
     }
 
     /**
-     * @param $newsImportantId
+     * @param $newsImportantId id of news important
      * @return mixed|\app\models\NewsImportant
      */
     private function prepareDeleteAttachment($newsImportantId)
     {
-        $params = Yii::$app->getRequest()->getBodyParams();
-        if (!empty($params['attachments']) > 0) {
-            $newsImportant = NewsImportantAttachment::find()->where(['news_important_id' => $newsImportantId])->all();
+        $newsImportant = NewsImportantAttachment::find()
+                            ->where(['news_important_id' => $newsImportantId])
+                            ->all();
+
+        if (! empty($newsImportant)) {
             foreach ($newsImportant as $val) {
                 $this->deleteAttachment($val->id, $val->file_path);
             }
