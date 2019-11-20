@@ -32,6 +32,9 @@ class ApiTester extends \Codeception\Actor
 
         $I = $this;
         $I->amBearerAuthenticated($accessToken);
+
+        $I->haveHttpHeader('Accept', 'application/json');
+        $I->haveHttpHeader('Content-Type', 'application/json');
     }
 
     public function amStaff($username = null)
@@ -44,6 +47,9 @@ class ApiTester extends \Codeception\Actor
 
         $I = $this;
         $I->amBearerAuthenticated($accessToken);
+
+        $I->haveHttpHeader('Accept', 'application/json');
+        $I->haveHttpHeader('Content-Type', 'application/json');
     }
 
     protected function getAccessToken($username)
