@@ -453,47 +453,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'updated_at',
         ];
 
-        // If role is staff and admin, then return permissions
-        if ($this->role >= self::ROLE_TRAINER && $this->role <= self::ROLE_ADMIN) {
-            $fields['permissions'] = function () {
-                $authManager = Yii::$app->authManager;
-
-                /** @var Permission[] $availablePermissions */
-                $availablePermissions = $authManager->getPermissions();
-
-                /** @var array $tmpPermissions to store permissions assigned to the staff */
-                $tmpPermissions = [];
-                /** @var Permission[] $userPermissions */
-                $userPermissions = $authManager->getPermissionsByUser($this->getId());
-                if (!empty($availablePermissions)) {
-                    /**
-                     * @var string $permissionKey
-                     * @var Permission $permission
-                     */
-                    foreach ($availablePermissions as $permissionKey => $permission) {
-                        $tmpPermission = [
-                            'name' => $permission->name,
-                            'description' => $permission->description,
-                            'checked' => false,
-                        ];
-
-                        if (!empty($userPermissions)) {
-                            foreach ($userPermissions as $userPermissionKey => $userPermission) {
-                                if ($userPermission->name == $permission->name) {
-                                    $tmpPermission['checked'] = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        $tmpPermissions[] = $tmpPermission;
-                    }
-                }
-
-                return $tmpPermissions;
-            };
-        }
-
         return $fields;
     }
 
@@ -573,7 +532,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ['role_id', 'in', 'range' => array_keys(self::ROLE_MAP)],
             ['role_id', 'validateRolePermission'],
 
-            ['permissions', 'validatePermissions',  'on' => self::SCENARIO_UPDATE],
             [['access_token', 'permissions'], 'safe'],
             ['phone', 'trim'],
             ['kabkota_id', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
@@ -622,49 +580,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             }
         } elseif ($request->isPut) {
             // No action required
-        }
-    }
-
-    /**
-     * Validate permissions array
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validatePermissions($attribute, $params)
-    {
-        if (!empty($this->$attribute)) {
-            $authManager = Yii::$app->authManager;
-            // Get existing permissions
-            $existingPermissions = $authManager->getPermissions();
-
-            // Loop attributes
-            foreach ($this->$attribute as $permissionKey => $permission) {
-                // Validate attributes in the array
-                if (array_key_exists('name', $permission) === false ||
-                    array_key_exists('description', $permission) === false ||
-                    array_key_exists('checked', $permission) === false) {
-                    $this->addError($attribute, Yii::t('app', 'The permission is not valid format.'));
-                } elseif (isset($existingPermissions[$permission['name']]) == false) {
-                    // Validate name
-                    $this->addError(
-                        $attribute,
-                        Yii::t(
-                            'app',
-                            'The permission name \'' . $permission['name'] . '\' is not valid.'
-                        )
-                    );
-                } elseif (is_bool($permission['checked']) === false) {
-                    // Validate checked
-                    $this->addError(
-                        $attribute,
-                        Yii::t(
-                            'app',
-                            'The permission checked \'' . $permission['checked'] . '\' is not valid.'
-                        )
-                    );
-                }
-            }
         }
     }
 
