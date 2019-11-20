@@ -13,6 +13,7 @@ class UserExport extends Model
 {
     public function getUserExport($params)
     {
+        // TODO refactor to UserSearch
         $query = new Query;
         $query->select([
                     'user.id',
@@ -122,14 +123,14 @@ class UserExport extends Model
 
     public function generateFile($params)
     {
-        // Initial variable location, filename, path
-        $nowDate = date('Ymd-His');
+        $nowDate  = date('Ymd-His');
         $filename = "export-user-$nowDate.xlsx";
-        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $filename;
 
-        // Write to temp file
-        $writer = WriterEntityFactory::createXLSXWriter($filePathTemp);
-        $writer->openToFile($filePathTemp);
+        $filePath = Yii::getAlias('@webroot/storage') . '/' . $filename;
+
+        // Write to local file
+        $writer = WriterEntityFactory::createXLSXWriter();
+        $writer->openToFile($filePath);
 
         $columns = $this->getHeaderColumns();
         $writer->addRow(WriterEntityFactory::createRowFromArray($columns));
@@ -142,12 +143,12 @@ class UserExport extends Model
 
         $writer->close();
 
-        return $filename;
+        return $filePath;
     }
 
     protected function insertRow(&$writer, $user)
     {
-        $row = [
+        $row = WriterEntityFactory::createRowFromArray([
             $user['id'],
             $user['role'],
             $user['username'],
@@ -167,9 +168,9 @@ class UserExport extends Model
             $user['password_updated_at'],
             $user['profile_updated_at'],
             $user['last_access_at'],
-        ];
+        ]);
 
-        $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+        $writer->addRow($row);
 
         return $writer;
     }

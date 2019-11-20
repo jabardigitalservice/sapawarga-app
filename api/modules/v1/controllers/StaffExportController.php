@@ -55,18 +55,33 @@ class StaffExportController extends RestController
 
         $search = new UserExport();
 
-        // Check validation max record
         $totalRows = $search->getUserExport($params)->count();
         if ($totalRows > User::MAX_ROWS_EXPORT_ALLOWED) {
             throw new ServerErrorHttpException("User export have $totalRows rows, max rows is " . User::MAX_ROWS_EXPORT_ALLOWED);
         }
 
-        $filename = $search->generateFile($params);
+        $filePath = $search->generateFile($params);
 
-        // Return file url
-        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-        $filePath = $publicBaseUrl . '/' . $filename;
+        return $this->copyLocalToStorage($filePath);
+    }
 
-        return $filePath;
+    /**
+     * Copy local file to Storage Object, then get URL from Storage
+     *
+     * @param $sourcePath
+     * @return string
+     */
+    protected function copyLocalToStorage($sourcePath): string
+    {
+        $filename        = basename($sourcePath);
+        $destinationPath = "export/user/$filename";
+
+        $contents = file_get_contents($sourcePath);
+
+        Yii::$app->fs->put($destinationPath, $contents);
+
+        $fileUrl = sprintf('%s/%s', Yii::$app->params['storagePublicBaseUrl'], $destinationPath);
+
+        return $fileUrl;
     }
 }
