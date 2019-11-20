@@ -1,5 +1,7 @@
 <?php
 
+use yii\web\GroupUrlRule;
+
 return [
     'ping' => 'site/ping',
     'v1/cron/broadcasts' => 'v1/broadcast-cron',
@@ -39,6 +41,17 @@ return [
         ]
     ],
     [
+        'class' => GroupUrlRule::class,
+        'prefix' => 'v1/staff',
+        'routePrefix' => 'v1/staff-import',
+        'rules' => [
+            'GET import-template' => 'download-template',
+            'OPTIONS import-template' => 'options',
+            'POST import' => 'import',
+            'OPTIONS import' => 'options',
+        ],
+    ],
+    [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/staff',
         'pluralize' => false,
@@ -60,10 +73,6 @@ return [
             'OPTIONS me' => 'options',
             'GET export' => 'export',
             'OPTIONS export' => 'options',
-            'POST import' => 'import',
-            'OPTIONS import' => 'options',
-            'GET import-template' => 'import-template',
-            'OPTIONS import-template' => 'options',
         ]
     ],
     [

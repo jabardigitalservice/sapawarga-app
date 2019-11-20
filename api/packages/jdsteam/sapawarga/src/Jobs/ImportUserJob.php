@@ -37,6 +37,11 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected $maxRows;
 
+    /**
+     * @var int
+     */
+    protected $rowNum;
+
     public function execute($queue)
     {
         $this->notifyImportStarted();
@@ -48,19 +53,15 @@ class ImportUserJob extends BaseObject implements JobInterface
             throw new UserException('Failed to download from object storage.');
         }
 
-        if ($this->isExceededMaxRows($filePathTemp)) {
-            return $this->notifyImportFailedMaxRows();
-        }
-
         // Read from temporary file
-        $reader = ReaderEntityFactory::createCSVReader();
+        $reader = ReaderEntityFactory::createXLSXReader();
         $reader->open($filePathTemp);
 
         $this->importedRows = new Collection();
         $this->failedRows   = new Collection();
 
         foreach ($reader->getSheetIterator() as $sheet) {
-            $this->processEachRow($sheet);
+            $this->processSheet($sheet);
         }
 
         $reader->close();
@@ -72,22 +73,32 @@ class ImportUserJob extends BaseObject implements JobInterface
         return $this->saveImportedRows($this->importedRows);
     }
 
-    protected function processEachRow($sheet)
+    protected function processSheet($sheet)
     {
-        $rowNum = 0;
+        $this->rowNum = 0;
+
         foreach ($sheet->getRowIterator() as $row) {
-            $rowNum++;
-
-            // Skip header row
-            if ($rowNum === 1) {
-                continue;
-            }
-
-            $cells       = $row->getCells();
-            $importedRow = $this->parseRows($cells);
-
-            $this->validateRow($importedRow);
+            $this->processRow($row);
         }
+    }
+
+    protected function processRow($row)
+    {
+        $this->rowNum++;
+
+        // Skip header row
+        if ($this->rowNum === 1) {
+            return false;
+        }
+
+        if ($this->rowNum > $this->maxRows) {
+            return $this->notifyImportFailedMaxRows();
+        }
+
+        $cells       = $row->getCells();
+        $importedRow = $this->parseRows($cells);
+
+        $this->validateRow($importedRow);
     }
 
     protected function validateRow($row)
@@ -317,26 +328,5 @@ class ImportUserJob extends BaseObject implements JobInterface
         $textBody .= sprintf("Finished at: %s\n", $finishedAt->toDateTimeString());
 
         return $textBody;
-    }
-
-    protected function getLinesCount($file)
-    {
-        $f = fopen($file, 'rb');
-        $lines = 0;
-
-        while (!feof($f)) {
-            $lines += substr_count(fread($f, 8192), "\n");
-        }
-
-        fclose($f);
-
-        return $lines;
-    }
-
-    protected function isExceededMaxRows($filePathTemp)
-    {
-        $linesCount = $this->getLinesCount($filePathTemp);
-
-        return $linesCount > $this->maxRows;
     }
 }

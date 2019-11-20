@@ -6,7 +6,7 @@ use Yii;
 use yii\base\Model;
 use yii\web\UploadedFile;
 
-class UserImportCsvUploadForm extends Model
+class UserImportUploadForm extends Model
 {
     /**
      * @var UploadedFile
@@ -23,7 +23,7 @@ class UserImportCsvUploadForm extends Model
                 'file',
                 'file',
                 'skipOnEmpty' => false,
-                'extensions' => 'csv',
+                'extensions' => 'xlsx',
                 'checkExtensionByMimeType' => false,
                 'maxSize' => $uploadMaxSize,
             ],
@@ -34,7 +34,7 @@ class UserImportCsvUploadForm extends Model
     {
         $contents = file_get_contents($this->file->tempName);
 
-        $filePath = sprintf('import/user/%s-%s.csv', $this->file->baseName, date('Ymd-His'));
+        $filePath = sprintf('import/user/%s-%s.xlsx', $this->file->baseName, date('Ymd-His'));
 
         if (Yii::$app->fs->put($filePath, $contents) === true) {
             return $filePath;

@@ -6,18 +6,14 @@ use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserExport;
-use app\models\UserImport;
-use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use app\modules\v1\repositories\UserRepository;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
-use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
-use yii\db\ActiveRecordInterface;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
@@ -27,7 +23,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
 
 class StaffController extends ActiveController
 {
@@ -261,66 +256,6 @@ class StaffController extends ActiveController
         $filePath = $publicBaseUrl . '/' . $filename;
 
         return $filePath;
-    }
-
-    public function actionImportTemplate()
-    {
-        $response = Yii::$app->getResponse();
-
-        $filePath = UserImport::generateTemplateFile();
-
-        if (file_exists($filePath) === false) {
-            return $response->setStatusCode(404);
-        }
-
-        $fileUrl = $this->copyTemplateToStorage($filePath);
-
-        return ['file_url' => $fileUrl];
-    }
-
-    protected function copyTemplateToStorage($sourcePath)
-    {
-        $destinationPath = 'template-users-import.csv';
-
-        $contents = file_get_contents($sourcePath);
-
-        Yii::$app->fs->put($destinationPath, $contents);
-
-        $fileUrl = sprintf('%s/%s', Yii::$app->params['storagePublicBaseUrl'], $destinationPath);
-
-        return $fileUrl;
-    }
-
-    public function actionImport()
-    {
-        $currentUser = User::findIdentity(Yii::$app->user->getId());
-
-        $model       = new UserImportCsvUploadForm();
-        $model->file = UploadedFile::getInstanceByName('file');
-
-        if ($model->validate() === false) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
-        }
-
-        // Upload to S3 and push new queue job for async/later processing
-        if ($filePath = $model->upload()) {
-            $this->pushQueueJob($currentUser, $filePath);
-
-            return ['file_path' => $filePath];
-        }
-
-        throw new ServerErrorHttpException('Failed to upload the object for unknown reason.');
-    }
-
-    protected function pushQueueJob($user, $filePath)
-    {
-        Yii::$app->queue->push(new ImportUserJob([
-            'filePath'      => $filePath,
-            'uploaderEmail' => $user->email,
-        ]));
     }
 
     /**
