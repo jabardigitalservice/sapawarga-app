@@ -53,6 +53,15 @@ return [
         ],
     ],
     [
+        'class' => GroupUrlRule::class,
+        'prefix' => 'v1/staff',
+        'routePrefix' => 'v1/staff-export',
+        'rules' => [
+            'GET export' => 'export',
+            'OPTIONS export' => 'options',
+        ],
+    ],
+    [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/staff',
         'pluralize' => false,
@@ -72,8 +81,6 @@ return [
             'GET me' => 'me',
             'POST me' => 'me-update',
             'OPTIONS me' => 'options',
-            'GET export' => 'export',
-            'OPTIONS export' => 'options',
         ]
     ],
     [

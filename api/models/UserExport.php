@@ -2,9 +2,11 @@
 
 namespace app\models;
 
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Carbon\Carbon;
-use yii\base\Model;
 use Illuminate\Support\Arr;
+use Yii;
+use yii\base\Model;
 use yii\db\Query;
 
 class UserExport extends Model
@@ -116,5 +118,62 @@ class UserExport extends Model
         $query->limit(User::MAX_ROWS_EXPORT_ALLOWED);
 
         return $query;
+    }
+
+    public function generateFile($params)
+    {
+        // Initial variable location, filename, path
+        $nowDate = date('Ymd-His');
+        $filename = "export-user-$nowDate.xlsx";
+        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $filename;
+
+        // Write to temp file
+        $writer = WriterEntityFactory::createXLSXWriter($filePathTemp);
+        $writer->openToFile($filePathTemp);
+
+        $columns = $this->getHeaderColumns();
+        $writer->addRow(WriterEntityFactory::createRowFromArray($columns));
+
+        $search = $this->getUserExport($params);
+
+        foreach ($search->each() as $key => $user) {
+            $row = [
+                $user['id'],
+                $user['role'],
+                $user['username'],
+                $user['name'],
+                $user['email'],
+                $user['confirmed_at'],
+                $user['status'],
+                $user['created_at'],
+                $user['updated_at'],
+                $user['phone'],
+                $user['address'],
+                $user['kabkota_name'],
+                $user['kec_name'],
+                $user['kel_name'],
+                $user['rw'],
+                $user['rt'],
+                $user['password_updated_at'],
+                $user['profile_updated_at'],
+                $user['last_access_at'],
+            ];
+            $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+        }
+
+        // Open temp and save to flysystem
+        $stream = fopen($filePathTemp, 'r+');
+        Yii::$app->fs->writeStream($filename, $stream);
+
+        return $filename;
+    }
+
+    protected function getHeaderColumns()
+    {
+        return [
+            'id', 'role', 'username', 'name', 'email', 'confirmed_at', 'status', 'created_at', 'updated_at',
+            'phone', 'address', 'kabkota', 'kecamatan', 'kelurahan', 'rw', 'rt', 'password_updated_at',
+            'profile_updated_at', 'last_access_at',
+        ];
     }
 }

@@ -5,11 +5,9 @@ namespace app\modules\v1\controllers;
 use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
-use app\models\UserExport;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use app\modules\v1\repositories\UserRepository;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
@@ -176,91 +174,6 @@ class StaffController extends ActiveController
         }
 
         throw new NotFoundHttpException("Object not found: $id");
-    }
-
-    /**
-     * User Export to csv
-     *
-     * @return string URL
-     * @throws ServerErrorHttpException
-     */
-    public function actionExport()
-    {
-        # Get data users
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
-        $role = $currentUser->role;
-        $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
-
-        $params = Yii::$app->request->getQueryParams();
-        $params['max_roles'] = $maxRoleRange;
-        $params['show_saberhoax'] = $currentUser->role == User::ROLE_ADMIN ? 'yes' : 'no';
-        $params['show_trainer'] = in_array($currentUser->role, [User::ROLE_ADMIN, User::ROLE_STAFF_PROV]);
-        $params['kabkota_id'] = $params['kabkota_id'] ?? $currentUser->kabkota_id;
-        $params['kec_id'] = $params['kec_id'] ?? $currentUser->kec_id;
-        $params['kel_id'] = $params['kel_id'] ?? $currentUser->kel_id;
-        $params['rw'] = $params['rw'] ?? $currentUser->rw;
-
-        $search = new UserExport();
-
-        // Check validation max record
-        $totalRows = $search->getUserExport($params)->count();
-        if ($totalRows > User::MAX_ROWS_EXPORT_ALLOWED) {
-            throw new ServerErrorHttpException("User export have $totalRows rows, max rows is " . User::MAX_ROWS_EXPORT_ALLOWED);
-        }
-
-        // Initial varieble location, filename, path
-        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-        $nowDate = date('Y-m-d-H-i-s');
-        $filename = "export-user-$nowDate.csv";
-        $filenameTemp = "temp-export-user-$nowDate.csv";
-        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $filenameTemp;
-
-        // Write to temp file
-        $writer = WriterEntityFactory::createCSVWriter($filePathTemp);
-        $writer->setFieldDelimiter(',');
-        $writer->setFieldEnclosure('"');
-        $writer->setShouldAddBOM(false);
-        $writer->openToFile($filePathTemp);
-
-        $titleRow = ['id', 'role', 'username', 'name', 'email', 'confirmed_at', 'status', 'created_at', 'updated_at', 'phone', 'address', 'kabkota', 'kecamatan', 'kelurahan', 'rw', 'rt', 'password_updated_at', 'profile_updated_at', 'last_access_at'];
-
-        $writer->addRow(WriterEntityFactory::createRowFromArray($titleRow));
-
-        $search = $search->getUserExport($params);
-        foreach ($search->each() as $key => $user) {
-            $row = [
-                $user['id'],
-                $user['role'],
-                $user['username'],
-                $user['name'],
-                $user['email'],
-                $user['confirmed_at'],
-                $user['status'],
-                $user['created_at'],
-                $user['updated_at'],
-                $user['phone'],
-                $user['address'],
-                $user['kabkota_name'],
-                $user['kec_name'],
-                $user['kel_name'],
-                $user['rw'],
-                $user['rt'],
-                $user['password_updated_at'],
-                $user['profile_updated_at'],
-                $user['last_access_at'],
-            ];
-            $writer->addRow(WriterEntityFactory::createRowFromArray($row));
-        }
-
-        // Open temp and save to flysystem
-        $stream = fopen($filePathTemp, 'r+');
-        Yii::$app->fs->writeStream($filename, $stream);
-        unlink($filePathTemp);
-
-        // Return file url
-        $filePath = $publicBaseUrl . '/' . $filename;
-
-        return $filePath;
     }
 
     /**
