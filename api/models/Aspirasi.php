@@ -305,6 +305,10 @@ class Aspirasi extends ActiveRecord
                 'title'         => "Usulan Anda dengan judul \"{$this->title}\" telah {$this->getStatusLabel()}",
                 'description'   => null,
                 'target'        => [
+                    'kabkota_id'    => $this->author->kabkota_id,
+                    'kec_id'        => $this->author->kec_id,
+                    'kel_id'        => $this->author->kel_id,
+                    'rw'            => $this->author->rw,
                     'push_token'    => $this->author->push_token,
                 ],
                 'meta'          => [
@@ -321,7 +325,7 @@ class Aspirasi extends ActiveRecord
 
     protected function isSendNotification($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST && !$insert) { // Model is updated
+        if (!YII_ENV_TEST && $this->author->hasPushToken() && !$insert) { // Model is updated
             if (array_key_exists('status', $changedAttributes)) {
                 $initialStatus = $changedAttributes['status'];
                 $currentStatus = $this->status;
