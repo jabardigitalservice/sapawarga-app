@@ -2,56 +2,21 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserImport;
 use app\models\UserImportUploadForm;
 use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
-use yii\filters\Cors;
-use yii\filters\VerbFilter;
-use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
-class StaffImportController extends Controller
+class StaffImportController extends RestController
 {
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['authenticator'] = [
-            'class' => CompositeAuth::class,
-            'authMethods' => [
-                HttpBearerAuth::class,
-            ],
-        ];
-
-        $behaviors['verbs'] = [
-            'class' => VerbFilter::class,
-            'actions' => [
-                'download-template' => ['get'],
-                'import' => ['post'],
-            ],
-        ];
-
-        $auth = $behaviors['authenticator'];
-        unset($behaviors['authenticator']);
-
-        $behaviors['corsFilter'] = [
-            'class' => Cors::class,
-            'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-            ],
-        ];
-
-        $behaviors['authenticator'] = $auth;
-        $behaviors['authenticator']['except'] = ['options'];
 
         $behaviors['access'] = [
             'class' => AccessControl::class,

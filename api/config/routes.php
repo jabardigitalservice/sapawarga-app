@@ -46,7 +46,9 @@ return [
         'routePrefix' => 'v1/staff-import',
         'rules' => [
             'GET import-template' => 'download-template',
+            'OPTIONS import-template' => 'options',
             'POST import' => 'import',
+            'OPTIONS import' => 'options',
         ],
     ],
     [
