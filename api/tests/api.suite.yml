@@ -3,11 +3,17 @@ modules:
     enabled:
         - Asserts
         - Yii2
-        - REST:
-            url: 'http://localhost/index-test.php'
+        - REST
+        - Db
+        - \Helper\Api
+    config:
+        REST:
             depends: PhpBrowser
+            url: 'http://localhost/index-test.php'
             part: Json
-        - Db:
+        Yii2:
+            transaction: false
+        Db:
             dsn: "mysql:host=%MYSQL_HOST%;dbname=%MYSQL_DATABASE%"
             user: "%MYSQL_USER%"
             password: "%MYSQL_PASSWORD%"

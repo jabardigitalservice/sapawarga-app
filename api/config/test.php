@@ -1,5 +1,7 @@
 <?php
 
+use yii\log\FileTarget;
+
 $params = include __DIR__ . '/params.php';
 
 $config = [
@@ -19,19 +21,6 @@ $config = [
                 'application/json' => 'yii\web\JsonParser',
             ],
         ],
-        'cache' => [
-            'class' => 'yii\caching\MemCache',
-            'useMemcached' => getenv('CACHE_USE_MEMCACHED'),
-            'username' => getenv('CACHE_USERNAME'),
-            'password' => getenv('CACHE_PASSWORD'),
-            'servers' => [
-                [
-                    'host' => getenv('CACHE_SERVERS'),
-                    'port' => getenv('CACHE_PORT'),
-                    'weight' => getenv('CACHE_WEIGHT'),
-                ],
-            ],
-        ],
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
@@ -46,8 +35,16 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => include __DIR__ . '/components/mailer.php',
-        'log' => include __DIR__ . '/components/log.php',
-        'queue' => include __DIR__ . '/components/queue.sync.php',
+        'log' => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets' => [
+                [
+                    'class' => FileTarget::class,
+                    'levels' => ['error', 'warning'],
+                ],
+            ],
+        ],
+        'queue' => include __DIR__ . '/components/queue.db.php',
         'db' => include __DIR__ . '/db.php',
 
         'urlManager' => [
@@ -90,7 +87,7 @@ $config = [
 
         'i18n' => include __DIR__ . '/components/i18n.php',
 
-        'fs' => getenv('APP_STORAGE_FS') === 'local' ? include __DIR__ . '/components/fs.local.php' :  include __DIR__ . '/components/fs.s3.php',
+        'fs' => include __DIR__ . '/components/fs.local.php',
     ],
     'modules' => [
         'v1' => [

@@ -1,5 +1,7 @@
 <?php
 
+use app\models\User;
+
 
 /**
  * Inherited Methods
@@ -26,20 +28,9 @@ class ApiTester extends \Codeception\Actor
             $username = 'user';
         }
 
+        $accessToken = $this->getAccessToken($username);
+
         $I = $this;
-
-        $I->haveHttpHeader('Content-Type', 'application/json');
-
-        $I->sendPOST('/v1/user/login', [
-            'LoginForm' => [
-                'username' => $username,
-                'password' => '123456',
-            ]
-        ]);
-
-        $accessToken = $I->grabDataFromResponseByJsonPath('$.data.access_token');
-        $accessToken = $accessToken[0];
-
         $I->amBearerAuthenticated($accessToken);
     }
 
@@ -49,20 +40,17 @@ class ApiTester extends \Codeception\Actor
             $username = 'admin';
         }
 
+        $accessToken = $this->getAccessToken($username);
+
         $I = $this;
-
-        $I->haveHttpHeader('Content-Type', 'application/json');
-
-        $I->sendPOST('/v1/staff/login', [
-            'LoginForm' => [
-                'username' => $username,
-                'password' => '123456',
-            ]
-        ]);
-
-        $accessToken = $I->grabDataFromResponseByJsonPath('$.data.access_token');
-        $accessToken = $accessToken[0];
-
         $I->amBearerAuthenticated($accessToken);
+    }
+
+    protected function getAccessToken($username)
+    {
+        $user = User::findByUsername($username);
+        $user->generateAccessTokenAfterUpdatingClientInfo(true);
+
+        return $user->access_token;
     }
 }
