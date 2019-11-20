@@ -325,7 +325,7 @@ class Aspirasi extends ActiveRecord
 
     protected function isSendNotification($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST && $this->author->push_token && !$insert) { // Model is updated
+        if (!YII_ENV_TEST && $this->author->hasPushToken() && !$insert) { // Model is updated
             if (array_key_exists('status', $changedAttributes)) {
                 $initialStatus = $changedAttributes['status'];
                 $currentStatus = $this->status;

@@ -1115,6 +1115,8 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return '';
     }
 
+    // Functions related to user push token
+
     public function removePushToken()
     {
         if ($this->push_token) {
@@ -1151,5 +1153,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             Message::subscribe($pushToken, [Notification::TOPIC_DEFAULT]);
             Message::subscribe($pushToken, $areaIds);
         }
+    }
+
+    public function hasPushToken()
+    {
+        // Use '==' to acommodate falsy values, e.g. null and empty string
+        return $this->push_token == true;
     }
 }
