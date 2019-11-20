@@ -10,8 +10,11 @@ settings:
     colors: true
 coverage:
     enabled: true
+    remote: true
     include:
         - models/*
+        - modules/*
+        - packages/jdsteam/sapawarga/src/*
 modules:
     config:
         Yii2:
