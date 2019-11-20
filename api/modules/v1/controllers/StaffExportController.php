@@ -46,7 +46,7 @@ class StaffExportController extends RestController
 
         $params = Yii::$app->request->getQueryParams();
         $params['max_roles'] = $maxRoleRange;
-        $params['show_saberhoax'] = $currentUser->role == User::ROLE_ADMIN ? 'yes' : 'no';
+        $params['show_saberhoax'] = $currentUser->role === User::ROLE_ADMIN;
         $params['show_trainer'] = in_array($currentUser->role, [User::ROLE_ADMIN, User::ROLE_STAFF_PROV]);
         $params['kabkota_id'] = $params['kabkota_id'] ?? $currentUser->kabkota_id;
         $params['kec_id'] = $params['kec_id'] ?? $currentUser->kec_id;

@@ -49,7 +49,7 @@ class UserExport extends Model
             ->where(['<>', 'user.status', User::STATUS_DELETED]);
 
         // Filtering by role
-        if (Arr::get($params, 'show_saberhoax') == 'no') {
+        if (Arr::get($params, 'show_saberhoax') === false) {
             $query->andWhere(['<>', 'user.role', User::ROLE_STAFF_SABERHOAX]);
         }
 
@@ -137,35 +137,41 @@ class UserExport extends Model
         $search = $this->getUserExport($params);
 
         foreach ($search->each() as $key => $user) {
-            $row = [
-                $user['id'],
-                $user['role'],
-                $user['username'],
-                $user['name'],
-                $user['email'],
-                $user['confirmed_at'],
-                $user['status'],
-                $user['created_at'],
-                $user['updated_at'],
-                $user['phone'],
-                $user['address'],
-                $user['kabkota_name'],
-                $user['kec_name'],
-                $user['kel_name'],
-                $user['rw'],
-                $user['rt'],
-                $user['password_updated_at'],
-                $user['profile_updated_at'],
-                $user['last_access_at'],
-            ];
-            $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+            $this->insertRow($writer, $user);
         }
 
-        // Open temp and save to flysystem
-        $stream = fopen($filePathTemp, 'r+');
-        Yii::$app->fs->writeStream($filename, $stream);
+        $writer->close();
 
         return $filename;
+    }
+
+    protected function insertRow(&$writer, $user)
+    {
+        $row = [
+            $user['id'],
+            $user['role'],
+            $user['username'],
+            $user['name'],
+            $user['email'],
+            $user['confirmed_at'],
+            $user['status'],
+            $user['created_at'],
+            $user['updated_at'],
+            $user['phone'],
+            $user['address'],
+            $user['kabkota_name'],
+            $user['kec_name'],
+            $user['kel_name'],
+            $user['rw'],
+            $user['rt'],
+            $user['password_updated_at'],
+            $user['profile_updated_at'],
+            $user['last_access_at'],
+        ];
+
+        $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+
+        return $writer;
     }
 
     protected function getHeaderColumns()
