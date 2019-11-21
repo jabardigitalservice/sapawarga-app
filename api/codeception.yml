@@ -10,7 +10,7 @@ settings:
     colors: true
 coverage:
     enabled: true
-    remote: true
+#    remote: true
     include:
         - models/*
         - modules/*

@@ -1,6 +1,6 @@
 <?php
 
-include '../c3.php';
+//include '../c3.php';
 
 // NOTE: Make sure this file is not accessible when deployed to production
 //Just get the headers if we can or else use the SERVER global.

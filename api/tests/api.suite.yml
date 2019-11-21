@@ -8,7 +8,7 @@ modules:
         - \Helper\Api
     config:
         REST:
-            depends: PhpBrowser
+            depends: Yii2
             url: 'http://localhost/index-test.php'
             part: Json
         Yii2:
