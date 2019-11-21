@@ -355,7 +355,7 @@ class AspirasiCest
         ]);
     }
 
-    public function postStaffCanNotUnpublishedTest(ApiTester $I)
+    public function postStaffProvCanUnpublishedTest(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -377,12 +377,12 @@ class AspirasiCest
         ];
 
         $I->sendPUT('/v1/aspirasi/1', $data);
-        $I->canSeeResponseCodeIs(403);
+        $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => false,
-            'status'  => 403,
+            'success' => true,
+            'status'  => 200,
         ]);
     }
 
