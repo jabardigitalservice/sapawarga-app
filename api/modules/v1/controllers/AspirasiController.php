@@ -113,8 +113,8 @@ class AspirasiController extends ActiveController
         $authUser = Yii::$app->user;
         $authUserId = $authUser->id;
 
-        // Allowed to update if status Draft & Rejected only except admin
-        if (! $authUser->can('admin')) {
+        // StaffRw only allowed to update if status Draft & Rejected
+        if (! $authUser->can('admin') && ! $authUser->can('staffProv')) {
             if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
                 throw new ForbiddenHttpException();
             }
@@ -245,7 +245,6 @@ class AspirasiController extends ActiveController
         $search->user      = $user;
 
         $params = Yii::$app->request->getQueryParams();
-
         return $search->search($params, true);
     }
 
@@ -265,12 +264,12 @@ class AspirasiController extends ActiveController
         $authUser = Yii::$app->user;
         $authUserId = $authUser->id;
 
-        // Admin can do everything
-        if ($authUser->can('admin')) {
+        // Admin and staffprov can update status
+        if ($authUser->can('admin') || $authUser->can('staffProv')) {
             return true;
         }
 
-        // Check access update and delete
+        // Check access update and delete for staffRw
         if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
