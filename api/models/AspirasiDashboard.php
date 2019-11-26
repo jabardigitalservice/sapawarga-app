@@ -63,20 +63,31 @@ class AspirasiDashboard extends Aspirasi
      */
     public function getAspirasiCounts($params)
     {
+        $conditional = '';
+        $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT];
+
+        $kabKotaId = Arr::get($params, 'kabkota_id');
+        if ($kabKotaId) {
+            $conditional .= 'AND kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabKotaId;
+        }
+
         // Query
-        $sql = 'SELECT 	CASE
-                    WHEN `status` = 3 THEN "STATUS_APPROVAL_REJECTED"
-                    WHEN `status` = 5 THEN "STATUS_APPROVAL_PENDING"
-                    WHEN `status` = 10 THEN "STATUS_PUBLISHED"
+        $sql = "SELECT 	CASE
+                    WHEN `status` = 3 THEN 'STATUS_APPROVAL_REJECTED'
+                    WHEN `status` = 5 THEN 'STATUS_APPROVAL_PENDING'
+                    WHEN `status` = 7 THEN 'STATUS_UNPUBLISHED'
+                    WHEN `status` = 10 THEN 'STATUS_PUBLISHED'
                     END as `status`, count(id) AS total_count
                 FROM aspirasi
                 WHERE `status` > :status_draft
+                $conditional
                 GROUP BY `status`
-                ORDER BY `status`';
+                ORDER BY `status`";
 
         $provider = new SqlDataProvider([
             'sql' => $sql,
-            'params' => [':status_draft' => Aspirasi::STATUS_DRAFT],
+            'params' => $paramsSql,
         ]);
 
         $posts = $provider->getModels();
@@ -96,20 +107,29 @@ class AspirasiDashboard extends Aspirasi
      */
     public function getAspirasiCategoryCounts($params)
     {
+        $conditional = '';
         $limit = (int) Arr::get($params, 'limit', 20);
+        $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit];
+
+        $kabKotaId = Arr::get($params, 'kabkota_id');
+        if ($kabKotaId) {
+            $conditional .= 'AND kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabKotaId;
+        }
 
         // Query
-        $sql = 'SELECT c.name, count(a.id) as total
+        $sql = "SELECT c.name, count(a.id) as total
                 FROM aspirasi a
                 LEFT JOIN categories c ON c.id = a.category_id
                 WHERE a.status > :status_draft
+                $conditional
                 GROUP BY category_id
                 ORDER BY total DESC
-                LIMIT :limit';
+                LIMIT :limit";
 
         $provider = new SqlDataProvider([
             'sql' => $sql,
-            'params' => [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit],
+            'params' => $paramsSql,
             'pagination' => false,
         ]);
 
