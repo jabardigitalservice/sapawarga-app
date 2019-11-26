@@ -13,7 +13,9 @@ class AspirasiDashboard extends Aspirasi
     /**
      * Creates data provider instance applied for get aspirasi most likes
      *
-     * @param array $paramsSql
+     * @param array $params['limit'] Limit result data
+     * @param array $params['category_id'] Filtering by category_id
+     * @param array $params['kabkota_id'] Filtering by kabkota_id
      *
      * @return SqlDataProvider
      */
@@ -59,6 +61,8 @@ class AspirasiDashboard extends Aspirasi
     /**
      * Creates data provider instance applied for get total aspirasi group by status
      *
+     * @param array $params['kabkota_id'] Filtering by kabkota_id
+     *
      * @return SqlDataProvider
      */
     public function getAspirasiCounts($params)
@@ -103,6 +107,9 @@ class AspirasiDashboard extends Aspirasi
     /**
      * Creates data provider instance applied for get total aspirasi per category
      *
+     * @param array $params['limit'] Limit result data
+     * @param array $params['kabkota_id'] Filtering by kabkota_id
+     *
      * @return SqlDataProvider
      */
     public function getAspirasiCategoryCounts($params)
@@ -139,7 +146,9 @@ class AspirasiDashboard extends Aspirasi
     /**
      * Creates data provider instance applied for get total aspirasi group by kabkota
      *
-     * @param array $paramsSql
+     * @param array $params['limit'] Limit result data
+     * @param array $params['kabkota_id'] Filtering by kabkota_id
+     * @param array $params['kec_id'] Filtering by kec_id
      *
      * @return SqlDataProvider
      */
