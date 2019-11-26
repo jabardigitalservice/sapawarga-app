@@ -76,7 +76,7 @@ class DashboardController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'],
-                    'roles' => ['staffKabKota', 'dashboardList'],
+                    'roles' => ['dashboardList'],
                 ],
             ],
         ];
