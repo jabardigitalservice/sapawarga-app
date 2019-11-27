@@ -15,9 +15,10 @@ class NewsDashboard extends News
     /**
      * Creates data provider instance applied to get news most likes per provinsi / kabkota
      *
-     * @param string $location For separated news provinsi / kabkota, value is only `provinsi` / `kabkota`
-     * @param string $start_date (optional) Default value is last two week
-     * @param string $end_date (optional) Default value is today
+     * @param string $params['location']  For separated news provinsi / kabkota, value is only `provinsi` / `kabkota`
+     * @param string $params['start_date']  Default value is last two week
+     * @param string $params['end_date']  Default value is today
+     * @param string $params['kabkota_id']  Filtering by user kabkota_id
      *
      * @return Query
      */
@@ -49,6 +50,9 @@ class NewsDashboard extends News
         }
         if ($location == 'kabkota') {
             $query->andWhere(['is not', 'kabkota_id', null]);
+        }
+        if (Arr::get($params, 'kabkota_id') != null) {
+            $query->andWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
         }
 
         return $query->all();
