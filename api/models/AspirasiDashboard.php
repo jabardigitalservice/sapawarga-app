@@ -73,15 +73,13 @@ class AspirasiDashboard extends Aspirasi
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
-        // Query
-        $sql = "SELECT 	CASE
+        $sql = "SELECT CASE
                     WHEN `status` = 3 THEN 'STATUS_APPROVAL_REJECTED'
                     WHEN `status` = 5 THEN 'STATUS_APPROVAL_PENDING'
                     WHEN `status` = 7 THEN 'STATUS_UNPUBLISHED'
                     WHEN `status` = 10 THEN 'STATUS_PUBLISHED'
                     END as `status`, count(id) AS total_count
-                FROM aspirasi
-                WHERE `status` > :status_draft
+                FROM aspirasi WHERE `status` > :status_draft
                 $conditional
                 GROUP BY `status`
                 ORDER BY `status`";
@@ -115,7 +113,6 @@ class AspirasiDashboard extends Aspirasi
         $limit = (int) Arr::get($params, 'limit', 20);
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit];
 
-        $kabKotaId = Arr::get($params, 'kabkota_id');
         if (! empty(Arr::get($params, 'kabkota_id'))) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
