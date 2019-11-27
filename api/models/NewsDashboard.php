@@ -51,9 +51,8 @@ class NewsDashboard extends News
         if ($location == 'kabkota') {
             $query->andWhere(['is not', 'kabkota_id', null]);
         }
-        if (Arr::get($params, 'kabkota_id') != null) {
-            $query->andWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
-        }
+
+        $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
 
         return $query->all();
     }
