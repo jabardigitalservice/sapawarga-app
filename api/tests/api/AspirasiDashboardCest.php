@@ -1,6 +1,6 @@
 <?php
 
-class DashboardAspirasiCest
+class AspirasiDashboardCest
 {
 
     public function _before(ApiTester $I)
@@ -253,4 +253,13 @@ class DashboardAspirasiCest
         $I->assertEquals(2, $data[0][0]['counts']);
         $I->assertEquals(6178, $data[0][0]['id']);
     }
+
+     public function _after(ApiTester $I)
+     {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+
+        // aspirasi
+        Yii::$app->db->createCommand('TRUNCATE aspirasi')->execute();
+        Yii::$app->db->createCommand('TRUNCATE aspirasi_likes')->execute();
+     }
 }
