@@ -27,17 +27,16 @@ class AspirasiDashboard extends Aspirasi
         $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED];
 
         // Filtering
-        if (! empty(Arr::get($params, 'category_id'))) {
+        if (Arr::get($params, 'category_id') != null) {
             $conditional .= 'AND a.category_id = :category_id ';
             $paramsSql[':category_id'] = Arr::get($params, 'category_id');
         }
 
-        if (! empty(Arr::get($params, 'kabkota_id'))) {
+        if (Arr::get($params, 'kabkota_id') != null) {
             $conditional .= 'AND a.kabkota_id = :kabkota_id ';
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
-        // Query
         $sql = "SELECT a.id, title, cat.name AS category_name, a.category_id, COUNT(al.aspirasi_id) AS total_likes, kabkota_id, DATE_FORMAT(FROM_UNIXTIME(a.created_at), '%d %m %Y') AS created_at
                 FROM aspirasi_likes al
                 LEFT JOIN aspirasi a ON a.id = al.aspirasi_id
@@ -47,13 +46,9 @@ class AspirasiDashboard extends Aspirasi
                 GROUP BY aspirasi_id
                 ORDER BY total_likes DESC";
 
-        return new SqlDataProvider([
-            'sql' => $sql,
-            'params' => $paramsSql,
-            'pagination' => [
-                'pageSize' => $limit,
-            ],
-        ]);
+        $provider = $this->getSqlDataProvider($sql, $paramsSql, $limit);
+
+        return $provider;
     }
 
     /**
@@ -68,7 +63,7 @@ class AspirasiDashboard extends Aspirasi
         $conditional = '';
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT];
 
-        if (! empty(Arr::get($params, 'kabkota_id'))) {
+        if (Arr::get($params, 'kabkota_id') != null) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
@@ -84,10 +79,7 @@ class AspirasiDashboard extends Aspirasi
                 GROUP BY `status`
                 ORDER BY `status`";
 
-        $provider = new SqlDataProvider([
-            'sql' => $sql,
-            'params' => $paramsSql,
-        ]);
+        $provider = $this->getSqlDataProvider($sql, $paramsSql);
 
         $posts = $provider->getModels();
 
@@ -113,12 +105,11 @@ class AspirasiDashboard extends Aspirasi
         $limit = (int) Arr::get($params, 'limit', 20);
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit];
 
-        if (! empty(Arr::get($params, 'kabkota_id'))) {
+        if (Arr::get($params, 'kabkota_id') != null) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
-        // Query
         $sql = "SELECT c.name, count(a.id) as total
                 FROM aspirasi a
                 LEFT JOIN categories c ON c.id = a.category_id
@@ -128,11 +119,7 @@ class AspirasiDashboard extends Aspirasi
                 ORDER BY total DESC
                 LIMIT :limit";
 
-        $provider = new SqlDataProvider([
-            'sql' => $sql,
-            'params' => $paramsSql,
-            'pagination' => false,
-        ]);
+        $provider = $this->getSqlDataProvider($sql, $paramsSql);
 
         return $provider->getModels();
     }
@@ -154,17 +141,17 @@ class AspirasiDashboard extends Aspirasi
         $groupBy = 'kabkota_id';
 
         // Filtering
-        if (! empty(Arr::get($params, 'kabkota_id'))) {
+        if (Arr::get($params, 'kabkota_id') != null) {
             $paramsSql[':parent_id'] = Arr::get($params, 'kabkota_id');
             $groupBy = 'kec_id';
         }
 
-        if (! empty(Arr::get($params, 'kec_id'))) {
+        if (Arr::get($params, 'kec_id') != null) {
             $paramsSql[':parent_id'] = Arr::get($params, 'kec_id');
             $groupBy = 'kel_id';
         }
 
-        $sql = "SELECT id, name, longitude, latitude, IFNULL(aspirasi.counts, 0) AS counts
+        $sql = "SELECT id, name, longitude, latitude, IFnull(aspirasi.counts, 0) AS counts
                 FROM areas
                 LEFT JOIN(
                     SELECT COUNT(a.id) AS counts, $groupBy AS area_id
@@ -176,12 +163,33 @@ class AspirasiDashboard extends Aspirasi
                 $conditional
                 ORDER BY aspirasi.counts desc, name asc";
 
-        $provider = new SqlDataProvider([
-            'sql' => $sql,
-            'params' => $paramsSql,
-            'pagination' => false,
-        ]);
+        $provider = $this->getSqlDataProvider($sql, $paramsSql);
 
         return $provider->getModels();
+    }
+
+    /**
+     * Get SqlDataProvider
+     *
+     * @param array $sql Query for get data
+     * @param array $paramsSql Query parameter of sql
+     * @param array $limit Limit result, default is 0
+     *
+     * @return SqlDataProvider
+     */
+    public function getSqlDataProvider($sql, $paramsSql, $limit = 0)
+    {
+        $pagination = false;
+        if ($limit > 0) {
+            $pagination['pageSize'] = $limit;
+        }
+
+        $provider =  new SqlDataProvider([
+            'sql' => $sql,
+            'params' => $paramsSql,
+            'pagination' => $pagination
+        ]);
+
+        return $provider;
     }
 }
