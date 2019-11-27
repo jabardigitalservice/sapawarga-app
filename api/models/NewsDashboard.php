@@ -25,10 +25,8 @@ class NewsDashboard extends News
     public function getNewsMostLikes($params)
     {
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'] . '/';
-        $today = Carbon::now();
-        $lastTwoWeeks = Carbon::now()->subDays(14);
-        $startDate = Arr::get($params, 'start_date', $lastTwoWeeks);
-        $endDate = Arr::get($params, 'end_date', $today);
+        $startDate = Arr::get($params, 'start_date', Carbon::now()->subDays(14));
+        $endDate = Arr::get($params, 'end_date', Carbon::now());
         $location = Arr::get($params, 'location');
 
         $query = new Query;
@@ -36,11 +34,9 @@ class NewsDashboard extends News
             ->from('news')
             ->where(['=', 'status', News::STATUS_PUBLISHED])
             ->andWhere(['>', 'total_viewers', 0])
-            ->andWhere([
-                'and',
+            ->andWhere(['and',
                 ['>=', 'created_at', strtotime($startDate)],
-                ['<=', 'created_at', strtotime($endDate)]
-            ])
+                ['<=', 'created_at', strtotime($endDate)]])
             ->orderBy(['total_viewers' => SORT_DESC])
             ->limit(5);
 
@@ -51,7 +47,6 @@ class NewsDashboard extends News
         if ($location == 'kabkota') {
             $query->andWhere(['is not', 'kabkota_id', null]);
         }
-
         $query->andFilterWhere(['=', 'kabkota_id', Arr::get($params, 'kabkota_id')]);
 
         return $query->all();
