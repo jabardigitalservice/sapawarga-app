@@ -27,16 +27,14 @@ class AspirasiDashboard extends Aspirasi
         $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED];
 
         // Filtering
-        $categoryId = Arr::get($params, 'category_id');
-        if ($categoryId) {
+        if (! empty(Arr::get($params, 'category_id'))) {
             $conditional .= 'AND a.category_id = :category_id ';
-            $paramsSql[':category_id'] = $categoryId;
+            $paramsSql[':category_id'] = Arr::get($params, 'category_id');
         }
 
-        $kabKotaId = Arr::get($params, 'kabkota_id');
-        if ($kabKotaId) {
+        if (! empty(Arr::get($params, 'kabkota_id'))) {
             $conditional .= 'AND a.kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = $kabKotaId;
+            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
         // Query
@@ -70,10 +68,9 @@ class AspirasiDashboard extends Aspirasi
         $conditional = '';
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT];
 
-        $kabKotaId = Arr::get($params, 'kabkota_id');
-        if ($kabKotaId) {
+        if (! empty(Arr::get($params, 'kabkota_id'))) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = $kabKotaId;
+            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
         // Query
@@ -119,9 +116,9 @@ class AspirasiDashboard extends Aspirasi
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit];
 
         $kabKotaId = Arr::get($params, 'kabkota_id');
-        if ($kabKotaId) {
+        if (! empty(Arr::get($params, 'kabkota_id'))) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = $kabKotaId;
+            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
         // Query
@@ -160,15 +157,13 @@ class AspirasiDashboard extends Aspirasi
         $groupBy = 'kabkota_id';
 
         // Filtering
-        $kabKotaId = Arr::get($params, 'kabkota_id');
-        if ($kabKotaId) {
-            $paramsSql[':parent_id'] = $kabKotaId;
+        if (! empty(Arr::get($params, 'kabkota_id'))) {
+            $paramsSql[':parent_id'] = Arr::get($params, 'kabkota_id');
             $groupBy = 'kec_id';
         }
 
-        $kecId = Arr::get($params, 'kec_id');
-        if ($kecId) {
-            $paramsSql[':parent_id'] = $kecId;
+        if (! empty(Arr::get($params, 'kec_id'))) {
+            $paramsSql[':parent_id'] = Arr::get($params, 'kec_id');
             $groupBy = 'kel_id';
         }
 
