@@ -27,14 +27,16 @@ class AspirasiDashboard extends Aspirasi
         $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED];
 
         // Filtering
-        if (Arr::get($params, 'category_id') != null) {
+        $categoryId = Arr::get($params, 'category_id');
+        if ($categoryId != null) {
             $conditional .= 'AND a.category_id = :category_id ';
-            $paramsSql[':category_id'] = Arr::get($params, 'category_id');
+            $paramsSql[':category_id'] = $categoryId;
         }
 
-        if (Arr::get($params, 'kabkota_id') != null) {
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
             $conditional .= 'AND a.kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
+            $paramsSql[':kabkota_id'] = $kabkotaId;
         }
 
         $sql = "SELECT a.id, title, cat.name AS category_name, a.category_id, COUNT(al.aspirasi_id) AS total_likes, kabkota_id, DATE_FORMAT(FROM_UNIXTIME(a.created_at), '%d %m %Y') AS created_at
@@ -43,8 +45,7 @@ class AspirasiDashboard extends Aspirasi
                 LEFT JOIN categories cat ON cat.id = a.category_id
                 WHERE a.status = :status_active
                 $conditional
-                GROUP BY aspirasi_id
-                ORDER BY total_likes DESC";
+                GROUP BY aspirasi_id ORDER BY total_likes DESC";
 
         $provider = $this->getSqlDataProvider($sql, $paramsSql, $limit);
 
@@ -63,9 +64,10 @@ class AspirasiDashboard extends Aspirasi
         $conditional = '';
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT];
 
-        if (Arr::get($params, 'kabkota_id') != null) {
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
+            $paramsSql[':kabkota_id'] = $kabkotaId;
         }
 
         $sql = "SELECT CASE
@@ -76,8 +78,7 @@ class AspirasiDashboard extends Aspirasi
                     END as `status`, count(id) AS total_count
                 FROM aspirasi WHERE `status` > :status_draft
                 $conditional
-                GROUP BY `status`
-                ORDER BY `status`";
+                GROUP BY `status` ORDER BY `status`";
 
         $provider = $this->getSqlDataProvider($sql, $paramsSql);
 
@@ -105,9 +106,10 @@ class AspirasiDashboard extends Aspirasi
         $limit = (int) Arr::get($params, 'limit', 20);
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT, ':limit' => $limit];
 
+        $kabkotaId = Arr::get($params, 'kabkota_id');
         if (Arr::get($params, 'kabkota_id') != null) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
+            $paramsSql[':kabkota_id'] = $kabkotaId;
         }
 
         $sql = "SELECT c.name, count(a.id) as total
@@ -115,8 +117,7 @@ class AspirasiDashboard extends Aspirasi
                 LEFT JOIN categories c ON c.id = a.category_id
                 WHERE a.status > :status_draft
                 $conditional
-                GROUP BY category_id
-                ORDER BY total DESC
+                GROUP BY category_id ORDER BY total DESC
                 LIMIT :limit";
 
         $provider = $this->getSqlDataProvider($sql, $paramsSql);
@@ -140,14 +141,15 @@ class AspirasiDashboard extends Aspirasi
         $paramsSql = [':status_active' => Aspirasi::STATUS_PUBLISHED, ':parent_id' => 1];
         $groupBy = 'kabkota_id';
 
-        // Filtering
-        if (Arr::get($params, 'kabkota_id') != null) {
-            $paramsSql[':parent_id'] = Arr::get($params, 'kabkota_id');
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
+            $paramsSql[':parent_id'] = $kabkotaId;
             $groupBy = 'kec_id';
         }
 
-        if (Arr::get($params, 'kec_id') != null) {
-            $paramsSql[':parent_id'] = Arr::get($params, 'kec_id');
+        $kecId = Arr::get($params, 'kec_id');
+        if ($kecId != null) {
+            $paramsSql[':parent_id'] = $kecId;
             $groupBy = 'kel_id';
         }
 
@@ -156,8 +158,7 @@ class AspirasiDashboard extends Aspirasi
                 LEFT JOIN(
                     SELECT COUNT(a.id) AS counts, $groupBy AS area_id
                     FROM aspirasi a
-                    WHERE a.status = :status_active
-                    GROUP BY $groupBy
+                    WHERE a.status = :status_active GROUP BY $groupBy
                 ) AS aspirasi ON aspirasi.area_id = areas.id
                 WHERE parent_id = :parent_id
                 $conditional
