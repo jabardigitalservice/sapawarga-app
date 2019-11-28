@@ -112,7 +112,7 @@ class StaffImportController extends RestController
      */
     protected function pushQueueJob($user, $filePath): void
     {
-        Yii::$app->queue->push(new ImportUserJob([
+        Yii::$app->queueImport->push(new ImportUserJob([
             'filePath'      => $filePath,
             'uploaderEmail' => $user->email,
         ]));

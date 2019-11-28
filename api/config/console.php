@@ -7,7 +7,7 @@ $config = [
     'id' => 'basic-console',
     'name' => 'Sapawarga',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log', 'queue'],
+    'bootstrap' => ['log', 'queue', 'queueImport'],
     'controllerNamespace' => 'app\commands',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -28,6 +28,7 @@ $config = [
         ],
         'mailer' => include __DIR__ . '/components/mailer.php',
         'queue' => include __DIR__ . '/components/queue.db.php',
+        'queueImport' => include __DIR__ . '/components/queue-import.db.php',
         'db' => $db,
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
