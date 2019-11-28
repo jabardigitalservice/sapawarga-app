@@ -10,7 +10,7 @@ use yii\filters\auth\CompositeAuth;
 use app\filters\auth\HttpBearerAuth;
 use yii\web\ServerErrorHttpException;
 
-use app\models\DashboardPolling;
+use app\models\PollingDashboard;
 use app\models\AspirasiDashboard;
 use app\models\NewsDashboard;
 
@@ -126,8 +126,9 @@ class DashboardController extends ActiveController
     public function actionPollingLatest()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
 
-        $pollingLatest = new DashboardPolling();
+        $pollingLatest = new PollingDashboard();
 
         return $pollingLatest->getPollingLatest($params);
     }
@@ -135,6 +136,7 @@ class DashboardController extends ActiveController
     public function actionNewsMostLikes()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
 
         $newsMostLikes = new NewsDashboard();
 
