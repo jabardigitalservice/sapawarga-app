@@ -6,7 +6,7 @@ use app\models\Polling;
 use app\models\PollingAnswer;
 use app\models\PollingSearch;
 use app\models\PollingVote;
-use app\models\DashboardPolling;
+use app\models\PollingDashboard;
 use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
@@ -286,7 +286,7 @@ class PollingController extends ActiveController
     {
         $params['id'] = $id;
 
-        $pollingResult = new DashboardPolling();
+        $pollingResult = new PollingDashboard();
 
         return $pollingResult->getPollingResult($params);
     }
