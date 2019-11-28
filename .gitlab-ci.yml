@@ -223,8 +223,11 @@ deploy_staging_eks:
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-import-job.yaml
 
 
 deploy_prod_eks:
@@ -299,5 +302,8 @@ deploy_prod_eks:
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-import-job.yaml
