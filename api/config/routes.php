@@ -330,9 +330,10 @@ return [
     [
         'class' => UrlRule::class,
         'controller' => 'v1/question',
-        'pluralize' => true,
-        'tokens' => [
-            '{id}' => '<id:\d+>',
-        ],
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/question-comment'],
+        'prefix' => 'v1/questions/<questionId:\d+>',
     ],
 ];
