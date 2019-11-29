@@ -27,7 +27,7 @@ class PollingDashboard extends Polling
         $conditional = 'AND u.role = ' . User::ROLE_STAFF_PROV;
         if (Arr::get($params, 'kabkota_id') != null) {
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
-            $conditional = 'AND p.kabkota_id = :kabkota_id ';
+            $conditional = 'AND (p.kabkota_id = :kabkota_id OR p.kabkota_id IS NULL ) ';
         }
 
         $sql = "SELECT p.id, p.category_id, c.name AS category_name, p.name, p.question, p.start_date, p.end_date, p.status
