@@ -51,7 +51,7 @@ class PhoneBookController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-exist', 'by-user-location'],
-                    'roles'   => ['admin', 'manageUsers'],
+                    'roles'   => ['admin', 'manageStaffs'],
                 ],
                 [
                     'allow'   => true,

@@ -46,7 +46,7 @@ class CategoryController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'types'],
-                    'roles'   => ['admin', 'manageUsers'],
+                    'roles'   => ['admin', 'staffProv'],
                 ],
                 [
                     'allow'   => true,
