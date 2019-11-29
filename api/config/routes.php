@@ -1,5 +1,6 @@
 <?php
 
+use yii\rest\UrlRule;
 use yii\web\GroupUrlRule;
 
 return [
@@ -321,6 +322,14 @@ return [
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/education-level',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => 'v1/question',
         'pluralize' => true,
         'tokens' => [
             '{id}' => '<id:\d+>',
