@@ -2,12 +2,12 @@
 
 namespace app\modules\v1\controllers;
 
-use app\models\Question;
+use app\models\QuestionComment;
 use yii\filters\AccessControl;
 
-class QuestionController extends ActiveController
+class QuestionCommentController extends ActiveController
 {
-    public $modelClass = Question::class;
+    public $modelClass = QuestionComment::class;
 
     public function behaviors()
     {
