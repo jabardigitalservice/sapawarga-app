@@ -201,9 +201,12 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
-    # Versioning api
+     # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+     # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
+     # version queue jobs import #
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
         -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
@@ -280,9 +283,12 @@ deploy_prod_eks:
     - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
-    # Version #
+    # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
+    # version queue jobs import #
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
         -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
