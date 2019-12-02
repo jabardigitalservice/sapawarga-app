@@ -40,7 +40,9 @@ class SentryTarget extends Target
      */
     public function export()
     {
-        if ($this->enabled === false) {
+        $user = Yii::$app->user->identity;
+
+        if ($this->enabled === false || $user === null) {
             return false;
         }
 
