@@ -32,4 +32,25 @@ class QuestionCommentController extends ActiveController
 
         return $behaviors;
     }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+
+        // Override Delete Action
+        unset($actions['index']);
+        unset($actions['view']);
+
+        return $actions;
+    }
+
+    public function actionIndex($questionId)
+    {
+        return ['question_id' => $questionId];
+    }
+
+    public function actionView($questionId, $id)
+    {
+        return ['question_id' => $questionId, 'id' => $id];
+    }
 }
