@@ -14,7 +14,8 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
         $this->createTable('questions', [
             "id" => $this->primaryKey(),
             "text" => $this->string()->notNull(),
-            // Model file needs 'user_name' and 'user_photo_url' properties, taking user id from 'created_by'
+            // Model file needs 'user_name', 'user_photo_url', and 'user_role_id' properties,
+            // taking reference from 'created_by'
             "top_comment_id" => $this->integer(),
             "is_liked" => $this->boolean()->defaultValue(false),
             // Properties 'likes_count' and 'comments_count' will be defined in model file
@@ -30,6 +31,15 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
             'questions',
             'top_comment_id',
             'comments',
+            'id',
+            'SET NULL'
+        );
+
+        $this->addForeignKey(
+            'fk-questions-created_by',
+            'questions',
+            'created_by',
+            'user',
             'id',
             'SET NULL'
         );
