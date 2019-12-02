@@ -18,14 +18,7 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
-        'log' => [
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
-        ],
+        'log' => include __DIR__ . '/components/log.php',
         'mailer' => include __DIR__ . '/components/mailer.php',
         'queue' => include __DIR__ . '/components/queue.db.php',
         'queueImport' => include __DIR__ . '/components/queue-import.db.php',
