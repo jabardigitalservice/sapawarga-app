@@ -45,7 +45,7 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
             'fk-questions-top_comment_id',
             'questions',
             'top_comment_id',
-            'comments',
+            'questions_comments',
             'id',
             'SET NULL'
         );
@@ -83,8 +83,13 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
      */
     public function safeDown()
     {
-        echo "m191202_081306_create_table_questions_and_questions_comments cannot be reverted.\n";
+        $this->dropForeignKey('fk-questions_comments-created_by', 'questions_comments');
+        $this->dropForeignKey('fk-questions_comments-question_id', 'questions_comments');
 
-        return false;
+        $this->dropForeignKey('fk-questions-created_by', 'questions');
+        $this->dropForeignKey('fk-questions-top_comment_id', 'questions');
+
+        $this->dropTable('questions_comments');
+        $this->dropTable('questions');
     }
 }
