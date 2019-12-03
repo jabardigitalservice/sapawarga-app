@@ -17,8 +17,7 @@ class m191202_081306_create_table_questions_and_question_comments extends Custom
             // Model file needs 'user_name', 'user_photo_url', and 'user_role_id' properties,
             // taking reference from 'created_by'
             'top_comment_id' => $this->integer(),
-            'is_liked' => $this->boolean()->defaultValue(false),
-            // Properties 'likes_count' and 'comments_count' will be defined in model file
+            // Properties 'is_liked', 'likes_count', and 'comments_count' will be defined in model file
             'status' => $this->integer()->notNull(),
             // 'created_by' and 'updated_by' are nullable to allow deleted users
             'created_by' => $this->integer(),
