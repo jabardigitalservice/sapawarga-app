@@ -80,9 +80,9 @@ class ImportUserJob extends BaseObject implements JobInterface
 
         $reader->close();
 
-        if ($this->failedRows->count() > 0) {
-            return $this->notifyImportFailed($this->failedRows);
-        }
+//        if ($this->failedRows->count() > 0) {
+//            return $this->notifyImportFailed($this->failedRows);
+//        }
 
         return $this->saveImportedRows($this->importedRows);
     }
