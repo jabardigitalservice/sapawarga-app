@@ -43,6 +43,23 @@ class QuestionCommentTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('text'));
     }
 
+    public function testIsFlaggedBoolean()
+    {
+        $model = new QuestionComment();
+
+        $model->is_flagged = 123;
+        $model->validate();
+        $this->assertTrue($model->hasErrors('is_flagged'));
+
+        $model->is_flagged = 'abc';
+        $model->validate();
+        $this->assertTrue($model->hasErrors('is_flagged'));
+
+        $model->is_flagged = true;
+        $model->validate();
+        $this->assertFalse($model->hasErrors('is_flagged'));
+    }
+
     public function testStatusInteger()
     {
         $model = new QuestionComment();
