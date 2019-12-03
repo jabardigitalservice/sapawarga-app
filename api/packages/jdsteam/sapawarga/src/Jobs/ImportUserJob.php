@@ -112,8 +112,6 @@ class ImportUserJob extends BaseObject implements JobInterface
         $cells       = $row->getCells();
         $importedRow = $this->parseRows($cells);
 
-        $this->logger->info(sprintf('Imported Row: %s', json_encode($importedRow)));
-
         $this->validateRow($importedRow);
     }
 
@@ -127,8 +125,10 @@ class ImportUserJob extends BaseObject implements JobInterface
                 'message'  => $errors,
             ];
 
-            $this->logger->info(sprintf('Imported Row (Error): %s', json_encode($errorRow)));
+            $this->logger->info(sprintf('Imported Row (Error): %s (%s)', json_encode($errorRow), json_encode($row)));
             $this->failedRows->push($errorRow);
+
+            return false;
         }
 
         $model = new UserImport();
@@ -140,11 +140,16 @@ class ImportUserJob extends BaseObject implements JobInterface
                 'message'  => $model->getFirstErrors(),
             ];
 
-            $this->logger->info(sprintf('Imported Row (Error): %s', json_encode($errorRow)));
+            $this->logger->info(sprintf('Imported Row (Error): %s (%s)', json_encode($errorRow), json_encode($row)));
             $this->failedRows->push($errorRow);
+
+            return false;
         }
 
+        $this->logger->info(sprintf('Imported Row (Success): %s', json_encode($row)));
         $this->importedRows->push($model);
+
+        return true;
     }
 
     protected function validateInCurrentFile($row): array
@@ -185,12 +190,8 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function parseRows($cells)
     {
-        $cellsCount = count($cells);
-
-        $this->logger->info("Row Cell Counts: {$cellsCount}");
-
         // if column counts is not equals as expected, something wrong with row, skip that
-        if ($cellsCount < 12) {
+        if (count($cells) < 12) {
             return null;
         }
 
