@@ -98,6 +98,8 @@ class ImportUserJob extends BaseObject implements JobInterface
         $cells       = $row->getCells();
         $importedRow = $this->parseRows($cells);
 
+        Yii::info(sprintf('Imported Row: %s', json_encode($importedRow)), 'import-users');
+
         $this->validateRow($importedRow);
     }
 
@@ -106,20 +108,26 @@ class ImportUserJob extends BaseObject implements JobInterface
         $errors = $this->validateInCurrentFile($row);
 
         if (count($errors) > 0) {
-            $this->failedRows->push([
+            $errorRow = [
                 'username' => Arr::get($row, 'username'),
                 'message'  => $errors,
-            ]);
+            ];
+
+            Yii::info(sprintf('Imported Row (Error): %s', json_encode($errorRow)), 'import-users');
+            $this->failedRows->push($errorRow);
         }
 
         $model = new UserImport();
         $model->load($row, '');
 
         if ($model->validate() === false) {
-            $this->failedRows->push([
+            $errorRow = [
                 'username' => $model->username,
                 'message'  => $model->getFirstErrors(),
-            ]);
+            ];
+
+            Yii::info(sprintf('Imported Row (Error): %s', json_encode($errorRow)), 'import-users');
+            $this->failedRows->push($errorRow);
         }
 
         $this->importedRows->push($model);
@@ -152,16 +160,23 @@ class ImportUserJob extends BaseObject implements JobInterface
 
         // If success, return temporary file path
         if (file_put_contents($filePathTemp, $contents) > 0) {
+            Yii::info("Temporary File Path: {$filePathTemp}", 'import-users');
             return $filePathTemp;
         }
+
+        Yii::info('Temporary File Path: FAILED', 'import-users');
 
         return false;
     }
 
     protected function parseRows($cells)
     {
+        $cellsCount = count($cells);
+
+        Yii::info("Row Cell Counts: {$cellsCount}", 'import-users');
+
         // if column counts is not equals as expected, something wrong with row, skip that
-        if (count($cells) < 12) {
+        if ($cellsCount < 12) {
             return null;
         }
 
@@ -192,6 +207,8 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportStarted()
     {
+        Yii::info("Import User STARTED: {$this->filePath}", 'import-users');
+
         $textBody = "Filename: {$this->filePath}";
 
         $this->sendEmail('Import User Started', $textBody);
@@ -199,6 +216,8 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailed(Collection $rows)
     {
+        Yii::info("Import User FAILED: {$this->filePath}", 'import-users');
+
         $textBody  = "Filename: {$this->filePath}\n";
 
         $textBody .= "Validation failed:\n";
@@ -215,6 +234,8 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailedMaxRows()
     {
+        Yii::info("Import User FAILED (MAX ROWS Exceeded): {$this->filePath}", 'import-users');
+
         $textBody  = "Filename: {$this->filePath}\n";
 
         $textBody .= sprintf('Total rows exceeded maximum: %s', $this->maxRows);
@@ -226,6 +247,8 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportSuccess(Collection $rows)
     {
+        Yii::info("Import User SUCCESS: {$this->filePath}", 'import-users');
+
         $textBody  = "Filename: {$this->filePath}\n";
 
         $textBody .= sprintf("Total imported rows: %s\n", $rows->count());
@@ -241,6 +264,8 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     public function notifyError(Exception $exception)
     {
+        Yii::info("Import User ERROR: {$this->filePath}", 'import-users');
+
         $textBody  = "Filename: {$this->filePath}\n";
         $textBody .= $exception->getMessage();
 
@@ -249,6 +274,7 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function sendEmail($subject, $textBody)
     {
+        return true;
         $fromEmail = Yii::$app->params['adminEmail'];
         $fromName  = Yii::$app->params['adminEmailName'];
 
