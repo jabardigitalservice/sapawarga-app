@@ -10,11 +10,12 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
+
 /**
  * This is the model class for table "question".
  *
  * @property int $id
- * @property string $question
+ * @property string $text
  * @property int $status
  * @property int $created_by
  * @property int $updated_by
@@ -33,14 +34,22 @@ class Question extends ActiveRecord implements ActiveStatus
         return 'questions';
     }
 
-    public function getComment()
-    {
-        return $this->hasMany(QuestionComment::class, ['id' => 'question_id']);
-    }
-
     public function getAuthor()
     {
-        return $this->hasOne(User::class, ['id' => 'created_id']);
+        return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    public function getComments()
+    {
+        return $this->hasMany(QuestionComment::class, ['question_id' => 'id']);
+    }
+
+    public function getLikes()
+    {
+        return $this->hasMany(User::class, ['id' => 'user_id'])
+                    ->viaTable('likes', ['entity_id' => 'id'], function ($query) {
+                        $query->andWhere(['type' => Like::TYPE_QUESTION]);
+                    });
     }
 
     /**
@@ -49,11 +58,11 @@ class Question extends ActiveRecord implements ActiveStatus
     public function rules()
     {
         return [
-            ['question', 'string', 'max' => 255],
+            ['text', 'string', 'max' => 255],
 
-            [['question'], 'trim'],
-            [['question'], 'safe'],
-            [['question'],'required'],
+            [['text'], 'trim'],
+            [['text'], 'safe'],
+            [['text'],'required'],
 
             ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
@@ -64,13 +73,15 @@ class Question extends ActiveRecord implements ActiveStatus
     {
         $fields = [
             'id',
-            'question',
-            'total_comment',
+            'text',
+            'likes_count' => 'LikesCount',
+            'comments_count' => 'CommentsCount',
             'status',
             'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
             'created_by',
+            'is_liked' => 'UserLikeField',
             'author' => 'AuthorField',
         ];
 
@@ -84,7 +95,7 @@ class Question extends ActiveRecord implements ActiveStatus
     {
         return [
             'id' => 'ID',
-            'question' => 'Pertanyaan',
+            'text' => 'Pertanyaan',
             'status' => 'Status',
         ];
     }
@@ -103,6 +114,16 @@ class Question extends ActiveRecord implements ActiveStatus
         ];
     }
 
+    protected function getLikesCount()
+    {
+        return (int)$this->getLikes()->count();
+    }
+
+    protected function getCommentsCount()
+    {
+        return (int)$this->getComments()->count();
+    }
+
     protected function getAuthorField()
     {
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
@@ -111,6 +132,21 @@ class Question extends ActiveRecord implements ActiveStatus
             'id' => $this->author->id,
             'name' => $this->author->name,
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
+            'role_label' => $this->author->getRoleLabel(),
         ];
+    }
+
+    protected function getUserLikeField()
+    {
+        $isUserLike = false;
+
+        // Query for check user is like
+        $isLiked = true;
+
+        if ($isLiked) {
+            $isUserLike = true;
+        }
+
+        return $isUserLike;
     }
 }

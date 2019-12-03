@@ -15,7 +15,7 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property int $question_id
- * @property string $comment
+ * @property string $text
  * @property int $status
  * @property int $created_by
  * @property int $updated_by
@@ -31,12 +31,12 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
      */
     public static function tableName()
     {
-        return 'question_comment';
+        return 'question_comments';
     }
 
-    public function getChannel()
+    public function getAuthor()
     {
-        return $this->hasOne(Question::class, ['id' => 'channel_id']);
+        return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
     /**
@@ -45,13 +45,13 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
     public function rules()
     {
         return [
-            ['comment', 'string', 'max' => 500],
-            ['comment', 'string', 'min' => 10],
+            ['text', 'string', 'max' => 500],
+            ['text', 'string', 'min' => 10],
 
-            [['comment'], 'trim'],
-            [['comment'], 'safe'],
+            [['text'], 'trim'],
+            [['text'], 'safe'],
 
-            [['question_id', 'comment', 'status'], 'required' ],
+            [['question_id', 'text', 'status'], 'required' ],
 
             ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
@@ -63,7 +63,7 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'question_id',
-            'comment',
+            'text',
             'status',
             'status_label' => 'StatusLabel',
             'created_at',
@@ -82,7 +82,7 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
     {
         return [
             'id' => 'ID',
-            'comment' => 'Komentar',
+            'text' => 'Komentar',
             'channel_id' => 'Website',
             'status' => 'Status',
         ];
@@ -99,6 +99,17 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
                 'value'              => time(),
             ],
             BlameableBehavior::class,
+        ];
+    }
+
+    protected function getAuthorField()
+    {
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        return [
+            'id' => $this->author->id,
+            'name' => $this->author->name,
+            'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
         ];
     }
 }

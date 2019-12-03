@@ -17,6 +17,7 @@ use yii\db\ActiveRecord;
 class Like extends ActiveRecord
 {
     const TYPE_VIDEO = 'video';
+    const TYPE_QUESTION = 'question';
 
     /**
      * {@inheritdoc}

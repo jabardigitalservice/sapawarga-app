@@ -25,7 +25,7 @@ class QuestionSearch extends Question
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'question',  Arr::get($params, 'question')]);
+        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'text')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
         return $this->getQueryAll($query, $params);
@@ -34,7 +34,7 @@ class QuestionSearch extends Question
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_date');
+        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
@@ -43,9 +43,8 @@ class QuestionSearch extends Question
             'sort'       => [
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
-                    'question',
-                    'created_date',
-                    'total_likes',
+                    'text',
+                    'created_at',
                     'status',
                 ],
             ],
