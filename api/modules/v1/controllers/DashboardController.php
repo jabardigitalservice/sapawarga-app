@@ -136,7 +136,6 @@ class DashboardController extends ActiveController
     public function actionNewsMostLikes()
     {
         $params = Yii::$app->request->getQueryParams();
-        $params = $this->filterByStaffLocation($params);
 
         $newsMostLikes = new NewsDashboard();
 

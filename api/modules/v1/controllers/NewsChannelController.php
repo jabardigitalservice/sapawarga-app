@@ -37,7 +37,7 @@ class NewsChannelController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view'],
-                    'roles'   => ['user', 'staffRW'],
+                    'roles'   => ['@'],
                 ],
             ],
         ];
