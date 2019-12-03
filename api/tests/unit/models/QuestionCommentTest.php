@@ -34,7 +34,7 @@ class QuestionCommentTest extends \Codeception\Test\Unit
         $this->assertFalse($model->hasErrors('text'));
     }
 
-    public function testTextLongCharactersShouldFail()
+    public function testTextThousandCharactersShouldFail()
     {
         $model = new QuestionComment();
 
@@ -50,7 +50,12 @@ class QuestionCommentTest extends \Codeception\Test\Unit
         $model->validate();
         $this->assertTrue($model->hasErrors('status'));
 
-        $model->status = 0;
+        $model = new QuestionComment();
+        $model->status = true;
+        $model->validate();
+        $this->assertTrue($model->hasErrors('status'));
+
+        $model->status = 10;
         $model->validate();
         $this->assertFalse($model->hasErrors('status'));
     }
@@ -61,30 +66,22 @@ class QuestionCommentTest extends \Codeception\Test\Unit
 
         // Status = DELETED
         $model->status = -1;
-
         $model->validate();
-
         $this->assertFalse($model->hasErrors('status'));
 
         // Status = DISABLED
         $model->status = 0;
-
         $model->validate();
-
         $this->assertFalse($model->hasErrors('status'));
 
         // Status = ACTIVE
         $model->status = 10;
-
         $model->validate();
-
         $this->assertFalse($model->hasErrors('status'));
 
         // Status, Random
         $model->status = 2;
-
         $model->validate();
-
         $this->assertTrue($model->hasErrors('status'));
     }
 }
