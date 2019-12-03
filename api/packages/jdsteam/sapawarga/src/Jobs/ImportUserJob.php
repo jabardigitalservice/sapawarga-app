@@ -196,24 +196,24 @@ class ImportUserJob extends BaseObject implements JobInterface
         }
 
         [$kabkota, $kecamatan, $kelurahan] = $this->mapStringToArea([
-            $cells[9]->getValue(),
-            $cells[10]->getValue(),
-            $cells[11]->getValue(),
+            trim($cells[9]->getValue()),
+            trim($cells[10]->getValue()),
+            trim($cells[11]->getValue()),
         ]);
 
-        $roleId = $cells[3]->getValue();
-        $role   = $this->getRoleValue($cells[3]->getValue());
+        $roleId = trim($cells[3]->getValue());
+        $role   = $this->getRoleValue(trim($cells[3]->getValue()));
 
         return [
-            'username'   => $cells[0]->getValue(),
-            'email'      => $cells[1]->getValue(),
-            'password'   => $cells[2]->getValue(),
+            'username'   => trim($cells[0]->getValue()),
+            'email'      => trim($cells[1]->getValue()),
+            'password'   => trim($cells[2]->getValue()),
             'role'       => $role,
-            'name'       => $cells[4]->getValue(),
-            'phone'      => $cells[5]->getValue(),
-            'address'    => $cells[6]->getValue(),
-            'rt'         => in_array($roleId, ['TRAINER', 'RW']) ? $cells[7]->getValue() : null,
-            'rw'         => in_array($roleId, ['TRAINER', 'RW']) ? $cells[8]->getValue() : null,
+            'name'       => trim($cells[4]->getValue()),
+            'phone'      => trim($cells[5]->getValue()),
+            'address'    => trim($cells[6]->getValue()),
+            'rt'         => in_array($roleId, ['TRAINER', 'RW']) ? trim($cells[7]->getValue()) : null,
+            'rw'         => in_array($roleId, ['TRAINER', 'RW']) ? trim($cells[8]->getValue()) : null,
             'kabkota_id' => $kabkota ? $kabkota->id : null,
             'kec_id'     => $kecamatan ? $kecamatan->id : null,
             'kel_id'     => $kelurahan ? $kelurahan->id : null,
