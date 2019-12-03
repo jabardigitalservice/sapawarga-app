@@ -40,9 +40,7 @@ class SentryTarget extends Target
      */
     public function export()
     {
-        $user = Yii::$app->user->identity;
-
-        if ($this->enabled === false || $user === null) {
+        if ($this->enabled === false) {
             return false;
         }
 
@@ -61,19 +59,17 @@ class SentryTarget extends Target
         }
 
         if ($text instanceof \Throwable || $text instanceof \Exception) {
-            $user = Yii::$app->user->identity;
-
             $releaseVersion = getenv('APP_VERSION');
             $releaseString  = "sapawarga-api@{$releaseVersion}";
 
             Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment, 'release' => $releaseString]);
 
-            Sentry\configureScope(function (Sentry\State\Scope $scope) use ($user): void {
-                $scope->setUser([
-                    'id' => $user->id,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                ]);
+            Sentry\configureScope(function (Sentry\State\Scope $scope) {
+                if (isset(Yii::$app->user) === false) {
+                    return false;
+                }
+
+                $this->setIdentity($scope);
             });
 
             Sentry\captureException($text);
@@ -82,13 +78,16 @@ class SentryTarget extends Target
 
     protected function setIdentity(&$scope)
     {
-        if (isset(Yii::$app->user)) {
-            $user = Yii::$app->user->identity;
-            $scope->setUser([
-                'id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email,
-            ]);
+        $user = Yii::$app->user->identity;
+
+        if ($user === null) {
+            return false;
         }
+
+        $scope->setUser([
+            'id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+        ]);
     }
 }
