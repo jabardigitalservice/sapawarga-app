@@ -16,7 +16,7 @@ class m191202_081306_create_table_questions_and_question_comments extends Custom
             'text' => $this->string()->notNull(),
             // Model file needs 'user_name', 'user_photo_url', and 'user_role_id' properties,
             // taking reference from 'created_by'
-            'top_comment_id' => $this->integer(),
+            'answer_id' => $this->integer(),
             // Properties 'is_liked', 'likes_count', and 'comments_count' will be defined in model file
             'status' => $this->integer()->notNull(),
             // 'created_by' and 'updated_by' are nullable to allow deleted users
@@ -41,9 +41,9 @@ class m191202_081306_create_table_questions_and_question_comments extends Custom
         ]);
 
         $this->addForeignKey(
-            'fk-questions-top_comment_id',
+            'fk-questions-answer_id',
             'questions',
-            'top_comment_id',
+            'answer_id',
             'question_comments',
             'id',
             'SET NULL'
@@ -86,7 +86,7 @@ class m191202_081306_create_table_questions_and_question_comments extends Custom
         $this->dropForeignKey('fk-question_comments-question_id', 'question_comments');
 
         $this->dropForeignKey('fk-questions-created_by', 'questions');
-        $this->dropForeignKey('fk-questions-top_comment_id', 'questions');
+        $this->dropForeignKey('fk-questions-answer_id', 'questions');
 
         $this->dropTable('question_comments');
         $this->dropTable('questions');
