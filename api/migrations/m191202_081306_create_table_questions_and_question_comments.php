@@ -3,8 +3,8 @@
 use app\components\CustomMigration;
 
 /**
- * Class m191202_081306_create_table_questions_and_questions_comments */
-class m191202_081306_create_table_questions_and_questions_comments extends CustomMigration
+ * Class m191202_081306_create_table_questions_and_question_comments */
+class m191202_081306_create_table_questions_and_question_comments extends CustomMigration
 {
     /**
      * {@inheritdoc}
@@ -27,7 +27,7 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
             'updated_at' => $this->integer()->notNull(),
         ]);
 
-        $this->createTable('questions_comments', [
+        $this->createTable('question_comments', [
             'id' => $this->primaryKey(),
             'question_id' => $this->integer(),
             'text' => $this->string()->notNull(),
@@ -45,7 +45,7 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
             'fk-questions-top_comment_id',
             'questions',
             'top_comment_id',
-            'questions_comments',
+            'question_comments',
             'id',
             'SET NULL'
         );
@@ -60,8 +60,8 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
         );
 
         $this->addForeignKey(
-            'fk-questions_comments-question_id',
-            'questions_comments',
+            'fk-question_comments-question_id',
+            'question_comments',
             'question_id',
             'questions',
             'id',
@@ -69,8 +69,8 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
         );
 
         $this->addForeignKey(
-            'fk-questions_comments-created_by',
-            'questions_comments',
+            'fk-question_comments-created_by',
+            'question_comments',
             'created_by',
             'user',
             'id',
@@ -83,13 +83,13 @@ class m191202_081306_create_table_questions_and_questions_comments extends Custo
      */
     public function safeDown()
     {
-        $this->dropForeignKey('fk-questions_comments-created_by', 'questions_comments');
-        $this->dropForeignKey('fk-questions_comments-question_id', 'questions_comments');
+        $this->dropForeignKey('fk-question_comments-created_by', 'question_comments');
+        $this->dropForeignKey('fk-question_comments-question_id', 'question_comments');
 
         $this->dropForeignKey('fk-questions-created_by', 'questions');
         $this->dropForeignKey('fk-questions-top_comment_id', 'questions');
 
-        $this->dropTable('questions_comments');
+        $this->dropTable('question_comments');
         $this->dropTable('questions');
     }
 }
