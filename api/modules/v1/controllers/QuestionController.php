@@ -11,7 +11,6 @@ use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 
-
 class QuestionController extends ActiveController
 {
     public $modelClass = Question::class;
@@ -93,11 +92,11 @@ class QuestionController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $user = Yii::$app->user;
-        $authUserModel = $user->identity;
-        $authKabKotaId = $authUserModel->kabkota_id;
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
 
-        if ($user->can('admin')) {
+        // Admin can do everything
+        if ($authUser->can('admin')) {
             return true;
         }
 
@@ -110,14 +109,14 @@ class QuestionController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|\app\models\News
+     * @return mixed|\app\models\Question
      * @throws \yii\web\NotFoundHttpException
      */
     public function findModel($id)
     {
-        $model = News::find()
+        $model = Question::find()
             ->where(['id' => $id])
-            ->andWhere(['!=', 'status', News::STATUS_DELETED])
+            ->andWhere(['!=', 'status', Question::STATUS_DELETED])
             ->one();
 
         if ($model === null) {

@@ -10,7 +10,6 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
-
 /**
  * This is the model class for table "question".
  *
@@ -52,6 +51,21 @@ class Question extends ActiveRecord implements ActiveStatus
                     });
     }
 
+    public function getIsLiked()
+    {
+        $isLiked = Like::find()
+            ->where(['entity_id' => $this->id])
+            ->andWhere(['type' => Like::TYPE_QUESTION])
+            ->andWhere(['user_id' => Yii::$app->user->id])
+            ->count();
+
+        if ($isLiked > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -81,7 +95,7 @@ class Question extends ActiveRecord implements ActiveStatus
             'created_at',
             'updated_at',
             'created_by',
-            'is_liked' => 'UserLikeField',
+            'is_liked' => 'isLiked',
             'author' => 'AuthorField',
         ];
 
@@ -134,19 +148,5 @@ class Question extends ActiveRecord implements ActiveStatus
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
             'role_label' => $this->author->getRoleLabel(),
         ];
-    }
-
-    protected function getUserLikeField()
-    {
-        $isUserLike = false;
-
-        // Query for check user is like
-        $isLiked = true;
-
-        if ($isLiked) {
-            $isUserLike = true;
-        }
-
-        return $isUserLike;
     }
 }
