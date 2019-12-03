@@ -2,8 +2,6 @@
 
 namespace app\commands;
 
-use app\models\Area;
-use app\models\PhoneBook;
 use Yii;
 use yii\console\Controller;
 
@@ -147,6 +145,20 @@ class SeederController extends Controller
         Yii::$app->db->createCommand('TRUNCATE releases')->execute();
 
         $sql = file_get_contents(__DIR__ . '/../migrations/seeder/release.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+    }
+
+    public function actionQuestionComment()
+    {
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+
+        Yii::$app->db->createCommand('TRUNCATE questions')->execute();
+        Yii::$app->db->createCommand('TRUNCATE question_comments')->execute();
+
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/comment.sql');
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/question.sql');
         Yii::$app->db->createCommand($sql)->execute();
     }
 
