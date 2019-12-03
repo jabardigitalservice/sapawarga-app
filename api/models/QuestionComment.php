@@ -70,15 +70,29 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
             'id',
             'question_id',
             'text',
-            'user_name' => 'UserField',
-            'user_photo_url',
-            'user_role_id',
             'is_flagged',
             'created_at',
             'updated_at',
             'created_by',
             'updated_by',
         ];
+
+        $userFields = [
+            'user_name' => function() {
+                $userFieldsArray = $this->getUserField();
+                return $userFieldsArray['name'];
+            },
+            'user_photo_url' => function() {
+                $userFieldsArray = $this->getUserField();
+                return $userFieldsArray['photo_url'];
+            },
+            'user_role_id' => function() {
+                $userFieldsArray = $this->getUserField();
+                return $userFieldsArray['role_id'];
+            },
+        ];
+
+        $fields = array_merge($fields, $userFields);
 
         return $fields;
     }
@@ -114,9 +128,9 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
         return [
-            'id' => $this->user->id,
             'name' => $this->user->name,
-            'photo_url_full' => $this->user->photo_url ? "$publicBaseUrl/{$this->user->photo_url}" : null,
+            'photo_url' => $this->user->photo_url ? "$publicBaseUrl/{$this->user->photo_url}" : null,
+            'role_id' => array_search($this->user->role, User::ROLE_MAP),
         ];
     }
 }
