@@ -20,13 +20,14 @@ class QuestionSearch extends Question
      */
     public function search($params)
     {
-        $query = Question::find();
+        $query = Question::find()->with('comments', 'likes');
         $query->andFilterWhere(['<>', 'status', Question::STATUS_DELETED]);
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'text')]);
+        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'search')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $query->andFilterWhere(['is_flagged' => Arr::get($params, 'is_flagged')]);
 
         return $this->getQueryAll($query, $params);
     }

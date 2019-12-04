@@ -11,12 +11,6 @@ return [
             'levels' => ['error', 'warning', 'info'],
         ],
         [
-            'class' => FileTarget::class,
-            'levels' => ['error', 'warning', 'info'],
-            'categories' => ['import-users'],
-            'logFile' => '@app/runtime/logs/import-users.log',
-        ],
-        [
             'class' => SentryTarget::class,
             'enabled' => env('ERROR_REPORT', false),
             'environment' => env('ERROR_ENVIRONMENT', 'staging'),

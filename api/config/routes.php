@@ -330,6 +330,13 @@ return [
     [
         'class' => UrlRule::class,
         'controller' => 'v1/question',
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
+        ]
     ],
     [
         'class' => UrlRule::class,

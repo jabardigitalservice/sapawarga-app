@@ -5,6 +5,7 @@ namespace Jdsteam\Sapawarga\Jobs;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
+use Monolog\Logger;
 use Yii;
 use app\models\Area;
 use app\models\User;
@@ -19,6 +20,11 @@ class ImportUserJob extends BaseObject implements JobInterface
 {
     public $filePath;
     public $uploaderEmail;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
 
     /**
      * @var Collection
@@ -41,6 +47,14 @@ class ImportUserJob extends BaseObject implements JobInterface
      * @var int
      */
     protected $rowNum;
+
+    public function init()
+    {
+        $monologComponent = Yii::$app->monolog;
+        $logger = $monologComponent->getLogger('import-users');
+
+        $this->logger = $logger;
+    }
 
     public function execute($queue)
     {
@@ -66,9 +80,9 @@ class ImportUserJob extends BaseObject implements JobInterface
 
         $reader->close();
 
-        if ($this->failedRows->count() > 0) {
-            return $this->notifyImportFailed($this->failedRows);
-        }
+//        if ($this->failedRows->count() > 0) {
+//            return $this->notifyImportFailed($this->failedRows);
+//        }
 
         return $this->saveImportedRows($this->importedRows);
     }
@@ -98,8 +112,6 @@ class ImportUserJob extends BaseObject implements JobInterface
         $cells       = $row->getCells();
         $importedRow = $this->parseRows($cells);
 
-        Yii::info(sprintf('Imported Row: %s', json_encode($importedRow)), 'import-users');
-
         $this->validateRow($importedRow);
     }
 
@@ -113,8 +125,10 @@ class ImportUserJob extends BaseObject implements JobInterface
                 'message'  => $errors,
             ];
 
-            Yii::info(sprintf('Imported Row (Error): %s', json_encode($errorRow)), 'import-users');
+            $this->logger->info(sprintf('Imported Row (Error): %s (%s)', json_encode($errorRow), json_encode($row)));
             $this->failedRows->push($errorRow);
+
+            return false;
         }
 
         $model = new UserImport();
@@ -126,11 +140,16 @@ class ImportUserJob extends BaseObject implements JobInterface
                 'message'  => $model->getFirstErrors(),
             ];
 
-            Yii::info(sprintf('Imported Row (Error): %s', json_encode($errorRow)), 'import-users');
+            $this->logger->info(sprintf('Imported Row (Error): %s (%s)', json_encode($errorRow), json_encode($row)));
             $this->failedRows->push($errorRow);
+
+            return false;
         }
 
+        $this->logger->info(sprintf('Imported Row (Success): %s', json_encode($row)));
         $this->importedRows->push($model);
+
+        return true;
     }
 
     protected function validateInCurrentFile($row): array
@@ -160,45 +179,41 @@ class ImportUserJob extends BaseObject implements JobInterface
 
         // If success, return temporary file path
         if (file_put_contents($filePathTemp, $contents) > 0) {
-            Yii::info("Temporary File Path: {$filePathTemp}", 'import-users');
+            $this->logger->info("Temporary File Path: {$filePathTemp}");
             return $filePathTemp;
         }
 
-        Yii::info('Temporary File Path: FAILED', 'import-users');
+        $this->logger->info('Temporary File Path: FAILED');
 
         return false;
     }
 
     protected function parseRows($cells)
     {
-        $cellsCount = count($cells);
-
-        Yii::info("Row Cell Counts: {$cellsCount}", 'import-users');
-
         // if column counts is not equals as expected, something wrong with row, skip that
-        if ($cellsCount < 12) {
+        if (count($cells) < 12) {
             return null;
         }
 
         [$kabkota, $kecamatan, $kelurahan] = $this->mapStringToArea([
-            $cells[9]->getValue(),
-            $cells[10]->getValue(),
-            $cells[11]->getValue(),
+            trim($cells[9]->getValue()),
+            trim($cells[10]->getValue()),
+            trim($cells[11]->getValue()),
         ]);
 
-        $roleId = $cells[3]->getValue();
-        $role   = $this->getRoleValue($cells[3]->getValue());
+        $roleId = trim($cells[3]->getValue());
+        $role   = $this->getRoleValue(trim($cells[3]->getValue()));
 
         return [
-            'username'   => $cells[0]->getValue(),
-            'email'      => $cells[1]->getValue(),
-            'password'   => $cells[2]->getValue(),
+            'username'   => trim($cells[0]->getValue()),
+            'email'      => trim($cells[1]->getValue()),
+            'password'   => trim($cells[2]->getValue()),
             'role'       => $role,
-            'name'       => $cells[4]->getValue(),
-            'phone'      => $cells[5]->getValue(),
-            'address'    => $cells[6]->getValue(),
-            'rt'         => in_array($roleId, ['TRAINER', 'RW']) ? $cells[7]->getValue() : null,
-            'rw'         => in_array($roleId, ['TRAINER', 'RW']) ? $cells[8]->getValue() : null,
+            'name'       => trim($cells[4]->getValue()),
+            'phone'      => trim($cells[5]->getValue()),
+            'address'    => trim($cells[6]->getValue()),
+            'rt'         => in_array($roleId, ['TRAINER', 'RW']) ? trim($cells[7]->getValue()) : null,
+            'rw'         => in_array($roleId, ['TRAINER', 'RW']) ? trim($cells[8]->getValue()) : null,
             'kabkota_id' => $kabkota ? $kabkota->id : null,
             'kec_id'     => $kecamatan ? $kecamatan->id : null,
             'kel_id'     => $kelurahan ? $kelurahan->id : null,
@@ -207,7 +222,7 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportStarted()
     {
-        Yii::info("Import User STARTED: {$this->filePath}", 'import-users');
+        $this->logger->info("Import User STARTED: {$this->filePath}");
 
         $textBody = "Filename: {$this->filePath}";
 
@@ -216,7 +231,7 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailed(Collection $rows)
     {
-        Yii::info("Import User FAILED: {$this->filePath}", 'import-users');
+        $this->logger->info("Import User FAILED: {$this->filePath}");
 
         $textBody  = "Filename: {$this->filePath}\n";
 
@@ -234,7 +249,7 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportFailedMaxRows()
     {
-        Yii::info("Import User FAILED (MAX ROWS Exceeded): {$this->filePath}", 'import-users');
+        $this->logger->info("Import User FAILED (MAX ROWS Exceeded): {$this->filePath}");
 
         $textBody  = "Filename: {$this->filePath}\n";
 
@@ -247,7 +262,7 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function notifyImportSuccess(Collection $rows)
     {
-        Yii::info("Import User SUCCESS: {$this->filePath}", 'import-users');
+        $this->logger->info("Import User SUCCESS: {$this->filePath}");
 
         $textBody  = "Filename: {$this->filePath}\n";
 
@@ -264,7 +279,7 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     public function notifyError(Exception $exception)
     {
-        Yii::info("Import User ERROR: {$this->filePath}", 'import-users');
+        $this->logger->info("Import User ERROR: {$this->filePath}");
 
         $textBody  = "Filename: {$this->filePath}\n";
         $textBody .= $exception->getMessage();
@@ -328,18 +343,22 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function mapStringToArea($row)
     {
-        [$kabkota, $kecamatan, $kelurahan] = $row;
+        [$kabkotaSource, $kecamatanSource, $kelurahanSource] = $row;
 
-        if ($kabkota !== null) {
-            $kabkota = Area::findOne(['depth' => 2, 'name' => $kabkota]);
+        $kabkota   = null;
+        $kecamatan = null;
+        $kelurahan = null;
+
+        if ($kabkotaSource !== null) {
+            $kabkota = Area::findOne(['depth' => 2, 'name' => $kabkotaSource]);
         }
 
-        if ($kabkota !== null && $kecamatan !== null) {
-            $kecamatan = Area::findOne(['parent_id' => $kabkota->id, 'name' => $kecamatan]);
+        if ($kabkota !== null && empty($kecamatanSource) === false) {
+            $kecamatan = Area::findOne(['parent_id' => $kabkota->id, 'name' => $kecamatanSource]);
         }
 
-        if ($kecamatan !== null && $kelurahan !== null) {
-            $kelurahan = Area::findOne(['parent_id' => $kecamatan->id, 'name' => $kelurahan]);
+        if ($kecamatan !== null && empty($kelurahanSource) === false) {
+            $kelurahan = Area::findOne(['parent_id' => $kecamatan->id, 'name' => $kelurahanSource]);
         }
 
         return [$kabkota, $kecamatan, $kelurahan];
