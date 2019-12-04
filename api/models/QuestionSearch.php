@@ -25,8 +25,9 @@ class QuestionSearch extends Question
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'text')]);
+        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'search')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $query->andFilterWhere(['is_flagged' => Arr::get($params, 'is_flagged')]);
 
         return $this->getQueryAll($query, $params);
     }
