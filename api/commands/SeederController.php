@@ -148,6 +148,7 @@ class SeederController extends Controller
         Yii::$app->db->createCommand($sql)->execute();
     }
 
+    // This action is manually executed, excluded from actionIndex()
     public function actionQuestionComment()
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
