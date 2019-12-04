@@ -2,7 +2,11 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\ModelHelper;
 use app\models\QuestionComment;
+use Illuminate\Support\Arr;
+use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 
 class QuestionCommentController extends ActiveController
@@ -25,7 +29,7 @@ class QuestionCommentController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create'],
-                    'roles'   => ['admin'],
+                    'roles'   => ['admin', 'staffProv'],
                 ],
             ],
         ];
@@ -37,9 +41,41 @@ class QuestionCommentController extends ActiveController
     {
         $actions = parent::actions();
 
+        unset($actions['index']);
         unset($actions['view']);
 
         return $actions;
+    }
+
+    public function actionIndex()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        // \yii\helpers\VarDumper::dump(Arr::get($params, 'questionId'));
+
+        $query = QuestionComment::find();
+        $query->andWhere(['question_id' => Arr::get($params, 'questionId')]);
+        $query->andWhere(['status' => QuestionComment::STATUS_ACTIVE]);
+
+        $pageLimit = Arr::get($params, 'limit');
+        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortOrder = Arr::get($params, 'sort_order', 'ascending');
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
+
+        return new ActiveDataProvider([
+            'query'      => $query,
+            'sort'       => [
+                'defaultOrder' => [$sortBy => $sortOrder],
+                'attributes' => [
+                    'title',
+                    'status',
+                    'created_at'
+                ],
+            ],
+            'pagination' => [
+                'pageSize' => $pageLimit,
+            ],
+        ]);
     }
 
     public function actionView($questionId, $id)
