@@ -186,8 +186,24 @@ class NewsDashboardCest
             'updated_at'    => $todayDate,
         ]);
 
+        $I->haveInDatabase('news', [
+            'id'            => 4,
+            'channel_id'    => 1,
+            'title'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin.',
+            'source_date'   => '2019-06-20',
+            'source_url'    => 'https://google.com',
+            'cover_path'    => 'covers/test.jpg',
+            'status'        => 10,
+            'total_viewers' => 90,
+            'kabkota_id'    => 23,
+            'created_at'    => $todayDate,
+            'updated_at'    => $todayDate,
+        ]);
+
         $I->amStaff('staffkabkota2');
-        $I->sendGET('/v1/dashboards/news-most-likes');
+        $I->sendGET('/v1/dashboards/news-most-likes?kabkota_id=23');
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
@@ -195,7 +211,10 @@ class NewsDashboardCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data');
 
+        $I->assertEquals(2, count($data[0]));
+
         $I->assertEquals(110, $data[0][0]['total_viewers']);
+        $I->assertEquals(90, $data[0][1]['total_viewers']);
     }
 
     public function _after(ApiTester $I)

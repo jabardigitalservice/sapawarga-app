@@ -32,7 +32,8 @@
     "vlucas/phpdotenv": "^3.5",
     "creocoder/yii2-flysystem": "^0.9.3",
     "league/flysystem-aws-s3-v3": "^1.0",
-    "box/spout": "^3.0"
+    "box/spout": "^3.0",
+    "mero/yii2-monolog": "^0.1.2"
   },
   "require-dev": {
     "codeception/codeception": "^2.5.5",
