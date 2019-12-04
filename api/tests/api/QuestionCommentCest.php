@@ -40,7 +40,7 @@ class QuestionCommentCest
 
         $I->seeResponseContainsJson([
             'success' => false,
-            'status' => 403,
+            'status'  => 403,
         ]);
     }
 
@@ -49,7 +49,10 @@ class QuestionCommentCest
         $I->amStaff('staffprov');
 
         $data = [
-            'text' => 'lorem ipsum',
+            'question_id' => 1,
+            'text'        => 'lorem ipsum',
+            'is_flagged'  => false,
+            'status'      => 10,
         ];
 
         $I->sendPOST($this->endpointComment, $data);
