@@ -20,7 +20,7 @@ class QuestionSearch extends Question
      */
     public function search($params)
     {
-        $query = Question::find();
+        $query = Question::find()->with('comments', 'likes');
         $query->andFilterWhere(['<>', 'status', Question::STATUS_DELETED]);
 
         // Filtering

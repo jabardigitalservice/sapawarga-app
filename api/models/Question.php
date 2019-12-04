@@ -52,7 +52,7 @@ class Question extends ActiveRecord implements ActiveStatus
                     });
     }
 
-    public function getIsLiked()
+    public function getIsUserLiked()
     {
         $isLiked = Like::find()
             ->where(['entity_id' => $this->id])
@@ -99,8 +99,8 @@ class Question extends ActiveRecord implements ActiveStatus
             'updated_at',
             'created_by',
             'is_flagged',
-            'is_liked' => 'isLiked',
-            'author' => 'AuthorField',
+            'is_liked' => 'IsUserLiked',
+            'user' => 'AuthorField',
         ];
 
         return $fields;
