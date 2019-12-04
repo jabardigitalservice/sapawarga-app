@@ -8,3 +8,4 @@ exclude_patterns:
   - api/messages/
   - api/web/
   - api/migrations/
+  - api/packages/mero/
