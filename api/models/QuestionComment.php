@@ -27,13 +27,6 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    /** @var string */
-    public $user_name;
-    /** @var string */
-    public $user_photo_url;
-    /** @var string */
-    public $user_role_id;
-
     /**
      * {@inheritdoc}
      */
@@ -42,7 +35,7 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
         return 'question_comments';
     }
 
-    public function getUser()
+    public function getAuthor()
     {
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
@@ -74,15 +67,11 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
 
     public function fields()
     {
-        $this->getUserField();
-
         $fields = [
             'id',
             'question_id',
             'text',
-            'user_name',
-            'user_photo_url',
-            'user_role_id',
+            'user' => 'AuthorField',
             'is_flagged',
             'created_at',
             'updated_at',
@@ -128,12 +117,15 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
         ];
     }
 
-    protected function getUserField()
+    protected function getAuthorField()
     {
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
-        $this->user_name = $this->user->name;
-        $this->user_photo_url = $this->user->photo_url ? "$publicBaseUrl/{$this->user->photo_url}" : null;
-        $this->user_role_id = array_search($this->user->role, User::ROLE_MAP);
+        return [
+            'id' => $this->author->id,
+            'name' => $this->author->name,
+            'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
+            'role_label' => $this->author->getRoleLabel(),
+        ];
     }
 }
