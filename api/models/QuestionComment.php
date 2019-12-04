@@ -27,6 +27,13 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
+    /** @var string */
+    public $user_name;
+    /** @var string */
+    public $user_photo_url;
+    /** @var string */
+    public $user_role_id;
+
     /**
      * {@inheritdoc}
      */
@@ -67,33 +74,21 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
 
     public function fields()
     {
+        $this->getUserField();
+
         $fields = [
             'id',
             'question_id',
             'text',
+            'user_name',
+            'user_photo_url',
+            'user_role_id',
             'is_flagged',
             'created_at',
             'updated_at',
             'created_by',
             'updated_by',
         ];
-
-        $userFields = [
-            'user_name' => function() {
-                $userFieldsArray = $this->getUserField();
-                return $userFieldsArray['name'];
-            },
-            'user_photo_url' => function() {
-                $userFieldsArray = $this->getUserField();
-                return $userFieldsArray['photo_url'];
-            },
-            'user_role_id' => function() {
-                $userFieldsArray = $this->getUserField();
-                return $userFieldsArray['role_id'];
-            },
-        ];
-
-        $fields = array_merge($fields, $userFields);
 
         return $fields;
     }
@@ -137,10 +132,8 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
     {
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
-        return [
-            'name' => $this->user->name,
-            'photo_url' => $this->user->photo_url ? "$publicBaseUrl/{$this->user->photo_url}" : null,
-            'role_id' => array_search($this->user->role, User::ROLE_MAP),
-        ];
+        $this->user_name = $this->user->name;
+        $this->user_photo_url = $this->user->photo_url ? "$publicBaseUrl/{$this->user->photo_url}" : null;
+        $this->user_role_id = array_search($this->user->role, User::ROLE_MAP);
     }
 }
