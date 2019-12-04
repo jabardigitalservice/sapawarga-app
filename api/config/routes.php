@@ -1,5 +1,6 @@
 <?php
 
+use yii\rest\UrlRule;
 use yii\web\GroupUrlRule;
 
 return [
@@ -325,5 +326,21 @@ return [
         'tokens' => [
             '{id}' => '<id:\d+>',
         ],
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => 'v1/question',
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
+        ]
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/question-comment'],
+        'prefix' => 'v1/questions/<questionId:\d+>',
     ],
 ];
