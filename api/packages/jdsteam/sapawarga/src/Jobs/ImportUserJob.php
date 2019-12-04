@@ -343,18 +343,22 @@ class ImportUserJob extends BaseObject implements JobInterface
 
     protected function mapStringToArea($row)
     {
-        [$kabkota, $kecamatan, $kelurahan] = $row;
+        [$kabkotaSource, $kecamatanSource, $kelurahanSource] = $row;
 
-        if ($kabkota !== null) {
-            $kabkota = Area::findOne(['depth' => 2, 'name' => $kabkota]);
+        $kabkota   = null;
+        $kecamatan = null;
+        $kelurahan = null;
+
+        if ($kabkotaSource !== null) {
+            $kabkota = Area::findOne(['depth' => 2, 'name' => $kabkotaSource]);
         }
 
-        if ($kabkota !== null && $kecamatan !== null) {
-            $kecamatan = Area::findOne(['parent_id' => $kabkota->id, 'name' => $kecamatan]);
+        if ($kabkota !== null && empty($kecamatanSource) === false) {
+            $kecamatan = Area::findOne(['parent_id' => $kabkota->id, 'name' => $kecamatanSource]);
         }
 
-        if ($kecamatan !== null && $kelurahan !== null) {
-            $kelurahan = Area::findOne(['parent_id' => $kecamatan->id, 'name' => $kelurahan]);
+        if ($kecamatan !== null && empty($kelurahanSource) === false) {
+            $kelurahan = Area::findOne(['parent_id' => $kecamatan->id, 'name' => $kelurahanSource]);
         }
 
         return [$kabkota, $kecamatan, $kelurahan];
