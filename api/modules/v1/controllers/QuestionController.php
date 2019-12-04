@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\models\Question;
 use app\models\QuestionSearch;
+use app\models\Like;
 use yii\filters\AccessControl;
 use Illuminate\Support\Arr;
 use Yii;
@@ -80,6 +81,36 @@ class QuestionController extends ActiveController
         $this->checkAccess('delete', $model, $id);
 
         return $this->applySoftDelete($model);
+    }
+
+    /**
+     * Delete entity with soft delete / status flagging
+     *
+     * @param $id
+     */
+    public function actionLikes($id)
+    {
+        $userId = Yii::$app->user->getId();
+        $userLike = Like::find()->where(['entity_id' => $id])
+            ->andWhere(['type' => Like::TYPE_QUESTION])
+            ->andWhere(['user_id' => $userId])
+            ->one();
+
+        if (! empty($userLike)) {
+            $unlike = Like::findOne($userLike->id);
+            $unlike->delete();
+        } else {
+            $like = new Like();
+            $like->entity_id = $id;
+            $like->user_id = $userId;
+            $like->type = Like::TYPE_QUESTION;
+            $like->save();
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 
     /**

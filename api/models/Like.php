@@ -3,6 +3,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "likes".
@@ -25,5 +26,18 @@ class Like extends ActiveRecord
     public static function tableName()
     {
         return 'likes';
+    }
+
+    /** @inheritdoc */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => time(),
+            ]
+        ];
     }
 }

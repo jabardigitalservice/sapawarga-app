@@ -79,7 +79,7 @@ class Question extends ActiveRecord implements ActiveStatus
             [['text'],'required'],
 
             ['status', 'integer'],
-            ['status', 'in', 'range' => [-1, 0, 10]],
+            ['status', 'in', 'range' => [-1, 0, 5, 10]],
         ];
     }
 
