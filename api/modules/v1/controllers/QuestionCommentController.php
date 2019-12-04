@@ -51,8 +51,6 @@ class QuestionCommentController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        // \yii\helpers\VarDumper::dump(Arr::get($params, 'questionId'));
-
         $query = QuestionComment::find();
         $query->andWhere(['question_id' => Arr::get($params, 'questionId')]);
         $query->andWhere(['status' => QuestionComment::STATUS_ACTIVE]);
