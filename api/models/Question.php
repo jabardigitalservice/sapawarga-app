@@ -15,6 +15,7 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $text
+ * @property bool $is_flagged
  * @property int $status
  * @property int $created_by
  * @property int $updated_by
@@ -72,14 +73,16 @@ class Question extends ActiveRecord implements ActiveStatus
     public function rules()
     {
         return [
-            ['text', 'string', 'max' => 255],
+            ['text', 'string', 'max' => 1000],
+            ['text', 'string', 'min' => 10],
 
             [['text'], 'trim'],
             [['text'], 'safe'],
-            [['text'],'required'],
+            [['text', 'status'],'required'],
 
-            ['status', 'integer'],
-            ['status', 'in', 'range' => [-1, 0, 5, 10]],
+            [['status', 'answer_id', 'is_flagged'], 'integer'],
+            ['status', 'in', 'range' => [-1, 0, 10]],
+            ['is_flagged', 'in', 'range' => [0, 1]],
         ];
     }
 
@@ -95,6 +98,7 @@ class Question extends ActiveRecord implements ActiveStatus
             'created_at',
             'updated_at',
             'created_by',
+            'is_flagged',
             'is_liked' => 'isLiked',
             'author' => 'AuthorField',
         ];
