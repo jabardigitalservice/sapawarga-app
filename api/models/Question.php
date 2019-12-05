@@ -52,6 +52,11 @@ class Question extends ActiveRecord implements ActiveStatus
                     });
     }
 
+    public function getLastAnswer()
+    {
+        return QuestionComment::findOne($this->answer_id);
+    }
+
     public function getIsUserLiked()
     {
         $isLiked = Like::find()
@@ -93,6 +98,8 @@ class Question extends ActiveRecord implements ActiveStatus
             'text',
             'likes_count' => 'LikesCount',
             'comments_count' => 'CommentsCount',
+            'answer_id',
+            'answer' => 'lastAnswer',
             'status',
             'status_label' => 'StatusLabel',
             'created_at',
