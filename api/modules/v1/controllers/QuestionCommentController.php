@@ -33,6 +33,11 @@ class QuestionCommentController extends ActiveController
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
                     'roles'   => ['admin', 'staffProv'],
                 ],
+                [
+                    'allow'   => true,
+                    'actions' => ['index', 'view'],
+                    'roles'   => ['staffRW', 'trainer', 'user'],
+                ],
             ],
         ];
 
