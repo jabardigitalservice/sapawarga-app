@@ -85,22 +85,6 @@ class StaffCest
         ]);
     }
 
-    public function staffLogin(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-        $I->seeResponseMatchesJsonType([
-            'id' => 'integer',
-            'access_token' => 'string',
-        ], '$.data');
-    }
-
     public function staffCreateStaffInvalidFields(ApiTester $I)
     {
         $I->amStaff();
@@ -261,14 +245,14 @@ class StaffCest
         ]);
     }
 
-    public function getItemInvalidParam(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $I->sendGET($this->endpointStaff . '/xsA2#');
-        $I->canSeeResponseCodeIs(400); // Bad Request
-        $I->seeResponseIsJson();
-    }
+//    public function getItemInvalidParam(ApiTester $I)
+//    {
+//        $I->amStaff();
+//
+//        $I->sendGET($this->endpointStaff . '/xsA2#');
+//        $I->canSeeResponseCodeIs(400); // Bad Request
+//        $I->seeResponseIsJson();
+//    }
 
     public function getItemNotFound(ApiTester $I)
     {

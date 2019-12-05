@@ -1,8 +1,11 @@
 version: "2"
 exclude_patterns:
   - assets/
+  - api/c3.php
+  - api/config/
   - api/vendor/
   - api/tests/
   - api/messages/
   - api/web/
   - api/migrations/
+  - api/packages/mero/

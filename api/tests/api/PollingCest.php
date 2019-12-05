@@ -110,67 +110,67 @@ class PollingCest
         ]);
     }
 
-    public function postStaffCreateTest(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $data = [
-            'name'        => 'Lorem Ipsum Dolor Sit Amet',
-            'question'    => 'Lorem ipsum updated',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            'excerpt'     => 'Lorem ipsum dolor sit amet',
-            'start_date'  => '2019-06-01',
-            'end_date'    => '2019-09-01',
-            'created_by'  => 1,
-            'updated_by'  => 1,
-            'kabkota_id'  => 22,
-            'kec_id'      => 446,
-            'kel_id'      => 6082,
-            'status'      => 0,
-            'category_id' => 17,
-            'answers'     => [
-                ['body' => 'Option A'],
-                ['body' => 'Option B'],
-                ['body' => 'Option C'],
-            ],
-        ];
-
-        $I->sendPOST('/v1/polling', $data);
-        $I->canSeeResponseCodeIs(201);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 201,
-        ]);
-
-        $I->seeInDatabase('polling', [
-            'name'        => 'Lorem Ipsum Dolor Sit Amet',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            'excerpt'     => 'Lorem ipsum dolor sit amet',
-            'start_date'  => '2019-06-01',
-            'end_date'    => '2019-09-01',
-            'kabkota_id'  => 22,
-            'kec_id'      => 446,
-            'kel_id'      => 6082,
-            'status'      => 0,
-            'category_id' => 17,
-            'created_by'  => 1,
-            'updated_by'  => 1,
-        ]);
-
-        $I->seeInDatabase('polling_answers', [
-            'body' => 'Option A',
-        ]);
-
-        $I->seeInDatabase('polling_answers', [
-            'body' => 'Option B',
-        ]);
-
-        $I->seeInDatabase('polling_answers', [
-            'body' => 'Option C',
-        ]);
-    }
+//    public function postStaffCreateTest(ApiTester $I)
+//    {
+//        $I->amStaff();
+//
+//        $data = [
+//            'name'        => 'Lorem Ipsum Dolor Sit Amet',
+//            'question'    => 'Lorem ipsum updated',
+//            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+//            'excerpt'     => 'Lorem ipsum dolor sit amet',
+//            'start_date'  => '2019-06-01',
+//            'end_date'    => '2019-09-01',
+//            'created_by'  => 1,
+//            'updated_by'  => 1,
+//            'kabkota_id'  => 22,
+//            'kec_id'      => 446,
+//            'kel_id'      => 6082,
+//            'status'      => 0,
+//            'category_id' => 17,
+//            'answers'     => [
+//                ['body' => 'Option A'],
+//                ['body' => 'Option B'],
+//                ['body' => 'Option C'],
+//            ],
+//        ];
+//
+//        $I->sendPOST('/v1/polling', $data);
+//        $I->canSeeResponseCodeIs(201);
+//        $I->seeResponseIsJson();
+//
+//        $I->seeResponseContainsJson([
+//            'success' => true,
+//            'status'  => 201,
+//        ]);
+//
+//        $I->seeInDatabase('polling', [
+//            'name'        => 'Lorem Ipsum Dolor Sit Amet',
+//            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+//            'excerpt'     => 'Lorem ipsum dolor sit amet',
+//            'start_date'  => '2019-06-01',
+//            'end_date'    => '2019-09-01',
+//            'kabkota_id'  => 22,
+//            'kec_id'      => 446,
+//            'kel_id'      => 6082,
+//            'status'      => 0,
+//            'category_id' => 17,
+//            'created_by'  => 1,
+//            'updated_by'  => 1,
+//        ]);
+//
+//        $I->seeInDatabase('polling_answers', [
+//            'body' => 'Option A',
+//        ]);
+//
+//        $I->seeInDatabase('polling_answers', [
+//            'body' => 'Option B',
+//        ]);
+//
+//        $I->seeInDatabase('polling_answers', [
+//            'body' => 'Option C',
+//        ]);
+//    }
 
     public function postUpdateTest(ApiTester $I)
     {
