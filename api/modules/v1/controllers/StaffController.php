@@ -164,20 +164,6 @@ class StaffController extends ActiveController
         return $search->getDataProvider();
     }
 
-    public function findModel($id)
-    {
-        $model = User::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', User::STATUS_DELETED])
-            ->one();
-
-        if (isset($model)) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException("Object not found: $id");
-    }
-
     /**
      * User Export to csv
      *
@@ -309,7 +295,7 @@ class StaffController extends ActiveController
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         if (Yii::$app->user->can('edit_user', ['record' => $model]) === false) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
@@ -365,7 +351,7 @@ class StaffController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         if (Yii::$app->user->can('view_user', ['record' => $model]) === false) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
@@ -398,7 +384,7 @@ class StaffController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         if (Yii::$app->user->can('delete_user', ['record' => $model]) === false) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));

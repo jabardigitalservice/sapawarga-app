@@ -6,6 +6,7 @@ use app\filters\auth\HttpBearerAuth;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
+use yii\web\NotFoundHttpException;
 use Yii;
 
 class ActiveController extends BaseActiveController
@@ -66,6 +67,28 @@ class ActiveController extends BaseActiveController
         $behaviors['authenticator']['except'] = ['options', 'public'];
 
         return $this->behaviorAccess($behaviors);
+    }
+
+    /**
+     * Wrapper override function for actionView's findModel
+     *
+     * @param $id
+     * @param $class
+     * @return mixed|Class
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function findModel($id, $class)
+    {
+        $model = $class::find()
+            ->where(['id' => $id])
+            ->andWhere(['!=', 'status', $class::STATUS_DELETED])
+            ->one();
+
+        if ($model === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        return $model;
     }
 
     protected function applySoftDelete($model)
