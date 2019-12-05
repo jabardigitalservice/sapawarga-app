@@ -68,15 +68,26 @@ class NewsImportantController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
+        // Override Actions
+        unset($actions['view']);
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|NewsImportant
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -153,7 +164,7 @@ class NewsImportantController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -175,25 +186,6 @@ class NewsImportantController extends ActiveController
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
             }
         }
-    }
-
-    /**
-     * @param $id
-     * @return mixed|\app\models\NewsImportant
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = NewsImportant::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', NewsImportant::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

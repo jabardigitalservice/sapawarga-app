@@ -120,7 +120,7 @@ class NotificationController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -145,10 +145,11 @@ class NotificationController extends ActiveController
 
     /**
      * @param $id
+     * @param $class
      * @return mixed|Notification
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function findModel($id, $class)
     {
         $status = [Notification::STATUS_PUBLISHED];
         $user = User::findIdentity(Yii::$app->user->getId());

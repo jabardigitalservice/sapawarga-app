@@ -68,7 +68,7 @@ class NewsHoaxController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         return $this->applySoftDelete($model);
     }
@@ -78,7 +78,7 @@ class NewsHoaxController extends ActiveController
      * @return mixed|\app\models\News
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function findModel($id, $class)
     {
         $query = NewsHoax::find()
             ->where(['id' => $id])
