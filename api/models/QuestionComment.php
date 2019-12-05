@@ -2,20 +2,21 @@
 
 namespace app\models;
 
-use app\components\ModelHelper;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "question_comment".
+ * This is the model class for table "question_comments".
  *
  * @property int $id
  * @property int $question_id
  * @property string $text
+ * @property boolean $is_flagged
  * @property int $status
  * @property int $created_by
  * @property int $updated_by
@@ -39,6 +40,11 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
+    public function getQuestion()
+    {
+        return $this->hasOne(Question::class, ['id' => 'question_id']);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -46,12 +52,13 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
     {
         return [
             ['text', 'string', 'max' => 500],
-            ['text', 'string', 'min' => 10],
 
             [['text'], 'trim'],
             [['text'], 'safe'],
 
             [['question_id', 'text', 'status'], 'required' ],
+
+            ['is_flagged', 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
 
             ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
@@ -64,12 +71,12 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
             'id',
             'question_id',
             'text',
-            'status',
-            'status_label' => 'StatusLabel',
+            'user' => 'AuthorField',
+            'is_flagged',
             'created_at',
             'updated_at',
             'created_by',
-            'author' => 'AuthorField',
+            'updated_by',
         ];
 
         return $fields;
@@ -83,7 +90,6 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
         return [
             'id' => 'ID',
             'text' => 'Komentar',
-            'channel_id' => 'Website',
             'status' => 'Status',
         ];
     }
@@ -98,6 +104,15 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_flagged' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterValidate' => false,
+                'typecastBeforeSave' => false,
+                'typecastAfterFind' => true,
+            ],
             BlameableBehavior::class,
         ];
     }
@@ -110,6 +125,7 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
             'id' => $this->author->id,
             'name' => $this->author->name,
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
+            'role_label' => $this->author->getRoleLabel(),
         ];
     }
 }
