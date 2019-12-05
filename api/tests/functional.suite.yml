@@ -15,8 +15,9 @@ modules:
 #      - Db
     config:
       REST:
-        depends: PhpBrowser
-        url: 'http://localhost'
+        depends: Yii2
+        url: 'http://localhost/index-test.php'
+        part: Json
 #     Db:
 #       dsn: 'mysql:host=localhost;dbname=test_db'
 #       user: 'test_user'
