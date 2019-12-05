@@ -25,6 +25,19 @@ class QuestionCommentCest
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(2, $data[0][1]['id']);
         $I->assertEquals(3, $data[0][2]['id']);
+
+
+        $I->amUser('staffrw');
+
+        $I->sendGET($this->endpointComment);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
     }
 
     // This test case will be revised when staffRWs are allowed to post comment
