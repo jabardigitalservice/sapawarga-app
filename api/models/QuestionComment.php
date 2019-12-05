@@ -128,4 +128,14 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
             'role_label' => $this->author->getRoleLabel(),
         ];
     }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert && Yii::$app->user->can('staffProv')) { // Model is created
+            // Set staffProv's latest comment as answer to the question
+            $this->question->answer_id = $this->id;
+            $this->question->save(false);
+        }
+        return parent::afterSave($insert, $changedAttributes);
+    }
 }

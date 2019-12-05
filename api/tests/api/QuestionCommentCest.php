@@ -83,5 +83,10 @@ class QuestionCommentCest
             'status'      => 10,
             'created_by'  => 2,
         ]);
+
+        $I->seeInDatabase('questions', [
+            'id' => 1,
+            'answer_id' => 6,
+        ]);
     }
 }
