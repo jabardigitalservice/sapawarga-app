@@ -50,13 +50,24 @@ class SurveyController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
+        // Override Actions
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|Survey
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -70,7 +81,7 @@ class SurveyController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -91,25 +102,6 @@ class SurveyController extends ActiveController
     public function checkAccess($action, $model = null, $params = [])
     {
         //
-    }
-
-    /**
-     * @param $id
-     * @return mixed|Survey
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Survey::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Survey::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

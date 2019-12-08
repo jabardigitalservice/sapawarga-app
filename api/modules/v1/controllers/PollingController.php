@@ -78,15 +78,26 @@ class PollingController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
+        // Override Actions
+        unset($actions['view']);
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|Polling
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -128,7 +139,7 @@ class PollingController extends ActiveController
 
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
@@ -160,7 +171,7 @@ class PollingController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -305,25 +316,6 @@ class PollingController extends ActiveController
     public function checkAccess($action, $model = null, $params = [])
     {
         //
-    }
-
-    /**
-     * @param $id
-     * @return mixed|Polling
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Polling::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Polling::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

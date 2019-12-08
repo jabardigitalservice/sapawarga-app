@@ -71,6 +71,11 @@ class BannerController extends ActiveController
         return $actions;
     }
 
+    /**
+     * @param $id
+     * @return mixed|Banner
+     * @throws \yii\web\NotFoundHttpException
+     */
     public function actionView($id)
     {
         $model = $this->findModel($id, $this->modelClass);
