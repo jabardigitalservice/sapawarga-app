@@ -925,7 +925,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
-    private function getRoleName()
+    public function getRoleName()
     {
         $roles = [
             self::ROLE_USER => 'user',
