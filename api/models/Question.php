@@ -157,7 +157,7 @@ class Question extends ActiveRecord implements ActiveStatus
             'id' => $this->author->id,
             'name' => $this->author->name,
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
-            'role_label' => $this->author->getRoleLabel(),
+            'role_label' => $this->author->getRoleName(),
         ];
     }
 }
