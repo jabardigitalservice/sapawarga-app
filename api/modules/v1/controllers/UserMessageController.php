@@ -109,7 +109,7 @@ class UserMessageController extends ActiveController
      * @return mixed|\app\models\UserMessage
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function findModel($id, $class)
     {
         $idDecode = $this->decodeHashIds([$id]);
 
@@ -152,7 +152,7 @@ class UserMessageController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         // Mark UserMessage as read
         $model->touch('read_at');
@@ -175,7 +175,7 @@ class UserMessageController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         return $this->applySoftDelete($model);
     }
