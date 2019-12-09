@@ -75,11 +75,11 @@ class NewsController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
+        // Override Actions
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
     }
@@ -95,7 +95,7 @@ class NewsController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -202,16 +202,9 @@ class NewsController extends ActiveController
      * @return mixed|\app\models\News
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function actionView($id)
     {
-        $model = News::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', News::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
+        $model = $this->findModel($id, $this->modelClass);
 
         // Increment total views for specific role
         if (Yii::$app->user->can('newsList')) {

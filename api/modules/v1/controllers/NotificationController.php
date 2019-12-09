@@ -120,7 +120,7 @@ class NotificationController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -144,11 +144,12 @@ class NotificationController extends ActiveController
     }
 
     /**
-     * @param $id
+     * @param string $id
+     * @param $model
      * @return mixed|Notification
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function findModel(string $id, $model)
     {
         $status = [Notification::STATUS_PUBLISHED];
         $user = User::findIdentity(Yii::$app->user->getId());
@@ -157,41 +158,41 @@ class NotificationController extends ActiveController
             \array_push($status, Notification::STATUS_DRAFT);
         }
 
-        $model = Notification::find()
+        $searchedModel = Notification::find()
             ->where(['id' => $id])
             ->andWhere(['in', 'status',  $status]);
 
         if ($user->role < User::ROLE_ADMIN) {
             // staff dan user hanya boleh melihat Notification yang sesuai dengan area mereka
             if ($user->kabkota_id) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['kabkota_id' => $user->kabkota_id],
                 ['kabkota_id' => null]]);
             }
             if ($user->kec_id) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['kec_id' => $user->kec_id],
                 ['kec_id' => null]]);
             }
             if ($user->kel_id) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['kel_id' => $user->kel_id],
                 ['kel_id' => null]]);
             }
             if ($user->rw) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['rw' => $user->rw],
                 ['rw' => null]]);
             }
         }
 
-        $model = $model->one();
+        $searchedModel = $searchedModel->one();
 
-        if ($model === null) {
+        if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $model;
+        return $searchedModel;
     }
 
     public function prepareDataProvider()

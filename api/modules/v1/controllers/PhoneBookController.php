@@ -68,16 +68,25 @@ class PhoneBookController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
+        // Override Actions
+        unset($actions['view']);
+        unset($actions['create']);
         unset($actions['delete']);
 
-        // Override Create Action
-        unset($actions['create']);
-
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|PhoneBook
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     public function actionCreate()
@@ -111,7 +120,7 @@ class PhoneBookController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -194,25 +203,6 @@ class PhoneBookController extends ActiveController
     public function checkAccess($action, $model = null, $params = [])
     {
         // throw new ForbiddenHttpException();
-    }
-
-    /**
-     * @param $id
-     * @return mixed|PhoneBook
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = PhoneBook::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', PhoneBook::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

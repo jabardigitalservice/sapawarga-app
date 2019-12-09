@@ -48,12 +48,23 @@ class QuestionCommentController extends ActiveController
     {
         $actions = parent::actions();
 
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|QuestionComment
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -67,7 +78,7 @@ class QuestionCommentController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -95,25 +106,6 @@ class QuestionCommentController extends ActiveController
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
             }
         }
-    }
-
-    /**
-     * @param $id
-     * @return mixed|\app\models\QuestionComment
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = QuestionComment::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', QuestionComment::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

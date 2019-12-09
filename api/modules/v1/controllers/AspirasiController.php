@@ -72,15 +72,21 @@ class AspirasiController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
+        // Override Actions
+        unset($actions['view']);
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     public function actionCreate()
@@ -106,7 +112,7 @@ class AspirasiController extends ActiveController
 
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('update', $model);
 
@@ -147,7 +153,7 @@ class AspirasiController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         // Allowed to update if status Draft & Rejected only
         if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
@@ -163,7 +169,7 @@ class AspirasiController extends ActiveController
 
     public function actionApproval($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         if ($model->status !== Aspirasi::STATUS_APPROVAL_PENDING) {
             $response = Yii::$app->getResponse();
@@ -214,7 +220,7 @@ class AspirasiController extends ActiveController
         /**
          * @var Aspirasi $model
          */
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $count = (new \yii\db\Query())
             ->from('aspirasi_likes')
@@ -286,24 +292,5 @@ class AspirasiController extends ActiveController
         $search->user = $user;
 
         return $search->search($params);
-    }
-
-    /**
-     * @param $id
-     * @return mixed|Aspirasi
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Aspirasi::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Aspirasi::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 }

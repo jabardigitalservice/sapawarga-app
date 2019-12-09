@@ -63,14 +63,25 @@ class PopupController extends ActiveController
         $actions = parent::actions();
 
         // Override Delete Action
-        unset($actions['delete']);
+        unset($actions['view']);
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|Popup
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -144,7 +155,7 @@ class PopupController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -166,25 +177,6 @@ class PopupController extends ActiveController
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
             }
         }
-    }
-
-    /**
-     * @param $id
-     * @return mixed|\app\models\Popup
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Popup::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Popup::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

@@ -105,11 +105,12 @@ class UserMessageController extends ActiveController
     }
 
     /**
-     * @param $id
+     * @param string $id
+     * @param $model
      * @return mixed|\app\models\UserMessage
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function findModel(string $id, $model)
     {
         $idDecode = $this->decodeHashIds([$id]);
 
@@ -119,17 +120,17 @@ class UserMessageController extends ActiveController
 
         $userDetail = User::findIdentity(Yii::$app->user->getId());
 
-        $model = UserMessage::find()
+        $searchedModel = UserMessage::find()
             ->where(['id' => $idDecode[0]])
             ->andWhere(['<>', 'status', UserMessage::STATUS_DELETED])
             ->andWhere(['=', 'recipient_id', $userDetail->id])
             ->one();
 
-        if ($model === null) {
+        if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $model;
+        return $searchedModel;
     }
 
     public function prepareDataProvider()
@@ -152,7 +153,7 @@ class UserMessageController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         // Mark UserMessage as read
         $model->touch('read_at');
@@ -175,7 +176,7 @@ class UserMessageController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         return $this->applySoftDelete($model);
     }
