@@ -74,11 +74,12 @@ class NewsHoaxController extends ActiveController
     }
 
     /**
-     * @param $id
+     * @param string $id
+     * @param $model
      * @return mixed|\app\models\News
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id, $class)
+    public function findModel(string $id, $model)
     {
         $query = NewsHoax::find()
             ->where(['id' => $id])
@@ -90,13 +91,13 @@ class NewsHoaxController extends ActiveController
             $query = $query->andWhere(['!=', 'status', NewsHoax::STATUS_DISABLED]);
         }
 
-        $model = $query->one();
+        $searchedModel = $query->one();
 
-        if ($model === null) {
+        if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $model;
+        return $searchedModel;
     }
 
 

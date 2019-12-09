@@ -233,12 +233,12 @@ class BroadcastController extends ActiveController
     }
 
     /**
-     * @param $id
-     * @param $class
+     * @param string $id
+     * @param $model
      * @return mixed|Broadcast
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id, $class)
+    public function findModel(string $id, $model)
     {
         $status = [
             Broadcast::STATUS_DRAFT,
@@ -248,41 +248,41 @@ class BroadcastController extends ActiveController
 
         $user = User::findIdentity(Yii::$app->user->getId());
 
-        $model = Broadcast::find()
+        $searchedModel = Broadcast::find()
             ->where(['id' => $id])
             ->andWhere(['in', 'status',  $status]);
 
         if ($user->role < User::ROLE_ADMIN) {
             // staff dan user hanya boleh melihat broadcast yang sesuai dengan area mereka
             if ($user->kabkota_id) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['kabkota_id' => $user->kabkota_id],
                 ['kabkota_id' => null]]);
             }
             if ($user->kec_id) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['kec_id' => $user->kec_id],
                 ['kec_id' => null]]);
             }
             if ($user->kel_id) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['kel_id' => $user->kel_id],
                 ['kel_id' => null]]);
             }
             if ($user->rw) {
-                $model->andWhere(['or',
+                $searchedModel->andWhere(['or',
                 ['rw' => $user->rw],
                 ['rw' => null]]);
             }
         }
 
-        $model = $model->one();
+        $searchedModel = $searchedModel->one();
 
-        if ($model === null) {
+        if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $model;
+        return $searchedModel;
     }
 
     public function prepareDataProvider()

@@ -73,23 +73,23 @@ class ActiveController extends BaseActiveController
     /**
      * Wrapper override function for actionView's findModel
      *
-     * @param int $id
-     * @param string $className
+     * @param string $id
+     * @param $model
      * @return mixed|ActiveRecord
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel(int $id, string $className)
+    public function findModel(string $id, $model)
     {
-        $model = $className::find()
+        $searchedModel = $model::find()
             ->where(['id' => $id])
-            ->andWhere(['!=', 'status', $className::STATUS_DELETED])
+            ->andWhere(['!=', 'status', $model::STATUS_DELETED])
             ->one();
 
-        if ($model === null) {
+        if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $model;
+        return $searchedModel;
     }
 
     protected function applySoftDelete($model)
