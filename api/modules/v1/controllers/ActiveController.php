@@ -3,6 +3,7 @@
 namespace app\modules\v1\controllers;
 
 use app\filters\auth\HttpBearerAuth;
+use yii\db\ActiveRecord;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
@@ -72,16 +73,16 @@ class ActiveController extends BaseActiveController
     /**
      * Wrapper override function for actionView's findModel
      *
-     * @param $id
-     * @param $class
-     * @return mixed|Class
+     * @param int $id
+     * @param string $className
+     * @return mixed|ActiveRecord
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id, $class)
+    public function findModel(int $id, string $className)
     {
-        $model = $class::find()
+        $model = $className::find()
             ->where(['id' => $id])
-            ->andWhere(['!=', 'status', $class::STATUS_DELETED])
+            ->andWhere(['!=', 'status', $className::STATUS_DELETED])
             ->one();
 
         if ($model === null) {
