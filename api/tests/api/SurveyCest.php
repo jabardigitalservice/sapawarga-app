@@ -36,7 +36,6 @@ class SurveyCest
         ]);
     }
 
-    // TODO add more cases with area ids
     public function getUserRwListTest(ApiTester $I)
     {
         $I->haveInDatabase('survey', [
@@ -44,12 +43,9 @@ class SurveyCest
             'title'        => 'Lorem ipsum.',
             'status'       => 10,
             'category_id'  => 20,
-            'kabkota_id'   => 23,
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
-            'created_at'   => '1554706345',
-            'updated_at'   => '1554706345',
         ]);
 
         $I->haveInDatabase('survey', [
@@ -57,12 +53,21 @@ class SurveyCest
             'title'        => 'Lorem ipsum.',
             'status'       => 10,
             'category_id'  => 20,
+            'kabkota_id'   => 23,
+            'start_date'   => (new Carbon())->toDateString(),
+            'end_date'     => (new Carbon())->addDays(7)->toDateString(),
+            'external_url' => 'http://google.com',
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 3,
+            'title'        => 'Lorem ipsum.',
+            'status'       => 10,
+            'category_id'  => 20,
             'kabkota_id'   => 22,
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
-            'created_at'   => '1554706345',
-            'updated_at'   => '1554706345',
         ]);
 
         $I->amUser('staffrw');
@@ -71,10 +76,11 @@ class SurveyCest
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
-        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
-        $I->assertEquals(2, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
     }
 
     public function getUserListPublishedShowTest(ApiTester $I)
@@ -256,7 +262,6 @@ class SurveyCest
         ]);
     }
 
-    // TODO add more cases with kec_id and kel_id
     public function getAdminListFilterAreaTest(ApiTester $I)
     {
         $I->haveInDatabase('survey', [
