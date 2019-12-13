@@ -63,8 +63,6 @@ class StaffController extends ActiveController
                 'getPermissions' => ['get'],
                 'photo-upload' => ['post'],
                 'me' => ['get', 'post'],
-                'export' => ['get'],
-                'import' => ['post'],
             ],
         ];
 
@@ -96,7 +94,7 @@ class StaffController extends ActiveController
             'class' => AccessControl::className(),
             'only' => [
                 'index', 'view', 'create', 'update', 'delete',
-                'photo-upload', 'import', 'import-template', 'getPermissions'
+                'photo-upload', 'getPermissions'
             ],
             'rules' => [
                 [
@@ -104,7 +102,6 @@ class StaffController extends ActiveController
                     'actions' => [
                         'index', 'view', 'create',
                         'update', 'delete', 'me', 'count', 'photo-upload',
-                        'import', 'import-template',
                         'getPermissions',
                     ],
                     'roles' => ['admin', 'manageStaffs'],

@@ -3,8 +3,11 @@
 
 namespace app\modules\v1\repositories;
 
+use app\models\UserSearch;
+use Illuminate\Support\Arr;
 use Yii;
 use app\models\User;
+use yii\web\User as AuthenticatedUser;
 
 class UserRepository
 {
@@ -39,7 +42,7 @@ class UserRepository
 
         return $descendantRoles;
     }
-    
+
     public function getUsersCountAllRolesByArea($selectedRoles, $kabKotaId, $kecId, $kelId): array
     {
         $roles = Yii::$app->authManager->getRoles();
@@ -87,5 +90,48 @@ class UserRepository
         }
 
         return $query->count();
+    }
+
+    /**
+     * @param array $params
+     *
+     * $params['kabkota_id']
+     * $params['kec_id']
+     * $params['kel_id']
+     */
+    public function getExportQuery(array $params)
+    {
+        //
+    }
+
+    protected function getRolesFilter($currentUser)
+    {
+        if ($currentUser->role === User::ROLE_STAFF_KEL) {
+            return [User::ROLE_STAFF_RW];
+        }
+
+        if ($currentUser->role === User::ROLE_STAFF_KEC) {
+            return [User::ROLE_STAFF_RW, User::ROLE_STAFF_KEL];
+        }
+
+        if ($currentUser->role === User::ROLE_STAFF_KABKOTA) {
+            return [User::ROLE_STAFF_RW, User::ROLE_STAFF_KEL, User::ROLE_STAFF_KEC];
+        }
+
+        if ($currentUser->role === User::ROLE_STAFF_PROV) {
+            return [
+                User::ROLE_USER, User::ROLE_STAFF_RW,
+                User::ROLE_STAFF_KEL, User::ROLE_STAFF_KEC, User::ROLE_STAFF_KABKOTA,
+                User::ROLE_TRAINER, User::ROLE_STAFF_SABERHOAX,
+            ];
+        }
+
+        if ($currentUser->role === User::ROLE_ADMIN) {
+            return [
+                User::ROLE_USER, User::ROLE_STAFF_RW,
+                User::ROLE_STAFF_KEL, User::ROLE_STAFF_KEC, User::ROLE_STAFF_KABKOTA, User::ROLE_STAFF_PROV,
+                User::ROLE_TRAINER, User::ROLE_STAFF_SABERHOAX,
+            ];
+        }
     }
 }

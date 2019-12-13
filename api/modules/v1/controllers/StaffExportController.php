@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\models\User;
 use app\models\UserExport;
+use app\modules\v1\repositories\UserRepository;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Yii;
 use yii\filters\AccessControl;
@@ -38,29 +39,29 @@ class StaffExportController extends RestController
      */
     public function actionExport()
     {
-        # Get data users
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
-        $role = $currentUser->role;
+        $repository = new UserRepository();
 
-        $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
+        $params = [
+            'kabkota_id'  => 1,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'roles'       => [User::ROLE_STAFF_KEC, User::ROLE_STAFF_KEL, User::ROLE_STAFF_RW],
+            'last_access' => ['2019-12-01', '2019-12-31'],
+            'status'      => User::STATUS_ACTIVE,
+        ];
 
-        $params = Yii::$app->request->getQueryParams();
-        $params['max_roles'] = $maxRoleRange;
-        $params['show_saberhoax'] = $currentUser->role === User::ROLE_ADMIN;
-        $params['show_trainer'] = in_array($currentUser->role, [User::ROLE_ADMIN, User::ROLE_STAFF_PROV]);
-        $params['kabkota_id'] = $params['kabkota_id'] ?? $currentUser->kabkota_id;
-        $params['kec_id'] = $params['kec_id'] ?? $currentUser->kec_id;
-        $params['kel_id'] = $params['kel_id'] ?? $currentUser->kel_id;
-        $params['rw'] = $params['rw'] ?? $currentUser->rw;
+        $query = $repository->findAllQuery($params);
 
-        $search = new UserExport();
+        $search    = new UserExport();
+        $totalRows = $search->getUserExport($query)->count();
 
-        $totalRows = $search->getUserExport($params)->count();
         if ($totalRows > User::MAX_ROWS_EXPORT_ALLOWED) {
-            throw new ServerErrorHttpException("User export have $totalRows rows, max rows is " . User::MAX_ROWS_EXPORT_ALLOWED);
+            throw new ServerErrorHttpException(
+                "User export have $totalRows rows, max rows is " . User::MAX_ROWS_EXPORT_ALLOWED
+            );
         }
 
-        $filePath = $search->generateFile($params);
+        $filePath = $search->generateFile($query);
 
         return $this->copyLocalToStorage($filePath);
     }
