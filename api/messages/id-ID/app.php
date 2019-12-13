@@ -40,6 +40,7 @@ return [
     'error.image.invalid_format' => 'File "{file}" bukan berupa gambar',
     'error.image.should_exact' => 'Gambar "{file}" harus berukuran {width, number}x{height, number} pixel.',
 
+    'role.service_account' => 'Service Account',
     'role.admin' => 'Administrator',
     'role.staffProv' => 'Staf Provinsi',
     'role.staffSaberhoax' => 'Staf Saber Hoaks',

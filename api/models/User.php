@@ -69,6 +69,8 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const ROLE_STAFF_SABERHOAX = 89;
     const ROLE_STAFF_PROV = 90;
     const ROLE_ADMIN = 99;
+    const ROLE_SERVICE_ACCOUNT = 100; // for 3rd app need access (ex: dashboard command center)
+
     const STATUS_DELETED = -1;
     const STATUS_DISABLED = 0;
     const STATUS_PENDING = 1;
@@ -86,6 +88,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         'staffRW' => self::ROLE_STAFF_RW,
         'trainer' => self::ROLE_TRAINER,
         'user' => self::ROLE_USER,
+        'service_account_dashboard' => self::ROLE_SERVICE_ACCOUNT,
     ];
 
     // Constants for Scenario names
@@ -469,6 +472,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             self::ROLE_STAFF_SABERHOAX => Yii::t('app', 'role.staffSaberhoax'),
             self::ROLE_STAFF_PROV => Yii::t('app', 'role.staffProv'),
             self::ROLE_ADMIN => Yii::t('app', 'role.admin'),
+            self::ROLE_SERVICE_ACCOUNT => Yii::t('app', 'role.service_account'),
         ];
 
         return $roles[$this->role];

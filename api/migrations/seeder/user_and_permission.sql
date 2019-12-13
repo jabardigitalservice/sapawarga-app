@@ -39,7 +39,8 @@ VALUES
     ('staff.inactive','E3sUYMd9eNe4uiGlq12Bof3LmQVZCdlb',NULL,'$2y$13$UF1u00zQepfWOyhRcjrvIefJ5f6PI5tRTxyOP9Zw6OFBLfo8H8tIu',NULL,'staff.inactive@demo.com','staff.inactive@demo.com',1555999945,'172.21.0.6',NULL,NULL,NULL,0,90,1555999945,1555999945,'Staff Inactive','080989999',NULL,NULL,NULL,NULL,NULL,NULL,'-6.902471','107.618799',NULL,NULL,NULL,NULL,NULL,NULL,NULL),
     ('user.inactive','SCGh33nopGun0gMeDnB3lU5XG5KjY3Br',NULL,'$2y$13$QlxrGjAoOCL0TDP6z4pnGOR8RP1amSYN0P9b00uGJO7xnO.NF9WiW',NULL,'user.inactive@demo.com','user.inactive@demo.com',1556054724,'172.21.0.6',NULL,NULL,NULL,0,10,1556018724,1556018724,'User Inactive','0857123456',NULL,'001','002','6178','446','22','-6.910711','107.609822',NULL,NULL,NULL,NULL,NULL,NULL,NULL),
     ('saberhoax','E3sUYMd9eNe4uiGlq12Bof3LmQVZCdlb',NULL,'$2y$13$UF1u00zQepfWOyhRcjrvIefJ5f6PI5tRTxyOP9Zw6OFBLfo8H8tIu',NULL,'saberhoax@demo.com','saberhoax@demo.com',1555999945,'172.21.0.6',NULL,NULL,NULL,10,89,1555999945,1555999945,'Staff Jabar Saber Hoaks','080989999','Jl. Alamat Jabar Saber Hoaks',NULL,NULL,NULL,NULL,NULL,'-6.902471','107.618799',NULL,'http://facebook.com/official.jabarsaberhoaks','jabarsaberhoaks','jabarsaberhoaks',NULL,NULL,NULL),
-    ('trainer','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'trainer@demo.com','trainer@demo.com',1556043421,'172.21.0.6',NULL,NULL,NULL,10,49,1556007420,1556007420,'Pelatih','080989999','Jl. Alamat Pelatih',NULL,'002','6214','450','23','-6.278097','106.947295',NULL,'https://facebook.com/trainer','trainer','trainer',NULL,NULL,NULL);
+    ('trainer','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'trainer@demo.com','trainer@demo.com',1556043421,'172.21.0.6',NULL,NULL,NULL,10,49,1556007420,1556007420,'Pelatih','080989999','Jl. Alamat Pelatih',NULL,'002','6214','450','23','-6.278097','106.947295',NULL,'https://facebook.com/trainer','trainer','trainer',NULL,NULL,NULL),
+    ('dashboard_executive','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'dashboard_executive@sapawarga.jabarprov.go.id','dashboard_executive@sapawarga.jabarprov.go.id',1556043421,'172.21.0.6',NULL,NULL,NULL,10,100,1556007420,1556007420,'Service Account Dashboard Executive','080989999',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`)
@@ -123,9 +124,10 @@ VALUES
     ('staffRW','30',1556007365),
     ('staffRW','31',1556007396),
     ('staffRW','32',1556007421),
-    ('trainer','40',1556007421),
     ('user','33',1556018418),
     ('user','34',1556018606),
     ('user','35',1556018651),
     ('user','36',1556018724),
-    ('staffSaberhoax','39',1556018724);
+    ('staffSaberhoax','39',1556018724),
+    ('trainer','40',1556007421),
+    ('service_account_dashboard','41',1556018724);
