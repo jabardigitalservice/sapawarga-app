@@ -46,7 +46,23 @@ class PollingDashboard extends Polling
             ],
         ]);
 
-        return $provider->getModels();
+        // Temp dummy data
+        $pollings = $provider->getModels();
+        foreach ($pollings as $index => $polling) {
+            $pollings[$index]['votes_count'] = 68;
+            $pollings[$index]['results'] = [[
+                'answer_id' => 1,
+                'answer_body' => 'Ya',
+                'votes' => 34,
+            ],
+            [
+                'answer_id' => 2,
+                'answer_body' => 'Tidak',
+                'votes' => 34,
+            ]];
+        }
+
+        return $pollings;
     }
 
     /**
