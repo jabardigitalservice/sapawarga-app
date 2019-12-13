@@ -74,14 +74,14 @@ class DashboardController extends ActiveController
             'class' => AccessControl::className(),
             'only' => [
                 'aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
-                'videos-most-views',
+                'videos-most-views', 'users-leaderboard',
             ],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => [
                         'aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
-                        'videos-most-views',
+                        'videos-most-views', 'users-leaderboard',
                     ],
                     'roles' => ['dashboardList'],
                 ],
@@ -158,6 +158,12 @@ class DashboardController extends ActiveController
             ->limit(10);
 
         return $query->all();
+    }
+
+    public function actionUsersLeaderboard()
+    {
+        // TODO change to real data
+        return include __DIR__ . '/../../../config/references/dashboard_leaderboard.php';
     }
 
     /**

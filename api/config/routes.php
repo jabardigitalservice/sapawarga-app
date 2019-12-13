@@ -259,6 +259,8 @@ return [
             'OPTIONS news-most-likes' => 'options',
             'GET videos-most-views' => 'videos-most-views',
             'OPTIONS videos-most-views' => 'options',
+            'GET users-leaderboard' => 'users-leaderboard',
+            'OPTIONS users-leaderboard' => 'options',
         ]
     ],
     [
