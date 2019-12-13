@@ -71,11 +71,13 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'], //only be applied to
+            'only' => ['aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'],
+                    'actions' => [
+                        'aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'
+                    ],
                     'roles' => ['dashboardList'],
                 ],
             ],
