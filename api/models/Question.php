@@ -26,6 +26,8 @@ class Question extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
+    public $likes_count;
+
     /**
      * {@inheritdoc}
      */
@@ -46,10 +48,8 @@ class Question extends ActiveRecord implements ActiveStatus
 
     public function getLikes()
     {
-        return $this->hasMany(User::class, ['id' => 'user_id'])
-                    ->viaTable('likes', ['entity_id' => 'id'], function ($query) {
-                        $query->andWhere(['type' => Like::TYPE_QUESTION]);
-                    });
+        return $this->hasMany(Like::class, ['entity_id' => 'id'])
+                    ->andOnCondition(['type' => Like::TYPE_QUESTION]);
     }
 
     public function getLastAnswer()
@@ -96,7 +96,7 @@ class Question extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'text',
-            'likes_count' => 'LikesCount',
+            'likes_count',
             'comments_count' => 'CommentsCount',
             'answer_id',
             'answer' => 'lastAnswer',
@@ -137,11 +137,6 @@ class Question extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
-    }
-
-    protected function getLikesCount()
-    {
-        return (int)$this->getLikes()->count();
     }
 
     protected function getCommentsCount()
