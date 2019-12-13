@@ -24,20 +24,6 @@ class SurveyCest
 
     public function getListTest(ApiTester $I)
     {
-        $I->amUser('user');
-
-        $I->sendGET('/v1/survey');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-    }
-
-    public function getUserRwListTest(ApiTester $I)
-    {
         $I->haveInDatabase('survey', [
             'id'           => 1,
             'title'        => 'Lorem ipsum.',
@@ -70,6 +56,7 @@ class SurveyCest
             'external_url' => 'http://google.com',
         ]);
 
+        // staffrw
         $I->amUser('staffrw');
 
         $I->sendGET('/v1/survey');
@@ -81,6 +68,19 @@ class SurveyCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(3, $data[0][1]['id']);
+
+        // staffkabkota
+        $I->amUser('staffkabkota2');
+
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
     }
 
     public function getUserListPublishedShowTest(ApiTester $I)
