@@ -36,18 +36,45 @@ class SurveyCest
         ]);
     }
 
+    // TODO add more cases with area ids
     public function getUserRwListTest(ApiTester $I)
     {
+        $I->haveInDatabase('survey', [
+            'id'           => 1,
+            'title'        => 'Lorem ipsum.',
+            'status'       => 10,
+            'category_id'  => 20,
+            'kabkota_id'   => 23,
+            'start_date'   => (new Carbon())->toDateString(),
+            'end_date'     => (new Carbon())->addDays(7)->toDateString(),
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 2,
+            'title'        => 'Lorem ipsum.',
+            'status'       => 10,
+            'category_id'  => 20,
+            'kabkota_id'   => 22,
+            'start_date'   => (new Carbon())->toDateString(),
+            'end_date'     => (new Carbon())->addDays(7)->toDateString(),
+            'external_url' => 'http://google.com',
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
         $I->amUser('staffrw');
 
         $I->sendGET('/v1/survey');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(2, $data[0][0]['id']);
     }
 
     public function getUserListPublishedShowTest(ApiTester $I)
@@ -229,6 +256,7 @@ class SurveyCest
         ]);
     }
 
+    // TODO add more cases with kec_id and kel_id
     public function getAdminListFilterAreaTest(ApiTester $I)
     {
         $I->haveInDatabase('survey', [
