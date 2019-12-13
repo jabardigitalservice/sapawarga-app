@@ -20,7 +20,14 @@ class QuestionSearch extends Question
      */
     public function search($params)
     {
-        $query = Question::find()->with('comments', 'likes');
+        $query = Question::find()->with('comments')
+                ->select([
+                    '{{questions}}.*',
+                    'COUNT({{likes}}.id) AS likes_count'
+                ])
+                ->joinWith('likes')
+                ->groupBy('{{questions}}.id');
+
         $query->andFilterWhere(['<>', 'status', Question::STATUS_DELETED]);
 
         // Filtering
@@ -35,7 +42,7 @@ class QuestionSearch extends Question
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortBy    = Arr::get($params, 'sort_by', 'likes_count');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
@@ -47,6 +54,7 @@ class QuestionSearch extends Question
                     'text',
                     'created_at',
                     'status',
+                    'likes_count',
                 ],
             ],
             'pagination' => [
