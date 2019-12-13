@@ -257,6 +257,8 @@ return [
             'OPTIONS polling-latest' => 'options',
             'GET news-most-likes' => 'news-most-likes',
             'OPTIONS news-most-likes' => 'options',
+            'GET videos-most-views' => 'videos-most-views',
+            'OPTIONS videos-most-views' => 'options',
         ]
     ],
     [

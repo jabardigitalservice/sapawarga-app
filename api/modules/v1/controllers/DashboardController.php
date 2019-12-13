@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Video;
 use Yii;
 use Illuminate\Support\Arr;
 use yii\filters\AccessControl;
@@ -71,12 +72,16 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'],
+            'only' => [
+                'aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
+                'videos-most-views',
+            ],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => [
-                        'aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'
+                        'aspirasi-most-likes', 'polling-latest', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
+                        'videos-most-views',
                     ],
                     'roles' => ['dashboardList'],
                 ],
@@ -142,6 +147,17 @@ class DashboardController extends ActiveController
         $newsMostLikes = new NewsDashboard();
 
         return $newsMostLikes->getNewsMostLikes($params);
+    }
+
+    public function actionVideosMostViews()
+    {
+        // TODO sort by most views (currently latest videos)
+        $query = Video::find()
+            ->where(['status' => Video::STATUS_ACTIVE])
+            ->orderBy(['id' => SORT_DESC])
+            ->limit(10);
+
+        return $query->all();
     }
 
     /**
