@@ -637,10 +637,6 @@ class SurveyCest
     {
         $data = [];
 
-        $I->amStaff('staffkabkota');
-        $I->sendPOST('/v1/survey', $data);
-        $I->canSeeResponseCodeIs(403);
-
         $I->amStaff('staffkec');
         $I->sendPOST('/v1/survey', $data);
         $I->canSeeResponseCodeIs(403);
