@@ -107,7 +107,7 @@ class SurveySearch extends Survey
             || Arr::has($params, 'kel_id')
             || Arr::has($params, 'rw')) {
             ModelHelper::filterByAreaTopDown($query, $params);
-        } elseif (!Yii::$app->user->can('admin') && !Yii::$app->user->can('staffprov')) {
+        } elseif (!Yii::$app->user->can('admin') && !Yii::$app->user->can('staffProv')) {
             // By default filter berdasarkan area Staf tersebut
             $areaParams = [
                 'kabkota_id' => $this->user->kabkota_id ?? null,

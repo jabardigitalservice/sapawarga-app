@@ -69,8 +69,23 @@ class SurveyCest
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(3, $data[0][1]['id']);
 
+        //staffprov
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+
         // staffkabkota
-        $I->amUser('staffkabkota2');
+        $I->amStaff('staffkabkota2');
 
         $I->sendGET('/v1/survey');
         $I->canSeeResponseCodeIs(200);
