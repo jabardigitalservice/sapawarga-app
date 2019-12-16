@@ -139,6 +139,12 @@ class Question extends ActiveRecord implements ActiveStatus
         ];
     }
 
+    /** @inheritdoc */
+    public function afterFind() {
+        parent::afterFind();
+        $this->likes_count = (int) $this->likes_count;
+    }
+
     protected function getCommentsCount()
     {
         return (int)$this->getComments()->count();

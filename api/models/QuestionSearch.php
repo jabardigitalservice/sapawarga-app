@@ -26,16 +26,18 @@ class QuestionSearch extends Question
                     'COUNT({{likes}}.id) AS likes_count'
                 ])
                 ->joinWith('likes')
+                ->where(['<>', 'status', Question::STATUS_DELETED])
                 ->groupBy('{{questions}}.id');
 
-        $query->andFilterWhere(['<>', 'status', Question::STATUS_DELETED]);
+        if (Arr::get($params, 'id') != null) {
+            $query->andFilterWhere(['questions.id' => Arr::get($params, 'id')]);
+            return $query->one();
+        }
 
         // Filtering
-        $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'text',  Arr::get($params, 'search')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
         $query->andFilterWhere(['is_flagged' => Arr::get($params, 'is_flagged')]);
-
         return $this->getQueryAll($query, $params);
     }
 

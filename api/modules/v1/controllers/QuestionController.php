@@ -43,8 +43,7 @@ class QuestionController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    // 'roles' => ['questionManage'],
-                    'roles' => ['@'],
+                    'roles' => ['admin', 'staffProv', 'staffRW'],
                 ],
             ],
         ];
@@ -72,8 +71,13 @@ class QuestionController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id, $this->modelClass);
-        return $model;
+        $searchedModel = $this->prepareDataProvider();
+
+        if ($searchedModel === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        return $searchedModel;
     }
 
     /**
