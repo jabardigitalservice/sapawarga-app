@@ -140,7 +140,8 @@ class Question extends ActiveRecord implements ActiveStatus
     }
 
     /** @inheritdoc */
-    public function afterFind() {
+    public function afterFind()
+    {
         parent::afterFind();
         $this->likes_count = (int) $this->likes_count;
     }
