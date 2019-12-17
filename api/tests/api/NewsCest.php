@@ -1020,90 +1020,90 @@ class NewsCest
         $I->assertEquals($read_count + 1, $new_read_count[0]);
     }
 
-//    public function getUserIncrementReadCountPerUserForNewUserTest(ApiTester $I)
-//    {
-//        $I->seeNumRecords(0, 'news_viewers');
-//
-//        $read_count = 0;
-//        $I->haveInDatabase('news', [
-//            'id'            => 1,
-//            'channel_id'    => 1,
-//            'title'         => 'persib',
-//            'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
-//            'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
-//            'source_date'   => '2019-06-20',
-//            'source_url'    => 'https://google.com',
-//            'cover_path'    => 'covers/test.jpg',
-//            'total_viewers' => $read_count,
-//            'status'        => 10,
-//            'created_at'    => '1554706345',
-//            'updated_at'    => '1554706345',
-//        ]);
-//
-//        $I->amUser('staffrw');
-//
-//        $user = $I->grabDataFromResponseByJsonPath('$.data');
-//
-//        $I->sendGET('/v1/news/1');
-//        $I->canSeeResponseCodeIs(200);
-//        $I->seeResponseIsJson();
-//
-//        $I->seeResponseContainsJson([
-//            'success' => true,
-//            'status'  => 200,
-//        ]);
-//
-//        $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $user[0]['id'], 'read_count' => $read_count + 1]);
-//
-//        $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
-//
-//        $I->assertEquals($read_count + 1, $new_read_count[0]);
-//    }
+   public function getUserIncrementReadCountPerUserForNewUserTest(ApiTester $I)
+   {
+       $I->seeNumRecords(0, 'news_viewers');
 
-//    public function getUserIncrementReadCountPerUserForExistUserTest(ApiTester $I)
-//    {
-//        $read_count = 10;
-//
-//        $I->haveInDatabase('news', [
-//            'id'            => 1,
-//            'channel_id'    => 1,
-//            'title'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-//            'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
-//            'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
-//            'source_date'   => '2019-06-20',
-//            'source_url'    => 'https://google.com',
-//            'cover_path'    => 'covers/test.jpg',
-//            'total_viewers' => $read_count,
-//            'status'        => 10,
-//            'created_at'    => '1554706345',
-//            'updated_at'    => '1554706345',
-//        ]);
-//
-//        $I->amUser('staffrw');
-//
-//        $user = $I->grabDataFromResponseByJsonPath('$.data');
-//
-//        $I->haveInDatabase('news_viewers', [
-//            'news_id'     => 1,
-//            'user_id'     => $user[0]['id'],
-//            'read_count'  => $read_count,
-//        ]);
-//
-//        $I->sendGET('/v1/news/1');
-//        $I->canSeeResponseCodeIs(200);
-//        $I->seeResponseIsJson();
-//
-//        $I->seeResponseContainsJson([
-//            'success' => true,
-//            'status'  => 200,
-//        ]);
-//
-//        $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $user[0]['id'], 'read_count' => $read_count + 1]);
-//
-//        $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
-//
-//        $I->assertEquals($read_count + 1, $new_read_count[0]);
-//    }
+       $read_count = 0;
+       $I->haveInDatabase('news', [
+           'id'            => 1,
+           'channel_id'    => 1,
+           'title'         => 'persib',
+           'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+           'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+           'source_date'   => '2019-06-20',
+           'source_url'    => 'https://google.com',
+           'cover_path'    => 'covers/test.jpg',
+           'total_viewers' => $read_count,
+           'status'        => 10,
+           'created_at'    => '1554706345',
+           'updated_at'    => '1554706345',
+       ]);
+
+       $username = 'staffrw';
+       $I->amUser($username);
+
+       $I->sendGET('/v1/news/1');
+       $I->canSeeResponseCodeIs(200);
+       $I->seeResponseIsJson();
+
+       $I->seeResponseContainsJson([
+           'success' => true,
+           'status'  => 200,
+       ]);
+
+       $userId = $I->grabFromDatabase('user', 'id', ['username' => $username]);
+       $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $userId, 'read_count' => $read_count + 1]);
+
+       $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
+
+       $I->assertEquals($read_count + 1, $new_read_count[0]);
+   }
+
+   public function getUserIncrementReadCountPerUserForExistingUserTest(ApiTester $I)
+   {
+       $read_count = 10;
+
+       $I->haveInDatabase('news', [
+           'id'            => 1,
+           'channel_id'    => 1,
+           'title'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+           'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+           'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+           'source_date'   => '2019-06-20',
+           'source_url'    => 'https://google.com',
+           'cover_path'    => 'covers/test.jpg',
+           'total_viewers' => $read_count,
+           'status'        => 10,
+           'created_at'    => '1554706345',
+           'updated_at'    => '1554706345',
+       ]);
+
+       $username = 'staffrw';
+       $I->amUser($username);
+       $userId = $I->grabFromDatabase('user', 'id', ['username' => $username]);
+
+       $I->haveInDatabase('news_viewers', [
+           'news_id'     => 1,
+           'user_id'     => $userId,
+           'read_count'  => $read_count,
+       ]);
+
+       $I->sendGET('/v1/news/1');
+       $I->canSeeResponseCodeIs(200);
+       $I->seeResponseIsJson();
+
+       $I->seeResponseContainsJson([
+           'success' => true,
+           'status'  => 200,
+       ]);
+
+       $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $userId, 'read_count' => $read_count + 1]);
+
+       $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
+
+       $I->assertEquals($read_count + 1, $new_read_count[0]);
+   }
 
     public function getAdminStatisticsTest(ApiTester $I)
     {
