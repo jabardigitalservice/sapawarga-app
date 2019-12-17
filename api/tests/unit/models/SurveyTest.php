@@ -311,4 +311,52 @@ class SurveyTest extends Unit
         $this->assertTrue($model->hasErrors('start_date'));
         $this->assertTrue($model->hasErrors('end_date'));
     }
+
+    public function testKecamatanShouldNull()
+    {
+        $model             = new Survey();
+        $model->kabkota_id = null;
+        $model->kec_id     = 431;
+        $model->kel_id     = 6093;
+        $model->rw         = '001';
+
+        $model->save(false);
+
+        $this->assertNull($model->kabkota_id);
+        $this->assertNull($model->kec_id);
+        $this->assertNull($model->kel_id);
+        $this->assertNull($model->rw);
+    }
+
+    public function testKelurahanShouldNull()
+    {
+        $model             = new Survey();
+        $model->kabkota_id = 22;
+        $model->kec_id     = null;
+        $model->kel_id     = 6093;
+        $model->rw         = '001';
+
+        $model->save(false);
+
+        $this->assertNotNull($model->kabkota_id);
+        $this->assertNull($model->kec_id);
+        $this->assertNull($model->kel_id);
+        $this->assertNull($model->rw);
+    }
+
+    public function testRwShouldNull()
+    {
+        $model             = new Survey();
+        $model->kabkota_id = 22;
+        $model->kec_id     = 431;
+        $model->kel_id     = null;
+        $model->rw         = '001';
+
+        $model->save(false);
+
+        $this->assertNotNull($model->kabkota_id);
+        $this->assertNotNull($model->kec_id);
+        $this->assertNull($model->kel_id);
+        $this->assertNull($model->rw);
+    }
 }

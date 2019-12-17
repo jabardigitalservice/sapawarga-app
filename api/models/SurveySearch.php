@@ -5,6 +5,7 @@ namespace app\models;
 use app\components\ModelHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Yii;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -101,14 +102,18 @@ class SurveySearch extends Survey
 
     protected function filterByArea(&$query, $params)
     {
-        if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
-            ModelHelper::filterByArea($query, $params);
-        } else {
+        if (Arr::has($params, 'kabkota_id')
+            || Arr::has($params, 'kec_id')
+            || Arr::has($params, 'kel_id')
+            || Arr::has($params, 'rw')) {
+            ModelHelper::filterByAreaTopDown($query, $params);
+        } elseif (!Yii::$app->user->can('admin') && !Yii::$app->user->can('staffProv')) {
             // By default filter berdasarkan area Staf tersebut
             $areaParams = [
-            'kabkota_id' => $this->user->kabkota_id ?? null,
-            'kec_id' => $this->user->kec_id ?? null,
-            'kel_id' => $this->user->kel_id ?? null,
+                'kabkota_id' => $this->user->kabkota_id ?? null,
+                'kec_id' => $this->user->kec_id ?? null,
+                'kel_id' => $this->user->kel_id ?? null,
+                'rw' => $this->user->rw ?? null,
             ];
             ModelHelper::filterByArea($query, $areaParams);
         }

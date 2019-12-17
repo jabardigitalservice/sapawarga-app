@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
+use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
@@ -62,6 +63,7 @@ class Survey extends ActiveRecord
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
             ['external_url', 'url'],
+            [['kabkota_id', 'kec_id', 'kel_id'], 'integer'],
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
             ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
@@ -70,6 +72,7 @@ class Survey extends ActiveRecord
 
         return array_merge(
             $rules,
+            $this->rulesRw(),
             $this->rulesCategory()
         );
     }
@@ -159,6 +162,7 @@ class Survey extends ActiveRecord
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
+            AreaBehavior::class,
         ];
     }
 
