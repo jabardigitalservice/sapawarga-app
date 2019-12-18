@@ -8,6 +8,7 @@ use app\models\Attachment\NewsPhotoForm;
 use app\models\Attachment\PhoneBookPhotoForm;
 use app\models\Attachment\BannerPhotoForm;
 use app\models\Attachment\PopupPhotoForm;
+use app\models\Attachment\UserPostPhotoForm;
 use app\models\Attachment\NewsImportantPhotoForm;
 use app\models\Attachment\NewsImportantAttachmentForm;
 use app\models\AttachmentForm;
@@ -108,6 +109,7 @@ class AttachmentController extends ActiveController
             'phonebook_photo' => PhoneBookPhotoForm::class,
             'aspirasi_photo' => AspirasiPhotoForm::class,
             'news_photo' => NewsPhotoForm::class,
+            'user_post_photo' => UserPostPhotoForm::class,
             'banner_photo' => BannerPhotoForm::class,
             'popup_photo' => PopupPhotoForm::class,
             'user_photo' => UserPhotoUploadForm::class,
