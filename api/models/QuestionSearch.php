@@ -29,15 +29,10 @@ class QuestionSearch extends Question
                 ->where(['<>', 'status', Question::STATUS_DELETED])
                 ->groupBy('{{questions}}.id');
 
-        if (Arr::get($params, 'id') != null) {
-            $query->andFilterWhere(['questions.id' => Arr::get($params, 'id')]);
-            return $query->one();
-        }
-
         // Filtering
         $query->andFilterWhere(['like', 'text',  Arr::get($params, 'search')]);
-        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
         $query->andFilterWhere(['is_flagged' => Arr::get($params, 'is_flagged')]);
+        $query->andFilterWhere(['questions.status' => Arr::get($params, 'status')]);
         return $this->getQueryAll($query, $params);
     }
 

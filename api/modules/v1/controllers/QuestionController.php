@@ -11,6 +11,7 @@ use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use app\modules\v1\repositories\QuestionRepository;
 
 class QuestionController extends ActiveController
 {
@@ -71,13 +72,14 @@ class QuestionController extends ActiveController
      */
     public function actionView($id)
     {
-        $searchedModel = $this->prepareDataProvider();
+        $repository = new QuestionRepository();
+        $getDetail = $repository->getDetail($id);
 
-        if ($searchedModel === null) {
+        if ($getDetail === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $searchedModel;
+        return $getDetail;
     }
 
     /**
