@@ -13,7 +13,7 @@ class PollingDashboardCest
         Yii::$app->db->createCommand('TRUNCATE polling')->execute();
     }
 
-    public function getPollingStaffProvLatestTest(ApiTester $I)
+    public function getPollingStaffProvAndPimpinanLatestTest(ApiTester $I)
     {
         $I->haveInDatabase('polling', [
             'name'        => 'Lorem Ipsum Dolor Sit Amet',
@@ -66,7 +66,25 @@ class PollingDashboardCest
             'updated_at'  => '1564617600', // 01/08/2019 @ 12:00am
         ]);
 
+        // staffprov
         $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/dashboards/polling-latest');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+
+        $I->assertEquals(1, count($data[0]));
+
+        $I->assertEquals("2", $data[0][0]['id']);
+
+        // pimpinan
+        $I->amStaff('gubernur');
 
         $I->sendGET('/v1/dashboards/polling-latest');
         $I->canSeeResponseCodeIs(200);

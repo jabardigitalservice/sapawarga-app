@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
-use yii\rbac\Permission;
 use yii\web\Request as WebRequest;
 
 /**
@@ -66,10 +65,12 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const ROLE_STAFF_KEL = 60;
     const ROLE_STAFF_KEC = 70;
     const ROLE_STAFF_KABKOTA = 80;
+    const ROLE_STAFF_OPD = 88;
     const ROLE_STAFF_SABERHOAX = 89;
     const ROLE_STAFF_PROV = 90;
+    const ROLE_PIMPINAN = 91;
     const ROLE_ADMIN = 99;
-    const ROLE_SERVICE_ACCOUNT = 100; // for 3rd app need access (ex: dashboard command center)
+    const ROLE_SERVICE_ACCOUNT = 100; // for third-party app need access (ex: dashboard command center)
 
     const STATUS_DELETED = -1;
     const STATUS_DISABLED = 0;
@@ -80,8 +81,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     // Mapping User role's id type (string to integer)
     const ROLE_MAP = [
         'admin' => self::ROLE_ADMIN,
+        'pimpinan' => self::ROLE_PIMPINAN,
         'staffProv' => self::ROLE_STAFF_PROV,
         'staffSaberhoax' => self::ROLE_STAFF_SABERHOAX,
+        'staffOPD' => self::ROLE_STAFF_OPD,
         'staffKabkota' => self::ROLE_STAFF_KABKOTA,
         'staffKec' => self::ROLE_STAFF_KEC,
         'staffKel' => self::ROLE_STAFF_KEL,
@@ -469,8 +472,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             self::ROLE_STAFF_KEL => Yii::t('app', 'role.staffKel'),
             self::ROLE_STAFF_KEC => Yii::t('app', 'role.staffKec'),
             self::ROLE_STAFF_KABKOTA => Yii::t('app', 'role.staffKabkota'),
+            self::ROLE_STAFF_OPD => Yii::t('app', 'role.staffOPD'),
             self::ROLE_STAFF_SABERHOAX => Yii::t('app', 'role.staffSaberhoax'),
             self::ROLE_STAFF_PROV => Yii::t('app', 'role.staffProv'),
+            self::ROLE_PIMPINAN => Yii::t('app', 'role.pimpinan'),
             self::ROLE_ADMIN => Yii::t('app', 'role.admin'),
             self::ROLE_SERVICE_ACCOUNT => Yii::t('app', 'role.service_account'),
         ];

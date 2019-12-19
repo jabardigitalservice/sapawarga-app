@@ -44,6 +44,20 @@ class AspirasiDashboardCest
         ]);
     }
 
+    public function getAccessAspirasiMostLikePimpinanTest(ApiTester $I)
+    {
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/dashboards/aspirasi-most-likes');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
     public function getAccessAspirasiMostLikeStaffKecFailTest(ApiTester $I)
     {
         $I->amStaff('staffkec');

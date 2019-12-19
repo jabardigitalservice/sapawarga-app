@@ -23,7 +23,11 @@ class NewsImportantCest
     public function getNewsImportantListTest(ApiTester $I)
     {
         $I->amStaff('staffprov');
+        $I->sendGET('/v1/news-important');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
 
+        $I->amStaff('opd.disdik');
         $I->sendGET('/v1/news-important');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -43,6 +47,40 @@ class NewsImportantCest
     public function postAdminCreateNewsImportantTest(ApiTester $I)
     {
         $I->amStaff();
+
+        $data = [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'source_url' =>  'https://google.com/',
+            'image_path' => 'general/myimage.jpg',
+            'category_id' => 2,
+            'status' => 10,
+            'attachments' => []
+        ];
+
+        $I->sendPOST('/v1/news-important', $data);
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('news_important', [
+            'id' => 1,
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'source_url' =>  'https://google.com/',
+            'image_path' => 'general/myimage.jpg',
+            'category_id' => 2,
+            'status' => 10,
+        ]);
+    }
+
+    public function postStaffOPDCreateNewsImportantTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disdik');
 
         $data = [
             'title' => 'Lorem ipsum dolor sit amet',

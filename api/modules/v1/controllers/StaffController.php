@@ -412,6 +412,8 @@ class StaffController extends ActiveController
             User::ROLE_STAFF_KEL,
             User::ROLE_STAFF_SABERHOAX,
             User::ROLE_SERVICE_ACCOUNT,
+            User::ROLE_STAFF_OPD,
+            User::ROLE_PIMPINAN,
         ];
         return $this->login($roles);
     }
