@@ -59,13 +59,13 @@ class UserPostSearch extends UserPost
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'likes_count');
+        $sortBy = Arr::get($params, 'sort_by', 'created_at');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
-            'query'      => $query,
-            'sort'       => [
+            'query' => $query,
+            'sort' => [
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
                     'text',

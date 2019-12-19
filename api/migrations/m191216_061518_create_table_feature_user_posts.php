@@ -15,7 +15,7 @@ class m191216_061518_create_table_feature_user_posts extends CustomMigration
             'id' => $this->primaryKey(),
             'text' => $this->string()->notNull(),
             'image_path' => $this->string()->notNull(),
-            'last_user_post_id' => $this->integer(),
+            'last_user_post_comment_id' => $this->integer(),
             'status' => $this->integer()->notNull(),
             'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
@@ -35,9 +35,9 @@ class m191216_061518_create_table_feature_user_posts extends CustomMigration
         ]);
 
         $this->addForeignKey(
-            'fk-user_posts-last_user_post_id',
+            'fk-user_posts-last_user_post_comment_id',
             'user_posts',
-            'last_user_post_id',
+            'last_user_post_comment_id',
             'user_post_comments',
             'id',
             'SET NULL'
@@ -80,7 +80,7 @@ class m191216_061518_create_table_feature_user_posts extends CustomMigration
         $this->dropForeignKey('fk-user_post_comments-user_post_id', 'user_post_comments');
 
         $this->dropForeignKey('fk-user_posts-created_by', 'user_posts');
-        $this->dropForeignKey('fk-user_posts-last_user_post_id', 'user_posts');
+        $this->dropForeignKey('fk-user_posts-last_user_post_comment_id', 'user_posts');
 
         $this->dropTable('user_post_comments');
         $this->dropTable('user_posts');

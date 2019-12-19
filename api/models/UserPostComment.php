@@ -120,7 +120,7 @@ class UserPostComment extends ActiveRecord implements ActiveStatus
     {
         if ($insert) {
             // Save the last comment id
-            $this->userPost->last_user_post_id = $this->id;
+            $this->userPost->last_user_post_comment_id = $this->id;
             $this->userPost->save(false);
         }
         return parent::afterSave($insert, $changedAttributes);

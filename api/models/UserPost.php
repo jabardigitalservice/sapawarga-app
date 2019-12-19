@@ -55,7 +55,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
 
     public function getLastComment()
     {
-        return UserPostComment::findOne($this->last_user_post_id);
+        return UserPostComment::findOne($this->last_user_post_comment_id);
     }
 
     public function getIsUserLiked()
@@ -86,7 +86,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
             [['text'], 'safe'],
             [['text', 'status', 'image_path'],'required'],
 
-            [['status', 'last_user_post_id'], 'integer'],
+            [['status', 'last_user_post_comment_id'], 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
@@ -102,7 +102,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
             },
             'likes_count',
             'comments_count' => 'CommentsCount',
-            'last_user_post_id',
+            'last_user_post_comment_id',
             'last_comment' => 'lastComment',
             'status',
             'status_label' => 'StatusLabel',
