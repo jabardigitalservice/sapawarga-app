@@ -132,4 +132,6 @@ VALUES
     ('user','36',1556018724),
     ('staffSaberhoax','39',1556018724),
     ('trainer','40',1556007421),
-    ('service_account_dashboard','41',1556018724);
+    ('service_account_dashboard','41',1556018724),
+    ('staffOPD','42',1556018725),
+    ('pimpinan','43',1556018726);
