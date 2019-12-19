@@ -12,6 +12,7 @@ use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use app\modules\v1\repositories\QuestionRepository;
+use app\modules\v1\repositories\LikeRepository;
 
 class QuestionController extends ActiveController
 {
@@ -107,27 +108,10 @@ class QuestionController extends ActiveController
      */
     public function actionLikes($id)
     {
-        $userId = Yii::$app->user->getId();
-        $userLike = Like::find()->where(['entity_id' => $id])
-            ->andWhere(['type' => Like::TYPE_QUESTION])
-            ->andWhere(['user_id' => $userId])
-            ->one();
+        $repository = new LikeRepository();
+        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_QUESTION);
 
-        if (! empty($userLike)) {
-            $unlike = Like::findOne($userLike->id);
-            $unlike->delete();
-        } else {
-            $like = new Like();
-            $like->entity_id = $id;
-            $like->user_id = $userId;
-            $like->type = Like::TYPE_QUESTION;
-            $like->save();
-        }
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
+        return $setLikeUnlike;
     }
 
     /**
