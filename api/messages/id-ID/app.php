@@ -42,8 +42,10 @@ return [
 
     'role.service_account' => 'Service Account',
     'role.admin' => 'Administrator',
+    'role.pimpinan' => 'Pimpinan',
     'role.staffProv' => 'Staf Provinsi',
     'role.staffSaberhoax' => 'Staf Saber Hoaks',
+    'role.staffOPD' => 'Staf OPD',
     'role.staffKabkota' => 'Staf Kabupaten/Kota',
     'role.staffKec' => 'Staf Kecamatan',
     'role.staffKel' => 'Staf Desa/Kelurahan',
