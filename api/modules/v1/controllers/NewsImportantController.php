@@ -2,18 +2,13 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
-use app\models\User;
 use app\models\NewsImportant;
 use app\models\NewsImportantSearch;
 use app\models\NewsImportantAttachment;
-use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 
 /**
@@ -128,12 +123,12 @@ class NewsImportantController extends ActiveController
     public function actionUpdate($id)
     {
         $model = NewsImportant::findOne($id);
-
         if (empty($model)) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        $params = Yii::$app->request->getQueryParams();
+        $this->checkAccess('update', $model, $id);
+
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
         if ($model->validate() && $model->save()) {
