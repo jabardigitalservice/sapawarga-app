@@ -19,6 +19,7 @@ class Like extends ActiveRecord
 {
     const TYPE_VIDEO = 'video';
     const TYPE_QUESTION = 'question';
+    const TYPE_USER_POST = 'user_post';
 
     /**
      * {@inheritdoc}

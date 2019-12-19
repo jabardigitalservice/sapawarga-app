@@ -347,4 +347,20 @@ return [
         'controller' => ['comments' => 'v1/question-comment'],
         'prefix' => 'v1/questions/<questionId:\d+>',
     ],
+    [
+        'class' => UrlRule::class,
+        'controller' => 'v1/user-post',
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
+        ]
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/user-post-comment'],
+        'prefix' => 'v1/user-posts/<userPostId:\d+>',
+    ],
 ];
