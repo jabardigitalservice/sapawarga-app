@@ -943,9 +943,12 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             self::ROLE_STAFF_KEL => 'staffKel',
             self::ROLE_STAFF_KEC => 'staffKec',
             self::ROLE_STAFF_KABKOTA => 'staffKabkota',
+            self::ROLE_STAFF_OPD => 'staffOPD',
             self::ROLE_STAFF_SABERHOAX => 'staffSaberhoax',
             self::ROLE_STAFF_PROV => 'staffProv',
+            self::ROLE_PIMPINAN => 'pimpinan',
             self::ROLE_ADMIN => 'admin',
+            self::ROLE_SERVICE_ACCOUNT => 'service_account_dashboard',
         ];
 
         return $roles[$this->role];
