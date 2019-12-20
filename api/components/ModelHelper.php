@@ -6,6 +6,7 @@ use Yii;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use app\models\Category;
+use app\models\Like;
 use app\models\Notification;
 
 class ModelHelper
@@ -150,7 +151,6 @@ class ModelHelper
         return $query;
     }
 
-
     public static function filterCurrentActiveNow(&$query, $model)
     {
         $query->andFilterWhere(['=', 'status', $model::STATUS_PUBLISHED]);
@@ -201,5 +201,16 @@ class ModelHelper
         }
 
         return $attributes;
+    }
+
+    public static function getIsUserLiked($id, $type)
+    {
+        $isLiked = Like::find()
+            ->where(['entity_id' => $id])
+            ->andWhere(['type' => $type])
+            ->andWhere(['user_id' => Yii::$app->user->id])
+            ->exists();
+
+        return $isLiked;
     }
 }

@@ -3,7 +3,6 @@
 namespace app\models;
 
 use app\components\ModelHelper;
-use Jdsteam\Sapawarga\Models\Concerns\HasUserLiked;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
@@ -26,7 +25,7 @@ use yii\db\ActiveRecord;
  */
 class Question extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus, HasUserLiked;
+    use HasActiveStatus;
 
     public $likes_count;
 
@@ -57,6 +56,11 @@ class Question extends ActiveRecord implements ActiveStatus
     public function getLastAnswer()
     {
         return QuestionComment::findOne($this->answer_id);
+    }
+
+    public function getIsUserLiked()
+    {
+        return ModelHelper::getIsUserLiked($this->id, Like::TYPE_QUESTION);
     }
 
     /**
