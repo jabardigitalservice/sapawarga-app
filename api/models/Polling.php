@@ -101,10 +101,9 @@ class Polling extends ActiveRecord
                 'pattern' => '/^[0-9]{3}$/',
                 'message' => Yii::t('app', 'error.rw.pattern'),
             ],
-            ['rw', 'default'],
+            [['rw', 'meta', 'created_by', 'updated_by'], 'default'],
             [['category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['category_id', 'validateCategoryID'],
-            ['meta', 'default'],
 
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             [
