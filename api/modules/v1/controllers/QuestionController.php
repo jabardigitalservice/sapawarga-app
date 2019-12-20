@@ -111,7 +111,10 @@ class QuestionController extends ActiveController
         $repository = new LikeRepository();
         $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_QUESTION);
 
-        return $setLikeUnlike;
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 
     /**
