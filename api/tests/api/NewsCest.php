@@ -163,6 +163,7 @@ class NewsCest
             'updated_at'  => '1554706345',
         ]);
 
+        // admin
         $I->amStaff();
 
         $I->sendGET('/v1/news');
@@ -182,6 +183,18 @@ class NewsCest
         $I->assertEquals(2, $data[0][1]['id']);
         $I->assertEquals(3, $data[0][2]['id']);
         $I->assertEquals(5, $data[0][3]['id']);
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/news');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
 
 
         $I->amStaff('staffkabkota');

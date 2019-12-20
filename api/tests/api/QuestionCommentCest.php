@@ -59,6 +59,7 @@ class QuestionCommentCest
 
     public function postCreateTest(ApiTester $I)
     {
+        // staffProv
         $I->amStaff('staffprov');
 
         $data = [
@@ -87,6 +88,18 @@ class QuestionCommentCest
         $I->seeInDatabase('questions', [
             'id' => 1,
             'answer_id' => 6,
+        ]);
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendPOST($this->endpointComment, $data);
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
         ]);
     }
 }

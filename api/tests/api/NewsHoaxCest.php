@@ -89,6 +89,7 @@ class NewsHoaxCest
             'status'      => 0,
         ]);
 
+        // staffSaberhoax
         $I->amStaff('saberhoax');
 
         $I->sendGET($this->endpoint);
@@ -106,6 +107,18 @@ class NewsHoaxCest
 
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(3, $data[0][1]['id']);
+
+        // gubernur
+        $I->amStaff('gubernur');
+
+        $I->sendGET($this->endpoint);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
     }
 
     public function getUserListFilterCategoryTest(ApiTester $I)
@@ -265,7 +278,7 @@ class NewsHoaxCest
         $I->seeResponseIsJson();
     }
 
-    public function getStaffCanShowTest(ApiTester $I)
+    public function getStaffAndPimpinanCanShowTest(ApiTester $I)
     {
         // ACTIVE
         $I->haveInDatabase('news_hoax', [
@@ -297,6 +310,7 @@ class NewsHoaxCest
             'status'      => 0,
         ]);
 
+        // staffSaberhoax
         $I->amStaff('saberhoax');
 
         $I->sendGET("{$this->endpoint}/1");
@@ -308,6 +322,13 @@ class NewsHoaxCest
         $I->seeResponseIsJson();
 
         $I->sendGET("{$this->endpoint}/3");
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET("{$this->endpoint}/1");
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
     }
