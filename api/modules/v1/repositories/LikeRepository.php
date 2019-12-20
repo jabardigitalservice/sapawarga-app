@@ -26,9 +26,6 @@ class LikeRepository
             $like->save();
         }
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
+        return true;
     }
 }

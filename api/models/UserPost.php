@@ -64,13 +64,9 @@ class UserPost extends ActiveRecord implements ActiveStatus
             ->where(['entity_id' => $this->id])
             ->andWhere(['type' => Like::TYPE_USER_POST])
             ->andWhere(['user_id' => Yii::$app->user->id])
-            ->count();
+            ->exists();
 
-        if ($isLiked > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return $isLiked;
     }
 
     /**
