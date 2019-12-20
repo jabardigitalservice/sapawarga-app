@@ -112,6 +112,20 @@ class BroadcastListCest
         ]);
     }
 
+    public function getBroadcastPimpinanList(ApiTester $I)
+    {
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/broadcasts');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
     public function getBroadcastStaffProvList(ApiTester $I)
     {
         $I->amStaff('staffprov');
