@@ -2,36 +2,22 @@
 
 namespace app\modules\v1\controllers;
 
-use app\models\Question;
-use app\models\QuestionSearch;
-use app\models\Like;
-use yii\filters\AccessControl;
+use app\components\ModelHelper;
+use app\models\UserPostComment;
 use Illuminate\Support\Arr;
 use Yii;
-use yii\filters\VerbFilter;
+use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use app\modules\v1\repositories\QuestionRepository;
-use app\modules\v1\repositories\LikeRepository;
 
-class QuestionController extends ActiveController
+class UserPostCommentController extends ActiveController
 {
-    public $modelClass = Question::class;
+    public $modelClass = UserPostComment::class;
 
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['verbs'] = [
-            'class' => VerbFilter::className(),
-            'actions' => [
-                'index' => ['get'],
-                'view' => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-            ],
-        ];
 
         return $this->behaviorCors($behaviors);
     }
@@ -39,14 +25,14 @@ class QuestionController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['access'] = [
-            'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'class' => AccessControl::class,
+            'only'  => ['index', 'view', 'create', 'update', 'delete'],
             'rules' => [
                 [
-                    'allow' => true,
+                    'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles' => ['admin', 'staffProv', 'staffRW'],
-                ],
+                    'roles'   => ['admin', 'staffProv', 'staffRW'],
+                ]
             ],
         ];
 
@@ -57,7 +43,6 @@ class QuestionController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Actions
         unset($actions['view']);
         unset($actions['delete']);
 
@@ -66,21 +51,15 @@ class QuestionController extends ActiveController
         return $actions;
     }
 
-     /**
+    /**
      * @param $id
-     * @return mixed|Question
+     * @return mixed|UserPostComment
      * @throws \yii\web\NotFoundHttpException
      */
     public function actionView($id)
     {
-        $repository = new QuestionRepository();
-        $getDetail = $repository->getDetail($id);
-
-        if ($getDetail === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $getDetail;
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -102,22 +81,6 @@ class QuestionController extends ActiveController
     }
 
     /**
-     * Delete entity with soft delete / status flagging
-     *
-     * @param $id
-     */
-    public function actionLikes($id)
-    {
-        $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_QUESTION);
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
-    }
-
-    /**
      * Checks the privilege of the current user.
      * throw ForbiddenHttpException if access should be denied
      *
@@ -128,15 +91,13 @@ class QuestionController extends ActiveController
     public function checkAccess($action, $model = null, $params = [])
     {
         $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
 
-        // Admin can do everything
         if ($authUser->can('admin')) {
             return true;
         }
 
         if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
+            if ($model->created_by !== $authUser->id) {
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
             }
         }
@@ -146,8 +107,28 @@ class QuestionController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $search = new QuestionSearch();
+        $query = UserPostComment::find();
+        $query->andWhere(['user_post_id' => Arr::get($params, 'userPostId')]);
+        $query->andWhere(['status' => UserPostComment::STATUS_ACTIVE]);
 
-        return $search->search($params);
+        $pageLimit = Arr::get($params, 'limit');
+        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortOrder = Arr::get($params, 'sort_order', 'ascending');
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
+
+        return new ActiveDataProvider([
+            'query'      => $query,
+            'sort'       => [
+                'defaultOrder' => [$sortBy => $sortOrder],
+                'attributes' => [
+                    'title',
+                    'status',
+                    'created_at'
+                ],
+            ],
+            'pagination' => [
+                'pageSize' => $pageLimit,
+            ],
+        ]);
     }
 }

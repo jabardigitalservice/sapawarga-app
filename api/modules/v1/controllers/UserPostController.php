@@ -2,8 +2,8 @@
 
 namespace app\modules\v1\controllers;
 
-use app\models\Question;
-use app\models\QuestionSearch;
+use app\models\UserPost;
+use app\models\UserPostSearch;
 use app\models\Like;
 use yii\filters\AccessControl;
 use Illuminate\Support\Arr;
@@ -11,12 +11,12 @@ use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use app\modules\v1\repositories\QuestionRepository;
+use app\modules\v1\repositories\UserPostRepository;
 use app\modules\v1\repositories\LikeRepository;
 
-class QuestionController extends ActiveController
+class UserPostController extends ActiveController
 {
-    public $modelClass = Question::class;
+    public $modelClass = UserPost::class;
 
     public function behaviors()
     {
@@ -68,12 +68,12 @@ class QuestionController extends ActiveController
 
      /**
      * @param $id
-     * @return mixed|Question
+     * @return mixed|UserPost
      * @throws \yii\web\NotFoundHttpException
      */
     public function actionView($id)
     {
-        $repository = new QuestionRepository();
+        $repository = new UserPostRepository();
         $getDetail = $repository->getDetail($id);
 
         if ($getDetail === null) {
@@ -102,14 +102,14 @@ class QuestionController extends ActiveController
     }
 
     /**
-     * Delete entity with soft delete / status flagging
+     * Like or Unlike user post
      *
      * @param $id
      */
     public function actionLikes($id)
     {
         $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_QUESTION);
+        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_USER_POST);
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
@@ -146,7 +146,11 @@ class QuestionController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $search = new QuestionSearch();
+        $user = Yii::$app->user;
+        $search = new UserPostSearch();
+        if ($user->can('staffRW')) {
+            $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
+        }
 
         return $search->search($params);
     }

@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use app\components\ModelHelper;
-use Jdsteam\Sapawarga\Models\Concerns\HasUserLiked;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
@@ -13,29 +11,27 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "question".
+ * This is the model class for table "user_post_comments".
  *
  * @property int $id
+ * @property int $user_post_id
  * @property string $text
- * @property bool $is_flagged
  * @property int $status
  * @property int $created_by
  * @property int $updated_by
  * @property int $created_at
  * @property int $updated_by
  */
-class Question extends ActiveRecord implements ActiveStatus
+class UserPostComment extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus, HasUserLiked;
-
-    public $likes_count;
+    use HasActiveStatus;
 
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'questions';
+        return 'user_post_comments';
     }
 
     public function getAuthor()
@@ -43,20 +39,9 @@ class Question extends ActiveRecord implements ActiveStatus
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
-    public function getComments()
+    public function getUserPost()
     {
-        return $this->hasMany(QuestionComment::class, ['question_id' => 'id']);
-    }
-
-    public function getLikes()
-    {
-        return $this->hasMany(Like::class, ['entity_id' => 'id'])
-                    ->andOnCondition(['type' => Like::TYPE_QUESTION]);
-    }
-
-    public function getLastAnswer()
-    {
-        return QuestionComment::findOne($this->answer_id);
+        return $this->hasOne(UserPost::class, ['id' => 'user_post_id']);
     }
 
     /**
@@ -65,16 +50,15 @@ class Question extends ActiveRecord implements ActiveStatus
     public function rules()
     {
         return [
-            ['text', 'string', 'max' => 1000],
-            ['text', 'string', 'min' => 10],
+            ['text', 'string', 'max' => 500],
 
             [['text'], 'trim'],
             [['text'], 'safe'],
-            [['text', 'status'],'required'],
 
-            [['status', 'answer_id', 'is_flagged'], 'integer'],
+            [['user_post_id', 'text', 'status'], 'required' ],
+
+            ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
-            ['is_flagged', 'in', 'range' => [0, 1]],
         ];
     }
 
@@ -82,19 +66,13 @@ class Question extends ActiveRecord implements ActiveStatus
     {
         $fields = [
             'id',
+            'user_post_id',
             'text',
-            'likes_count',
-            'comments_count' => 'CommentsCount',
-            'answer_id',
-            'answer' => 'lastAnswer',
-            'status',
-            'status_label' => 'StatusLabel',
+            'user' => 'AuthorField',
             'created_at',
             'updated_at',
             'created_by',
-            'is_flagged',
-            'is_liked' => 'IsUserLiked',
-            'user' => 'AuthorField',
+            'updated_by',
         ];
 
         return $fields;
@@ -107,7 +85,7 @@ class Question extends ActiveRecord implements ActiveStatus
     {
         return [
             'id' => 'ID',
-            'text' => 'Pertanyaan',
+            'text' => 'Komentar',
             'status' => 'Status',
         ];
     }
@@ -122,22 +100,8 @@ class Question extends ActiveRecord implements ActiveStatus
                 'updatedAtAttribute' => 'updated_at',
                 'value' => time(),
             ],
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::class,
-                'attributeTypes' => [
-                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                ],
-                'typecastAfterValidate' => false,
-                'typecastBeforeSave' => false,
-                'typecastAfterFind' => true,
-            ],
             BlameableBehavior::class,
         ];
-    }
-
-    protected function getCommentsCount()
-    {
-        return (int)$this->getComments()->count();
     }
 
     protected function getAuthorField()
@@ -150,5 +114,15 @@ class Question extends ActiveRecord implements ActiveStatus
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
             'role_label' => $this->author->getRoleName(),
         ];
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert) {
+            // Save the last comment id
+            $this->userPost->last_user_post_comment_id = $this->id;
+            $this->userPost->save(false);
+        }
+        return parent::afterSave($insert, $changedAttributes);
     }
 }
