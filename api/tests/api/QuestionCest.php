@@ -197,7 +197,7 @@ class QuestionCest
         $I->assertEquals(2, $data[0]['id']);
     }
 
-    public function postStaffAndPimpinanUpdate(ApiTester $I)
+    public function postStaffUpdate(ApiTester $I)
     {
         $I->haveInDatabase('questions', [
             'id' => 1,
@@ -210,7 +210,6 @@ class QuestionCest
             'updated_by' => 17
         ]);
 
-        // admin
         $I->amStaff();
 
         $I->sendPUT('/v1/questions/1', [
@@ -223,32 +222,6 @@ class QuestionCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
-        ]);
-
-        // pimpinan
-        $I->amStaff('gubernur');
-
-        $I->sendPUT('/v1/questions/1', [
-            'is_flagged' => 0,
-        ]);
-
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $I->haveInDatabase('questions', [
-            'id' => 1,
-            'text' => 'Sample Question',
-            'is_flagged' => 0,
-            'status' => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
-            'created_by' => 17,
-            'updated_by' => 17
         ]);
     }
 }

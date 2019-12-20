@@ -45,7 +45,7 @@ class QuestionController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles' => ['admin', 'staffProv', 'staffRW'],
+                    'roles' => ['admin', 'pimpinan', 'staffProv', 'staffRW'],
                 ],
             ],
         ];
