@@ -152,22 +152,13 @@ class BroadcastTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('title'));
     }
 
-    public function testDescriptionMaximumCharactersShouldSuccess()
+    public function testDescriptionLongCharactersShouldSuccess()
     {
         $model              = new Broadcast();
         $model->description = file_get_contents(__DIR__ . '/../../data/1000chars.txt');
         $model->validate();
 
         $this->assertFalse($model->hasErrors('description'));
-    }
-
-    public function testDescriptionMaximumCharactersShouldFail()
-    {
-        $model              = new Broadcast();
-        $model->description = file_get_contents(__DIR__ . '/../../data/1000chars.txt') . 'x';
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('description'));
     }
 
     public function testDescriptionAllowHTMLTags()
