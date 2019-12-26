@@ -42,6 +42,7 @@ VALUES
     ('trainer','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'trainer@demo.com','trainer@demo.com',1556043421,'172.21.0.6',NULL,NULL,NULL,10,49,1556007420,1556007420,'Pelatih','080989999','Jl. Alamat Pelatih',NULL,'002','6214','450','23','-6.278097','106.947295',NULL,'https://facebook.com/trainer','trainer','trainer',NULL,NULL,NULL),
     ('dashboard_executive','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'dashboard_executive@sapawarga.jabarprov.go.id','dashboard_executive@sapawarga.jabarprov.go.id',1556043421,'172.21.0.6',NULL,NULL,NULL,10,100,1556007420,1556007420,'Service Account Dashboard Executive','080989999',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
     ('opd.disdik','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'disdik@jabarprov.go.id','disdik@jabarprov.go.id',1556043421,'172.21.0.6',NULL,NULL,NULL,10,88,1556007420,1556007420,'Dinas Pendidikan Provinsi Jawa Barat','0228827728',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+    ('opd.disnakertrans','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'disdik@jabarprov.go.id','disdik@jabarprov.go.id',1556043421,'172.21.0.6',NULL,NULL,NULL,10,88,1556007420,1556007420,'Dinas Pendidikan Provinsi Jawa Barat','0228827728',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
     ('gubernur','7IC5A3mCydDgKd7pXjiopc-nD6pZKssL',NULL,'$2y$13$gli.MzCS0Yya78Sbw1ukFOpopV8sR.Lbig1Q/FbqxXxETmSm5Hux6',NULL,'disdik@jabarprov.go.id','disdik@jabarprov.go.id',1556043421,'172.21.0.6',NULL,NULL,NULL,10,91,1556007420,1556007420,'Dinas Pendidikan Provinsi Jawa Barat','0222502898',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 
@@ -134,4 +135,5 @@ VALUES
     ('trainer','40',1556007421),
     ('service_account_dashboard','41',1556018724),
     ('staffOPD','42',1556018725),
-    ('pimpinan','43',1556018726);
+    ('staffOPD','43',1556018725),
+    ('pimpinan','44',1556018726);

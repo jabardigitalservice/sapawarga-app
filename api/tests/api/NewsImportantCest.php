@@ -1,5 +1,4 @@
 <?php
-use Carbon\Carbon;
 
 class NewsImportantCest
 {
@@ -8,6 +7,33 @@ class NewsImportantCest
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
         Yii::$app->db->createCommand('TRUNCATE news_important')->execute();
         Yii::$app->db->createCommand('TRUNCATE news_important_attachment')->execute();
+    }
+
+    protected function loadData(ApiTester $I)
+    {
+        $I->haveInDatabase('news_important', [
+            'id' => 1,
+            'title' => 'Info Pendidikan',
+            'content' => 'Info Pendidikan',
+            'category_id' => 36,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 2,
+            'title' => 'Info Lowongan Kerja',
+            'content' => 'Info Lowongan Kerja',
+            'category_id' => 37,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 43,
+            'updated_by' => 43
+        ]);
     }
 
     public function getNewsImportantListNotAllowedUserTest(ApiTester $I)
@@ -137,9 +163,43 @@ class NewsImportantCest
         $I->seeResponseIsJson();
     }
 
+    /**
+     * @before loadData
+     */
+    public function postUpdateNotOwnUnauthorizedTest(ApiTester $I)
+    {
+        $I->amUser('opd.disdik');
+        $data = [];
+        $I->sendPUT('/v1/news-important/2', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->amUser('opd.disnakertrans');
+        $data = [];
+        $I->sendPUT('/v1/news-important/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+    }
+
     public function deleteUserUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('staffrw');
+
+        $I->sendDELETE('/v1/news-important/1');
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function deleteNotOwnUnauthorizedTest(ApiTester $I)
+    {
+        $I->amUser('opd.disdik');
+
+        $I->sendDELETE('/v1/news-important/2');
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('opd.disnakertrans');
 
         $I->sendDELETE('/v1/news-important/1');
         $I->canSeeResponseCodeIs(403);

@@ -35,4 +35,5 @@ VALUES
     ('notification','Berita Counter Hoaks Terbaru',NULL,10,1557803314,1557803314),
     ('notification','Video Terbaru',NULL,10,1557803314,1557803314),
     ('notification','Perubahan Status Usulan',NULL,10,1557803314,1557803314),
-    ('news_important','Pendidikan',NULL,10,1557803314,1557803314);
+    ('news_important','Pendidikan',NULL,10,1557803314,1557803314),
+    ('news_important','Ketenagakerjaan',NULL,10,1557803314,1557803314);
