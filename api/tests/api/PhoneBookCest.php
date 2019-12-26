@@ -199,10 +199,11 @@ class PhoneBookCest
        $I->seeResponseContainsJson([
            'success' => true,
            'status'  => 200,
-       ]);
-
-       $I->seeResponseContainsJson([
-           'kabkota_id' => 23,
+           'data'    => [
+               'items' => [
+                   [ 'kabkota_id' => 23, ]
+               ]
+           ]
        ]);
 
        $I->cantSeeResponseContainsJson([
@@ -224,10 +225,7 @@ class PhoneBookCest
        $I->seeResponseContainsJson([
            'success' => true,
            'status'  => 200,
-       ]);
-
-       $I->seeResponseContainsJson([
-           'kabkota_id' => 26,
+           'data'    => [ 'kabkota_id' => 26, ]
        ]);
 
        $I->cantSeeResponseContainsJson([
