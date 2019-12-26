@@ -196,4 +196,32 @@ class QuestionCest
 
         $I->assertEquals(2, $data[0]['id']);
     }
+
+    public function postStaffUpdate(ApiTester $I)
+    {
+        $I->haveInDatabase('questions', [
+            'id' => 1,
+            'text' => 'Sample Question',
+            'is_flagged' => 0,
+            'status' => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->amStaff();
+
+        $I->sendPUT('/v1/questions/1', [
+            'is_flagged' => 1,
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
 }
