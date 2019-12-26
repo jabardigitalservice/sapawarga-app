@@ -1105,14 +1105,6 @@ class NewsCest
 //        $I->assertEquals($read_count + 1, $new_read_count[0]);
 //    }
 
-    public function getUserStatisticsUnauthorizedTest(ApiTester $I)
-    {
-        $I->amUser('staffrw');
-
-        $I->sendGET('/v1/news/statistics');
-        $I->canSeeResponseCodeIs(403);
-    }
-
     public function getAdminStatisticsTest(ApiTester $I)
     {
         $I->haveInDatabase('news_channels', [
@@ -1137,6 +1129,7 @@ class NewsCest
             'updated_at'  => '1554706345',
         ]);
 
+        // admin
         $I->amStaff();
 
         $I->sendGET('/v1/news/statistics');
@@ -1153,5 +1146,14 @@ class NewsCest
         $I->assertEquals(1, $data[0][0]['count']);
         $I->assertEquals(2, $data[0][1]['id']);
         $I->assertEquals(0, $data[0][1]['count']);
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/news/statistics');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
     }
 }
