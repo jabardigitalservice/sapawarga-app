@@ -76,6 +76,7 @@ class CategoryCest
             'status' => 0,
         ]);
 
+        // admin
         $I->amStaff();
 
         $I->sendGET($this->endpointCategory);
@@ -110,6 +111,13 @@ class CategoryCest
         $I->cantSeeResponseContainsJson([
             'name' => 'Deleted Category',
         ]);
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET($this->endpointCategory);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
     }
 
     public function getCategoryListFilterType(ApiTester $I)

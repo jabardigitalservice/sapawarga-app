@@ -9,6 +9,14 @@ class AreasCest
 
     public function getListTest(ApiTester $I)
     {
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/areas');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        // user
         $I->amUser();
 
         $I->sendGET('/v1/areas');
