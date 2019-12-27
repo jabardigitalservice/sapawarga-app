@@ -189,51 +189,55 @@ class PhoneBookCest
         ]);
     }
 
-   public function getSearchStaffKabKotaBekasiOverideKabKotaIdTest(ApiTester $I)
-   {
-       $I->amStaff('staffkabkota2');
-       $I->sendGET('/v1/phone-books?search=koperasi&kabkota_id=22');
-       $I->canSeeResponseCodeIs(200);
-       $I->seeResponseIsJson();
+//    public function getSearchStaffKabKotaBekasiOverideKabKotaIdTest(ApiTester $I)
+//    {
+//        $I->amStaff('staffkabkota2');
+//        $I->sendGET('/v1/phone-books?search=koperasi&kabkota_id=22');
+//        $I->canSeeResponseCodeIs(200);
+//        $I->seeResponseIsJson();
+//
+//        $I->seeResponseContainsJson([
+//            'success' => true,
+//            'status'  => 200,
+//        ]);
+//
+//        $I->seeResponseContainsJson([
+//            'kabkota_id' => 23,
+//        ]);
+//
+//        $I->cantSeeResponseContainsJson([
+//            'kabkota_id' => 22,
+//        ]);
+//
+//        $I->cantSeeResponseContainsJson([
+//            'kabkota_id' => 26,
+//        ]);
+//    }
 
-       $response = $I->grabResponse();
-       $response = json_decode($response, true);
-       $response = $response['data']['items'];
-       $kabkotaColumn = array_column($response, 'kabkota_id');
-
-       // Assert kabkota_id values in search result
-       $expectedSearch = array_search(23, $kabkotaColumn);
-       $I->assertNotFalse($expectedSearch);
-       $I->assertInternalType(int::class, $expectedSearch);
-
-       $unexpectedSearch = array_search(22, $kabkotaColumn);
-       $I->assertFalse($unexpectedSearch);
-
-       $unexpectedSearch = array_search(26, $kabkotaColumn);
-       $I->assertFalse($unexpectedSearch);
-   }
-
-   public function getPolresByUserLocation(ApiTester $I)
-   {
-       $I->amUser('user.tasik');
-       $I->sendGET('/v1/phone-books/by-user-location?instansi=polres');
-       $I->canSeeResponseCodeIs(200);
-       $I->seeResponseIsJson();
-
-       $I->seeResponseContainsJson([
-           'success' => true,
-           'status'  => 200,
-           'data'    => [ 'kabkota_id' => 26, ]
-       ]);
-
-       $I->cantSeeResponseContainsJson([
-           'name' => 'POLRES TASIK MALAYA KOTA',
-       ]);
-
-       $I->cantSeeResponseContainsJson([
-           'kabkota_id' => 23,
-       ]);
-   }
+//    public function getPolresByUserLocation(ApiTester $I)
+//    {
+//        $I->amUser('user.tasik');
+//        $I->sendGET('/v1/phone-books/by-user-location?instansi=polres');
+//        $I->canSeeResponseCodeIs(200);
+//        $I->seeResponseIsJson();
+//
+//        $I->seeResponseContainsJson([
+//            'success' => true,
+//            'status'  => 200,
+//        ]);
+//
+//        $I->seeResponseContainsJson([
+//            'kabkota_id' => 26,
+//        ]);
+//
+//        $I->cantSeeResponseContainsJson([
+//            'name' => 'POLRES TASIK MALAYA KOTA',
+//        ]);
+//
+//        $I->cantSeeResponseContainsJson([
+//            'kabkota_id' => 23,
+//        ]);
+//    }
 
     public function userCannotCreateNewTest(ApiTester $I)
     {
