@@ -27,7 +27,7 @@ class Question extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    public $likes_count;
+    public $likes_count = 0;
 
     /**
      * {@inheritdoc}
