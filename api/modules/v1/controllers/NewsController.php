@@ -62,7 +62,7 @@ class NewsController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'featured', 'related'],
+                    'actions' => ['index', 'view', 'featured', 'related', 'statistics'],
                     'roles' => ['newsList'],
                 ],
             ],

@@ -41,7 +41,7 @@ class AreaController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view'],
-                    'roles' => ['areaList'],
+                    'roles'   => ['@'],
                 ],
             ],
         ];
