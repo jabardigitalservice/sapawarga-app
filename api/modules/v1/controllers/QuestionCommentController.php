@@ -97,7 +97,8 @@ class QuestionCommentController extends ActiveController
     {
         $authUser = Yii::$app->user;
 
-        if ($authUser->can('admin')) {
+        // Admin, staffprov can do everything
+        if ($authUser->can('admin') || $authUser->can('staffProv')) {
             return true;
         }
 
