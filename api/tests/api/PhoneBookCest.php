@@ -196,23 +196,21 @@ class PhoneBookCest
        $I->canSeeResponseCodeIs(200);
        $I->seeResponseIsJson();
 
-       $I->seeResponseContainsJson([
-           'success' => true,
-           'status'  => 200,
-           'data'    => [
-               'items' => [
-                   [ 'kabkota_id' => 23, ]
-               ]
-           ]
-       ]);
+       $response = $I->grabResponse();
+       $response = json_decode($response, true);
+       $response = $response['data']['items'];
+       $kabkotaColumn = array_column($response, 'kabkota_id');
 
-       $I->cantSeeResponseContainsJson([
-           'kabkota_id' => 22,
-       ]);
+       // Assert kabkota_id values in search result
+       $expectedSearch = array_search(23, $kabkotaColumn);
+       $I->assertNotFalse($expectedSearch);
+       $I->assertInternalType(int::class, $expectedSearch);
 
-       $I->cantSeeResponseContainsJson([
-           'kabkota_id' => 26,
-       ]);
+       $unexpectedSearch = array_search(22, $kabkotaColumn);
+       $I->assertFalse($unexpectedSearch);
+
+       $unexpectedSearch = array_search(26, $kabkotaColumn);
+       $I->assertFalse($unexpectedSearch);
    }
 
    public function getPolresByUserLocation(ApiTester $I)
