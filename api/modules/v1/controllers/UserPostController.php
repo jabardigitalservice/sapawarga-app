@@ -130,8 +130,8 @@ class UserPostController extends ActiveController
         $authUser = Yii::$app->user;
         $authUserId = $authUser->id;
 
-        // Admin can do everything
-        if ($authUser->can('admin')) {
+        // Admin, staffprov can do everything
+        if ($authUser->can('admin') || $authUser->can('staffProv')) {
             return true;
         }
 
