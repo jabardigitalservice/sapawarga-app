@@ -123,17 +123,22 @@ class NewsImportantController extends ActiveController
     public function actionUpdate($id)
     {
         $model = NewsImportant::findOne($id);
+        $params = Yii::$app->getRequest()->getBodyParams();
+
         if (empty($model)) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
         $this->checkAccess('update', $model, $id);
 
-        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $model->load($params, '');
 
         if ($model->validate() && $model->save()) {
-            $this->prepareDeleteAttachment($model->id);
-            $this->prepareSaveAttachment($model->id);
+            // Delete first when send attachment
+            if (isset($params['attachments'])) {
+                $this->prepareDeleteAttachment($model->id);
+                $this->prepareSaveAttachment($model->id);
+            }
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(200);
@@ -176,6 +181,14 @@ class NewsImportantController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        // Admin can do everything
+        if ($authUser->can('admin')) {
+            return true;
+        }
+
         if ($action === 'update' || $action === 'delete') {
             if ($model->created_by !== \Yii::$app->user->id) {
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
@@ -218,7 +231,7 @@ class NewsImportantController extends ActiveController
      */
     private function saveAttachment($newsImportantId, $val)
     {
-        if (!empty($val['file_path'])) {
+        if (! empty($val['file_path'])) {
             $model = new NewsImportantAttachment();
             $model->news_important_id = $newsImportantId;
             $model->file_path = $val['file_path'];
