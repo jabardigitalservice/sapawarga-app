@@ -155,4 +155,32 @@ class UserPostCest
 
         $I->assertEquals(2, $data[0]['id']);
     }
+
+    public function postStaffProvUpdate(ApiTester $I)
+    {
+        $I->haveInDatabase('user_posts', [
+            'id' => 1,
+            'text' => 'User Post 1 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'image_path' => 'general/4546546photo.jpg',
+            'status' => 0,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $I->sendPUT('/v1/user-posts/1', [
+            'status' => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
 }
