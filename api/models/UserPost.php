@@ -156,9 +156,9 @@ class UserPost extends ActiveRecord implements ActiveStatus
             'name' => $this->author->name,
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
             'role_label' => $this->author->getRoleName(),
-            'kabkota' => $this->author->kabkota->name,
-            'kelurahan' => $this->author->kelurahan->name,
-            'kecamatan' => $this->author->kecamatan->name,
+            'kabkota' => isset($this->author->kabkota->name) ? $this->author->kabkota->name : null,
+            'kelurahan' => isset($this->author->kelurahan->name) ? $this->author->kelurahan->name : null,
+            'kecamatan' => isset($this->author->kecamatan->name) ? $this->author->kecamatan->name : null,
         ];
     }
 }
