@@ -3,6 +3,7 @@ stages:
   # - code_quality
   - build
   - test
+  - code_coverage
   - deploy_staging
   - deploy_prod
 
@@ -120,8 +121,8 @@ test_api:
       - build/logs/clover.xml
     expire_in: 1 week
 
-test_api_coverage:
-  stage: test
+code_coverage:
+  stage: code_coverage
   image: docker:stable
   only:
     - branches
@@ -130,6 +131,10 @@ test_api_coverage:
   variables:
     GIT_COMMIT_SHA: $CI_COMMIT_SHA
     GIT_BRANCH: $CI_COMMIT_REF_NAME
+  before_script:
+    - apk add --update curl && rm -rf /var/cache/apk/*
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./api/cc-test-reporter
+    - chmod +x ./api/cc-test-reporter
   script:
     - ls -al
     - ls ./api -al
