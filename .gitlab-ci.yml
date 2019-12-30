@@ -12,7 +12,6 @@ versioning:
   only:
     - branches
   before_script:
-    - pwd
     - apk add git
   script:
     - export VERSION=$(git describe)
@@ -112,8 +111,12 @@ test_api:
     - docker ps
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
-    - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
-    - cp ./api/tests/_output/coverage.xml ./clover.xml
+    - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
+    - pwd
+    - cd api/tests/_output
+    - pwd
+    - ls -al
+    - mv ./api/tests/_output/coverage.xml ./clover.xml
     - export GIT_COMMIT_SHA=$CI_COMMIT_SHA
     - export GIT_BRANCH=$CI_COMMIT_REF_NAME
     - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
