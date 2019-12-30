@@ -114,11 +114,12 @@ test_api:
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
     - ls ./api/tests/_output -al
-    - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
-    - ls ./api -al
+    # - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
+    # - ls ./api -al
+    - ls ./ -al
   artifacts:
     paths:
-      - build/logs/clover.xml
+      - tests/_output/coverage.xml
     expire_in: 1 week
 
 code_coverage:
@@ -138,7 +139,7 @@ code_coverage:
   script:
     - ls -al
     - ls ./api -al
-    - ls ./build
+    - ls ./tests
     - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
