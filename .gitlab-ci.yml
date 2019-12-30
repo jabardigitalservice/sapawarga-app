@@ -12,6 +12,7 @@ versioning:
   only:
     - branches
   before_script:
+    - pwd
     - apk add git
   script:
     - export VERSION=$(git describe)
