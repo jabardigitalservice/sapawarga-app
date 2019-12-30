@@ -112,7 +112,7 @@ test_api:
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
-    - docker-compose exec -T api cp ./tests/_output/coverage.xml ./clover.xml
+    - cp ./api/tests/_output/coverage.xml ./clover.xml
     - export GIT_COMMIT_SHA=$CI_COMMIT_SHA
     - export GIT_BRANCH=$CI_COMMIT_REF_NAME
     - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
