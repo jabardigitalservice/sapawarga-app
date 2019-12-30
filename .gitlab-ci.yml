@@ -91,6 +91,7 @@ test_api:
     - pip install docker-compose
     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./api/cc-test-reporter
     - chmod +x ./api/cc-test-reporter
+    - ./api/cc-test-reporter before-build
   script:
     - cp .env-template .env
     - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
@@ -111,8 +112,8 @@ test_api:
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
-    - cp api/tests/_output/coverage.xml api/clover.xml
-    - docker-compose exec -e GIT_COMMIT_SHA=$CI_COMMIT_SHA -e GIT_BRANCH=$CI_COMMIT_REF_NAME -T api /srv/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
+    - cp ./tests/_output/coverage.xml ./clover.xml
+    - docker-compose exec -e GIT_COMMIT_SHA=$CI_COMMIT_SHA -e GIT_BRANCH=$CI_COMMIT_REF_NAME -T api ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
   image: docker:stable
