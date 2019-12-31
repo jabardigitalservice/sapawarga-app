@@ -85,14 +85,15 @@ test_api:
   dependencies:
     - versioning
   before_script:
+    - apk add git
     - export VERSION=$(cat ./version)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
     - apk add --update curl && rm -rf /var/cache/apk/*
     - pip install docker-compose
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./api/cc-test-reporter
-    - chmod +x ./api/cc-test-reporter
-    - ./api/cc-test-reporter before-build
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
+    - ./cc-test-reporter before-build
   script:
     - cp .env-template .env
     - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
@@ -114,10 +115,8 @@ test_api:
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
     - mv ./api/tests/_output/coverage.xml ./clover.xml
-    - ls ./api -al
-    - ls -al
     - find / -name *.xml
-    - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
+    - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
   image: docker:stable
