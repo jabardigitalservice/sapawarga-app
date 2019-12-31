@@ -113,9 +113,7 @@ test_api:
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
-    - ls ./api/tests/_output -al
-    - find . -name *.xml
-    - mv ./tests/_output/coverage.xml ./clover.xml
+    - mv ./api/tests/_output/coverage.xml ./clover.xml
     - ls ./api -al
     - ls -al
     - find / -name *.xml
