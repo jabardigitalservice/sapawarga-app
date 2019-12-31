@@ -12,7 +12,7 @@ services:
       - .env
     volumes:
       - ./api:/srv
-      # - /srv/vendor
+      - /srv/vendor
       - vol_storage:/srv/web/storage
     ports:
       - 81:80
