@@ -113,11 +113,12 @@ test_api:
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
-    - docker-compose exec -T api ls ./tests/_output -al
-    - docker-compose exec -T api find . -name '*.xml'
-    - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
-    - docker-compose exec -T api ls -al
-    - docker-compose exec -T api find / -name '*.xml'
+    - ls ./api/tests/_output -al
+    - find . -name *.xml
+    - mv ./tests/_output/coverage.xml ./clover.xml
+    - ls ./api -al
+    - ls -al
+    - find / -name *.xml
     - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
