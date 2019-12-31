@@ -117,7 +117,7 @@ test_api:
     - find . -name *.xml
     - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
     - ls ./api -al
-    - find . -name *.xml
+    - find / -name *.xml
     - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
