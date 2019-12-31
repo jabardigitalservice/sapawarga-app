@@ -117,6 +117,7 @@ test_api:
     # - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
     # - ls ./api -al
     - ls ./ -al
+    - find . -name coverage.xml
   artifacts:
     paths:
       - tests/_output/coverage.xml
