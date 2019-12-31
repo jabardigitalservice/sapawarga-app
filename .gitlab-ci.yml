@@ -3,7 +3,6 @@ stages:
   # - code_quality
   - build
   - test
-  - code_coverage
   - deploy_staging
   - deploy_prod
 
@@ -81,7 +80,8 @@ test_api:
   services:
     - docker:stable-dind
   variables:
-    DOCKER_DRIVER: overlay2
+    GIT_COMMIT_SHA: $CI_COMMIT_SHA
+    GIT_BRANCH: $CI_COMMIT_REF_NAME
   dependencies:
     - versioning
   before_script:
@@ -114,33 +114,8 @@ test_api:
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
     - ls ./api/tests/_output -al
-    # - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
-    # - ls ./api -al
-    - ls ./ -al
-    - find . -name coverage.xml
-  artifacts:
-    paths:
-      - tests/_output/coverage.xml
-    expire_in: 1 week
-
-code_coverage:
-  stage: code_coverage
-  image: docker:stable
-  only:
-    - branches
-  services:
-    - docker:stable-dind
-  variables:
-    GIT_COMMIT_SHA: $CI_COMMIT_SHA
-    GIT_BRANCH: $CI_COMMIT_REF_NAME
-  before_script:
-    - apk add --update curl && rm -rf /var/cache/apk/*
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./api/cc-test-reporter
-    - chmod +x ./api/cc-test-reporter
-  script:
-    - ls -al
+    - docker-compose exec -T api mv ./tests/_output/coverage.xml ./clover.xml
     - ls ./api -al
-    - ls ./tests
     - ./api/cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
