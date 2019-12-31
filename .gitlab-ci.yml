@@ -116,6 +116,7 @@ test_api:
     - docker-compose exec -T api php vendor/bin/codecept run unit --coverage --coverage-xml
     - mv ./api/tests/_output/coverage.xml ./clover.xml
     - find / -name *.xml
+    - sed -i "s|/srv|$(pwd)/api|g" clover.xml
     - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:

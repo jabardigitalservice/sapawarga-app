@@ -9,4 +9,3 @@ exclude_patterns:
   - api/web/
   - api/migrations/
   - api/packages/mero/
-  - "**/*.sql"
