@@ -93,4 +93,38 @@ class PollingDashboard extends Polling
 
         return $provider->getModels();
     }
+
+    public function getPollingCounts($params)
+    {
+        $conditional = '';
+        $paramsSql = [':status_disabled' => Polling::STATUS_DISABLED];
+
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
+            $conditional .= 'AND kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabkotaId;
+        }
+
+        $sql = "SELECT CASE
+                    WHEN `status` = 10 THEN 'STATUS_PUBLISHED'
+                    END as `status`, count(id) AS total_count
+                FROM polling WHERE `status` > :status_disabled
+                $conditional
+                GROUP BY `status` ORDER BY `status`";
+
+        $provider = new SqlDataProvider([
+            'sql'      => $sql,
+            'params'   => $paramsSql,
+        ]);
+        $posts = $provider->getModels();
+
+        // \yii\helpers\VarDumper::dump($posts);
+
+        $data = [];
+        foreach ($posts as $value) {
+            $data[$value['status']] = $value['total_count'];
+        }
+
+        return $data;
+    }
 }

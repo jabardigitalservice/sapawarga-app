@@ -255,6 +255,8 @@ return [
             'OPTIONS aspirasi-geo' => 'options',
             'GET polling-latest' => 'polling-latest',
             'OPTIONS polling-latest' => 'options',
+            'GET polling-counts' => 'polling-counts',
+            'OPTIONS polling-counts' => 'options',
             'GET news-most-likes' => 'news-most-likes',
             'OPTIONS news-most-likes' => 'options',
             'GET videos-most-views' => 'videos-most-views',
