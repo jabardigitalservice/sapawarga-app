@@ -263,9 +263,26 @@ class PollingDashboardCest
             'updated_at'  => '1564617600', // 01/08/2019 @ 12:00am
         ]);
 
+        $I->haveInDatabase('polling', [
+            'name'        => 'Lorem Ipsum Dolor Sit Amet',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'excerpt'     => 'Lorem ipsum dolor sit amet',
+            'start_date'  => '2019-06-01',
+            'end_date'    => '2019-09-01',
+            'kabkota_id'  => null,
+            'kec_id'      => null,
+            'kel_id'      => null,
+            'status'      => 0,
+            'category_id' => 17,
+            'created_by'  => 1,
+            'updated_by'  => 1,
+            'created_at'  => '1564617600', // 01/08/2019 @ 12:00am
+            'updated_at'  => '1564617600', // 01/08/2019 @ 12:00am
+        ]);
+
         $I->amStaff('gubernur');
 
-        $I->sendGET('/v1/dashboards/polling-number-created');
+        $I->sendGET('/v1/dashboards/polling-counts');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
