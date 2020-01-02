@@ -118,12 +118,47 @@ class PollingDashboard extends Polling
         ]);
         $posts = $provider->getModels();
 
-        // \yii\helpers\VarDumper::dump($posts);
-
         $data = [];
         foreach ($posts as $value) {
             $data[$value['status']] = $value['total_count'];
         }
+
+        return $data;
+    }
+
+    public function getPollingTurnout($params)
+    {
+        $conditional = '';
+        $paramsSql = [
+            ':status_active' => User::STATUS_ACTIVE,
+            ':role_rw' => User::ROLE_STAFF_RW,
+            ':role_user' => User::ROLE_USER,
+        ];
+
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
+            $conditional .= 'AND user.kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabkotaId;
+        }
+
+        $sql = "SELECT COUNT(DISTINCT polling_votes.user_id) as 'unique_voters',
+                       COUNT(DISTINCT user.id) as 'active_users'
+                FROM polling_votes, user
+                WHERE user.last_login_at IS NOT NULL
+                  AND user.status = :status_active
+                  $conditional
+                  AND (user.role = :role_rw OR user.role = :role_user)";
+
+        $provider = new SqlDataProvider([
+            'sql'      => $sql,
+            'params'   => $paramsSql,
+        ]);
+        $result = $provider->getModels();
+
+        $uniqueVoters = $result[0]['unique_voters'];
+        $activeUsers = $result[0]['active_users'];
+
+        $data = [ 'polling_turnout' =>  $uniqueVoters / $activeUsers];
 
         return $data;
     }
