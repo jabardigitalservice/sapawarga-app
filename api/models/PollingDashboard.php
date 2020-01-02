@@ -94,6 +94,13 @@ class PollingDashboard extends Polling
         return $provider->getModels();
     }
 
+    /**
+     * Gets number of published pollings, whose status is either 'ongoing' or 'ended'
+     *
+     * @param array $params['kabkota_id'] kabkota_id value, if user's role is staffKabkota
+     *
+     * @return SqlDataProvider
+     */
     public function getPollingCounts($params)
     {
         $conditional = '';
@@ -126,6 +133,13 @@ class PollingDashboard extends Polling
         return $data;
     }
 
+    /**
+     * Gets polling turnout, which is the percentage of unique staffRW and users who have voted in any polling
+     *
+     * @param array $params['kabkota_id'] kabkota_id value, if user's role is staffKabkota
+     *
+     * @return SqlDataProvider
+     */
     public function getPollingTurnout($params)
     {
         $conditional = '';
@@ -157,8 +171,11 @@ class PollingDashboard extends Polling
 
         $uniqueVoters = $result[0]['unique_voters'];
         $activeUsers = $result[0]['active_users'];
-
-        $data = [ 'polling_turnout' =>  $uniqueVoters / $activeUsers];
+        $pollingTurnout = 0;
+        if ($activeUsers > 0) {
+            $pollingTurnout = round($uniqueVoters / $activeUsers * 100, 2);
+        }
+        $data = [ 'polling_turnout' =>  $pollingTurnout . '%'];
 
         return $data;
     }

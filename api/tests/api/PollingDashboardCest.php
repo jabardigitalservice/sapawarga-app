@@ -317,7 +317,7 @@ class PollingDashboardCest
 
         $I->amStaff('gubernur');
 
-        $I->sendGET('/v1/dashboards/polling-number-turnout');
+        $I->sendGET('/v1/dashboards/polling-turnout');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
