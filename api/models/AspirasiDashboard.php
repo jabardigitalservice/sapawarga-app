@@ -55,8 +55,9 @@ class AspirasiDashboard extends Aspirasi
     /**
      * Creates data provider instance applied for get total aspirasi group by status
      *
-     * @param array $params['kabkota_id'] Filtering by kabkota_id
-     *
+     * @param array
+     * $params['kabkota_id'] Filtering by kabkota_id
+     * $params['current_month'] If true, filters Usulan from the current month and year
      * @return SqlDataProvider
      */
     public function getAspirasiCounts($params)
@@ -77,8 +78,8 @@ class AspirasiDashboard extends Aspirasi
             $year = date('Y');
             $month = date('m');
 
-            $conditional .= "AND (YEAR(FROM_UNIXTIME(aspirasi.created_at)) = :current_year) ";
-            $conditional .= "AND (MONTH(FROM_UNIXTIME(aspirasi.created_at)) = :current_month) ";
+            $conditional .= 'AND (YEAR(FROM_UNIXTIME(aspirasi.created_at)) = :current_year) ';
+            $conditional .= 'AND (MONTH(FROM_UNIXTIME(aspirasi.created_at)) = :current_month) ';
             $paramsSql[':current_year'] = $year;
             $paramsSql[':current_month'] = $month;
         }
