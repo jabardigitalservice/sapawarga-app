@@ -64,10 +64,23 @@ class AspirasiDashboard extends Aspirasi
         $conditional = '';
         $paramsSql = [':status_draft' => Aspirasi::STATUS_DRAFT];
 
+        // optional, filter by kabkota_id
         $kabkotaId = Arr::get($params, 'kabkota_id');
         if ($kabkotaId != null) {
             $conditional .= 'AND kabkota_id = :kabkota_id ';
             $paramsSql[':kabkota_id'] = $kabkotaId;
+        }
+
+        // optional, filter by current month and year
+        $is_current_month = Arr::get($params, 'current_month');
+        if ($is_current_month == true) {
+            $year = date('Y');
+            $month = date('m');
+
+            $conditional .= "AND (YEAR(FROM_UNIXTIME(aspirasi.created_at)) = :current_year) ";
+            $conditional .= "AND (MONTH(FROM_UNIXTIME(aspirasi.created_at)) = :current_month) ";
+            $paramsSql[':current_year'] = $year;
+            $paramsSql[':current_month'] = $month;
         }
 
         $sql = "SELECT CASE
