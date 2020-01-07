@@ -134,13 +134,13 @@ class PollingDashboard extends Polling
     }
 
     /**
-     * Gets polling turnout, which is the percentage of unique staffRW and users who have voted in any polling
+     * Gets polling participation rate, which is the percentage of unique staffRW and users who have voted in any polling
      *
      * @param array $params['kabkota_id'] kabkota_id value, if user's role is staffKabkota
      *
      * @return SqlDataProvider
      */
-    public function getPollingTurnout($params)
+    public function getPollingParticipation($params)
     {
         $conditional = '';
         $paramsSql = [
@@ -171,11 +171,11 @@ class PollingDashboard extends Polling
 
         $uniqueVoters = $result[0]['unique_voters'];
         $activeUsers = $result[0]['active_users'];
-        $pollingTurnout = 0;
+        $pollingParticipation = 0;
         if ($activeUsers > 0) {
-            $pollingTurnout = round($uniqueVoters / $activeUsers * 100, 2);
+            $pollingParticipation = round($uniqueVoters / $activeUsers * 100, 2);
         }
-        $data = [ 'polling_turnout' =>  $pollingTurnout . '%'];
+        $data = [ 'polling_participation' =>  $pollingParticipation . '%'];
 
         return $data;
     }

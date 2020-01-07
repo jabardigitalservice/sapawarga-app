@@ -71,14 +71,14 @@ class DashboardController extends ActiveController
         $behaviors['access'] = [
             'class' => AccessControl::className(),
             'only' => [
-                'aspirasi-most-likes', 'polling-latest', 'polling-counts', 'polling-turnout', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
+                'aspirasi-most-likes', 'polling-latest', 'polling-counts', 'polling-participation', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
                 'videos-most-views', 'users-leaderboard',
             ],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => [
-                        'aspirasi-most-likes', 'polling-latest', 'polling-counts', 'polling-turnout', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
+                        'aspirasi-most-likes', 'polling-latest', 'polling-counts', 'polling-participation', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
                         'videos-most-views', 'users-leaderboard',
                     ],
                     'roles' => ['dashboardList'],
@@ -148,14 +148,14 @@ class DashboardController extends ActiveController
         return $pollingCounts->getPollingCounts($params);
     }
 
-    public function actionPollingTurnout()
+    public function actionPollingParticipation()
     {
         $params = Yii::$app->request->getQueryParams();
         $params = $this->filterByStaffLocation($params);
 
         $pollingCounts = new PollingDashboard();
 
-        return $pollingCounts->getPollingTurnout($params);
+        return $pollingCounts->getPollingParticipation($params);
     }
 
     public function actionNewsMostLikes()

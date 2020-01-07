@@ -296,7 +296,7 @@ class PollingDashboardCest
         $I->assertEquals(1, count($data[0]));
     }
 
-    public function getPollingPimpinanNumberTurnoutTest(ApiTester $I)
+    public function getPollingPimpinanNumberParticipationTest(ApiTester $I)
     {
         $I->haveInDatabase('polling', [
             'name'        => 'Lorem Ipsum Dolor Sit Amet',
@@ -317,7 +317,7 @@ class PollingDashboardCest
 
         $I->amStaff('gubernur');
 
-        $I->sendGET('/v1/dashboards/polling-turnout');
+        $I->sendGET('/v1/dashboards/polling-participation');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
