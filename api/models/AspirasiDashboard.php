@@ -73,8 +73,8 @@ class AspirasiDashboard extends Aspirasi
         }
 
         // optional, filter by current month and year
-        $is_current_month = Arr::get($params, 'current_month');
-        if ($is_current_month == true) {
+        $isCurrentMonth = Arr::get($params, 'current_month');
+        if ($isCurrentMonth == true) {
             $year = date('Y');
             $month = date('m');
 
