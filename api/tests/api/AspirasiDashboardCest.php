@@ -268,6 +268,20 @@ class AspirasiDashboardCest
         $I->assertEquals(6178, $data[0][0]['id']);
     }
 
+    public function getAspirasiCountByMonthTest(ApiTester $I)
+    {
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/dashboards/aspirasi-counts?current_month=true');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
      public function _after(ApiTester $I)
      {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();

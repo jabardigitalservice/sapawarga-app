@@ -93,4 +93,90 @@ class PollingDashboard extends Polling
 
         return $provider->getModels();
     }
+
+    /**
+     * Gets number of published pollings, whose status is either 'ongoing' or 'ended'
+     *
+     * @param array $params['kabkota_id'] kabkota_id value, if user's role is staffKabkota
+     *
+     * @return SqlDataProvider
+     */
+    public function getPollingCounts($params)
+    {
+        $conditional = '';
+        $paramsSql = [':status_disabled' => Polling::STATUS_DISABLED];
+
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
+            $conditional .= 'AND kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabkotaId;
+        }
+
+        $sql = "SELECT CASE
+                    WHEN `status` = 10 THEN 'STATUS_PUBLISHED'
+                    END as `status`, count(id) AS total_count
+                FROM polling WHERE `status` > :status_disabled
+                $conditional
+                GROUP BY `status` ORDER BY `status`";
+
+        $provider = new SqlDataProvider([
+            'sql'      => $sql,
+            'params'   => $paramsSql,
+        ]);
+        $posts = $provider->getModels();
+
+        $data = [];
+        foreach ($posts as $value) {
+            $data[$value['status']] = $value['total_count'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Gets polling participation rate, which is the percentage of unique staffRW and users who have voted in any polling
+     *
+     * @param array $params['kabkota_id'] kabkota_id value, if user's role is staffKabkota
+     *
+     * @return SqlDataProvider
+     */
+    public function getPollingParticipation($params)
+    {
+        $conditional = '';
+        $paramsSql = [
+            ':status_active' => User::STATUS_ACTIVE,
+            ':role_rw' => User::ROLE_STAFF_RW,
+            ':role_user' => User::ROLE_USER,
+        ];
+
+        $kabkotaId = Arr::get($params, 'kabkota_id');
+        if ($kabkotaId != null) {
+            $conditional .= 'AND user.kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = $kabkotaId;
+        }
+
+        $sql = "SELECT COUNT(DISTINCT polling_votes.user_id) as 'unique_voters',
+                       COUNT(DISTINCT user.id) as 'active_users'
+                FROM polling_votes, user
+                WHERE user.last_login_at IS NOT NULL
+                  AND user.status = :status_active
+                  $conditional
+                  AND (user.role = :role_rw OR user.role = :role_user)";
+
+        $provider = new SqlDataProvider([
+            'sql'      => $sql,
+            'params'   => $paramsSql,
+        ]);
+        $result = $provider->getModels();
+
+        $uniqueVoters = $result[0]['unique_voters'];
+        $activeUsers = $result[0]['active_users'];
+        $pollingParticipation = 0;
+        if ($activeUsers > 0) {
+            $pollingParticipation = round($uniqueVoters / $activeUsers * 100, 2);
+        }
+        $data = [ 'polling_participation' =>  $pollingParticipation . '%'];
+
+        return $data;
+    }
 }
