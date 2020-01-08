@@ -187,7 +187,6 @@ class PollingCest
            'body' => 'Option C',
        ]);
 
-
        // pimpinan
        $I->amStaff('gubernur');
        $I->sendPOST('/v1/polling', $data);

@@ -11,8 +11,8 @@ services:
     env_file:
       - .env
     volumes:
-      # - ./api:/srv
-      # - /srv/vendor
+      - ./api:/srv
+      - /srv/vendor
       - vol_storage:/srv/web/storage
     ports:
       - 81:80
