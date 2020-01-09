@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property int $category_id
  * @property string $title
  * @property string $external_url
+ * @property string $response_url
  * @property int $kabkota_id
  * @property int $kec_id
  * @property int $kel_id
@@ -58,11 +59,11 @@ class Survey extends ActiveRecord
     {
         $rules = [
             [['title', 'status', 'external_url', 'category_id'], 'required'],
-            [['title', 'status', 'external_url', 'category_id'], 'trim'],
+            [['title', 'status', 'external_url', 'response_url', 'category_id'], 'trim'],
             ['title', 'string', 'min' => 10],
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
-            ['external_url', 'url'],
+            [['external_url', 'response_url'], 'url'],
             [['kabkota_id', 'kec_id', 'kel_id'], 'integer'],
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
@@ -85,6 +86,7 @@ class Survey extends ActiveRecord
             'category' => 'CategoryField',
             'title',
             'external_url',
+            'response_url',
             'start_date',
             'end_date',
             'meta',
