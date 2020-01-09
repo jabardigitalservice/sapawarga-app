@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Like;
 class NewsCest
 {
     public function _before(ApiTester $I)
@@ -1154,6 +1155,69 @@ class NewsCest
         $I->seeResponseContainsJson([
             'success' => true,
             'status'  => 200,
+        ]);
+    }
+
+    public function postLikeNews(ApiTester $I)
+    {
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendPOST('/v1/news/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS,
+            'user_id' => 36,
+            'entity_id' => 1,
+        ]);
+    }
+
+    public function postDislikeAspirasi(ApiTester $I)
+    {
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('likes', [
+            'entity_id' => 1,
+            'user_id'     => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendPOST('/v1/news/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->dontSeeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS,
+            'user_id' => 36,
+            'entity_id' => 1,
         ]);
     }
 }
