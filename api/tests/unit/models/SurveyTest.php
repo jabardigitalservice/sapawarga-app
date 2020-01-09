@@ -167,22 +167,28 @@ class SurveyTest extends Unit
         $model = new Survey();
 
         $model->external_url = 'test';
+        $model->response_url = 'test';
 
         $model->validate();
 
         $this->assertTrue($model->hasErrors('external_url'));
+        $this->assertTrue($model->hasErrors('response_url'));
 
         $model->external_url = 'test.com';
+        $model->response_url = 'test.com';
 
         $model->validate();
 
         $this->assertTrue($model->hasErrors('external_url'));
+        $this->assertTrue($model->hasErrors('response_url'));
 
         $model->external_url = 'http://google.com';
+        $model->response_url = 'http://google.com';
 
         $model->validate();
 
         $this->assertFalse($model->hasErrors('external_url'));
+        $this->assertFalse($model->hasErrors('response_url'));
     }
 
     public function testStartDateValidValue()
