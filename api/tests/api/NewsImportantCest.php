@@ -59,6 +59,30 @@ class NewsImportantCest
         $I->seeResponseIsJson();
     }
 
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListFilterByCategoryTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disdik');
+        $I->sendGET('/v1/news-important?category_id=36');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(36, $data[0]['category_id']);
+
+        $I->amStaff('opd.disnakertrans');
+        $I->sendGET('/v1/news-important?category_id=37');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(37, $data[0]['category_id']);
+    }
+
     public function postUserCreateUnauthorizedTest(ApiTester $I)
     {
         $I->amStaff('staffkabkota');

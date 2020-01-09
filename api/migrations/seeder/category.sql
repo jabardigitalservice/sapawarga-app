@@ -36,4 +36,8 @@ VALUES
     ('notification','Video Terbaru',NULL,10,1557803314,1557803314),
     ('notification','Perubahan Status Usulan',NULL,10,1557803314,1557803314),
     ('news_important','Pendidikan',NULL,10,1557803314,1557803314),
-    ('news_important','Ketenagakerjaan',NULL,10,1557803314,1557803314);
+    ('news_important','Pekerjaan',NULL,10,1557803314,1557803314),
+    ('news_important','Kesehatan',NULL,10,1557803314,1557803314),
+    ('news_important','Bencana',NULL,10,1557803314,1557803314),
+    ('news_important','Program Pemerintah',NULL,10,1557803314,1557803314),
+    ('news_important','Lainnya',NULL,10,1557803314,1557803314);
