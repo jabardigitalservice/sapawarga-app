@@ -360,6 +360,8 @@ return [
         'extraPatterns' => [
             'POST likes/{id}' => 'likes',
             'OPTIONS likes/{id}' => 'options',
+            'GET me' => 'me',
+            'OPTIONS me' => 'options',
         ]
     ],
     [
