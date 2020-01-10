@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\models\UserPost;
 use app\models\UserPostSearch;
+use app\models\User;
 use app\models\Like;
 use yii\filters\AccessControl;
 use Illuminate\Support\Arr;
@@ -30,6 +31,7 @@ class UserPostController extends ActiveController
                 'create' => ['post'],
                 'update' => ['put'],
                 'delete' => ['delete'],
+                'me' => ['get'],
             ],
         ];
 
@@ -115,6 +117,24 @@ class UserPostController extends ActiveController
         $response->setStatusCode(200);
 
         return 'ok';
+    }
+
+    /**
+     * Get list user post per user
+     *
+     * @param $id
+     */
+    public function actionMe()
+    {
+        $userId = Yii::$app->user->getId();
+        $user = User::findIdentity($userId);
+
+        $search = new UserPostSearch();
+        $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
+        $search->created_by = $userId;
+
+        $params = Yii::$app->request->getQueryParams();
+        return $search->search($params, true);
     }
 
     /**

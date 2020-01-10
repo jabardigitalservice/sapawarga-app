@@ -71,7 +71,7 @@ class UserPostCest
             'status'  => 200,
         ]);
 
-        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
     }
 
     public function getUserLikeUserPostTest(ApiTester $I)
@@ -154,6 +154,60 @@ class UserPostCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
 
         $I->assertEquals(2, $data[0]['id']);
+    }
+
+    public function getUserListMeTest(ApiTester $I)
+    {
+        $I->haveInDatabase('user_posts', [
+            'id' => 1,
+            'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'image_path' => 'general/4546546photo.jpg',
+            'status' => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->haveInDatabase('user_posts', [
+            'id' => 2,
+            'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'image_path' => 'general/4546546photo.jpg',
+            'status' => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 18,
+            'updated_by' => 18
+        ]);
+
+        $I->haveInDatabase('user_posts', [
+            'id' => 3,
+            'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'image_path' => 'general/4546546photo.jpg',
+            'status' => 0,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/user-posts/me');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
     }
 
     public function postStaffProvUpdate(ApiTester $I)

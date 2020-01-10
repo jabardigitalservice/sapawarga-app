@@ -47,11 +47,13 @@ class UserPostSearch extends UserPost
 
     protected function getQueryListUser($query, $params)
     {
-        $query->andWhere(['user_posts.status' => UserPost::STATUS_ACTIVE]);
-        $query->orWhere(['and',
-            ['user_posts.status' => UserPost::STATUS_DISABLED],
-            ['user_posts.created_by' => Yii::$app->user->id]
-        ]);
+        // Query for my post or public post
+        if (! empty($this->created_by)) {
+            $query->andWhere(['created_by' => $this->created_by]);
+            $query->andWhere(['<>', 'user_posts.status', UserPost::STATUS_DELETED]);
+        } else {
+            $query->andWhere(['user_posts.status' => UserPost::STATUS_ACTIVE]);
+        }
 
         return $this->getQueryAll($query, $params);
     }
