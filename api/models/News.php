@@ -7,6 +7,7 @@ use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -35,6 +36,8 @@ class News extends ActiveRecord implements ActiveStatus
 
     const STATUS_PUBLISHED = 10;
 
+    public $likes_count = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -51,6 +54,17 @@ class News extends ActiveRecord implements ActiveStatus
     public function getKabkota()
     {
         return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+    }
+
+    public function getLikes()
+    {
+        return $this->hasMany(Like::class, ['entity_id' => 'id'])
+                    ->andOnCondition(['type' => Like::TYPE_NEWS]);
+    }
+
+    public function getIsUserLiked()
+    {
+        return ModelHelper::getIsUserLiked($this->id, Like::TYPE_NEWS);
     }
 
     /**
@@ -121,6 +135,8 @@ class News extends ActiveRecord implements ActiveStatus
                 }
             },
             'total_viewers',
+            'likes_count',
+            'is_liked' => 'IsUserLiked',
             'meta',
             'status',
             'status_label' => 'StatusLabel',
@@ -163,6 +179,15 @@ class News extends ActiveRecord implements ActiveStatus
             [
                 'class'     => SluggableBehavior::class,
                 'attribute' => 'title',
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                ],
+                'typecastAfterValidate' => false,
+                'typecastBeforeSave' => false,
+                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];

@@ -1160,6 +1160,8 @@ class NewsCest
 
     public function postLikeNews(ApiTester $I)
     {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
         $I->haveInDatabase('news', [
             'id'          => 1,
             'channel_id'  => 1,
@@ -1187,8 +1189,10 @@ class NewsCest
         ]);
     }
 
-    public function postDislikeAspirasi(ApiTester $I)
+    public function postUnlikeNews(ApiTester $I)
     {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
         $I->haveInDatabase('news', [
             'id'          => 1,
             'channel_id'  => 1,
@@ -1204,8 +1208,11 @@ class NewsCest
         ]);
 
         $I->haveInDatabase('likes', [
+            'type' => Like::TYPE_NEWS,
             'entity_id' => 1,
             'user_id'     => 36,
+            'created_at' => 1578631126,
+            'updated_at' => 1578631126,
         ]);
 
         $I->amUser('user');

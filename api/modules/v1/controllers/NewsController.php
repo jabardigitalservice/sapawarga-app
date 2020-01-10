@@ -2,18 +2,19 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Like;
 use app\models\NewsFeatured;
 use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
 use app\models\NewsViewer;
+use app\modules\v1\repositories\LikeRepository;
 use app\modules\v1\repositories\NewsFeaturedRepository;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 
 /**
@@ -38,6 +39,7 @@ class NewsController extends ActiveController
                 'public' => ['get'],
                 'featured' => ['get', 'post'],
                 'statistics' => ['get'],
+                'likes' => ['post'],
             ],
         ];
 
@@ -53,7 +55,7 @@ class NewsController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'featured-update', 'statistics', 'related'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'featured-update', 'statistics', 'related', 'likes'],
             'rules' => [
                 [
                     'allow' => true,
@@ -62,7 +64,7 @@ class NewsController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'featured', 'related', 'statistics'],
+                    'actions' => ['index', 'view', 'featured', 'related', 'statistics', 'likes'],
                     'roles' => ['newsList'],
                 ],
             ],
@@ -217,6 +219,22 @@ class NewsController extends ActiveController
         }
 
         return $model;
+    }
+
+    /**
+     * Gives like/unlike to an entity
+     *
+     * @param $id
+     */
+    public function actionLikes($id)
+    {
+        $repository = new LikeRepository();
+        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_NEWS);
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 
     private function saveNewsViewerPerUser($newsId)
