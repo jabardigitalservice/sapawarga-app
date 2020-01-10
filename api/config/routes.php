@@ -200,6 +200,8 @@ return [
             'OPTIONS stats/channel' => 'options',
             'GET statistics' => 'statistics',
             'OPTIONS statistics' => 'options',
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
         ]
     ],
     [

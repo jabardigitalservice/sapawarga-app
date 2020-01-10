@@ -24,7 +24,14 @@ class NewsSearch extends News
      */
     public function search($params)
     {
-        $query = News::find()->joinWith('channel');
+        $query = News::find()->joinWith('channel')
+                ->select([
+                    '{{news}}.*',
+                    'COUNT({{likes}}.id) AS likes_count'
+                ])
+                ->joinWith('likes')
+                ->where(['<>', '{{news}}.status', News::STATUS_DELETED])
+                ->groupBy('{{news}}.id');
 
         // grid filtering conditions
         $query->andFilterWhere(['id' => $this->id]);
