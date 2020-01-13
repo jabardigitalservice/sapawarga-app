@@ -176,16 +176,6 @@ class Survey extends ActiveRecord
      */
     public function validateCategoryID($attribute, $params)
     {
-        $request = Yii::$app->request;
-
-        if ($request->isPost || $request->isPut) {
-            $category_id = Category::find()
-                ->where(['id' => $this->$attribute])
-                ->andWhere(['type' => self::CATEGORY_TYPE]);
-
-            if ($category_id->count() <= 0) {
-                $this->addError($attribute, Yii::t('app', 'error.id.invalid'));
-            }
-        }
+        ModelHelper::validateCategoryID($this, $attribute);
     }
 }

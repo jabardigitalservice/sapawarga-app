@@ -23,6 +23,7 @@ return [
     'error.username.taken' => 'Username sudah digunakan.',
     'error.username.pattern' => 'Username hanya boleh menggunakan karakter alfanumerik huruf kecil, underscore, dan titik.',
     'error.category.taken' => 'Nama kategori sudah digunakan.',
+    'error.category.default.required' => 'Tipe kategori ini harus mempunyai nama default \'Lainnya\'',
     'error.role.permission' => 'Anda tidak diperbolehkan untuk melakukan aksi ini.',
     'error.rw.pattern' => 'RW harus terdiri dari 3 karakter dan hanya boleh menggunakan karakter numerik (0-9).',
     'error.id.invalid' => 'id tidak valid.',

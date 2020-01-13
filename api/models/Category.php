@@ -41,6 +41,8 @@ class Category extends ActiveRecord implements ActiveStatus
         NewsHoax::CATEGORY_TYPE,
     ];
 
+    const DEFAULT_CATEGORY_NAME = 'Lainnya';
+
     /**
      * {@inheritdoc}
      */
@@ -61,6 +63,7 @@ class Category extends ActiveRecord implements ActiveStatus
             [['type', 'name', 'status'], 'required'],
             ['name', 'validateName'],
             ['status', 'integer'],
+            ['type', 'validateCategoryType'],
         ];
     }
 
@@ -136,6 +139,27 @@ class Category extends ActiveRecord implements ActiveStatus
         }
 
         return $this->returnError($existingName, $attribute);
+    }
+
+    /**
+     * Checks if a category type has a default category value ('Lainnya')
+     *
+     * @param $attribute
+     * @param $params
+     */
+    public function validateCategoryType($attribute, $params)
+    {
+        $category = Category::findOne([
+            'type' => $attribute,
+            'name' => Category::DEFAULT_CATEGORY_NAME,
+            'status' => Category::STATUS_ACTIVE,
+        ]);
+
+        if (!$category) {
+            if ($this->name !== Category::DEFAULT_CATEGORY_NAME) {
+                $this->addError($attribute, Yii::t('app', 'error.category.default.required'));
+            }
+        }
     }
 
     protected function returnError(ActiveQuery $existingName, $attribute)
