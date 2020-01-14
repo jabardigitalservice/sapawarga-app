@@ -150,7 +150,7 @@ class Category extends ActiveRecord implements ActiveStatus
     public function validateCategoryType($attribute, $params)
     {
         $category = Category::findOne([
-            'type' => $attribute,
+            'type' => $this->type,
             'name' => Category::DEFAULT_CATEGORY_NAME,
             'status' => Category::STATUS_ACTIVE,
         ]);

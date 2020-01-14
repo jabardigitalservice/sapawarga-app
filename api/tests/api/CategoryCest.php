@@ -1,5 +1,7 @@
 <?php
 
+use app\models\Category;
+
 class CategoryCest
 {
     private $endpointCategory = '/v1/categories';
@@ -140,6 +142,12 @@ class CategoryCest
         $I->cantSeeResponseContainsJson([
             'type' => 'broadcast',
         ]);
+
+        // Assert 'Lainnya' category is at the latest index of search result
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $lastIndex = count($data[0]) - 1;
+
+        $I->assertEquals(Category::DEFAULT_CATEGORY_NAME, $data[0][$lastIndex]['name']);
     }
 
     public function getCategoryListFilterName(ApiTester $I)
