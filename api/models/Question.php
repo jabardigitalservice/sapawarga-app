@@ -28,6 +28,7 @@ class Question extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
 
     public $likes_count = 0;
+    public $comments_count = 0;
 
     /**
      * {@inheritdoc}
@@ -88,7 +89,7 @@ class Question extends ActiveRecord implements ActiveStatus
             'id',
             'text',
             'likes_count',
-            'comments_count' => 'CommentsCount',
+            'comments_count',
             'answer_id',
             'answer' => 'lastAnswer',
             'status',
@@ -130,6 +131,7 @@ class Question extends ActiveRecord implements ActiveStatus
                 'class' => AttributeTypecastBehavior::class,
                 'attributeTypes' => [
                     'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'comments_count' => AttributeTypecastBehavior::TYPE_INTEGER,
                 ],
                 'typecastAfterValidate' => false,
                 'typecastBeforeSave' => false,
@@ -137,11 +139,6 @@ class Question extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
-    }
-
-    protected function getCommentsCount()
-    {
-        return (int)$this->getComments()->count();
     }
 
     protected function getAuthorField()

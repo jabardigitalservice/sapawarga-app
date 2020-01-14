@@ -197,6 +197,62 @@ class QuestionCest
         $I->assertEquals(2, $data[0]['id']);
     }
 
+    public function getListSortByTotalCommentTest(ApiTester $I)
+    {
+        // QUESTION
+        $I->haveInDatabase('questions', [
+            'id' => 1,
+            'text' => 'Question1 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'is_flagged' => 0,
+            'status' => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->haveInDatabase('questions', [
+            'id' => 2,
+            'text' => 'Question2 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'is_flagged' => 0,
+            'status' => 10,
+            'created_at'  => '1554706350',
+            'updated_at'  => '1554706350',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        // ANSWER
+        $I->haveInDatabase('question_comments', [
+            'id' => 1,
+            'question_id' => 1,
+            'text' => 'Question2 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'is_flagged' => 0,
+            'status' => 10,
+            'created_at'  => '1554706350',
+            'updated_at'  => '1554706350',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/questions?sort_by=comments_count&sort_order=ascending');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+
+        $I->assertEquals(2, $data[0]['id']);
+    }
+
     public function postStaffUpdate(ApiTester $I)
     {
         $I->haveInDatabase('questions', [
