@@ -802,10 +802,17 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getJWT()
     {
+        $expirationDuration = 0;
+        if (in_array($this->role, LoginForm::USER_ROLES)) {
+            $expirationDuration = LoginForm::LOGIN_DURATION_USER;
+        } else {
+            $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
+        }
+
         // Collect all the data
         $secret = static::getSecretKey();
         $currentTime = time();
-        $expire = $currentTime + 2592000; // 30 days
+        $expire = $currentTime + $expirationDuration;
         $request = Yii::$app->request;
         $hostInfo = '';
         // There is also a \yii\console\Request that doesn't have this property

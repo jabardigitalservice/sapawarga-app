@@ -16,6 +16,14 @@ class LoginForm extends Model
     // Constants for Scenario names
     const SCENARIO_LOGIN = 'login';
 
+    const LOGIN_DURATION_USER = 3600 * 24 * 30 * 6; // 6 months
+    const LOGIN_DURATION_STAFF = 3600 * 24 * 30; // 1 month
+    const USER_ROLES = [
+        User::ROLE_STAFF_RW,
+        User::ROLE_TRAINER,
+        User::ROLE_USER,
+    ];
+
     public $username;
     public $password;
     public $push_token;
@@ -117,7 +125,15 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            $user = $this->getUserByUsername();
+            $expirationDuration = 0;
+            if (in_array($user->role, LoginForm::USER_ROLES)) {
+                $expirationDuration = LoginForm::LOGIN_DURATION_USER;
+            } else {
+                $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
+            }
+
+            return Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? $expirationDuration : 0);
         }
         return false;
     }
