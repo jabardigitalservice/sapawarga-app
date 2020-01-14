@@ -66,15 +66,25 @@ class CategorySearch extends Category
             $query->andFilterWhere(['not in', 'type', Category::EXCLUDED_TYPES]);
         }
 
-        // Move default category ('Lainnya') to the last index of search results
         if (Arr::get($params, 'type')) {
-            $models = $dataProvider->getModels();
-            $idx = array_search(Category::DEFAULT_CATEGORY_NAME, array_column($models, 'name'));
-            $splicedElement = array_splice($models, $idx, 1);
-            array_push($models, $splicedElement[0]);
-            $dataProvider->setModels($models);
+            $this->moveDefaultCategory($dataProvider);
         }
 
         return $dataProvider;
+    }
+
+    /**
+     * Move default category ('Lainnya') to the last index of search results
+     *
+     * @param array $dataProvider
+     *
+     */
+    public function moveDefaultCategory(&$dataProvider)
+    {
+        $models = $dataProvider->getModels();
+        $idx = array_search(Category::DEFAULT_CATEGORY_NAME, array_column($models, 'name'));
+        $splicedElement = array_splice($models, $idx, 1);
+        array_push($models, $splicedElement[0]);
+        $dataProvider->setModels($models);
     }
 }
