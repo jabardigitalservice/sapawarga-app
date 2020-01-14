@@ -14,8 +14,8 @@ class ModelHelper
     /**
      * Checks if category_id is part of category_type
      *
-     * @param $id
-     * @param $params
+     * @param $model
+     * @param $attribute
      */
     public static function validateCategoryID($model, $attribute)
     {

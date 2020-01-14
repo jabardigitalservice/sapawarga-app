@@ -23,6 +23,7 @@ return [
     'error.username.taken' => 'This username has already been taken.',
     'error.username.pattern' => 'Username can only contain lowercase alphanumeric characters, underscores, and periods.',
     'error.category.taken' => 'This category name has already been taken.',
+    'error.category.default.required' => 'This category type must have default name \'Lainnya\'',
     'error.role.permission' => 'You are not allowed to perform this action.',
     'error.rw.pattern' => 'RW must be exactly 3 characters long and can only contain numeric characters (0-9).',
     'error.id.invalid' => 'Invalid id.',
