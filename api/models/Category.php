@@ -156,6 +156,7 @@ class Category extends ActiveRecord implements ActiveStatus
         ]);
 
         if (!$category) {
+            // If the newly created/edited category is not the default category
             if ($this->name !== Category::DEFAULT_CATEGORY_NAME) {
                 $this->addError($attribute, Yii::t('app', 'error.category.default.required'));
             }
