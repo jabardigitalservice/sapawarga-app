@@ -40,4 +40,11 @@ VALUES
     ('news_important','Kesehatan',NULL,10,1557803314,1557803314),
     ('news_important','Bencana',NULL,10,1557803314,1557803314),
     ('news_important','Program Pemerintah',NULL,10,1557803314,1557803314),
-    ('news_important','Lainnya',NULL,10,1557803314,1557803314);
+    ('news_important','Lainnya',NULL,10,1557803314,1557803314),
+    ('phonebook','Lainnya',NULL,10,1557808385,1557808385),
+    ('broadcast','Lainnya',NULL,10,1557808385,1557808385),
+    ('aspirasi','Lainnya',NULL,10,1557808385,1557808385),
+    ('notification','Lainnya',NULL,10,1557808385,1557808385),
+    ('polling','Lainnya',NULL,10,1557808385,1557808385),
+    ('survey','Lainnya',NULL,10,1557808385,1557808385),
+    ('newsHoax','Lainnya',NULL,10,1557808385,1557808385);
