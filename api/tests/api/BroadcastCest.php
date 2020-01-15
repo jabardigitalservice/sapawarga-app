@@ -268,21 +268,9 @@ class BroadcastCest
         $I->canSeeResponseCodeIs(201);
         $I->seeResponseIsJson();
 
-        $I->seeInDatabase('broadcasts', [
-            'author_id'    => 2,
-            'category_id'  => 5,
-            'title'        => 'Broadcast With Polling',
-            'description'  => 'Broadcast Description',
-            'kabkota_id'   => 22,
-            'kec_id'       => null,
-            'kel_id'       => null,
-            'rw'           => null,
-            'status'       => 10,
-            'meta'         => json_encode([
-                'target' => 'polling',
-                'id'     => 1,
-            ]),
-        ]);
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+        $I->assertEquals(1, $data[0]['meta']['id']);
+        $I->assertEquals('polling', $data[0]['meta']['target']);
 
         // broadcast with action link to external URLs
         $I->sendPOST('/v1/broadcasts?test=1', [
@@ -303,21 +291,9 @@ class BroadcastCest
         $I->canSeeResponseCodeIs(201);
         $I->seeResponseIsJson();
 
-        $I->seeInDatabase('broadcasts', [
-            'author_id'    => 2,
-            'category_id'  => 5,
-            'title'        => 'Broadcast With Polling',
-            'description'  => 'Broadcast Description',
-            'kabkota_id'   => 22,
-            'kec_id'       => null,
-            'kel_id'       => null,
-            'rw'           => null,
-            'status'       => 10,
-            'meta'         => json_encode([
-                'target' => 'url',
-                'url'    => 'https://www.google.com',
-            ]),
-        ]);
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+        $I->assertEquals('url', $data[0]['meta']['target']);
+        $I->assertEquals('https://www.google.com', $data[0]['meta']['url']);
     }
 
     public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
