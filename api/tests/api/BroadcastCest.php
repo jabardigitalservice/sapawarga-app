@@ -245,6 +245,81 @@ class BroadcastCest
         ]);
     }
 
+    public function staffCanCreateBroadcastWithAction(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        // broadcast with action link to internal features (polling, survey, news)
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast With Polling',
+            'description'  => 'Broadcast Description',
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+            'meta'         => [
+                'target' => 'polling',
+                'id'     => 1,
+            ],
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast With Polling',
+            'description'  => 'Broadcast Description',
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+            'meta'         => json_encode([
+                'target' => 'polling',
+                'id'     => 1,
+            ]),
+        ]);
+
+        // broadcast with action link to external URLs
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast With External URL',
+            'description'  => 'Broadcast Description',
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+            'meta'         => [
+                'target' => 'url',
+                'url'    => 'https://www.google.com',
+            ],
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 2,
+            'category_id'  => 5,
+            'title'        => 'Broadcast With Polling',
+            'description'  => 'Broadcast Description',
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+            'meta'         => json_encode([
+                'target' => 'url',
+                'url'    => 'https://www.google.com',
+            ]),
+        ]);
+    }
+
     public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
     {
         $I->amStaff('staffprov');
