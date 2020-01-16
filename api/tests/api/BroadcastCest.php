@@ -251,49 +251,55 @@ class BroadcastCest
 
         // broadcast with action link to internal features (polling, survey, news)
         $I->sendPOST('/v1/broadcasts?test=1', [
-            'category_id'  => 5,
-            'title'        => 'Broadcast With Polling',
-            'description'  => 'Broadcast Description',
-            'kabkota_id'   => 22,
-            'kec_id'       => null,
-            'kel_id'       => null,
-            'rw'           => null,
-            'status'       => 10,
-            'meta'         => [
-                'target' => 'polling',
-                'id'     => 1,
-            ],
+            'category_id'          => 5,
+            'title'                => 'Broadcast with Internal Reference',
+            'description'          => 'Broadcast Description',
+            'type'                 => 'internal',
+            'internal_object_type' => 'pollling',
+            'internal_object_id'   => 1,
+            'internal_object_name' => 'Judul Polling',
+            'kabkota_id'           => 22,
+            'kec_id'               => null,
+            'kel_id'               => null,
+            'rw'                   => null,
+            'status'               => 10,
         ]);
 
         $I->canSeeResponseCodeIs(201);
         $I->seeResponseIsJson();
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data');
-        $I->assertEquals(1, $data[0]['meta']['id']);
-        $I->assertEquals('polling', $data[0]['meta']['target']);
+        $I->seeInDatabase('broadcasts', [
+            'title'                => 'Broadcast with Internal Reference',
+            'description'          => 'Broadcast Description',
+            'type'                 => 'internal',
+            'internal_object_type' => 'pollling',
+            'internal_object_id'   => 1,
+            'internal_object_name' => 'Judul Polling',
+        ]);
 
         // broadcast with action link to external URLs
         $I->sendPOST('/v1/broadcasts?test=1', [
             'category_id'  => 5,
-            'title'        => 'Broadcast With External URL',
+            'title'        => 'Broadcast with External URL',
             'description'  => 'Broadcast Description',
+            'type'         => 'external',
+            'link_url'     => 'https://google.com/',
             'kabkota_id'   => 22,
             'kec_id'       => null,
             'kel_id'       => null,
             'rw'           => null,
             'status'       => 10,
-            'meta'         => [
-                'target' => 'url',
-                'url'    => 'https://www.google.com',
-            ],
         ]);
 
         $I->canSeeResponseCodeIs(201);
         $I->seeResponseIsJson();
 
-        $data = $I->grabDataFromResponseByJsonPath('$.data');
-        $I->assertEquals('url', $data[0]['meta']['target']);
-        $I->assertEquals('https://www.google.com', $data[0]['meta']['url']);
+        $I->seeInDatabase('broadcasts', [
+            'title'        => 'Broadcast with External URL',
+            'description'  => 'Broadcast Description',
+            'type'         => 'external',
+            'link_url'     => 'https://google.com/',
+        ]);
     }
 
     public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
