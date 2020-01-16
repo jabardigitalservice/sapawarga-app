@@ -71,7 +71,6 @@ class UserMessage extends ActiveRecord
         return [
             [
                 ['type', 'message_id', 'sender_id', 'recipient_id', 'title', 'content', 'status'], 'required',
-                ['meta', 'default'],
             ],
         ];
     }
