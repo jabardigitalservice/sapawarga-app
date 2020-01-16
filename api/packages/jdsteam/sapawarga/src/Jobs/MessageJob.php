@@ -17,6 +17,7 @@ class MessageJob extends BaseObject implements JobInterface
     public $content;
     public $instance;
     public $senderId;
+    public $meta;
     public $pushNotifyPayload;
 
     public function execute($queue)
@@ -51,6 +52,7 @@ class MessageJob extends BaseObject implements JobInterface
             'instance_id' => $instance['id'],
             'title'       => $this->title,
             'description' => $this->content,
+            'meta'        => $this->meta,
         ]);
 
         // if insert to users inbox has been done, then send Push Notification
@@ -75,7 +77,7 @@ class MessageJob extends BaseObject implements JobInterface
                 'excerpt'      => null,
                 'content'      => $attributes['description'],
                 'status'       => UserMessage::STATUS_ACTIVE,
-                'meta'         => null,
+                'meta'         => $attributes['meta'],
                 'read_at'      => null,
             ]);
 

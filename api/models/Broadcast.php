@@ -276,6 +276,8 @@ class Broadcast extends ActiveRecord
             'title'             => $broadcast->title,
             'content'           => $broadcast->description,
             'instance'          => $broadcast->toArray(),
+            'meta'              => $broadcast->meta,
+
             'pushNotifyPayload' => $broadcast->buildPushNotificationPayload(),
         ]));
     }
