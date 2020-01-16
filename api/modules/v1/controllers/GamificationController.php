@@ -22,17 +22,6 @@ class GamificationController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['verbs'] = [
-            'class' => VerbFilter::className(),
-            'actions' => [
-                'index' => ['get'],
-                'view' => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-            ],
-        ];
-
         return $this->behaviorCors($behaviors);
     }
 
