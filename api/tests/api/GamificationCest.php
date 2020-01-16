@@ -1,7 +1,8 @@
 <?php
 
-use app\models\Like;
-class NewsCest
+use app\models\Gamification;
+
+class GamificationCest
 {
     public function _before(ApiTester $I)
     {
