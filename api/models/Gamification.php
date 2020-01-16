@@ -12,7 +12,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "news".
+ * This is the model class for table "gamification".
  *
  * @property int $id
  * @property string $title
