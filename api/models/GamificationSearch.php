@@ -30,6 +30,7 @@ class GamificationSearch extends Gamification
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
+        $query->andFilterWhere(['<>', 'status', Gamification::STATUS_DELETED]);
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
@@ -40,15 +41,11 @@ class GamificationSearch extends Gamification
 
     protected function getQueryListUser($query, $params)
     {
-        $query->andFilterWhere(['=', 'status', Gamification::STATUS_ACTIVE]);
-
         return $this->createActiveDataProvider($query, $params);
     }
 
     protected function getQueryListStaff($query, $params)
     {
-        $query->andFilterWhere(['<>', 'status', Gamification::STATUS_DELETED]);
-
         return $this->createActiveDataProvider($query, $params);
     }
 
