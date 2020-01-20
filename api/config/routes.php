@@ -371,4 +371,15 @@ return [
         'controller' => ['comments' => 'v1/user-post-comment'],
         'prefix' => 'v1/user-posts/<userPostId:\d+>',
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/gamification',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options'
+        ]
+    ],
 ];
