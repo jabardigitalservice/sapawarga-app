@@ -255,7 +255,7 @@ class BroadcastCest
             'title'                => 'Broadcast with Internal Reference',
             'description'          => 'Broadcast Description',
             'type'                 => 'internal',
-            'internal_object_type' => 'pollling',
+            'internal_object_type' => 'polling',
             'internal_object_id'   => 1,
             'internal_object_name' => 'Judul Polling',
             'kabkota_id'           => 22,
@@ -272,7 +272,7 @@ class BroadcastCest
             'title'                => 'Broadcast with Internal Reference',
             'description'          => 'Broadcast Description',
             'type'                 => 'internal',
-            'internal_object_type' => 'pollling',
+            'internal_object_type' => 'polling',
             'internal_object_id'   => 1,
             'internal_object_name' => 'Judul Polling',
         ]);
