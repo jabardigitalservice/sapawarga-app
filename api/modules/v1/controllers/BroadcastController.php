@@ -282,6 +282,19 @@ class BroadcastController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
+        // Mark UserMessage as read
+        $userMessageModel = UserMessage::find()
+            ->where(['type' => Broadcast::CATEGORY_TYPE])
+            ->andWhere(['message_id' => $id])
+            ->andWhere(['recipient_id' => Yii::$app->user->getId()])
+            ->one();
+        if ($userMessageModel !== null) {
+            if ($userMessageModel->read_at === null) {
+                $userMessageModel->touch('read_at');
+                $userMessageModel->save(false);
+            }
+        }
+
         return $searchedModel;
     }
 
