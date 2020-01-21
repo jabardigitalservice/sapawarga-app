@@ -245,6 +245,63 @@ class BroadcastCest
         ]);
     }
 
+    public function staffCanCreateBroadcastWithAction(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        // broadcast with action link to internal features (polling, survey, news)
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'          => 5,
+            'title'                => 'Broadcast with Internal Reference',
+            'description'          => 'Broadcast Description',
+            'type'                 => 'internal',
+            'internal_object_type' => 'polling',
+            'internal_object_id'   => 1,
+            'internal_object_name' => 'Judul Polling',
+            'kabkota_id'           => 22,
+            'kec_id'               => null,
+            'kel_id'               => null,
+            'rw'                   => null,
+            'status'               => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('broadcasts', [
+            'title'                => 'Broadcast with Internal Reference',
+            'description'          => 'Broadcast Description',
+            'type'                 => 'internal',
+            'internal_object_type' => 'polling',
+            'internal_object_id'   => 1,
+            'internal_object_name' => 'Judul Polling',
+        ]);
+
+        // broadcast with action link to external URLs
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast with External URL',
+            'description'  => 'Broadcast Description',
+            'type'         => 'external',
+            'link_url'     => 'https://google.com/',
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('broadcasts', [
+            'title'        => 'Broadcast with External URL',
+            'description'  => 'Broadcast Description',
+            'type'         => 'external',
+            'link_url'     => 'https://google.com/',
+        ]);
+    }
+
     public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
     {
         $I->amStaff('staffprov');

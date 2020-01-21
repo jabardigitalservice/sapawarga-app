@@ -67,13 +67,12 @@ class BroadcastController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
         unset($actions['create']);
+        unset($actions['view']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
     }
@@ -110,6 +109,34 @@ class BroadcastController extends ActiveController
         $response->setStatusCode(201);
 
         $this->sendOrScheduleMessage($model);
+
+        return $model;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|\app\models\Broadcast
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+
+        // Mark UserMessage as read
+        $userMessageModel = UserMessage::find()
+            ->where(['type' => Broadcast::CATEGORY_TYPE])
+            ->andWhere(['message_id' => $id])
+            ->andWhere(['recipient_id' => Yii::$app->user->getId()])
+            ->one();
+        if ($userMessageModel !== null) {
+            if ($userMessageModel->read_at === null) {
+                $userMessageModel->touch('read_at');
+                $userMessageModel->save(false);
+            }
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
 
         return $model;
     }
