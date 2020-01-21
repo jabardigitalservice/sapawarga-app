@@ -107,8 +107,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-06-01 00:00:00';
-        $model->end_date   = '2019-09-01 00:00:00';
+        $model->start_date = '2019-06-01';
+        $model->end_date   = '2019-09-01';
 
         $model->validate();
 
@@ -152,8 +152,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-06-01 00:00:00';
-        $model->end_date   = '2019-09-01 00:00:00';
+        $model->start_date = '2019-06-01';
+        $model->end_date   = '2019-09-01';
 
         $model->validate();
 
@@ -197,8 +197,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-06-01 00:00:00';
-        $model->end_date   = '2019-09-01 00:00:00';
+        $model->start_date = '2019-06-01';
+        $model->end_date   = '2019-09-01';
 
         $model->validate();
 
@@ -209,8 +209,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-09-01 00:00:00';
-        $model->end_date   = '2019-06-01 00:00:00';
+        $model->start_date = '2019-09-01';
+        $model->end_date   = '2019-06-01';
 
         $model->validate();
 
