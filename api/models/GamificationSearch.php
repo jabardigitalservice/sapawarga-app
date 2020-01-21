@@ -9,7 +9,7 @@ use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
- * VideoSearch represents the model behind the search form of `app\models\Gamification`.
+ * GamificationSearch represents the model behind the search form of `app\models\Gamification`.
  */
 class GamificationSearch extends Gamification
 {
@@ -26,11 +26,12 @@ class GamificationSearch extends Gamification
     public function search($params)
     {
         $query = Gamification::find();
+        $query->where(['<>', 'status', Gamification::STATUS_DELETED]);
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $query->andFilterWhere(['<>', 'status', Gamification::STATUS_DELETED]);
+
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
@@ -46,6 +47,16 @@ class GamificationSearch extends Gamification
 
     protected function getQueryListStaff($query, $params)
     {
+        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+
+        if (Arr::get($params, 'start_date') && Arr::get($params, 'end_date')) {
+            $query->andWhere([
+                'and',
+                ['<=', 'start_date', Arr::get($params, 'end_date')],
+                ['>=', 'end_date', Arr::get($params, 'start_date')],
+            ]);
+        }
+
         return $this->createActiveDataProvider($query, $params);
     }
 
@@ -62,6 +73,7 @@ class GamificationSearch extends Gamification
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
                     'title',
+                    'start_date',
                     'created_at',
                     'status',
                 ],

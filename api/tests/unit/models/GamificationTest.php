@@ -102,32 +102,13 @@ class GamificationTest extends Unit
         $this->assertTrue($model->hasErrors('total_hit'));
     }
 
-    public function testStartDateRequired()
-    {
-        $model = new Gamification();
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('start_date'));
-
-        $model->start_date = '';
-
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('start_date'));
-
-        $model->start_date = '2019-06-01';
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('start_date'));
-    }
 
     public function testStartDateValidValue()
     {
         $model = new Gamification();
 
         $model->start_date = '2019-06-01';
+        $model->end_date   = '2019-09-01';
 
         $model->validate();
 
@@ -150,6 +131,86 @@ class GamificationTest extends Unit
         $model = new Gamification();
 
         $model->start_date = 100;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('start_date'));
+    }
+
+    public function testStartDateInvalidBooleanValue()
+    {
+        $model = new Gamification();
+
+        $model->start_date = true;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('start_date'));
+    }
+
+    public function testEndDateValidValue()
+    {
+        $model = new Gamification();
+
+        $model->start_date = '2019-06-01';
+        $model->end_date   = '2019-09-01';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('end_date'));
+    }
+
+    public function testEndDateInvalidStringValue()
+    {
+        $model = new Gamification();
+
+        $model->end_date = 'xxx';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('end_date'));
+    }
+
+    public function testEndDateInvalidIntegerValue()
+    {
+        $model = new Gamification();
+
+        $model->end_date = 100;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('end_date'));
+    }
+
+    public function testEndDateInvalidBooleanValue()
+    {
+        $model = new Gamification();
+
+        $model->end_date = true;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('end_date'));
+    }
+
+    public function testEndDateAfterStartDate()
+    {
+        $model = new Gamification();
+
+        $model->start_date = '2019-06-01';
+        $model->end_date   = '2019-09-01';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('end_date'));
+    }
+
+    public function testEndDateBeforeStartDate()
+    {
+        $model = new Gamification();
+
+        $model->start_date = '2019-09-01';
+        $model->end_date   = '2019-06-01';
 
         $model->validate();
 
