@@ -62,9 +62,11 @@ class Gamification extends ActiveRecord implements ActiveStatus
             [['title','title_badge','image_badge_path','description','object_type','object_event',
                 'total_hit','status','start_date','end_date'], 'required'],
 
-            [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
+            [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d H:i:s'],
+            ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
+            ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
 
-            [ ['status', 'total_hit'], 'integer'],
+            [['status', 'total_hit'], 'integer'],
 
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
