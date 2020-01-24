@@ -34,6 +34,18 @@ class NewsImportantCest
             'created_by' => 43,
             'updated_by' => 43
         ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 3,
+            'title' => 'Info Inactive',
+            'content' => 'Info Inactive',
+            'category_id' => 37,
+            'status' => 0,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 43,
+            'updated_by' => 43
+        ]);
     }
 
     public function getNewsImportantListNotAllowedUserTest(ApiTester $I)
@@ -62,6 +74,34 @@ class NewsImportantCest
     /**
      * @before loadData
      */
+    public function getNewsImportantListSearchByNameTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disdik');
+
+        // Search prefix
+        $I->sendGET('/v1/news-important?title=Info');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Inactive', $data[0][2]['title']);
+
+        // Search substring
+        $I->sendGET('/v1/news-important?title=Pendidikan');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals('Info Pendidikan', $data[0]['title']);
+    }
+
+    /**
+     * @before loadData
+     */
     public function getNewsImportantListFilterByCategoryTest(ApiTester $I)
     {
         $I->amStaff('opd.disdik');
@@ -78,9 +118,25 @@ class NewsImportantCest
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(37, $data[0][0]['category_id']);
+        $I->assertEquals(37, $data[0][1]['category_id']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListFilterByStatusTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disnakertrans');
+        $I->sendGET('/v1/news-important?status=0');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
-        $I->assertEquals(37, $data[0]['category_id']);
+        $I->assertEquals(0, $data[0]['status']);
     }
 
     public function postUserCreateUnauthorizedTest(ApiTester $I)
