@@ -36,6 +36,7 @@ class Notification extends \yii\db\ActiveRecord
     const CATEGORY_LABEL_NEWS = 'Berita Terbaru';
     const CATEGORY_LABEL_NEWSHOAX = 'Berita Counter Hoaks Terbaru';
     const CATEGORY_LABEL_VIDEO = 'Video Terbaru';
+    const CATEGORY_LABEL_NEWS_IMPORTANT = 'Info Penting Terbaru';
     const CATEGORY_LABEL_ASPIRASI_STATUS = 'Perubahan Status Usulan';
     const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
 
@@ -47,6 +48,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_NEWS               => 'notifikasi',
         self::CATEGORY_LABEL_NEWSHOAX           => 'notifikasi',
         self::CATEGORY_LABEL_VIDEO              => 'notifikasi',
+        self::CATEGORY_LABEL_NEWS_IMPORTANT     => 'notifikasi',
         self::CATEGORY_LABEL_ASPIRASI_STATUS    => 'notifikasi',
         self::CATEGORY_LABEL_UPDATE             => 'url',
     ];
@@ -58,6 +60,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_NEWS               => [ 'target'   => 'news', ],
         self::CATEGORY_LABEL_NEWSHOAX           => [ 'target'   => 'saber-hoax', ],
         self::CATEGORY_LABEL_VIDEO              => [ 'target'   => 'home-results', ],
+        self::CATEGORY_LABEL_NEWS_IMPORTANT     => [ 'target'   => 'news-important', ],
         self::CATEGORY_LABEL_ASPIRASI_STATUS    => [ 'target'   => 'aspirasi', ],
         self::CATEGORY_LABEL_UPDATE             => [
             'target'    => 'url',
