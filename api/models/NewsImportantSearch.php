@@ -25,6 +25,9 @@ class NewsImportantSearch extends NewsImportant
     public function search($params)
     {
         $query = NewsImportant::find();
+        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
+        $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
+
         if ($this->scenario === self::SCENARIO_LIST_STAFF) {
             return $this->getQueryListStaff($query, $params);
         }
@@ -37,8 +40,6 @@ class NewsImportantSearch extends NewsImportant
         $query->joinWith(['category']);
         $query->andFilterWhere(['<>', 'news_important.status', NewsImportant::STATUS_DELETED]);
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
 
         if (Arr::has($params, 'status')) {
             $query->andFilterWhere(['news_important.status' => Arr::get($params, 'status')]);

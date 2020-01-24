@@ -76,20 +76,9 @@ class NewsImportantCest
      */
     public function getNewsImportantListSearchByNameTest(ApiTester $I)
     {
+        // Search by OPD
         $I->amStaff('opd.disdik');
 
-        // Search prefix
-        $I->sendGET('/v1/news-important?title=Info');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
-        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
-        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
-        $I->assertEquals('Info Inactive', $data[0][2]['title']);
-
-        // Search substring
         $I->sendGET('/v1/news-important?title=Pendidikan');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -97,6 +86,18 @@ class NewsImportantCest
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
         $I->assertEquals('Info Pendidikan', $data[0]['title']);
+
+        // Search by RW
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/news-important?title=Info');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
     }
 
     /**
@@ -104,6 +105,7 @@ class NewsImportantCest
      */
     public function getNewsImportantListFilterByCategoryTest(ApiTester $I)
     {
+        // Filter by OPD
         $I->amStaff('opd.disdik');
         $I->sendGET('/v1/news-important?category_id=36');
         $I->canSeeResponseCodeIs(200);
@@ -113,15 +115,15 @@ class NewsImportantCest
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
         $I->assertEquals(36, $data[0]['category_id']);
 
-        $I->amStaff('opd.disnakertrans');
+        // Filter by RW
+        $I->amStaff('staffrw');
         $I->sendGET('/v1/news-important?category_id=37');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
-        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
-        $I->assertEquals(37, $data[0][0]['category_id']);
-        $I->assertEquals(37, $data[0][1]['category_id']);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(37, $data[0]['category_id']);
     }
 
     /**
