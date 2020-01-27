@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
@@ -32,6 +33,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
     use HasActiveStatus, HasCategory;
 
     const CATEGORY_TYPE = 'news_important';
+    const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}
@@ -141,5 +143,29 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
         $fileName = !empty($explode[1]) ? $explode[1] : $filePath;
 
         return $fileName;
+    }
+
+    /** @inheritdoc */
+    public function afterSave($insert, $changedAttributes)
+    {
+        $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
+
+        if ($isSendNotification) {
+            $categoryName = Notification::CATEGORY_LABEL_NEWS_IMPORTANT;
+            $payload = [
+                'categoryName'  => $categoryName,
+                'title'         => "Info {$this->category->name}: {$this->title}",
+                'description'   => null,
+                'target'        => null,
+                'meta'          => [
+                    'target'    => 'news-important',
+                    'id'        => $this->id,
+                ],
+            ];
+
+            ModelHelper::sendNewContentNotification($payload);
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
     }
 }

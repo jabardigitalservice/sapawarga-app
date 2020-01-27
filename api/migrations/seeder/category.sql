@@ -47,4 +47,5 @@ VALUES
     ('notification','Lainnya',NULL,10,1557808385,1557808385),
     ('polling','Lainnya',NULL,10,1557808385,1557808385),
     ('survey','Lainnya',NULL,10,1557808385,1557808385),
-    ('newsHoax','Lainnya',NULL,10,1557808385,1557808385);
+    ('newsHoax','Lainnya',NULL,10,1557808385,1557808385),
+    ('notification','Info Penting Terbaru',NULL,10,1557803314,1557803314);
