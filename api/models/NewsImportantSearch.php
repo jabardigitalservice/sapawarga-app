@@ -27,6 +27,7 @@ class NewsImportantSearch extends NewsImportant
         $query = NewsImportant::find();
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
+        $this->filterByKabkota($query, $params);
 
         if ($this->scenario === self::SCENARIO_LIST_STAFF) {
             return $this->getQueryListStaff($query, $params);
@@ -81,5 +82,21 @@ class NewsImportantSearch extends NewsImportant
                 'pageSize' => $pageLimit,
             ],
         ]);
+    }
+
+    protected function filterByKabkota($query, $params)
+    {
+        if ($this->scenario === self::SCENARIO_LIST_USER) {
+            // Auto-filter by user's kabkota_id
+            $authUser = Yii::$app->user;
+            $query->andWhere(['or',
+                ['kabkota_id' => $authUser->kabkota_id],
+                ['kabkota_id' => null]]);
+        } elseif ($this->scenario === self::SCENARIO_LIST_STAFF) {
+            $kabkotaId = Arr::get($params, 'kabkota_id');
+            if ($kabkotaId) {
+                $query->andFilterWhere(['kabkota_id' => $kabkotaId]);
+            }
+        }
     }
 }

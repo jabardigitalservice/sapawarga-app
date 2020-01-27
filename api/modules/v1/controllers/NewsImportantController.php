@@ -203,9 +203,9 @@ class NewsImportantController extends ActiveController
 
         $search = new NewsImportantSearch();
 
-        if ($user->can('newsImportantManage') === true) {
-            $search->scenario = NewsImportantSearch::SCENARIO_LIST_STAFF;
-        }
+        $search->scenario = $user->can('newsImportantManage') === true ?
+            NewsImportantSearch::SCENARIO_LIST_STAFF :
+            NewsImportantSearch::SCENARIO_LIST_USER;
 
         return $search->search($params);
     }
