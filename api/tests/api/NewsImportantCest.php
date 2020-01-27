@@ -46,6 +46,32 @@ class NewsImportantCest
             'created_by' => 43,
             'updated_by' => 43
         ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 4,
+            'title' => 'Info Pendidikan Kota Bandung',
+            'content' => 'Info Pendidikan Kota Bandung',
+            'category_id' => 36,
+            'kabkota_id' => 22,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 5,
+            'title' => 'Info Pendidikan Kota Bekasi',
+            'content' => 'Info Pendidikan Kota Bekasi',
+            'category_id' => 36,
+            'kabkota_id' => 23,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
     }
 
     public function getNewsImportantListNotAllowedUserTest(ApiTester $I)
@@ -58,7 +84,42 @@ class NewsImportantCest
         $I->seeResponseIsJson();
     }
 
-    public function getNewsImportantListTest(ApiTester $I)
+    /**
+     * @before loadData
+     */
+    public function getUserNewsImportantListTest(ApiTester $I)
+    {
+        // Search by RW Kota Bandung
+        $I->amUser('user.bandung');
+
+        $I->sendGET('/v1/news-important');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bandung', $data[0][2]['title']);
+
+        // Search by RW Kota Bekasi
+        $I->amUser('user.bekasi');
+
+        $I->sendGET('/v1/news-important');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bekasi', $data[0][2]['title']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getStaffNewsImportantListTest(ApiTester $I)
     {
         $I->amStaff('staffprov');
         $I->sendGET('/v1/news-important');
@@ -69,6 +130,13 @@ class NewsImportantCest
         $I->sendGET('/v1/news-important');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bandung', $data[0][2]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bekasi', $data[0][3]['title']);
     }
 
     /**
@@ -139,6 +207,21 @@ class NewsImportantCest
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
         $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
         $I->assertEquals(0, $data[0]['status']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListFilterByKabkotaTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disnakertrans');
+        $I->sendGET('/v1/news-important?kabkota_id=22');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(22, $data[0]['kabkota_id']);
     }
 
     public function postUserCreateUnauthorizedTest(ApiTester $I)
