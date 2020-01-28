@@ -21,6 +21,7 @@ use yii\db\ActiveRecord;
  * @property string $content
  * @property string $image_path
  * @property string $source_url
+ * @property int $kabkota_id
  * @property string $status
  * @property int $created_by
  * @property int $created_at
@@ -43,6 +44,11 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
         return 'news_important';
     }
 
+    public function getKabkota()
+    {
+        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+    }
+
     public function getAttachments()
     {
         return $this->hasMany(NewsImportantAttachment::className(), ['news_important_id' => 'id']);
@@ -62,6 +68,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             [['title', 'source_url', 'category_id', 'content', 'image_path'], 'safe'],
 
             ['source_url', 'url'],
+
+            ['kabkota_id', 'integer'],
 
             ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
@@ -85,6 +93,16 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 }
             },
             'source_url',
+            'kabkota_id',
+            'kabkota'      => function () {
+                if (empty($this->kabkota)) {
+                    return null;
+                }
+                return [
+                    'id'   => $this->kabkota->id,
+                    'name' => $this->kabkota->name,
+                ];
+            },
             'status',
             'attachments' => function () use ($publicBaseUrl) {
                 $attachments = [];
@@ -156,7 +174,9 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 'categoryName'  => $categoryName,
                 'title'         => "Info {$this->category->name}: {$this->title}",
                 'description'   => null,
-                'target'        => null,
+                'target'        => [
+                    'kabkota_id'    => $this->kabkota_id,
+                ],
                 'meta'          => [
                     'target'    => 'news-important',
                     'id'        => $this->id,

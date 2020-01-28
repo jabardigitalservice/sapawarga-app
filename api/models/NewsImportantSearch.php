@@ -2,9 +2,9 @@
 
 namespace app\models;
 
-use Carbon\Carbon;
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
+use Yii;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -25,8 +25,9 @@ class NewsImportantSearch extends NewsImportant
     public function search($params)
     {
         $query = NewsImportant::find();
-        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
+        $query->andFilterWhere(['like', 'title', Arr::get($params, 'search')]);
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
+        $this->filterByKabkota($query, $params);
 
         if ($this->scenario === self::SCENARIO_LIST_STAFF) {
             return $this->getQueryListStaff($query, $params);
@@ -81,5 +82,21 @@ class NewsImportantSearch extends NewsImportant
                 'pageSize' => $pageLimit,
             ],
         ]);
+    }
+
+    protected function filterByKabkota($query, $params)
+    {
+        if ($this->scenario === self::SCENARIO_LIST_USER) {
+            // Auto-filter by user's kabkota_id
+            $authUser = User::findIdentity(Yii::$app->user->getId());
+            $query->andWhere(['or',
+                ['kabkota_id' => $authUser->kabkota_id],
+                ['kabkota_id' => null]]);
+        } elseif ($this->scenario === self::SCENARIO_LIST_STAFF) {
+            $kabkotaId = Arr::get($params, 'kabkota_id');
+            if ($kabkotaId) {
+                $query->andFilterWhere(['kabkota_id' => $kabkotaId]);
+            }
+        }
     }
 }
