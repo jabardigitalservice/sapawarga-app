@@ -25,7 +25,7 @@ class NewsImportantSearch extends NewsImportant
     public function search($params)
     {
         $query = NewsImportant::find();
-        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
+        $query->andFilterWhere(['like', 'title', Arr::get($params, 'search')]);
         $query->andFilterWhere(['=', 'category_id', Arr::get($params, 'category_id')]);
         $this->filterByKabkota($query, $params);
 
