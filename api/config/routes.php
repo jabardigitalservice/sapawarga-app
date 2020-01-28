@@ -379,7 +379,9 @@ return [
             '{id}' => '<id:\d+>',
         ],
         'extraPatterns' => [
-            'OPTIONS {id}' => 'options'
+            'OPTIONS {id}' => 'options',
+            'POST join/{id}' => 'join',
+            'OPTIONS join/{id}' => 'options',
         ]
     ],
 ];
