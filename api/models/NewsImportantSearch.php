@@ -2,9 +2,9 @@
 
 namespace app\models;
 
-use Carbon\Carbon;
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
+use Yii;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -88,7 +88,7 @@ class NewsImportantSearch extends NewsImportant
     {
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             // Auto-filter by user's kabkota_id
-            $authUser = Yii::$app->user;
+            $authUser = User::findIdentity(Yii::$app->user->getId());
             $query->andWhere(['or',
                 ['kabkota_id' => $authUser->kabkota_id],
                 ['kabkota_id' => null]]);
