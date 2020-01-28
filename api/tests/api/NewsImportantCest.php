@@ -160,7 +160,7 @@ class NewsImportantCest
         // Search by OPD
         $I->amStaff('opd.disdik');
 
-        $I->sendGET('/v1/news-important?title=Pendidikan');
+        $I->sendGET('/v1/news-important?search=Pendidikan');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -171,7 +171,7 @@ class NewsImportantCest
         // Search by RW
         $I->amUser('staffrw');
 
-        $I->sendGET('/v1/news-important?title=Info');
+        $I->sendGET('/v1/news-important?search=Info');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
