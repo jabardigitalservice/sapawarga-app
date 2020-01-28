@@ -100,7 +100,7 @@ class GamificationController extends ActiveController
      */
     public function actionJoin($id)
     {
-        $today = date("Y-m-d");
+        $today = date('Y-m-d');
 
         // Check active gamification
         $isExistGamification = Gamification::find()
