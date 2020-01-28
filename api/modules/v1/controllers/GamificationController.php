@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\models\User;
 use app\models\Gamification;
 use app\models\GamificationSearch;
+use app\models\GamificationParticipant;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -30,7 +31,7 @@ class GamificationController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete',],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'join'],
             'rules' => [
                 [
                     'allow' => true,
@@ -39,7 +40,7 @@ class GamificationController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
+                    'actions' => ['index', 'view', 'join'],
                     'roles' => ['staffRW'],
                 ],
             ],
@@ -63,7 +64,7 @@ class GamificationController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|Video
+     * @return mixed|Gamification
      * @throws \yii\web\NotFoundHttpException
      */
     public function actionView($id)
@@ -88,6 +89,46 @@ class GamificationController extends ActiveController
         $this->checkAccess('delete', $model, $id);
 
         return $this->applySoftDelete($model);
+    }
+
+    /**
+     * User can join to the gamification
+     *
+     * @param $id id of gamification
+     * @return mixed|Gamification
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionJoin($id)
+    {
+        $today = date('Y-m-d');
+
+        // Check active gamification
+        $isExistGamification = Gamification::find()
+                ->where(['status' => Gamification::STATUS_ACTIVE])
+                ->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]])
+                ->exists();
+
+        if (! $isExistGamification) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        // User join gamification
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        $isExistParticipant = GamificationParticipant::find()
+                        ->where(['gamification_id' => $id, 'user_id' => $authUserId])
+                        ->exists();
+
+        $model = null;
+        if (! $isExistParticipant) {
+            $model = new GamificationParticipant();
+            $model->gamification_id = $id;
+            $model->user_id = $authUserId;
+            $model->save(false);
+        }
+
+        return $model;
     }
 
     /**
