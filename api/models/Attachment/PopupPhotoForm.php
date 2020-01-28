@@ -13,6 +13,6 @@ class PopupPhotoForm extends AttachmentForm
      */
     public function cropAndResizePhoto($filePath)
     {
-        return $this->imageProcessor->make($filePath)->fit(1280, 720);
+        return $this->imageProcessor->make($filePath)->fit(720, 1280);
     }
 }
