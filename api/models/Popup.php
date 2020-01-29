@@ -13,7 +13,6 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $title
- * @property string $description
  * @property string $image_path
  * @property string $type
  * @property string $link_url
@@ -51,7 +50,7 @@ class Popup extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'image_path', 'type', 'start_date', 'end_date', 'description', 'status'],'required'],
+            [['title', 'image_path', 'type', 'start_date', 'end_date', 'status'],'required'],
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
@@ -82,7 +81,6 @@ class Popup extends ActiveRecord
         $fields = [
             'id',
             'title',
-            'description',
             'image_path',
             'image_path_url' => function () {
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
@@ -129,7 +127,6 @@ class Popup extends ActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Judul',
-            'description' => 'Deskripsi',
             'image_path' => 'Image Path',
             'type' => 'Tipe',
             'link_url' => 'URL',
