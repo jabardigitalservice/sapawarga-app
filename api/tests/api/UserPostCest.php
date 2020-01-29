@@ -174,8 +174,8 @@ class UserPostCest
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
+            'created_at'  => '1554706346',
+            'updated_at'  => '1554706346',
             'created_by' => 18,
             'updated_by' => 18
         ]);
@@ -185,8 +185,8 @@ class UserPostCest
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 0,
-            'created_at'  => '1554706345',
-            'updated_at'  => '1554706345',
+            'created_at'  => '1554706347',
+            'updated_at'  => '1554706347',
             'created_by' => 17,
             'updated_by' => 17
         ]);
@@ -206,8 +206,8 @@ class UserPostCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
 
-        $I->assertEquals(1, $data[0][0]['id']);
-        $I->assertEquals(3, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][0]['id']);
+        $I->assertEquals(1, $data[0][1]['id']);
     }
 
     public function postStaffProvUpdate(ApiTester $I)
