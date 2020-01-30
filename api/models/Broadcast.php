@@ -82,7 +82,7 @@ class Broadcast extends ActiveRecord
             ['type', 'validateTypeInternal'],
             ['type', 'validateTypeExternal'],
             ['link_url', 'url'],
-            ['internal_object_type', 'in', 'range' => ['news', 'polling', 'survey']],
+            ['internal_object_type', 'in', 'range' => ['news', 'news-important', 'polling', 'survey']],
 
             ['is_scheduled', 'default', 'value' => false],
             ['is_scheduled', 'required'],

@@ -57,7 +57,7 @@ class Banner extends ActiveRecord implements ActiveStatus
             ['type', 'validateTypeExternal'],
 
             ['link_url', 'url'],
-            ['internal_category', 'in', 'range' => ['news', 'polling', 'survey']],
+            ['internal_category', 'in', 'range' => ['news', 'news-important', 'polling', 'survey']],
             [['status', 'internal_entity_id'], 'integer'],
 
             ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_DISABLED, self::STATUS_ACTIVE]],
