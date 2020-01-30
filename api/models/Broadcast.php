@@ -82,7 +82,7 @@ class Broadcast extends ActiveRecord
             ['type', 'validateTypeInternal'],
             ['type', 'validateTypeExternal'],
             ['link_url', 'url'],
-            ['internal_object_type', 'in', 'range' => ['news', 'polling', 'survey']],
+            ['internal_object_type', 'in', 'range' => ['news', 'news-important', 'polling', 'survey']],
 
             ['is_scheduled', 'default', 'value' => false],
             ['is_scheduled', 'required'],
@@ -282,7 +282,7 @@ class Broadcast extends ActiveRecord
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_object_id) && empty($this->internal_object_type)) {
+            if (empty($this->internal_object_type)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }

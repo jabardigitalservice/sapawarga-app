@@ -96,7 +96,7 @@ class PopupTest extends Unit
         $this->assertFalse($model->hasErrors('link_url'));
     }
 
-    public function testTypeRequired()
+    public function testTypeExternalRequired()
     {
         $model = new Popup();
 
@@ -112,6 +112,23 @@ class PopupTest extends Unit
 
         $model->type = 'external';
         $model->link_url = 'http://google.com';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('type'));
+    }
+
+    public function testTypeInternalRequired()
+    {
+        $model = new Popup();
+        $model->type = 'internal';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('type'));
+
+        $model->internal_object_type = 'news';
+        $model->internal_object_id = 1;
 
         $model->validate();
 

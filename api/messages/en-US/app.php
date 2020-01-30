@@ -32,7 +32,7 @@ return [
     'error.password.old.incorect' => 'Old password is incorect.',
     'error.password.confirmation.incorect' => 'Password confirmation is incorect.',
     'error.password.old.same' => 'New password can not be same with old password.',
-    'error.empty.internalfill' => 'Please fill internal entity id  and internal category',
+    'error.empty.internalfill' => 'Please fill internal category',
     'error.empty.externalfill' => 'Please fill link url',
     'error.validation.rangedatefill' => 'The range date has been used',
 

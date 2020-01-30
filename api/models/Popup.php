@@ -69,7 +69,7 @@ class Popup extends ActiveRecord
             [['start_date', 'end_date'], 'validateRangeDateNotMe', 'on' => 'update'],
 
             ['link_url', 'url'],
-            ['internal_object_type', 'in', 'range' => ['news', 'polling', 'survey']],
+            ['internal_object_type', 'in', 'range' => ['news', 'news-important', 'polling', 'survey']],
             [['status', 'internal_object_id'], 'integer'],
 
             ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_ACTIVE, self::STATUS_STARTED]],
@@ -156,7 +156,7 @@ class Popup extends ActiveRecord
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_object_id) && empty($this->internal_object_type)) {
+            if (empty($this->internal_object_type)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }

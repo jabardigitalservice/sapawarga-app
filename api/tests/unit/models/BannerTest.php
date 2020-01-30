@@ -96,7 +96,7 @@ class BannerTest extends Unit
         $this->assertFalse($model->hasErrors('link_url'));
     }
 
-    public function testTypeRequired()
+    public function testTypeExternalRequired()
     {
         $model = new Banner();
 
@@ -112,6 +112,23 @@ class BannerTest extends Unit
 
         $model->type = 'external';
         $model->link_url = 'http://google.com';
+
+        $model->validate();
+
+        $this->assertFalse($model->hasErrors('type'));
+    }
+
+    public function testTypeInternalRequired()
+    {
+        $model = new Banner();
+        $model->type = 'internal';
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('type'));
+
+        $model->internal_category = 'news';
+        $model->internal_entity_id = 1;
 
         $model->validate();
 
