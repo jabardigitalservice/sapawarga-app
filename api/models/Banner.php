@@ -143,7 +143,7 @@ class Banner extends ActiveRecord implements ActiveStatus
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_entity_id) && empty($this->internal_category)) {
+            if (empty($this->internal_category)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }

@@ -282,7 +282,7 @@ class Broadcast extends ActiveRecord
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_object_id) && empty($this->internal_object_type)) {
+            if (empty($this->internal_object_type)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }
