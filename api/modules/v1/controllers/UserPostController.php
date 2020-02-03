@@ -83,7 +83,6 @@ class UserPostController extends ActiveController
         $this->checkAccess('create', $model);
 
         if ($model->validate() && $model->save()) {
-
             // Record gamification
             GamificationActivityHelper::saveGamificationActivity('user_post_create', $model->id);
 
