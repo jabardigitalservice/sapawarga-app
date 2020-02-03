@@ -6,6 +6,7 @@ use app\models\User;
 use app\models\Gamification;
 use app\models\GamificationSearch;
 use app\models\GamificationParticipant;
+use app\models\GamificationActivitySearch;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -148,6 +149,25 @@ class GamificationController extends ActiveController
 
         $search = new GamificationSearch();
         return $search->getQueryListMyMission($params);
+    }
+
+    /**
+     * Detail user task of every mission
+     *
+     * @param $id id of gamification
+     * @return mixed|Gamification
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionMyTask($id)
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        $params['user_id'] = $authUserId;
+
+        $search = new GamificationActivitySearch();
+        return $search->search($params);
     }
 
     /**
