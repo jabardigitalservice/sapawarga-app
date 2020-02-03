@@ -1,6 +1,6 @@
 <?php
 
-return [
+$db = [
     'class' => 'yii\db\Connection',
     'dsn' => 'mysql:host=' . getenv('MYSQL_HOST')
         . ';port=' . getenv('MYSQL_PORT')
@@ -8,9 +8,16 @@ return [
     'username' => getenv('MYSQL_USER'),
     'password' => getenv('MYSQL_PASSWORD'),
     'charset' => 'utf8mb4',
-
-    // Schema cache options (for production environment)
-    //'enableSchemaCache' => true,
-    //'schemaCacheDuration' => 60,
-    //'schemaCache' => 'cache',
 ];
+
+if (getenv('YII_ENV_DEV') != 1) {
+    // Schema cache options (for production environment)
+    $schemaCache = [
+        'enableSchemaCache' => true,
+        'schemaCacheDuration' => 3600,
+        'schemaCache' => 'cache',
+    ];
+    $db = array_merge($db, $schemaCache);
+}
+
+return $db;
