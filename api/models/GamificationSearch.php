@@ -32,7 +32,6 @@ class GamificationSearch extends Gamification
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
 
-
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
         } else {
@@ -42,20 +41,32 @@ class GamificationSearch extends Gamification
 
     protected function getQueryListUser($query, $params)
     {
+        $today = date('Y-m-d');
+
+        $query->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]]);
+
         return $this->createActiveDataProvider($query, $params);
     }
 
     protected function getQueryListStaff($query, $params)
     {
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $query->andFilterWhere([
+            'and',
+            ['<=', 'start_date', Arr::get($params, 'end_date')],
+            ['>=', 'end_date', Arr::get($params, 'start_date')],
+        ]);
 
-        if (Arr::get($params, 'start_date') && Arr::get($params, 'end_date')) {
-            $query->andWhere([
-                'and',
-                ['<=', 'start_date', Arr::get($params, 'end_date')],
-                ['>=', 'end_date', Arr::get($params, 'start_date')],
-            ]);
-        }
+        return $this->createActiveDataProvider($query, $params);
+    }
+
+    public function getQueryListMyMission($params)
+    {
+        $userId = Arr::get($params, 'user_id');
+
+        $query = GamificationParticipant::find()
+                ->joinWith('gamification', '`gamification`.`id` = `gamification_participants`.`gamification_id`')
+                ->where(['user_id' => $userId]);
 
         return $this->createActiveDataProvider($query, $params);
     }
