@@ -11,13 +11,19 @@ $db = [
 ];
 
 if (getenv('YII_ENV_DEV') != 1) {
-    // Schema cache options (for production environment)
+    // Caching options (for production environment)
     $schemaCache = [
         'enableSchemaCache' => true,
         'schemaCacheDuration' => 3600,
         'schemaCache' => 'cache',
     ];
-    $db = array_merge($db, $schemaCache);
+    $queryCache = [
+        'enableQueryCache' => true,
+        'queryCacheDuration' => 3600,
+        'queryCache' => 'cache',
+    ];
+
+    $db = array_merge($db, $schemaCache, $queryCache);
 }
 
 return $db;
