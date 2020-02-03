@@ -16,6 +16,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\ForbiddenHttpException;
+use app\components\GamificationActivityHelper;
 
 /**
  * NewsController implements the CRUD actions for News model.
@@ -216,6 +217,9 @@ class NewsController extends ActiveController
 
             $model->total_viewers = $totalViewers;
             $model->save(false);
+
+            // Record gamification
+            GamificationActivityHelper::saveGamificationActivity('news_view_detail', $id);
         }
 
         return $model;

@@ -14,6 +14,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use app\modules\v1\repositories\UserPostRepository;
 use app\modules\v1\repositories\LikeRepository;
+use app\components\GamificationActivityHelper;
 
 class UserPostController extends ActiveController
 {
@@ -42,11 +43,11 @@ class UserPostController extends ActiveController
     {
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'me'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'me'],
                     'roles' => ['admin', 'staffProv', 'staffRW'],
                 ],
             ],
@@ -60,12 +61,42 @@ class UserPostController extends ActiveController
         $actions = parent::actions();
 
         // Override Actions
+        unset($actions['create']);
         unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
 
         return $actions;
+    }
+
+    /**
+     * @return UserPost|array
+     * @throws ServerErrorHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionCreate()
+    {
+        $model = new UserPost();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        $this->checkAccess('create', $model);
+
+        if ($model->validate() && $model->save()) {
+
+            // Record gamification
+            GamificationActivityHelper::saveGamificationActivity('user_post_create', $model->id);
+
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
     }
 
      /**

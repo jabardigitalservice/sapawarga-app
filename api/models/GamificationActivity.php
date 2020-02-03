@@ -10,7 +10,6 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property int id
  * @property int gamification_id
- * @property int object_type
  * @property int object_id
  * @property int user_id
  * @property int created_at
