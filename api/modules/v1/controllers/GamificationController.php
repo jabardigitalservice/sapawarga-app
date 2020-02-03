@@ -31,7 +31,7 @@ class GamificationController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'join'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'join', 'me'],
             'rules' => [
                 [
                     'allow' => true,
@@ -40,7 +40,7 @@ class GamificationController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'join'],
+                    'actions' => ['index', 'view', 'join', 'me'],
                     'roles' => ['staffRW'],
                 ],
             ],
@@ -129,6 +129,25 @@ class GamificationController extends ActiveController
         }
 
         return $model;
+    }
+
+    /**
+     * List of gamification of each user
+     *
+     * @param $id id of gamification
+     * @return mixed|Gamification
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionMe()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        $params['user_id'] = $authUserId;
+
+        $search = new GamificationSearch();
+        return $search->getQueryListMyMission($params);
     }
 
     /**

@@ -382,6 +382,8 @@ return [
             'OPTIONS {id}' => 'options',
             'POST join/{id}' => 'join',
             'OPTIONS join/{id}' => 'options',
+            'GET me' => 'me',
+            'OPTIONS me' => 'options',
         ]
     ],
 ];
