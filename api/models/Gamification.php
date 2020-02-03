@@ -66,7 +66,13 @@ class Gamification extends ActiveRecord implements ActiveStatus
             ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
             ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
 
+            ['start_date', 'checkExistRangeDate'],
+            ['end_date', 'checkExistRangeDate'],
+
             [['status', 'total_hit'], 'integer'],
+
+            ['object_type', 'in', 'range' => ['news', 'user_post']],
+            ['object_event', 'in', 'range' => ['news_view_detail', 'user_post_create']],
 
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
@@ -129,5 +135,23 @@ class Gamification extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
+    }
+
+    public function checkExistRangeDate($attribute, $params)
+    {
+        $checkExist = Gamification::find()
+            ->where(['status' => Gamification::STATUS_ACTIVE])
+            ->andWhere([
+                'and',
+                ['<=', 'start_date', $this->end_date],
+                ['>=', 'end_date', $this->start_date],
+            ])
+            ->andWhere(['object_type' => $this->object_type])
+            ->andWhere(['object_event' => $this->object_event])
+            ->exists();
+
+        if ($checkExist) {
+            $this->addError($attribute, Yii::t('app', 'error.validation.rangedatefill'));
+        }
     }
 }
