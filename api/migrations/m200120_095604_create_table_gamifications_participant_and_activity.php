@@ -14,8 +14,7 @@ class m200120_095604_create_table_gamifications_participant_and_activity extends
         $this->createTable('gamification_activities', [
             'id' => $this->primaryKey(),
             'gamification_id' => $this->integer()->notNull(),
-            'object_type' => $this->string()->notNull(), // value : news / user_post
-            'object_id' => $this->integer()->notNull(), // id of object_type, depend on object_type
+            'object_id' => $this->integer()->notNull(), // id of news / user_post
             'user_id' => $this->integer()->notNull(),
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
@@ -25,6 +24,7 @@ class m200120_095604_create_table_gamifications_participant_and_activity extends
             'id' => $this->primaryKey(),
             'gamification_id' => $this->integer()->notNull(),
             'user_id' => $this->integer()->notNull(),
+            'total_user_hit' => $this->integer()->notNull()->defaultValue(0),
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
         ]);
