@@ -386,6 +386,8 @@ return [
             'OPTIONS my-task/{id}' => 'options',
             'GET participant' => 'participant',
             'OPTIONS participant' => 'options',
+            'GET my-badge' => 'my-badge',
+            'OPTIONS my-badge' => 'options',
         ]
     ],
 ];

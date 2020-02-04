@@ -8,6 +8,7 @@ use app\models\GamificationSearch;
 use app\models\GamificationParticipant;
 use app\models\GamificationParticipantSearch;
 use app\models\GamificationActivitySearch;
+use app\models\GamificationMyBadgeSearch;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -33,7 +34,7 @@ class GamificationController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'join', 'my-task', 'participant'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'join', 'my-task', 'participant', 'my-badge'],
             'rules' => [
                 [
                     'allow' => true,
@@ -42,7 +43,7 @@ class GamificationController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'join', 'my-task', 'participant'],
+                    'actions' => ['index', 'view', 'join', 'my-task', 'participant', 'my-badge'],
                     'roles' => ['staffRW'],
                 ],
             ],
@@ -57,6 +58,7 @@ class GamificationController extends ActiveController
 
         // Override Actions
         unset($actions['view']);
+        unset($actions['update']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
@@ -106,8 +108,9 @@ class GamificationController extends ActiveController
 
         // Check active gamification
         $isExistGamification = Gamification::find()
-                ->where(['status' => Gamification::STATUS_ACTIVE])
-                ->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]])
+                ->where(['id' => $id])
+                ->andWhere(['status' => Gamification::STATUS_ACTIVE])
+                ->andWhere(['and', ['<=','start_date', $today],['>=','end_date', $today]])
                 ->exists();
 
         if (! $isExistGamification) {
@@ -172,6 +175,25 @@ class GamificationController extends ActiveController
         $params['user_id'] = $authUserId;
 
         $search = new GamificationActivitySearch();
+        return $search->search($params);
+    }
+
+    /**
+     * List of User badges
+     *
+     * @param $id id of gamification
+     * @return mixed|Gamification
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionMyBadge()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        $params['user_id'] = $authUserId;
+
+        $search = new GamificationMyBadgeSearch();
         return $search->search($params);
     }
 
