@@ -35,12 +35,18 @@ class GamificationParticipant extends ActiveRecord
         return ($this->gamification->total_hit == $this->total_user_hit) ? true : false;
     }
 
+    public function getAuthor()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
     public function fields()
     {
         $fields = [
             'id',
             'gamification_id',
             'user_id',
+            'user' => 'AuthorField',
             'total_user_hit',
             'created_at',
             'updated_at',
@@ -61,6 +67,16 @@ class GamificationParticipant extends ActiveRecord
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ]
+        ];
+    }
+
+    protected function getAuthorField()
+    {
+        return [
+            'id' => $this->author->id,
+            'name' => $this->author->name,
+            'email' => $this->author->email,
+            'role_label' => $this->author->getRoleName(),
         ];
     }
 }

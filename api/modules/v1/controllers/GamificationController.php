@@ -6,6 +6,7 @@ use app\models\User;
 use app\models\Gamification;
 use app\models\GamificationSearch;
 use app\models\GamificationParticipant;
+use app\models\GamificationParticipantSearch;
 use app\models\GamificationActivitySearch;
 use Yii;
 use yii\filters\AccessControl;
@@ -32,16 +33,16 @@ class GamificationController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'join', 'me'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'join', 'my-task', 'participant'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', ],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'participant'],
                     'roles' => ['admin', 'staffProv'],
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'join', 'me'],
+                    'actions' => ['index', 'view', 'join', 'my-task', 'participant'],
                     'roles' => ['staffRW'],
                 ],
             ],
@@ -133,22 +134,26 @@ class GamificationController extends ActiveController
     }
 
     /**
-     * List of gamification of each user
+     * List of gamification participant
      *
      * @param $id id of gamification
      * @return mixed|Gamification
      * @throws \yii\web\NotFoundHttpException
      */
-    public function actionMe()
+    public function actionParticipant()
     {
         $params = Yii::$app->request->getQueryParams();
         $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
 
-        $params['user_id'] = $authUserId;
+        $params['user_id'] = $authUser->id;
 
-        $search = new GamificationSearch();
-        return $search->getQueryListMyMission($params);
+        $search = new GamificationParticipantSearch();
+
+        if ($authUser->can('user') || $authUser->can('staffRW')) {
+            $search->scenario = GamificationSearch::SCENARIO_LIST_USER;
+        }
+
+        return $search->search($params);
     }
 
     /**
@@ -181,7 +186,6 @@ class GamificationController extends ActiveController
     public function checkAccess($action, $model = null, $params = [])
     {
         $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
 
         // Admin, staffprov can do everything
         if ($authUser->can('admin') || $authUser->can('staffProv')) {
@@ -189,7 +193,7 @@ class GamificationController extends ActiveController
         }
 
         if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
+            if ($model->created_by !== $authUser->id) {
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
             }
         }
