@@ -226,7 +226,7 @@ class AspirasiCest
         ]);
     }
 
-    public function postCreateTest(ApiTester $I)
+    public function postUserCreateUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('user');
 
@@ -244,12 +244,12 @@ class AspirasiCest
         ];
 
         $I->sendPOST('/v1/aspirasi', $data);
-        $I->canSeeResponseCodeIs(201);
+        $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 201,
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 

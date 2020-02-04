@@ -59,7 +59,7 @@ class AspirasiController extends ActiveController
                 ],
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'me', 'likes'],
+                    'actions' => ['index', 'view', 'update', 'delete', 'me', 'likes'],
                     'roles'   => ['aspirasiMobile'],
                 ],
             ],
