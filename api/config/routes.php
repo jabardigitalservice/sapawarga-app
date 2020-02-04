@@ -319,8 +319,6 @@ return [
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET public/{id}' => 'public',
-            'OPTIONS public/{id}' => 'options',
         ]
     ],
     [

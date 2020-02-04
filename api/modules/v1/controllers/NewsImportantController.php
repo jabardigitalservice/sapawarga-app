@@ -27,7 +27,7 @@ class NewsImportantController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         // add authentication exceptions for public endpoints
-        // array_push($behaviors['authenticator']['except'], 'view-public');
+        array_push($behaviors['authenticator']['except'], 'view');
 
         // setup access
         $behaviors['access'] = [
@@ -46,7 +46,7 @@ class NewsImportantController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['public'],
+                    'actions' => ['view'],
                     'roles' => ['?'],
                 ],
             ],
@@ -77,22 +77,19 @@ class NewsImportantController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id, $this->modelClass);
-        return $model;
-    }
+        $query = NewsImportant::find()->where(['id' => $id]);
+        $user = Yii::$app->user;
+        if ($user) {
+            if ($user->can('admin') || $user->can('newsImportantManage')) {
+                $query->andWhere(['!=', 'status', NewsImportant::STATUS_DELETED]);
+            } else {
+                $query->andWhere(['status' => NewsImportant::STATUS_PUBLISHED]);
+            }
+        } else {
+            $query->andWhere(['status' => NewsImportant::STATUS_PUBLISHED]);
+        }
 
-    /**
-     * @param $id
-     * @return mixed|NewsImportant
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function actionPublic($id)
-    {
-        $searchedModel = NewsImportant::find()
-            ->where(['id' => $id])
-            ->andWhere(['status' => NewsImportant::STATUS_PUBLISHED])
-            ->one();
-
+        $searchedModel = $query->one();
         if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
