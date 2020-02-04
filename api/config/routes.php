@@ -382,8 +382,10 @@ return [
             'OPTIONS {id}' => 'options',
             'POST join/{id}' => 'join',
             'OPTIONS join/{id}' => 'options',
-            'GET me' => 'me',
-            'OPTIONS me' => 'options',
+            'GET my-task/{id}' => 'my-task',
+            'OPTIONS my-task/{id}' => 'options',
+            'GET participant' => 'participant',
+            'OPTIONS participant' => 'options',
         ]
     ],
 ];
