@@ -106,8 +106,9 @@ class GamificationController extends ActiveController
 
         // Check active gamification
         $isExistGamification = Gamification::find()
-                ->where(['status' => Gamification::STATUS_ACTIVE])
-                ->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]])
+                ->where(['id' => $id])
+                ->andWhere(['status' => Gamification::STATUS_ACTIVE])
+                ->andWhere(['and', ['<=','start_date', $today],['>=','end_date', $today]])
                 ->exists();
 
         if (! $isExistGamification) {
