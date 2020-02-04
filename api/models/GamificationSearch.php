@@ -86,6 +86,7 @@ class GamificationSearch extends Gamification
                 'attributes' => [
                     'title',
                     'start_date',
+                    'end_date',
                     'created_at',
                     'status',
                 ],
