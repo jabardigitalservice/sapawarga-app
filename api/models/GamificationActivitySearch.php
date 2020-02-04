@@ -21,7 +21,8 @@ class GamificationActivitySearch extends GamificationActivity
      */
     public function search($params)
     {
-        $query = GamificationActivity::find();
+        $query = GamificationActivity::find()
+                    ->joinWith('gamification', '`gamification`.`id` = `gamification_participants`.`gamification_id`');
 
         // Filtering
         $query->andFilterWhere(['gamification_id' => Arr::get($params, 'id')]);

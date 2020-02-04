@@ -26,6 +26,37 @@ class GamificationActivity extends ActiveRecord
         return 'gamification_activities';
     }
 
+    public function getGamification()
+    {
+        return $this->hasOne(Gamification::className(), ['id' => 'gamification_id']);
+    }
+
+    public function getTotalHit()
+    {
+        return $this->gamification->total_hit;
+    }
+
+    public function getObjectEvent()
+    {
+        return $this->gamification->object_event;
+    }
+
+    public function fields()
+    {
+        $fields = [
+            'id',
+            'gamification_id',
+            'object_id',
+            'user_id',
+            'created_at',
+            'updated_at',
+            'total_hit' => 'TotalHit',
+            'object_event' => 'ObjectEvent',
+        ];
+
+        return $fields;
+    }
+
     /** @inheritdoc */
     public function behaviors()
     {
