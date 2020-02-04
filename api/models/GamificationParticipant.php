@@ -76,6 +76,10 @@ class GamificationParticipant extends ActiveRecord
             'id' => $this->author->id,
             'name' => $this->author->name,
             'email' => $this->author->email,
+            'kabkota' => isset($this->author->kabkota->name) ? $this->author->kabkota->name : null,
+            'kelurahan' => isset($this->author->kelurahan->name) ? $this->author->kelurahan->name : null,
+            'kecamatan' => isset($this->author->kecamatan->name) ? $this->author->kecamatan->name : null,
+            'rw' => isset($this->author->rw) ? $this->author->rw : null,
             'role_label' => $this->author->getRoleName(),
         ];
     }
