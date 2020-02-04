@@ -155,23 +155,6 @@ class NewsImportantCest
     /**
      * @before loadData
      */
-    public function getPublicNewsImportantListTest(ApiTester $I)
-    {
-        $I->sendGET('/v1/news-important');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
-        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
-        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
-        $I->assertEquals('Info Pendidikan Kota Bandung', $data[0][2]['title']);
-        $I->assertEquals('Info Pendidikan Kota Bekasi', $data[0][3]['title']);
-    }
-
-    /**
-     * @before loadData
-     */
     public function getNewsImportantListSearchByNameTest(ApiTester $I)
     {
         // Search by OPD
@@ -260,15 +243,15 @@ class NewsImportantCest
     public function getNewsImportantShowTest(ApiTester $I)
     {
         // Public access
-        $I->sendGET('/v1/news-important/3');
+        $I->sendGET('/v1/news-important/public/3');
         $I->canSeeResponseCodeIs(404);
         $I->seeResponseIsJson();
 
-        $I->sendGET('/v1/news-important/4');
+        $I->sendGET('/v1/news-important/public/4');
         $I->canSeeResponseCodeIs(404);
         $I->seeResponseIsJson();
 
-        $I->sendGET('/v1/news-important/1');
+        $I->sendGET('/v1/news-important/public/1');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 

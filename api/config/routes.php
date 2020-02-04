@@ -318,7 +318,9 @@ return [
             '{id}' => '<id:\d+>',
         ],
         'extraPatterns' => [
-            'OPTIONS {id}' => 'options'
+            'OPTIONS {id}' => 'options',
+            'GET public/{id}' => 'public',
+            'OPTIONS public/{id}' => 'options',
         ]
     ],
     [

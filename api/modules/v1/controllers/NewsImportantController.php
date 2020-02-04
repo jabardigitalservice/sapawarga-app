@@ -21,23 +21,14 @@ class NewsImportantController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['verbs'] = [
-            'class' => VerbFilter::className(),
-            'actions' => [
-                'index' => ['get'],
-                'view' => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-            ],
-        ];
-
         return $this->behaviorCors($behaviors);
     }
 
     protected function behaviorAccess($behaviors)
     {
+        // add authentication exceptions for public endpoints
+        // array_push($behaviors['authenticator']['except'], 'view-public');
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -52,6 +43,11 @@ class NewsImportantController extends ActiveController
                     'allow' => true,
                     'actions' => ['index', 'view'],
                     'roles' => ['newsImportantList'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['public'],
+                    'roles' => ['?'],
                 ],
             ],
         ];
@@ -83,6 +79,25 @@ class NewsImportantController extends ActiveController
     {
         $model = $this->findModel($id, $this->modelClass);
         return $model;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|NewsImportant
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionPublic($id)
+    {
+        $searchedModel = NewsImportant::find()
+            ->where(['id' => $id])
+            ->andWhere(['status' => NewsImportant::STATUS_PUBLISHED])
+            ->one();
+
+        if ($searchedModel === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        return $searchedModel;
     }
 
     /**
