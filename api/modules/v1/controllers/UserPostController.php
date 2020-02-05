@@ -142,6 +142,12 @@ class UserPostController extends ActiveController
     {
         $repository = new LikeRepository();
         $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_USER_POST);
+        $likesCount = $repository->getLikesCount($id, Like::TYPE_USER_POST);
+
+        // Update likes_count
+        $updateLikesCount = UserPost::findOne($id);
+        $updateLikesCount->likes_count = $likesCount;
+        $updateLikesCount->save();
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);

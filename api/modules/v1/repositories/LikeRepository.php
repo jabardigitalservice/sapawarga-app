@@ -28,4 +28,14 @@ class LikeRepository
 
         return true;
     }
+
+    public function getLikesCount($id, $type)
+    {
+        $getLikesCount = Like::find()
+            ->where(['entity_id' => $id])
+            ->andWhere(['type' => $type])
+            ->count();
+
+        return $getLikesCount;
+    }
 }

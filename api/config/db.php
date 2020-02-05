@@ -1,6 +1,6 @@
 <?php
 
-$db = [
+return [
     'class' => 'yii\db\Connection',
     'dsn' => 'mysql:host=' . getenv('MYSQL_HOST')
         . ';port=' . getenv('MYSQL_PORT')
@@ -9,16 +9,3 @@ $db = [
     'password' => getenv('MYSQL_PASSWORD'),
     'charset' => 'utf8mb4',
 ];
-
-if (getenv('YII_ENV_DEV') != 1) {
-    // Caching options (for production environment)
-    $queryCache = [
-        'enableQueryCache' => true,
-        'queryCacheDuration' => 3600,
-        'queryCache' => 'cache',
-    ];
-
-    $db = array_merge($db, $queryCache);
-}
-
-return $db;

@@ -6,7 +6,6 @@ use app\components\ModelHelper;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -27,8 +26,6 @@ class UserPost extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    public $likes_count;
-
     /**
      * {@inheritdoc}
      */
@@ -45,12 +42,6 @@ class UserPost extends ActiveRecord implements ActiveStatus
     public function getComments()
     {
         return $this->hasMany(UserPostComment::class, ['user_post_id' => 'id']);
-    }
-
-    public function getLikes()
-    {
-        return $this->hasMany(Like::class, ['entity_id' => 'id'])
-                    ->andOnCondition(['type' => Like::TYPE_USER_POST]);
     }
 
     public function getLastComment()
@@ -91,7 +82,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
                 return "{$publicBaseUrl}/{$this->image_path}";
             },
             'likes_count',
-            'comments_count' => 'CommentsCount',
+            'comments_count',
             'last_user_post_comment_id',
             'last_comment' => 'lastComment',
             'status',
@@ -129,22 +120,8 @@ class UserPost extends ActiveRecord implements ActiveStatus
                 'updatedAtAttribute' => 'updated_at',
                 'value' => time(),
             ],
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::class,
-                'attributeTypes' => [
-                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                ],
-                'typecastAfterValidate' => false,
-                'typecastBeforeSave' => false,
-                'typecastAfterFind' => true,
-            ],
             BlameableBehavior::class,
         ];
-    }
-
-    protected function getCommentsCount()
-    {
-        return (int)$this->getComments()->count();
     }
 
     protected function getAuthorField()
