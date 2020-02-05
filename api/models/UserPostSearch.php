@@ -34,13 +34,7 @@ class UserPostSearch extends UserPost
      */
     public function search($params)
     {
-        $query = UserPost::find()->with('comments')
-                ->select([
-                    '{{user_posts}}.*',
-                    'COUNT({{likes}}.id) AS likes_count'
-                ])
-                ->joinWith('likes')
-                ->groupBy('{{user_posts}}.id');
+        $query = UserPost::find();
 
         if (getenv('YII_ENV_DEV') != 1) {
             $query->cache(true, $this->cacheDependency);
@@ -89,6 +83,7 @@ class UserPostSearch extends UserPost
                     'created_at',
                     'status',
                     'likes_count',
+                    'comments_count',
                 ],
             ],
             'pagination' => [

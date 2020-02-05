@@ -119,8 +119,14 @@ class UserPostComment extends ActiveRecord implements ActiveStatus
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert) {
-            // Save the last comment id
+            $commentsCount = UserPostComment::find()
+                ->where(['user_post_id' => $this->user_post_id])
+                ->andWhere(['status' => UserPostComment::STATUS_ACTIVE])
+                ->count();
+
+            // Save the last comment id + update comments_count
             $this->userPost->last_user_post_comment_id = $this->id;
+            $this->userPost->comments_count = $commentsCount;
             $this->userPost->save(false);
         }
         return parent::afterSave($insert, $changedAttributes);
