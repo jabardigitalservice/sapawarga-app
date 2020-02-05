@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
-use yii\caching\DbDependency;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -13,17 +12,6 @@ use yii\data\ActiveDataProvider;
 class UserPostSearch extends UserPost
 {
     const SCENARIO_LIST_USER = 'list-user';
-
-    public $cacheDependency;
-
-    public function __construct($config = [])
-    {
-        if (getenv('YII_ENV_DEV') != 1) {
-            $this->cacheDependency = new DbDependency();
-            $this->cacheDependency->sql = 'SELECT count(*) FROM ' . UserPost::tableName();
-        }
-        parent::__construct();
-    }
 
     /**
      * Creates data provider instance with search query applied
@@ -35,10 +23,6 @@ class UserPostSearch extends UserPost
     public function search($params)
     {
         $query = UserPost::find();
-
-        if (getenv('YII_ENV_DEV') != 1) {
-            $query->cache(true, $this->cacheDependency);
-        }
 
         // Filtering
         $query->andFilterWhere(['like', 'text',  Arr::get($params, 'search')]);
