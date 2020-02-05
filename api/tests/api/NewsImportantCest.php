@@ -243,15 +243,15 @@ class NewsImportantCest
     public function getNewsImportantShowTest(ApiTester $I)
     {
         // Public access
-        $I->sendGET('/v1/news-important/public/3');
+        $I->sendGET('/v1/news-important/3');
         $I->canSeeResponseCodeIs(404);
         $I->seeResponseIsJson();
 
-        $I->sendGET('/v1/news-important/public/4');
+        $I->sendGET('/v1/news-important/4');
         $I->canSeeResponseCodeIs(404);
         $I->seeResponseIsJson();
 
-        $I->sendGET('/v1/news-important/public/1');
+        $I->sendGET('/v1/news-important/1');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 

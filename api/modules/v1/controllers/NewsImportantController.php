@@ -26,8 +26,8 @@ class NewsImportantController extends ActiveController
 
     protected function behaviorAccess($behaviors)
     {
-        // add authentication exceptions for public endpoints
-        array_push($behaviors['authenticator']['except'], 'view');
+        // add optional authentication for public endpoints
+        $behaviors['authenticator']['optional'] = ['view'];
 
         // setup access
         $behaviors['access'] = [
@@ -79,15 +79,13 @@ class NewsImportantController extends ActiveController
     {
         $query = NewsImportant::find()->where(['id' => $id]);
         $user = Yii::$app->user;
-        if ($user) {
-            if ($user->can('admin') || $user->can('newsImportantManage')) {
-                $query->andWhere(['!=', 'status', NewsImportant::STATUS_DELETED]);
-            } else {
-                $query->andWhere(['status' => NewsImportant::STATUS_PUBLISHED]);
-            }
-        } else {
-            $query->andWhere(['status' => NewsImportant::STATUS_PUBLISHED]);
+
+        $statuses = [NewsImportant::STATUS_PUBLISHED];
+        if($user->can('newsImportantManage')) {
+            array_push($statuses, NewsImportant::STATUS_DISABLED);
         }
+
+        $query->andWhere(['in', 'status',  $statuses]);
 
         $searchedModel = $query->one();
         if ($searchedModel === null) {
