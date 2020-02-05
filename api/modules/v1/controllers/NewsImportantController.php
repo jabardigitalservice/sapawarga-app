@@ -81,7 +81,7 @@ class NewsImportantController extends ActiveController
         $user = Yii::$app->user;
 
         $statuses = [NewsImportant::STATUS_PUBLISHED];
-        if($user->can('newsImportantManage')) {
+        if ($user->can('newsImportantManage')) {
             array_push($statuses, NewsImportant::STATUS_DISABLED);
         }
 
