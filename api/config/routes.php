@@ -318,7 +318,7 @@ return [
             '{id}' => '<id:\d+>',
         ],
         'extraPatterns' => [
-            'OPTIONS {id}' => 'options'
+            'OPTIONS {id}' => 'options',
         ]
     ],
     [

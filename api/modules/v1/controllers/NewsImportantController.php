@@ -21,23 +21,14 @@ class NewsImportantController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['verbs'] = [
-            'class' => VerbFilter::className(),
-            'actions' => [
-                'index' => ['get'],
-                'view' => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-            ],
-        ];
-
         return $this->behaviorCors($behaviors);
     }
 
     protected function behaviorAccess($behaviors)
     {
+        // add optional authentication for public endpoints
+        $behaviors['authenticator']['optional'] = ['view'];
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -52,6 +43,11 @@ class NewsImportantController extends ActiveController
                     'allow' => true,
                     'actions' => ['index', 'view'],
                     'roles' => ['newsImportantList'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['view'],
+                    'roles' => ['?'],
                 ],
             ],
         ];
@@ -81,8 +77,22 @@ class NewsImportantController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id, $this->modelClass);
-        return $model;
+        $query = NewsImportant::find()->where(['id' => $id]);
+        $user = Yii::$app->user;
+
+        $statuses = [NewsImportant::STATUS_PUBLISHED];
+        if ($user->can('newsImportantManage')) {
+            array_push($statuses, NewsImportant::STATUS_DISABLED);
+        }
+
+        $query->andWhere(['in', 'status',  $statuses]);
+
+        $searchedModel = $query->one();
+        if ($searchedModel === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        return $searchedModel;
     }
 
     /**

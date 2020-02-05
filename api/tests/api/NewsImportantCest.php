@@ -237,6 +237,31 @@ class NewsImportantCest
         $I->assertEquals(22, $data[0]['kabkota_id']);
     }
 
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantShowTest(ApiTester $I)
+    {
+        // Public access
+        $I->sendGET('/v1/news-important/3');
+        $I->canSeeResponseCodeIs(404);
+        $I->seeResponseIsJson();
+
+        $I->sendGET('/v1/news-important/4');
+        $I->canSeeResponseCodeIs(404);
+        $I->seeResponseIsJson();
+
+        $I->sendGET('/v1/news-important/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        // Staff access
+        $I->amStaff('opd.disdik');
+        $I->sendGET('/v1/news-important/3');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+    }
+
     public function postUserCreateUnauthorizedTest(ApiTester $I)
     {
         $I->amStaff('staffkabkota');
