@@ -9,8 +9,8 @@ return [
             'handler' => [
                 [
                     'type' => 'stream',
-                    'path' => '@app/runtime/logs/main.log',
-                    'level' => 'debug'
+                    'path' => 'php://stdout',
+                    'level' => 'debug',
                 ]
             ],
             'processor' => [],
