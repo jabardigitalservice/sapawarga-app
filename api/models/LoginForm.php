@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\LogHelper;
 use Monolog\Logger;
 use Yii;
 use yii\base\Model;
@@ -130,7 +131,6 @@ class LoginForm extends Model
          */
         $monologComponent = Yii::$app->monolog;
         $logger = $monologComponent->getLogger('main');
-
         $user = $this->getUserByUsername();
 
         if ($this->validate()) {
@@ -140,12 +140,13 @@ class LoginForm extends Model
                 $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
             }
 
-            $this->logInfo('LOGIN_SUCCESS', $user);
-            return Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? $expirationDuration : 0);
+            $login = Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? $expirationDuration : 0);
+            LogHelper::logEventByUser('LOGIN_SUCCESS');
+            return $login;
         }
 
         if ($user) {
-            $this->logInfo('LOGIN_FAILED_INVALID_PASSWORD', $user);
+            LogHelper::logEventByUser('LOGIN_FAILED_INVALID_PASSWORD', $user);
         } else {
             $logger->info('LOGIN_FAILED_UNKNOWN_USER', ['username' => $this->username]);
         }
@@ -161,33 +162,5 @@ class LoginForm extends Model
     public function getUser()
     {
         return $this->_user;
-    }
-
-    /**
-     * Create log for login activity
-     *
-     * @param $eventName
-     * @param $user
-     */
-    protected function logInfo($eventName, $user): void
-    {
-        /**
-         * @var Logger $logger
-         */
-        $monologComponent = Yii::$app->monolog;
-        $logger = $monologComponent->getLogger('main');
-
-        $logger->info(
-            $eventName,
-            [
-              'user_id'    => $user->id,
-              'username'   => $user->username,
-              'kabkota_id' => $user->kabkota_id ? (int) $user->kabkota_id : null,
-              'kec_id'     => $user->kec_id ? (int) $user->kec_id : null,
-              'kel_id'     => $user->kel_id ? (int) $user->kel_id : null,
-              'role'       => (int) $user->role,
-              'status'     => $user->status,
-            ]
-        );
     }
 }
