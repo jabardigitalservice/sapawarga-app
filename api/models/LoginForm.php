@@ -131,18 +131,11 @@ class LoginForm extends Model
          */
         $monologComponent = Yii::$app->monolog;
         $logger = $monologComponent->getLogger('main');
+
         $user = $this->getUserByUsername();
 
         if ($this->validate()) {
-            if (in_array($user->role, LoginForm::USER_ROLES)) {
-                $expirationDuration = LoginForm::LOGIN_DURATION_USER;
-            } else {
-                $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
-            }
-
-            $login = Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? $expirationDuration : 0);
-            LogHelper::logEventByUser('LOGIN_SUCCESS');
-            return $login;
+            return $this->loginProcess($user);
         }
 
         if ($user) {
@@ -152,6 +145,19 @@ class LoginForm extends Model
         }
 
         return false;
+    }
+
+    protected function loginProcess($user)
+    {
+        if (in_array($user->role, LoginForm::USER_ROLES)) {
+            $expirationDuration = LoginForm::LOGIN_DURATION_USER;
+        } else {
+            $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
+        }
+
+        $login = Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? $expirationDuration : 0);
+        LogHelper::logEventByUser('LOGIN_SUCCESS');
+        return $login;
     }
 
     /**

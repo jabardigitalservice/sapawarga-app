@@ -44,6 +44,7 @@ $config = [
                 ],
             ],
         ],
+        'monolog' => include __DIR__ . '/components/monolog.php',
         'queue' => include __DIR__ . '/components/queue.db.php',
         'db' => include __DIR__ . '/db.php',
 
