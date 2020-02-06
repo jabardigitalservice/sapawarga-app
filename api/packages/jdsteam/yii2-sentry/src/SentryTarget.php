@@ -9,6 +9,7 @@ use yii\log\Target;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 
 class SentryTarget extends Target
 {
@@ -54,6 +55,7 @@ class SentryTarget extends Target
         list($text, $level, $category, $timestamp, $traces) = $message;
 
         if ($text instanceof NotFoundHttpException ||
+            $text instanceof UnauthorizedHttpException ||
             $text instanceof ForbiddenHttpException) {
             return false;
         }
