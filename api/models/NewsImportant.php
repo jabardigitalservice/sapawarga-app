@@ -139,7 +139,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'content' => 'Deskripsi',
             'image_path' => 'Gambar',
             'source_url' => 'Tautan',
-            'public_source_url' => 'Tautan Internal',
+            'public_source_url' => 'Tautan Publik',
             'status' => 'Status',
         ];
     }
