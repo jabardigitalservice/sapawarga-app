@@ -16,7 +16,7 @@ class m200206_092119_add_internal_source_url_column_to_news_important_table exte
 
         // Set `internal_source_url` values for existing `news_important` rows
         \Yii::$app->db->createCommand('UPDATE news_important SET internal_source_url=concat(:prefix, news_important.id)')
-            ->bindValue(':prefix', getenv('FRONTEND_URL') . '/#/news-important/detail/')
+            ->bindValue(':prefix', getenv('FRONTEND_URL') . '/#/info-penting?id=')
             ->execute();
     }
 
