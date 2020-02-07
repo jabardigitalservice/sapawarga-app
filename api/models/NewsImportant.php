@@ -21,7 +21,7 @@ use yii\db\ActiveRecord;
  * @property string $content
  * @property string $image_path
  * @property string $source_url
- * @property string $internal_source_url
+ * @property string $public_source_url
  * @property int $kabkota_id
  * @property string $status
  * @property int $created_by
@@ -65,10 +65,10 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
-            [['title', 'source_url', 'internal_source_url', 'category_id', 'content', 'image_path'], 'trim'],
-            [['title', 'source_url', 'internal_source_url', 'category_id', 'content', 'image_path'], 'safe'],
+            [['title', 'source_url', 'public_source_url', 'category_id', 'content', 'image_path'], 'trim'],
+            [['title', 'source_url', 'public_source_url', 'category_id', 'content', 'image_path'], 'safe'],
 
-            ['source_url', 'internal_source_url', 'url'],
+            [['source_url', 'public_source_url'], 'url'],
 
             ['kabkota_id', 'integer'],
 
@@ -94,7 +94,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 }
             },
             'source_url',
-            'internal_source_url',
+            'public_source_url',
             'kabkota_id',
             'kabkota'      => function () {
                 if (empty($this->kabkota)) {
@@ -139,7 +139,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'content' => 'Deskripsi',
             'image_path' => 'Gambar',
             'source_url' => 'Tautan',
-            'internal_source_url' => 'Tautan Internal',
+            'public_source_url' => 'Tautan Internal',
             'status' => 'Status',
         ];
     }
@@ -167,19 +167,14 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
     }
 
     /** @inheritdoc */
-    public function beforeSave($insert)
+    public function afterSave($insert, $changedAttributes)
     {
         if ($insert) {
             // Create public URL
-            $this->internal_source_url = getenv('FRONTEND_URL') . '/#/info-penting?id=' . $this->id;
+            $this->public_source_url = getenv('FRONTEND_URL') . '/#/info-penting?id=' . $this->id;
+            $this->save(false);
         }
 
-        return parent::beforeSave($insert);
-    }
-
-    /** @inheritdoc */
-    public function afterSave($insert, $changedAttributes)
-    {
         $isSendNotification = ModelHelper::isSendNotification($insert, $changedAttributes, $this);
 
         if ($isSendNotification) {
