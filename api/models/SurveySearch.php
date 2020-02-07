@@ -38,7 +38,7 @@ class SurveySearch extends Survey
 
         $query->andFilterWhere(['<>', 'status', Survey::STATUS_DELETED]);
 
-        if ($allLocation == 'true') {
+        if ($allLocation == true) {
             $query->andWhere(
                 ['and',
                 ['is', 'kabkota_id', null],
