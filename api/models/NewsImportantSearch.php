@@ -30,7 +30,7 @@ class NewsImportantSearch extends NewsImportant
 
         $allLocation = Arr::get($params, 'all_location');
 
-        if ($allLocation == 'true') {
+        if ($allLocation == true) {
             $query->andWhere(['is', 'news_important.kabkota_id', null]);
         } else {
             $this->filterByKabkota($query, $params);

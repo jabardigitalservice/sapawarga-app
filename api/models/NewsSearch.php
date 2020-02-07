@@ -52,7 +52,7 @@ class NewsSearch extends News
             $query->andFilterWhere(['news.status' => Arr::get($params, 'status')]);
         }
 
-        if ($allLocation == 'true') {
+        if ($allLocation == true) {
             $query->andWhere(['is', 'news.kabkota_id', null]);
         }
 

@@ -59,7 +59,7 @@ class PollingSearch extends Polling
 
         $this->filterByStatus($query, $params);
 
-        if ($allLocation == 'true') {
+        if ($allLocation == true) {
             $query->andWhere(
                 ['and',
                 ['is', 'kabkota_id', null],
