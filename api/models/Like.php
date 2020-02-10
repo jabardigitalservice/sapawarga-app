@@ -21,6 +21,7 @@ class Like extends ActiveRecord
     const TYPE_QUESTION = 'question';
     const TYPE_USER_POST = 'user_post';
     const TYPE_NEWS = 'news';
+    const TYPE_NEWS_IMPORTANT = 'news_important';
 
     /**
      * {@inheritdoc}
