@@ -139,7 +139,7 @@ class LoginForm extends Model
         }
 
         if ($user) {
-            LogHelper::logEventByUser('LOGIN_FAILED_INVALID_PASSWORD', $user);
+            LogHelper::logEventByUser('LOGIN_FAILED_INVALID_PASSWORD', [], $user);
         } else {
             $logger->info('LOGIN_FAILED_UNKNOWN_USER', ['username' => $this->username]);
         }

@@ -19,9 +19,9 @@ class RecordLastActivity extends ActionFilter
             $user                 = User::findIdentity($userId);
             $user->last_access_at = new Expression('NOW()');
             $user->save(false);
-        }
 
-        LogHelper::logEventByUser('USER_LAST_ACTIVITY');
+            LogHelper::logEventByUser('USER_LAST_ACTIVITY');
+        }
 
         return parent::afterAction($action, $result);
     }

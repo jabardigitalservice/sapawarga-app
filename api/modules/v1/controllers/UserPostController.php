@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\LogHelper;
 use app\models\UserPost;
 use app\models\UserPostSearch;
 use app\models\User;
@@ -85,6 +86,8 @@ class UserPostController extends ActiveController
         if ($model->validate() && $model->save()) {
             // Record gamification
             GamificationActivityHelper::saveGamificationActivity('user_post_create', $model->id);
+
+            LogHelper::logEventByUser('USER_POST_CREATE');
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
