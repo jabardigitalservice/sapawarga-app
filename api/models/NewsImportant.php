@@ -55,6 +55,11 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
         return $this->hasMany(NewsImportantAttachment::className(), ['news_important_id' => 'id']);
     }
 
+    public function getIsUserLiked()
+    {
+        return ModelHelper::getIsUserLiked($this->id, Like::TYPE_NEWS_IMPORTANT);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -105,6 +110,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                     'name' => $this->kabkota->name,
                 ];
             },
+            'likes_count',
+            'is_liked' => 'IsUserLiked',
             'status',
             'attachments' => function () use ($publicBaseUrl) {
                 $attachments = [];

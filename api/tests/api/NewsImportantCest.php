@@ -444,7 +444,7 @@ class NewsImportantCest
 
         $I->amUser('staffrw');
 
-        $I->sendPOST('/v1/news/likes/1');
+        $I->sendPOST('/v1/news-important/likes/1');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -472,7 +472,7 @@ class NewsImportantCest
 
         $I->amUser('staffrw');
 
-        $I->sendPOST('/v1/news/likes/1');
+        $I->sendPOST('/v1/news-important/likes/1');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 

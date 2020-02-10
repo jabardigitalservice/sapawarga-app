@@ -319,6 +319,8 @@ return [
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
         ]
     ],
     [

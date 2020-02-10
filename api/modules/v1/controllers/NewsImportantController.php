@@ -2,12 +2,13 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Like;
 use app\models\NewsImportant;
 use app\models\NewsImportantSearch;
 use app\models\NewsImportantAttachment;
+use app\modules\v1\repositories\LikeRepository;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 
@@ -21,6 +22,9 @@ class NewsImportantController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
+
+        array_push($behaviors['verbs']['actions'], ['likes' => ['post']]);
+
         return $this->behaviorCors($behaviors);
     }
 
@@ -32,7 +36,7 @@ class NewsImportantController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'likes'],
             'rules' => [
                 [
                     'allow' => true,
@@ -41,7 +45,7 @@ class NewsImportantController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
+                    'actions' => ['index', 'view', 'likes'],
                     'roles' => ['newsImportantList'],
                 ],
                 [
@@ -179,6 +183,28 @@ class NewsImportantController extends ActiveController
         $this->checkAccess('delete', $model, $id);
 
         return $this->applySoftDelete($model);
+    }
+
+    /**
+     * Gives like/unlike to an entity
+     *
+     * @param $id
+     */
+    public function actionLikes($id)
+    {
+        $repository = new LikeRepository();
+        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_NEWS_IMPORTANT);
+        $likesCount = $repository->getLikesCount($id, Like::TYPE_NEWS_IMPORTANT);
+
+        // Update likes_count
+        $updateLikesCount = NewsImportant::findOne($id);
+        $updateLikesCount->likes_count = $likesCount;
+        $updateLikesCount->save();
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 
     /**

@@ -78,6 +78,7 @@ class NewsImportantSearch extends NewsImportant
                     'title',
                     'category_id',
                     'status',
+                    'likes_count',
                     'created_at',
                     'category.name' => [
                         'asc'  => ['categories.name' => SORT_ASC],
