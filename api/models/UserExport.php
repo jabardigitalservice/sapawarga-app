@@ -38,7 +38,7 @@ class UserExport extends Model
                     'DATE_FORMAT(FROM_UNIXTIME(user.updated_at), "%d-%m-%Y") AS updated_at',
                     'DATE_FORMAT(FROM_UNIXTIME(password_updated_at), "%d-%m-%Y") AS password_updated_at',
                     'DATE_FORMAT(FROM_UNIXTIME(profile_updated_at), "%d-%m-%Y") AS profile_updated_at',
-                    'DATE_FORMAT(FROM_UNIXTIME(last_access_at), "%d-%m-%Y") AS last_access_at',
+                    'DATE_FORMAT(last_access_at, "%d-%m-%Y") AS last_access_at',
             ])
             ->from('user')
             ->leftJoin('areas kabkota', '`kabkota`.`id` = `user`.`kabkota_id`')
