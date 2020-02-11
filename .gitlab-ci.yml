@@ -233,7 +233,7 @@ deploy_prod_eks:
   image: dtzar/helm-kubectl
   when: manual
   only:
-    - master
+    - release
   dependencies:
     - versioning
   environment:
