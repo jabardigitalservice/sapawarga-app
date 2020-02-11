@@ -35,7 +35,7 @@ return [
     'error.empty.internalfill' => 'Silahkan mengisi internal category',
     'error.empty.externalfill' => 'Silahkan mengisi link url',
     'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
-    'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh lebih dari hari ini',
+    'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh kurang dari hari ini',
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
