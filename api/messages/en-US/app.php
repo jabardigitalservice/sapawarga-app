@@ -35,6 +35,7 @@ return [
     'error.empty.internalfill' => 'Please fill internal category',
     'error.empty.externalfill' => 'Please fill link url',
     'error.validation.rangedatefill' => 'The range date has been used',
+    'error.validation.enddate_less_than_today' => 'End date cannot less than today',
 
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 
