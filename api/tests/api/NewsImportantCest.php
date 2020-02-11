@@ -247,20 +247,46 @@ class NewsImportantCest
         $I->sendGET('/v1/news-important/3');
         $I->canSeeResponseCodeIs(404);
         $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 3,
+            'total_viewers' => 0,
+        ]);
 
         $I->sendGET('/v1/news-important/4');
         $I->canSeeResponseCodeIs(404);
         $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 4,
+            'total_viewers' => 0,
+        ]);
 
         $I->sendGET('/v1/news-important/1');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 1,
+            'total_viewers' => 1,
+        ]);
+
+        // User access
+        $I->amUser('staffrw');
+        $I->sendGET('/v1/news-important/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 1,
+            'total_viewers' => 2,
+        ]);
 
         // Staff access
         $I->amStaff('opd.disdik');
         $I->sendGET('/v1/news-important/3');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 3,
+            'total_viewers' => 0,
+        ]);
     }
 
     public function postUserCreateUnauthorizedTest(ApiTester $I)
