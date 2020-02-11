@@ -265,7 +265,7 @@ class NewsImportantCest
         $I->seeResponseIsJson();
         $I->seeInDatabase('news_important', [
             'id' => 1,
-            'total_viewers' => 1,
+            'total_viewers' => 0,
         ]);
 
         // User access
@@ -275,7 +275,7 @@ class NewsImportantCest
         $I->seeResponseIsJson();
         $I->seeInDatabase('news_important', [
             'id' => 1,
-            'total_viewers' => 2,
+            'total_viewers' => 1,
         ]);
 
         // Staff access
