@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Like;
 class NewsImportantCest
 {
     public function _before(ApiTester $I)
@@ -432,5 +433,53 @@ class NewsImportantCest
         $I->canSeeResponseCodeIs(204);
 
         $I->seeInDatabase('news_important', ['id' => 1, 'status' => -1]);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function postLikeNewsImportant(ApiTester $I)
+    {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/news-important/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS_IMPORTANT,
+            'user_id' => 17,
+            'entity_id' => 1,
+        ]);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function postUnlikeNewsImportant(ApiTester $I)
+    {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
+        $I->haveInDatabase('likes', [
+            'type' => Like::TYPE_NEWS_IMPORTANT,
+            'entity_id' => 1,
+            'user_id'     => 17,
+            'created_at' => 1578631126,
+            'updated_at' => 1578631126,
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/news-important/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->dontSeeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS_IMPORTANT,
+            'user_id' => 17,
+            'entity_id' => 1,
+        ]);
     }
 }
