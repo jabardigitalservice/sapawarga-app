@@ -96,6 +96,8 @@ class NewsImportantController extends ActiveController
             throw new NotFoundHttpException("Object not found: $id");
         }
 
+        $this->incrementTotalViewers($searchedModel);
+
         return $searchedModel;
     }
 
@@ -306,5 +308,18 @@ class NewsImportantController extends ActiveController
         // $delete = Yii::$app->fs->delete($filePath);
 
         return $model;
+    }
+
+    /**
+     * Increments total viewers of a NewsImportant model
+     * @param NewsImportant $model
+     */
+    private function incrementTotalViewers($model)
+    {
+        // Increment total views for roles other than 'newsImportantManage'
+        if (Yii::$app->user->can('newsImportantList') === true) {
+            $model->total_viewers = $model->total_viewers + 1;
+            $model->save(false);
+        }
     }
 }

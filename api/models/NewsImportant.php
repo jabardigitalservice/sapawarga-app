@@ -23,6 +23,8 @@ use yii\db\ActiveRecord;
  * @property string $source_url
  * @property string $public_source_url
  * @property int $kabkota_id
+ * @property int $total_viewers
+ * @property int $likes_count
  * @property string $status
  * @property int $created_by
  * @property int $created_at
@@ -110,6 +112,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                     'name' => $this->kabkota->name,
                 ];
             },
+            'total_viewers',
             'likes_count',
             'is_liked' => 'IsUserLiked',
             'status',
