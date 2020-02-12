@@ -25,8 +25,7 @@ class GamificationSearch extends Gamification
      */
     public function search($params)
     {
-        $query = Gamification::find();
-        $query->where(['<>', 'status', Gamification::STATUS_DELETED]);
+        $query = Gamification::find()->where(['<>', 'status', Gamification::STATUS_DELETED]);
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
@@ -43,6 +42,7 @@ class GamificationSearch extends Gamification
     {
         $today = date('Y-m-d');
 
+        $query->joinWith('withoutParticipant', '`gamification`.`id` = `participant`.`gamification_id`');
         $query->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]]);
 
         return $this->createActiveDataProvider($query, $params);
