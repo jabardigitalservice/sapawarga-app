@@ -253,45 +253,6 @@ class AspirasiCest
         ]);
     }
 
-    public function postUpdateTest(ApiTester $I)
-    {
-        $I->haveInDatabase('aspirasi', [
-            'id'          => 1,
-            'title'       => 'Lorem ipsum',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            'kabkota_id'  => 22,
-            'kec_id'      => 446,
-            'kel_id'      => 6082,
-            'status'      => 0,
-            'category_id' => 9,
-            'author_id'   => 36,
-        ]);
-
-        $I->amUser('user');
-
-        $data = [
-            'title'       => 'Lorem ipsum',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            'kabkota_id'  => 22,
-            'kec_id'      => 446,
-            'kel_id'      => 6082,
-            'status'      => 0,
-            'category_id' => 9,
-            'author_id'   => 36,
-        ];
-
-        $I->sendPUT('/v1/aspirasi/1', $data);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-    }
-
     public function postAdminCanUnpublishedTest(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
@@ -417,7 +378,7 @@ class AspirasiCest
         ]);
     }
 
-    public function userCanUpdateIfStatusDraft(ApiTester $I)
+    public function userUpdateIfStatusDraftUnauthorized(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -439,16 +400,16 @@ class AspirasiCest
         ];
 
         $I->sendPUT('/v1/aspirasi/1', $data);
-        $I->canSeeResponseCodeIs(200);
+        $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 
-    public function userCanUpdateIfStatusRejected(ApiTester $I)
+    public function userUpdateIfStatusRejectedUnauthorized(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -471,12 +432,12 @@ class AspirasiCest
         ];
 
         $I->sendPUT('/v1/aspirasi/1', $data);
-        $I->canSeeResponseCodeIs(200);
+        $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 
