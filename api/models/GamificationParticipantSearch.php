@@ -39,8 +39,9 @@ class GamificationParticipantSearch extends GamificationParticipant
         $today = date('Y-m-d');
 
         if (isset($params['old'])) {
-            $query->andwhere(['<','end_date', $today]);
+            $query->andwhere(['or', ['<','end_date', $today], 'total_user_hit = total_hit']);
         } else {
+            $query->andWhere('total_user_hit <> total_hit');
             $query->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]]);
         }
 

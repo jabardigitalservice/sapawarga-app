@@ -36,6 +36,9 @@ class Gamification extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
+    const SCENARIO_CREATE = 'create';
+    const SCENARIO_UPDATE = 'update';
+
     /**
      * {@inheritdoc}
      */
@@ -44,11 +47,19 @@ class Gamification extends ActiveRecord implements ActiveStatus
         return 'gamifications';
     }
 
+    public function getWithoutParticipant()
+    {
+        return $this->hasOne(GamificationParticipant::className(), ['gamification_id' => 'id'])
+            ->where('user_id is null');
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
+        $today = date('Y-m-d');
+
         return [
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
@@ -63,16 +74,17 @@ class Gamification extends ActiveRecord implements ActiveStatus
                 'total_hit','status','start_date','end_date'], 'required'],
 
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
+            ['end_date','validateEndDate'],
             ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
             ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
 
-            ['start_date', 'checkExistRangeDate'],
-            ['end_date', 'checkExistRangeDate'],
+            [['start_date', 'end_date'], 'validateRangeDate', 'on' => 'create'],
+            [['start_date', 'end_date'], 'validateRangeDateNotMe', 'on' => 'update'],
 
             [['status', 'total_hit'], 'integer'],
 
-            ['object_type', 'in', 'range' => ['news', 'user_post']],
-            ['object_event', 'in', 'range' => ['news_view_detail', 'user_post_create']],
+            ['object_type', 'in', 'range' => ['news', 'news_important', 'user_post']],
+            ['object_event', 'in', 'range' => ['news_view_detail', 'news_important_view_detail', 'user_post_create']],
 
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
@@ -137,9 +149,38 @@ class Gamification extends ActiveRecord implements ActiveStatus
         ];
     }
 
-    public function checkExistRangeDate($attribute, $params)
+    public function validateEndDate($attribute, $params)
     {
-        $checkExist = Gamification::find()
+        $today = date('Y-m-d');
+
+        if ($this->end_date <= $today) {
+            $this->addError($attribute, Yii::t('app', 'error.validation.enddate_less_than_today'));
+        }
+    }
+
+    public function validateRangeDate($attribute, $params)
+    {
+        $checkExist = $this->checkExistRangeDate()->exists();
+
+        if (! empty($checkExist)) {
+            $this->addError($attribute, Yii::t('app', 'error.validation.rangedatefill'));
+        }
+    }
+
+    public function validateRangeDateNotMe($attribute, $params)
+    {
+        $checkExist = $this->checkExistRangeDate()
+                ->andWhere(['not in', 'id', $this->id])
+                ->exists();
+
+        if ($checkExist) {
+            $this->addError($attribute, Yii::t('app', 'error.validation.rangedatefill'));
+        }
+    }
+
+    public function checkExistRangeDate()
+    {
+        $checkRangeDate = Gamification::find()
             ->where(['status' => Gamification::STATUS_ACTIVE])
             ->andWhere([
                 'and',
@@ -147,11 +188,8 @@ class Gamification extends ActiveRecord implements ActiveStatus
                 ['>=', 'end_date', $this->start_date],
             ])
             ->andWhere(['object_type' => $this->object_type])
-            ->andWhere(['object_event' => $this->object_event])
-            ->exists();
+            ->andWhere(['object_event' => $this->object_event]);
 
-        if ($checkExist) {
-            $this->addError($attribute, Yii::t('app', 'error.validation.rangedatefill'));
-        }
+        return $checkRangeDate;
     }
 }

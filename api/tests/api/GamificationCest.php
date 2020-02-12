@@ -126,6 +126,66 @@ class GamificationCest
         ]);
     }
 
+    public function postAdminUpdateTest(ApiTester $I)
+    {
+        $I->haveInDatabase('gamifications', [
+            'id'               => 1,
+            'title'            => 'Misi membaca 10 berita',
+            'title_badge'      => 'RW terupdate',
+            'description'      => 'Didalam misi ini anda akan diajak untuk membaca beberapa berita sebanyak yang telah ditentukan, reward dari misi ini akan akan mendapatkan lencana/badge RW TERUPDATE',
+            'object_type'      => 'news',
+            'object_event'     => 'news_view_detail',
+            'total_hit'        => 10,
+            'image_badge_path' => 'http://localhost:81/storage/gamifications/image.jpg',
+            'start_date'       => (new Carbon())->toDateString(),
+            'end_date'         => (new Carbon())->addDays(7)->toDateString(),
+            'status'           => 10,
+            'created_at'       => 1579160246,
+            'updated_at'       => 1579160246,
+            'created_by'       => 1,
+            'updated_by'       => 1,
+        ]);
+
+        $I->amStaff();
+
+        $data = [
+            'id'               => 1,
+            'title'            => 'Update Misi membaca 10 berita',
+            'title_badge'      => 'Update RW terupdate',
+            'description'      => 'Update Didalam misi ini anda akan diajak untuk membaca beberapa berita sebanyak yang telah ditentukan, reward dari misi ini akan akan mendapatkan lencana/badge RW TERUPDATE',
+            'object_type'      => 'news',
+            'object_event'     => 'news_view_detail',
+            'total_hit'        => 10,
+            'image_badge_path' => 'http://localhost:81/storage/gamifications/imageupdate.jpg',
+            'start_date'       => (new Carbon())->toDateString(),
+            'end_date'         => (new Carbon())->addDays(10)->toDateString(),
+            'status'           => 10,
+        ];
+
+        $I->sendPUT('/v1/gamifications/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('gamifications', [
+            'id'               => 1,
+            'title'            => 'Update Misi membaca 10 berita',
+            'title_badge'      => 'Update RW terupdate',
+            'description'      => 'Update Didalam misi ini anda akan diajak untuk membaca beberapa berita sebanyak yang telah ditentukan, reward dari misi ini akan akan mendapatkan lencana/badge RW TERUPDATE',
+            'object_type'      => 'news',
+            'object_event'     => 'news_view_detail',
+            'total_hit'        => 10,
+            'image_badge_path' => 'http://localhost:81/storage/gamifications/imageupdate.jpg',
+            'start_date'       => (new Carbon())->toDateString(),
+            'end_date'         => (new Carbon())->addDays(10)->toDateString(),
+            'status'           => 10,
+        ]);
+    }
+
     public function userJoinGamificationNoDatafail(ApiTester $I)
     {
         $I->amUser('staffrw');

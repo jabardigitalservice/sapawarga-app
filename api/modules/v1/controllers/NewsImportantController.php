@@ -11,6 +11,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use app\components\GamificationActivityHelper;
 
 /**
  * NewsImportantController implements the CRUD actions for NewsImportant model.
@@ -97,6 +98,9 @@ class NewsImportantController extends ActiveController
         }
 
         $this->incrementTotalViewers($searchedModel);
+
+        // Record gamification
+        GamificationActivityHelper::saveGamificationActivity('news_important_view_detail', $id);
 
         return $searchedModel;
     }

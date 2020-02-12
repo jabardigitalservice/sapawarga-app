@@ -58,6 +58,7 @@ class GamificationController extends ActiveController
 
         // Override Actions
         unset($actions['view']);
+        unset($actions['create']);
         unset($actions['update']);
         unset($actions['delete']);
 
@@ -74,6 +75,63 @@ class GamificationController extends ActiveController
     public function actionView($id)
     {
         $model = $this->findModel($id, $this->modelClass);
+        return $model;
+    }
+
+    /**
+     * Create new Gamification content
+     *
+     * @return Gamification
+     * @throws HttpException
+     * @throws InvalidConfigException
+     */
+    public function actionCreate()
+    {
+        $model = new Gamification();
+        $model->scenario = Gamification::SCENARIO_CREATE;
+        $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+        } else {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    /**
+     * Update Gamification content
+     *
+     * @return Gamification
+     * @throws HttpException
+     * @throws InvalidConfigException
+     */
+    public function actionUpdate($id)
+    {
+        $model = Gamification::findOne($id);
+
+        if (empty($model)) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        $model->scenario = Gamification::SCENARIO_UPDATE;
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
+        } else {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
         return $model;
     }
 
