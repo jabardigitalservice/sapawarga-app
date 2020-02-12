@@ -200,7 +200,7 @@ class Broadcast extends ActiveRecord
 
         return [
             'title'         => $this->title,
-            'description'   => $this->description,
+            'description'   => null,
             'data'          => $data,
             'topic'         => $this->buildTopicName(),
         ];
