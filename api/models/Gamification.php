@@ -47,6 +47,12 @@ class Gamification extends ActiveRecord implements ActiveStatus
         return 'gamifications';
     }
 
+    public function getWithoutParticipant()
+    {
+        return $this->hasOne(GamificationParticipant::className(), ['gamification_id' => 'id'])
+            ->where('user_id is null');
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -77,8 +83,8 @@ class Gamification extends ActiveRecord implements ActiveStatus
 
             [['status', 'total_hit'], 'integer'],
 
-            ['object_type', 'in', 'range' => ['news', 'user_post']],
-            ['object_event', 'in', 'range' => ['news_view_detail', 'user_post_create']],
+            ['object_type', 'in', 'range' => ['news', 'news_important', 'user_post']],
+            ['object_event', 'in', 'range' => ['news_view_detail', 'news_important_view_detail', 'user_post_create']],
 
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
