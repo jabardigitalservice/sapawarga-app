@@ -52,7 +52,7 @@ class Gamification extends ActiveRecord implements ActiveStatus
         $authUserId = Yii::$app->user->id;
 
         return $this->hasOne(GamificationParticipant::className(), ['gamification_id' => 'id'])
-            ->andWhere(['or', ['is','user_id', NULL],['<>','user_id', $authUserId]]);
+            ->andWhere(['or', ['is','user_id', null],['<>','user_id', $authUserId]]);
     }
 
     /**
