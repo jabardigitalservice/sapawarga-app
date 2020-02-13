@@ -287,6 +287,7 @@ class GamificationController extends ActiveController
         $search = new GamificationSearch();
 
         if ($authUser->can('user') || $authUser->can('staffRW')) {
+            $params['user_id'] = $authUser->id;
             $search->scenario = GamificationSearch::SCENARIO_LIST_USER;
         }
 

@@ -41,9 +41,11 @@ class GamificationSearch extends Gamification
     protected function getQueryListUser($query, $params)
     {
         $today = date('Y-m-d');
+        $userId = $params['user_id'];
 
-        $query->joinWith('activeGamification');
+        $query->leftJoin('gamification_participants', '`gamification_participants`.`gamification_id` = `gamifications`.`id` AND `user_id` = :user_id', [':user_id' => $userId]);
         $query->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]]);
+        $query->andWhere(['is', 'user_id', null]);
 
         return $this->createActiveDataProvider($query, $params);
     }
@@ -75,7 +77,7 @@ class GamificationSearch extends Gamification
     protected function createActiveDataProvider($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortBy    = Arr::get($params, 'sort_by', 'start_date');
         $sortOrder = Arr::get($params, 'sort_order', 'descending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
