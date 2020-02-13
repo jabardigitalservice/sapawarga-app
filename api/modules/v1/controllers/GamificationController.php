@@ -283,7 +283,6 @@ class GamificationController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $authUser = Yii::$app->user;
-        $authUserModel = $authUser->identity;
 
         $search = new GamificationSearch();
 

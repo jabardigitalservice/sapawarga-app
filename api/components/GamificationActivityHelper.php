@@ -5,6 +5,7 @@ namespace app\components;
 use Yii;
 use app\models\GamificationParticipant;
 use app\models\GamificationActivity;
+use app\models\Gamification;
 
 class GamificationActivityHelper
 {
@@ -23,7 +24,8 @@ class GamificationActivityHelper
         $gamification = GamificationParticipant::find()
                 ->select('gamifications.*, gamification_participants.*')
                 ->leftJoin('gamifications', '`gamifications`.`id` = `gamification_participants`.`gamification_id`')
-                ->where(['user_id' => $userId])
+                ->where(['gamifications.status' => Gamification::STATUS_ACTIVE])
+                ->andWhere(['user_id' => $userId])
                 ->andWhere(['gamifications.object_event' => $objectEvent])
                 ->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]])
                 ->asArray()
