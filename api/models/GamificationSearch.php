@@ -43,7 +43,7 @@ class GamificationSearch extends Gamification
         $today = date('Y-m-d');
         $userId = $params['user_id'];
 
-        $query->leftJoin('gamification_participants', '`gamification_participants`.`gamification_id` = `gamifications`.`id` AND `user_id` = :user_id',[':user_id' => $userId]);
+        $query->leftJoin('gamification_participants', '`gamification_participants`.`gamification_id` = `gamifications`.`id` AND `user_id` = :user_id', [':user_id' => $userId]);
         $query->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]]);
         $query->andWhere(['is', 'user_id', null]);
 
