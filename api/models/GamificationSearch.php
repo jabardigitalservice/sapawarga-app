@@ -42,7 +42,7 @@ class GamificationSearch extends Gamification
     {
         $today = date('Y-m-d');
 
-        $query->joinWith('withoutParticipant', '`gamification`.`id` = `participant`.`gamification_id`');
+        $query->joinWith('activeGamification');
         $query->andwhere(['and', ['<=','start_date', $today],['>=','end_date', $today]]);
 
         return $this->createActiveDataProvider($query, $params);
