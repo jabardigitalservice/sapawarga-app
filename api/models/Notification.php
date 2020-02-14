@@ -79,6 +79,9 @@ class Notification extends \yii\db\ActiveRecord
     /** @var string push token for user-specific notification */
     public $push_token;
 
+    /** @var boolean push notification flag */
+    public $is_push_notification = true;
+
     /**
      * {@inheritdoc}
      */
