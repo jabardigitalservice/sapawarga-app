@@ -1,7 +1,6 @@
 <?php
 
 use app\models\Like;
-use app\models\Notification;
 class NewsCest
 {
     public function _before(ApiTester $I)
@@ -789,17 +788,15 @@ class NewsCest
     {
         $I->amStaff();
 
-        // Create News with a push notification
         $data = [
-            'title'                => 'News Title',
-            'channel_id'           => 1,
-            'kabkota_id'           => 22,
-            'content'              => 'News content',
-            'source_date'          => '2019-06-20',
-            'source_url'           => 'https://google.com',
-            'cover_path'           => 'covers/test.jpg',
-            'is_push_notification' => true,
-            'status'               => 0,
+            'title'       => 'Lorem ipsum',
+            'channel_id'  => 1,
+            'kabkota_id'  => 22,
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 0,
         ];
 
         $I->sendPOST('/v1/news', $data);
@@ -812,49 +809,14 @@ class NewsCest
         ]);
 
         $I->seeInDatabase('news', [
-            'title'       => 'News Title',
+            'title'       => 'Lorem ipsum',
             'channel_id'  => 1,
             'kabkota_id'  => 22,
-            'content'     => 'News content',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
             'source_date' => '2019-06-20',
             'source_url'  => 'https://google.com',
             'cover_path'  => 'covers/test.jpg',
             'status'      => 0,
-        ]);
-
-        $I->seeInDatabase('notifications', [
-            'author_id'     => 1,
-            'title'         => Notification::CATEGORY_LABEL_NEWS . ': News Title',
-            'kabkota_id'    => 22,
-        ]);
-
-        // Create News without push notification
-        $data = [
-            'title'                => 'News Title 2',
-            'channel_id'           => 1,
-            'kabkota_id'           => 22,
-            'content'              => 'News content',
-            'source_date'          => '2019-06-20',
-            'source_url'           => 'https://google.com',
-            'cover_path'           => 'covers/test.jpg',
-            'is_push_notification' => false,
-            'status'               => 0,
-        ];
-
-        $I->sendPOST('/v1/news', $data);
-        $I->canSeeResponseCodeIs(201);
-        $I->seeResponseIsJson();
-
-        $I->seeInDatabase('news', [
-            'title'       => 'News Title 2',
-            'kabkota_id'  => 22,
-        ]);
-
-        $I->dontSeeInDatabase('notifications', [
-            'author_id'     => 1,
-            'category_id'   => 32,
-            'title'         => Notification::CATEGORY_LABEL_NEWS . ': News Title 2',
-            'kabkota_id'    => 22,
         ]);
     }
 
