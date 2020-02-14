@@ -25,6 +25,7 @@ use yii\db\ActiveRecord;
  * @property int $kabkota_id
  * @property int $total_viewers
  * @property int $likes_count
+ * @property bool $is_push_notification
  * @property string $status
  * @property int $created_by
  * @property int $created_at
@@ -79,6 +80,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
 
             ['kabkota_id', 'integer'],
 
+            ['is_push_notification', 'boolean'],
+
             ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
@@ -115,6 +118,7 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
             'total_viewers',
             'likes_count',
             'is_liked' => 'IsUserLiked',
+            'is_push_notification',
             'status',
             'attachments' => function () use ($publicBaseUrl) {
                 $attachments = [];
