@@ -46,7 +46,8 @@ class ModelHelper
                 return $model->status == $model::STATUS_PUBLISHED;
             }
             // Model is updated
-            if (array_key_exists('status', $changedAttributes)) {
+            if (array_key_exists('status', $changedAttributes)
+                || array_key_exists('is_push_notification', $changedAttributes)) {
                 return $model->status == $model::STATUS_PUBLISHED
                     || $model->is_push_notification === true;
             }
