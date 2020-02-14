@@ -95,8 +95,10 @@ class News extends ActiveRecord implements ActiveStatus
 
             ['kabkota_id', 'integer'],
             ['channel_id', 'integer'],
-            ['status', 'integer'],
 
+            ['is_push_notification', 'boolean'],
+
+            ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
