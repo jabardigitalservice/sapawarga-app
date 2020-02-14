@@ -8,6 +8,7 @@ use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -23,6 +24,7 @@ use yii\db\ActiveRecord;
  * @property int $kec_id
  * @property int $kel_id
  * @property string $rw
+ * @property bool $is_push_notification
  * @property mixed $meta
  * @property int $status
  */
@@ -68,6 +70,7 @@ class Survey extends ActiveRecord
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             ['start_date', 'compare', 'compareAttribute' => 'end_date', 'operator' => '<'],
             ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
+            ['is_push_notification', 'boolean'],
             ['status', 'in', 'range' => [-1, 0, 1, 10]],
         ];
 
@@ -99,6 +102,7 @@ class Survey extends ActiveRecord
             'kel_id',
             'kelurahan' => 'KelurahanField',
             'rw',
+            'is_push_notification',
             'created_at',
             'updated_at',
         ];
@@ -163,6 +167,13 @@ class Survey extends ActiveRecord
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
             ],
             AreaBehavior::class,
         ];
