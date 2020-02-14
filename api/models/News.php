@@ -188,6 +188,7 @@ class News extends ActiveRecord implements ActiveStatus
                 'class' => AttributeTypecastBehavior::class,
                 'attributeTypes' => [
                     'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 ],
                 'typecastAfterValidate' => false,
                 'typecastBeforeSave' => false,

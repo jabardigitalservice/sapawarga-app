@@ -47,7 +47,8 @@ class ModelHelper
             }
             // Model is updated
             if (array_key_exists('status', $changedAttributes)) {
-                return $model->status == $model::STATUS_PUBLISHED;
+                return $model->status == $model::STATUS_PUBLISHED
+                    || $model->is_push_notification === true;
             }
         }
         return false;

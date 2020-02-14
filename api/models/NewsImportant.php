@@ -8,6 +8,7 @@ use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -167,6 +168,13 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => time(),
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];
