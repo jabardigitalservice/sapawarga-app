@@ -8,6 +8,7 @@ use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -25,6 +26,7 @@ use yii\db\ActiveRecord;
  * @property string $content
  * @property string $category_id
  * @property \app\models\Category $category
+ * @property bool $is_push_notification
  * @property array $meta
  * @property int $seq
  * @property int $status
@@ -69,11 +71,12 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
 
             ['meta', 'default'],
 
-
             ['category_id', 'integer'],
-            ['status', 'integer'],
-            ['seq', 'integer'],
 
+            ['is_push_notification', 'boolean'],
+
+            ['seq', 'integer'],
+            ['status', 'integer'],
             ['status', 'in', 'range' => [
                 ActiveStatus::STATUS_DELETED,
                 ActiveStatus::STATUS_DISABLED,
@@ -98,6 +101,7 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
             'source_url',
             'category_id',
             'category' => 'CategoryField',
+            'is_push_notification',
             'meta',
             'seq',
             'status',
@@ -140,6 +144,13 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
             [
                 'class'     => SluggableBehavior::class,
                 'attribute' => 'title',
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
             ],
         ];
     }
