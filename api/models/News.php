@@ -27,6 +27,7 @@ use yii\db\ActiveRecord;
  * @property string $channel_id
  * @property \app\models\NewsChannel $channel
  * @property int $kabkota_id
+ * @property bool $is_push_notification
  * @property array $meta
  * @property int $status
  */
@@ -137,6 +138,7 @@ class News extends ActiveRecord implements ActiveStatus
             'total_viewers',
             'likes_count',
             'is_liked' => 'IsUserLiked',
+            'is_push_notification',
             'meta',
             'status',
             'status_label' => 'StatusLabel',
