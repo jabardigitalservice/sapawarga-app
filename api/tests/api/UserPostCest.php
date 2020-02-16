@@ -7,6 +7,7 @@ class UserPostCest
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
 
         Yii::$app->db->createCommand('TRUNCATE user_posts')->execute();
+        Yii::$app->db->createCommand('TRUNCATE user_post_comments')->execute();
         Yii::$app->db->createCommand('TRUNCATE likes')->execute();
     }
 
@@ -237,4 +238,35 @@ class UserPostCest
             'status'  => 200,
         ]);
     }
+
+    public function postGubenurCanComment(ApiTester $I)
+    {
+        $I->haveInDatabase('user_posts', [
+            'id' => 1,
+            'text' => 'User Post 1 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'image_path' => 'general/4546546photo.jpg',
+            'status' => 0,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+            'created_by' => 17,
+            'updated_by' => 17
+        ]);
+
+        $I->amStaff('gubernur');
+
+        $I->sendPOST('/v1/user-posts/1/comments', [
+            'user_post_id' => 1,
+            'text' => 'Komentar dari dari gubenur',
+            'status' => 10
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+    }
+
 }
