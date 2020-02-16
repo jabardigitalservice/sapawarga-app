@@ -6,6 +6,7 @@ use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -25,6 +26,7 @@ use yii\db\ActiveRecord;
  * @property int $kec_id
  * @property int $kel_id
  * @property string $rw
+ * @property bool $is_push_notification
  * @property mixed $meta
  * @property int $status
  */
@@ -113,6 +115,8 @@ class Polling extends ActiveRecord
                 'operator'               => '<',
             ],
 
+            ['is_push_notification', 'boolean'],
+
             ['status', 'in', 'range' => [-1, 0, 1, 10]],
         ];
     }
@@ -172,6 +176,7 @@ class Polling extends ActiveRecord
             'votes_count' => function () {
                 return (int) $this->getVotes()->count();
             },
+            'is_push_notification',
             'meta',
             'status',
             'status_label' => function () {
@@ -233,6 +238,13 @@ class Polling extends ActiveRecord
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
             ],
             AreaBehavior::class,
         ];
