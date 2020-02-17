@@ -13,7 +13,6 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 
 /**
  * GamificationController implements the CRUD actions for Gamification model.
@@ -265,18 +264,7 @@ class GamificationController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-
-        // Admin, staffprov can do everything
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== $authUser->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

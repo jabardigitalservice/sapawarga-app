@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 use app\modules\v1\repositories\QuestionRepository;
 use app\modules\v1\repositories\LikeRepository;
 
@@ -127,19 +126,7 @@ class QuestionController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        // Admin, staffprov can do everything
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

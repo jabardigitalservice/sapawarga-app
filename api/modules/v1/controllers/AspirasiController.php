@@ -267,18 +267,7 @@ class AspirasiController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        // Admin and staffprov can update status
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            return true;
-        }
-
-        // Check access update and delete for staffRw
-        if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
-            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

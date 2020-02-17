@@ -15,7 +15,6 @@ use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\ForbiddenHttpException;
 use app\components\GamificationActivityHelper;
 
 /**
@@ -193,11 +192,7 @@ class NewsController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     /**
