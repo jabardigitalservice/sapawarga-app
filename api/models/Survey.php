@@ -10,6 +10,7 @@ use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\behaviors\BlameableBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -175,6 +176,7 @@ class Survey extends ActiveRecord
                 ],
                 'typecastAfterFind' => true,
             ],
+            BlameableBehavior::class,
             AreaBehavior::class,
         ];
     }

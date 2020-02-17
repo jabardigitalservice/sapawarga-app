@@ -101,7 +101,7 @@ class SurveyController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        //
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

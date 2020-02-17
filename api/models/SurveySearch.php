@@ -75,8 +75,8 @@ class SurveySearch extends Survey
     {
         // Filter berdasarkan judul, status, dan kategori
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $this->filterByStatus($query, $params);
         $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $this->filterByStatus($query, $params);
         $this->filterByArea($query, $params);
 
         $pageLimit = Arr::get($params, 'limit');
