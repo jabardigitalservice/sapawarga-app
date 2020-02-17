@@ -8,6 +8,7 @@ use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use Yii;
 
 class ActiveController extends BaseActiveController
@@ -104,5 +105,22 @@ class ActiveController extends BaseActiveController
         $response->setStatusCode(204);
 
         return 'ok';
+    }
+
+    protected function checkAccessDefault($action, $model = null, $params = [])
+    {
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        // Admin, staffprov can do everything
+        if ($authUser->can('admin') || $authUser->can('staffProv')) {
+            return true;
+        }
+
+        if ($action === 'update' || $action === 'delete') {
+            if ($model->created_by !== \Yii::$app->user->id) {
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+            }
+        }
     }
 }
