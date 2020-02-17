@@ -117,10 +117,8 @@ class ActiveController extends BaseActiveController
             return true;
         }
 
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
+        if (in_array($action, ['update', 'delete']) && $model->created_by !== \Yii::$app->user->id) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
     }
 }
