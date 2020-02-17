@@ -9,6 +9,7 @@ class NewsCest
 
         Yii::$app->db->createCommand('TRUNCATE news')->execute();
         Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_viewers')->execute();
 
         $I->haveInDatabase('news_channels', [
             'id'         => 1,
@@ -913,7 +914,7 @@ class NewsCest
             'updated_by'  => 2,
         ]);
 
-        $I->amStaff();
+        $I->amStaff('staffkabkota');
 
         $data = [
             'title'       => 'Lorem ipsum',
@@ -981,7 +982,7 @@ class NewsCest
             'updated_by'  => 2,
         ]);
 
-        $I->amStaff();
+        $I->amStaff('staffkabkota');
 
         $I->sendDELETE('/v1/news/1');
         $I->canSeeResponseCodeIs(403);

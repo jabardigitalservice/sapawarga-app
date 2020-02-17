@@ -186,7 +186,7 @@ class VideoCest
             'updated_at' => 1557803314,
         ]);
 
-        $I->amStaff('admin');
+        $I->amStaff('staffkabkota');
 
         $data = [
             'title' => 'Lorem ipsum updated',
@@ -261,7 +261,7 @@ class VideoCest
             'updated_at' => 1557803314,
         ]);
 
-        $I->amStaff();
+        $I->amStaff('staffkabkota');
 
         $I->sendDELETE('/v1/videos/1');
         $I->canSeeResponseCodeIs(403);
