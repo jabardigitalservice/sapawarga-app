@@ -11,8 +11,8 @@ class m200217_042014_update_survey_created_updated_by extends CustomMigration
      */
     public function safeUp()
     {
-        $this->addColumn('survey', 'updated_by', $this->integer()->notNull()->after('status'));
-        $this->addColumn('survey', 'created_by', $this->integer()->notNull()->after('status'));
+        $this->addColumn('survey', 'updated_by', $this->integer()->after('status'));
+        $this->addColumn('survey', 'created_by', $this->integer()->after('status'));
 
         // Update existing data created_by updated_by by staffprov
         \Yii::$app->db->createCommand('UPDATE survey set created_by = 2, updated_by = 2;')
