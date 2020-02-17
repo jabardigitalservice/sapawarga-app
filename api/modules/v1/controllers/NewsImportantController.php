@@ -10,7 +10,6 @@ use app\modules\v1\repositories\LikeRepository;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 use app\components\GamificationActivityHelper;
 
 /**
@@ -223,19 +222,7 @@ class NewsImportantController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        // Admin can do everything
-        if ($authUser->can('admin')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()
