@@ -229,6 +229,12 @@ class NewsController extends ActiveController
     {
         $repository = new LikeRepository();
         $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_NEWS);
+        $likesCount = $repository->getLikesCount($id, Like::TYPE_NEWS);
+
+        // Update likes_count
+        $updateLikesCount = News::findOne($id);
+        $updateLikesCount->likes_count = $likesCount;
+        $updateLikesCount->save();
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
