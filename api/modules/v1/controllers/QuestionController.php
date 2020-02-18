@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use app\modules\v1\repositories\QuestionRepository;
 use app\modules\v1\repositories\LikeRepository;
 
 class QuestionController extends ActiveController
@@ -57,29 +56,11 @@ class QuestionController extends ActiveController
         $actions = parent::actions();
 
         // Override Actions
-        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
 
         return $actions;
-    }
-
-     /**
-     * @param $id
-     * @return mixed|Question
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function actionView($id)
-    {
-        $repository = new QuestionRepository();
-        $getDetail = $repository->getDetail($id);
-
-        if ($getDetail === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $getDetail;
     }
 
     /**

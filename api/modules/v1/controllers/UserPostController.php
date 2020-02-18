@@ -12,7 +12,6 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use app\modules\v1\repositories\UserPostRepository;
 use app\modules\v1\repositories\LikeRepository;
 use app\components\GamificationActivityHelper;
 
@@ -62,7 +61,6 @@ class UserPostController extends ActiveController
 
         // Override Actions
         unset($actions['create']);
-        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
@@ -98,23 +96,6 @@ class UserPostController extends ActiveController
         }
 
         return $model;
-    }
-
-     /**
-     * @param $id
-     * @return mixed|UserPost
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function actionView($id)
-    {
-        $repository = new UserPostRepository();
-        $getDetail = $repository->getDetail($id);
-
-        if ($getDetail === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $getDetail;
     }
 
     /**

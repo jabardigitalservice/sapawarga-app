@@ -7,7 +7,6 @@ use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -36,8 +35,6 @@ class News extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
 
     const STATUS_PUBLISHED = 10;
-
-    public $likes_count = 0;
 
     /**
      * {@inheritdoc}
@@ -183,16 +180,6 @@ class News extends ActiveRecord implements ActiveStatus
             [
                 'class'     => SluggableBehavior::class,
                 'attribute' => 'title',
-            ],
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::class,
-                'attributeTypes' => [
-                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                ],
-                'typecastAfterValidate' => false,
-                'typecastBeforeSave' => false,
-                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];
