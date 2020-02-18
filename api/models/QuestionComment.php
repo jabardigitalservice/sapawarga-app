@@ -131,11 +131,23 @@ class QuestionComment extends ActiveRecord implements ActiveStatus
 
     public function afterSave($insert, $changedAttributes)
     {
-        if ($insert && Yii::$app->user->can('staffProv')) { // Model is created
-            // Set staffProv's latest comment as answer to the question
+        // Set staffProv's latest comment as answer to the question
+        if ($insert && Yii::$app->user->can('staffProv')) {
             $this->question->answer_id = $this->id;
             $this->question->save(false);
         }
+
+        // Save comments_count
+        if ($insert) {
+            $commentsCount = QuestionComment::find()
+                ->where(['question_id' => $this->question_id])
+                ->andWhere(['status' => QuestionComment::STATUS_ACTIVE])
+                ->count();
+
+            $this->question->comments_count = $commentsCount;
+            $this->question->save(false);
+        }
+
         return parent::afterSave($insert, $changedAttributes);
     }
 }
