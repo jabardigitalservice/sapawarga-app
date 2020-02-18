@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use app\modules\v1\repositories\LikeRepository;
 
 class QuestionController extends ActiveController
 {
@@ -88,19 +87,14 @@ class QuestionController extends ActiveController
      */
     public function actionLikes($id)
     {
-        $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_QUESTION);
-        $likesCount = $repository->getLikesCount($id, Like::TYPE_QUESTION);
+        $setLikeAndCount = $this->setLikeAndCount($id, Like::TYPE_QUESTION, $this->modelClass);
 
-        // Update likes_count
-        $updateLikesCount = Question::findOne($id);
-        $updateLikesCount->likes_count = $likesCount;
-        $updateLikesCount->save();
+        if ($setLikeAndCount) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
+            return 'ok';
+        }
     }
 
     /**

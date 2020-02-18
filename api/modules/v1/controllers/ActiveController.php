@@ -9,6 +9,7 @@ use yii\filters\VerbFilter;
 use yii\rest\ActiveController as BaseActiveController;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use app\modules\v1\repositories\LikeRepository;
 use Yii;
 
 class ActiveController extends BaseActiveController
@@ -120,5 +121,17 @@ class ActiveController extends BaseActiveController
         if (in_array($action, ['update', 'delete']) && $model->created_by !== \Yii::$app->user->id) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
+    }
+
+    protected function setLikeAndCount($id, $type, $model)
+    {
+        $repository = new LikeRepository();
+        $setLikeUnlike = $repository->setLikeUnlike($id, $type);
+        $likesCount = $repository->getLikesCount($id, $type);
+
+        // Update likes_count
+        $updateLikesCount = $model::findOne($id);
+        $updateLikesCount->likes_count = $likesCount;
+        $updateLikesCount->save();
     }
 }
