@@ -81,7 +81,7 @@ class SurveySearch extends Survey
         } elseif (Yii::$app->user->can('staffKabkota')) {
             $areaParams = ['kabkota_id' => $this->user->kabkota_id ?? null];
             ModelHelper::filterByArea($query, $areaParams);
-        } elseif (Yii::$app->user->can('staffRw')) {
+        } elseif (Yii::$app->user->can('staffRW')) {
             $areaParams = [
                 'kabkota_id' => $this->user->kabkota_id ?? null,
                 'kec_id' => $this->user->kec_id ?? null,
