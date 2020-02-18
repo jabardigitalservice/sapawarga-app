@@ -265,7 +265,7 @@ class NewsController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $user   = Yii::$app->user;
+        $user = Yii::$app->user;
         $authUserModel = $user->identity;
         $authKabKotaId = $authUserModel->kabkota_id;
 
