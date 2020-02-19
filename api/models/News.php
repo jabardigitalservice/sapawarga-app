@@ -7,6 +7,7 @@ use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -180,6 +181,15 @@ class News extends ActiveRecord implements ActiveStatus
             [
                 'class'     => SluggableBehavior::class,
                 'attribute' => 'title',
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterValidate' => false,
+                'typecastBeforeSave' => false,
+                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];
