@@ -16,6 +16,8 @@ return [
     'app.kel_id' => 'Desa/Kelurahan',
     'app.kec_id' => 'Kecamatan',
     'app.kabkota_id' => 'Kabupaten/Kota',
+    'app.job_type_id' => 'Occupation',
+    'app.education_level_id' => 'Education',
 
     'error.login.incorrect' => 'Incorrect username or password.',
     'error.login.inactive' => 'Account is inactive. Please contact 082315192724 (SMS or WhatsApp) and email sapawarga@jabarprov.go.id to activate your account.',
