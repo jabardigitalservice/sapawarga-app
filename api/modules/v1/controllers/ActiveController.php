@@ -3,6 +3,7 @@
 namespace app\modules\v1\controllers;
 
 use app\filters\auth\HttpBearerAuth;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use yii\db\ActiveRecord;
 use yii\filters\auth\CompositeAuth;
 use yii\filters\VerbFilter;
@@ -43,6 +44,11 @@ class ActiveController extends BaseActiveController
             'authMethods' => [
                 HttpBearerAuth::className(),
             ],
+        ];
+
+        // Record last activity for all controllers derived from ActiveController
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
         ];
 
         return $behaviors;
