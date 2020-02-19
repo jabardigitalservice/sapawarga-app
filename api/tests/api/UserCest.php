@@ -471,6 +471,8 @@ class UserCest
             'email' => 'email_updated@demo.com',
             'phone' => '11112222',
             'address' => 'address_updated',
+            'job_type_id' => 1,
+            'education_level_id' => 1,
         ]);
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseContainsJson([
@@ -483,6 +485,8 @@ class UserCest
             'email' => 'email_updated@demo.com',
             'phone' => '11112222',
             'address' => 'address_updated',
+            'job_type_id' => 1,
+            'education_level_id' => 1,
         ]);
     }
 
