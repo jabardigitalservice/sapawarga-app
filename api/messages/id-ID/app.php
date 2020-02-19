@@ -16,6 +16,8 @@ return [
     'app.kel_id' => 'Desa/Kelurahan',
     'app.kec_id' => 'Kecamatan',
     'app.kabkota_id' => 'Kabupaten/Kota',
+    'app.job_type_id' => 'Pekerjaan',
+    'app.education_level_id' => 'Pendidikan',
 
     'error.login.incorrect' => 'Username atau kata sandi salah.',
     'error.login.inactive' => 'Username belum aktif, Anda dapat menghubungi nomor 082315192724 (SMS dan WhatsApp) dan email sapawarga@jabarprov.go.id untuk mengaktifkan akun Anda.',
