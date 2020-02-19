@@ -6,7 +6,6 @@ use app\models\User;
 use app\models\Video;
 use app\models\VideoSearch;
 use app\models\VideoStatistics;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -36,10 +35,6 @@ class VideoController extends ActiveController
                 'statistics' => ['get'],
                 'likes' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);
