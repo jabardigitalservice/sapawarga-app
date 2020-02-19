@@ -37,8 +37,6 @@ class News extends ActiveRecord implements ActiveStatus
 
     const STATUS_PUBLISHED = 10;
 
-    public $likes_count = 0;
-
     /**
      * {@inheritdoc}
      */
@@ -187,7 +185,6 @@ class News extends ActiveRecord implements ActiveStatus
             'typecast' => [
                 'class' => AttributeTypecastBehavior::class,
                 'attributeTypes' => [
-                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
                     'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 ],
                 'typecastAfterValidate' => false,

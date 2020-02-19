@@ -8,7 +8,6 @@ use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
 use app\models\NewsViewer;
-use app\modules\v1\repositories\LikeRepository;
 use app\modules\v1\repositories\NewsFeaturedRepository;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Filters\RecordLastActivity;
@@ -227,13 +226,14 @@ class NewsController extends ActiveController
      */
     public function actionLikes($id)
     {
-        $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_NEWS);
+        $setLikeAndCount = $this->setLikeAndCount($id, Like::TYPE_NEWS, $this->modelClass);
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
+        if ($setLikeAndCount) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
 
-        return 'ok';
+            return 'ok';
+        }
     }
 
     private function saveNewsViewerPerUser($newsId)
