@@ -15,7 +15,6 @@ use app\models\UserChangeProfileForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -67,10 +66,6 @@ class UserController extends ActiveController
                 'me-change-password' => ['post'],
                 'me-change-profile' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         // remove authentication filter
