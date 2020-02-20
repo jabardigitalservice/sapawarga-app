@@ -145,7 +145,7 @@ class UserPostComment extends ActiveRecord implements ActiveStatus
 
         $payload = [
             'categoryName'  => Notification::CATEGORY_LABEL_USER_POST,
-            'title'         => "{$userIdComment->name} mengomentari kegiatan Anda",
+            'title'         => "{$userIdComment->name} telah memberikan komentar pada kegiatan RW Anda",
             'description'   => null,
             'target'        => [
                 'kabkota_id'    => $userIdPost->kabkota_id,
