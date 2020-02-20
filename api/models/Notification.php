@@ -4,6 +4,8 @@ namespace app\models;
 
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use app\components\ModelHelper;
@@ -25,7 +27,7 @@ use app\components\ModelHelper;
  */
 class Notification extends \yii\db\ActiveRecord
 {
-    use HasCategory;
+    use HasArea, HasCategory;
 
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
@@ -97,21 +99,6 @@ class Notification extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -119,25 +106,18 @@ class Notification extends \yii\db\ActiveRecord
     {
         $rules = [
             [['title', 'status'], 'required'],
-            [['title', 'description', 'rw', 'meta'], 'trim'],
+            [['title', 'description', 'meta'], 'trim'],
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
             ['description', 'string', 'max' => 1000],
             ['description', InputCleanValidator::class],
-            ['rw', 'string', 'length' => 3],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern')
-            ],
-            ['rw', 'default'],
             [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
         ];
 
         return array_merge(
             $rules,
+            $this->rulesRw(),
             $this->rulesCategory()
         );
     }
@@ -175,38 +155,11 @@ class Notification extends \yii\db\ActiveRecord
                 'title',
                 'description',
                 'kabkota_id',
-                'kabkota' => function () {
-                    if ($this->kabkota) {
-                        return [
-                            'id'   => $this->kabkota->id,
-                            'name' => $this->kabkota->name,
-                        ];
-                    } else {
-                        return null;
-                    }
-                },
+                'kabkota' => 'KabkotaField',
                 'kec_id',
-                'kecamatan' => function () {
-                    if ($this->kecamatan) {
-                        return [
-                            'id'   => $this->kecamatan->id,
-                            'name' => $this->kecamatan->name,
-                        ];
-                    } else {
-                        return null;
-                    }
-                },
+                'kecamatan' => 'KecamatanField',
                 'kel_id',
-                'kelurahan' => function () {
-                    if ($this->kelurahan) {
-                        return [
-                            'id'   => $this->kelurahan->id,
-                            'name' => $this->kelurahan->name,
-                        ];
-                    } else {
-                        return null;
-                    }
-                },
+                'kelurahan' => 'KelurahanField',
                 'rw',
                 'status',
                 'status_label' => function () {
