@@ -25,6 +25,8 @@ use app\components\ModelHelper;
  */
 class Notification extends \yii\db\ActiveRecord
 {
+    use HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
     const STATUS_PUBLISHED = 10;
@@ -95,11 +97,6 @@ class Notification extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
     public function getKelurahan()
     {
         return $this->hasOne(Area::className(), ['id' => 'kel_id']);
@@ -120,7 +117,7 @@ class Notification extends \yii\db\ActiveRecord
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['title', 'status'], 'required'],
             [['title', 'description', 'rw', 'meta'], 'trim'],
             ['title', 'string', 'max' => 100],
@@ -135,10 +132,14 @@ class Notification extends \yii\db\ActiveRecord
                 'message' => Yii::t('app', 'error.rw.pattern')
             ],
             ['rw', 'default'],
-            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['category_id', 'validateCategoryID'],
+            [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesCategory()
+        );
     }
 
     public function fields()
@@ -170,12 +171,7 @@ class Notification extends \yii\db\ActiveRecord
                     ];
                 },
                 'category_id',
-                'category' => function () {
-                    return [
-                        'id'   => $this->category->id,
-                        'name' => $this->category->name,
-                    ];
-                },
+                'category' => 'CategoryField',
                 'title',
                 'description',
                 'kabkota_id',
@@ -297,17 +293,6 @@ class Notification extends \yii\db\ActiveRecord
         }
 
         return parent::afterSave($insert, $changedAttributes);
-    }
-
-    /**
-     * Checks if category type is notification
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 
     protected function generateData()
