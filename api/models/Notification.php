@@ -39,6 +39,7 @@ class Notification extends \yii\db\ActiveRecord
     const CATEGORY_LABEL_NEWS_IMPORTANT = 'Info Penting Terbaru';
     const CATEGORY_LABEL_ASPIRASI_STATUS = 'Perubahan Status Usulan';
     const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
+    const CATEGORY_LABEL_USER_POST = 'Kegiatan RW';
 
 
     // Memetakan category name dengan target name
@@ -50,6 +51,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_VIDEO              => 'notifikasi',
         self::CATEGORY_LABEL_NEWS_IMPORTANT     => 'notifikasi',
         self::CATEGORY_LABEL_ASPIRASI_STATUS    => 'notifikasi',
+        self::CATEGORY_LABEL_USER_POST          => 'notifikasi',
         self::CATEGORY_LABEL_UPDATE             => 'url',
     ];
 
@@ -62,6 +64,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_VIDEO              => [ 'target'   => 'home-results', ],
         self::CATEGORY_LABEL_NEWS_IMPORTANT     => [ 'target'   => 'news-important', ],
         self::CATEGORY_LABEL_ASPIRASI_STATUS    => [ 'target'   => 'aspirasi', ],
+        self::CATEGORY_LABEL_USER_POST          => [ 'target'   => 'user-post', ],
         self::CATEGORY_LABEL_UPDATE             => [
             'target'    => 'url',
             'url'       => self::URL_STORE_ANDROID,
