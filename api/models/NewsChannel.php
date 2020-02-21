@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -17,11 +18,9 @@ use yii\db\ActiveRecord;
  * @property array $meta
  * @property int $status
  */
-class NewsChannel extends ActiveRecord
+class NewsChannel extends ActiveRecord implements ActiveStatus
 {
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_ACTIVE = 10;
+    use HasActiveStatus;
 
     /**
      * {@inheritdoc}
@@ -58,33 +57,12 @@ class NewsChannel extends ActiveRecord
             'website',
             'meta',
             'status',
-            'status_label' => function () {
-                return $this->getStatusLabel();
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
         ];
 
         return $fields;
-    }
-
-    protected function getStatusLabel()
-    {
-        $statusLabel = '';
-
-        switch ($this->status) {
-            case self::STATUS_ACTIVE:
-                $statusLabel = Yii::t('app', 'status.active');
-                break;
-            case self::STATUS_DISABLED:
-                $statusLabel = Yii::t('app', 'status.inactive');
-                break;
-            case self::STATUS_DELETED:
-                $statusLabel = Yii::t('app', 'status.deleted');
-                break;
-        }
-
-        return $statusLabel;
     }
 
     /**

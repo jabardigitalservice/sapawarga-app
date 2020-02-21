@@ -5,6 +5,7 @@ namespace app\models;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Collection;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -56,6 +57,8 @@ use yii\web\Request as WebRequest;
  */
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    use HasArea;
+
     const MAX_LENGTH = 255;
 
     // Constants for User's role and status
@@ -115,21 +118,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function tableName()
     {
         return 'user';
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
     public function getJobType()
@@ -404,38 +392,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'rt',
             'rw',
             'kel_id',
-            'kelurahan' => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'kec_id',
-            'kecamatan' => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kabkota_id',
-            'kabkota' => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'lat',
             'lon',
             'photo_url' => function () {
@@ -514,7 +475,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['username', 'email', 'role_id'], 'required', 'on' => self::SCENARIO_REGISTER],
             ['username', 'trim'],
             ['username', 'required'],
@@ -586,6 +547,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesRw()
+        );
     }
 
     /**
