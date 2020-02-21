@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use yii\behaviors\TimestampBehavior;
 
 /**
@@ -16,10 +17,9 @@ use yii\behaviors\TimestampBehavior;
  * @property string $code_kemendagri
  * @property bool $status
  */
-class Area extends \yii\db\ActiveRecord
+class Area extends \yii\db\ActiveRecord implements ActiveStatus
 {
-    const STATUS_INACTIVE = 0;
-    const STATUS_ACTIVE = 1;
+    use HasActiveStatus;
 
     /**
      * {@inheritdoc}
@@ -62,22 +62,6 @@ class Area extends \yii\db\ActiveRecord
         ];
 
         return $fields;
-    }
-
-    protected function getStatusLabel()
-    {
-        $statusLabel = '';
-
-        switch ($this->status) {
-            case self::STATUS_ACTIVE:
-                $statusLabel = Yii::t('app', 'Active');
-                break;
-            case self::STATUS_INACTIVE:
-                $statusLabel = Yii::t('app', 'Not Active');
-                break;
-        }
-
-        return $statusLabel;
     }
 
     /**

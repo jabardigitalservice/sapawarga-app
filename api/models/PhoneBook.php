@@ -3,8 +3,10 @@
 namespace app\models;
 
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 
@@ -27,13 +29,9 @@ use yii\behaviors\TimestampBehavior;
  * @property mixed $meta
  * @property int $status
  */
-class PhoneBook extends \yii\db\ActiveRecord
+class PhoneBook extends \yii\db\ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasCategory;
-
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_ACTIVE = 10;
+    use HasActiveStatus, HasArea, HasCategory;
 
     const CATEGORY_TYPE = 'phonebook';
 
@@ -88,21 +86,7 @@ class PhoneBook extends \yii\db\ActiveRecord
             },
             'meta',
             'status',
-            'status_label' => function () {
-                $statusLabel = '';
-                switch ($this->status) {
-                    case self::STATUS_ACTIVE:
-                        $statusLabel = Yii::t('app', 'status.active');
-                        break;
-                    case self::STATUS_DISABLED:
-                        $statusLabel = Yii::t('app', 'status.inactive');
-                        break;
-                    case self::STATUS_DELETED:
-                        $statusLabel = Yii::t('app', 'status.deleted');
-                        break;
-                }
-                return $statusLabel;
-            },
+            'status_label' => 'StatusLabel',
             'created_at',
             'updated_at',
         ];
