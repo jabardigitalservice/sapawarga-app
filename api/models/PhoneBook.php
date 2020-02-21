@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 
@@ -27,6 +29,8 @@ use yii\behaviors\TimestampBehavior;
  */
 class PhoneBook extends \yii\db\ActiveRecord
 {
+    use HasArea, HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DISABLED = 0;
     const STATUS_ACTIVE = 10;
@@ -41,26 +45,6 @@ class PhoneBook extends \yii\db\ActiveRecord
         return 'phonebooks';
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -73,7 +57,7 @@ class PhoneBook extends \yii\db\ActiveRecord
             [['address', 'description', 'latitude', 'longitude', 'cover_image_path', 'meta'], 'default'],
 
             [['name', 'category_id', 'phone_numbers', 'seq', 'status'], 'required'],
-            [['category_id', 'kabkota_id', 'kec_id', 'kel_id', 'seq'], 'integer'],
+            [['kabkota_id', 'kec_id', 'kel_id', 'seq'], 'integer'],
         ];
     }
 
@@ -83,31 +67,16 @@ class PhoneBook extends \yii\db\ActiveRecord
             'id',
             'name',
             'category_id',
-            'category',
+            'category' => 'CategoryField',
             'address',
             'description',
             'phone_numbers',
             'kabkota_id',
-            'kabkota' => function () {
-                return [
-                    'id'   => optional($this->kabkota)->id,
-                    'name' => optional($this->kabkota)->name,
-                ];
-            },
+            'kabkota' => 'KabkotaField',
             'kec_id',
-            'kecamatan' => function () {
-                return [
-                    'id'   => optional($this->kecamatan)->id,
-                    'name' => optional($this->kecamatan)->name,
-                ];
-            },
+            'kecamatan' => 'KecamatanField',
             'kel_id',
-            'kelurahan' => function () {
-                return [
-                    'id'   => optional($this->kelurahan)->id,
-                    'name' => optional($this->kelurahan)->name,
-                ];
-            },
+            'kelurahan' => 'KelurahanField',
             'latitude',
             'longitude',
             'seq',
