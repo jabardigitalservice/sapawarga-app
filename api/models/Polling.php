@@ -5,6 +5,8 @@ namespace app\models;
 use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
