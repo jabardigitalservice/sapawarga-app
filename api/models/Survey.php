@@ -50,11 +50,6 @@ class Survey extends ActiveRecord
         return 'survey';
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -179,16 +174,5 @@ class Survey extends ActiveRecord
             BlameableBehavior::class,
             AreaBehavior::class,
         ];
-    }
-
-    /**
-     * Checks if category_id is current user's id
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 }
