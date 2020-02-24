@@ -9,7 +9,6 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 
 class UserPostCommentController extends ActiveController
 {
@@ -31,7 +30,7 @@ class UserPostCommentController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles'   => ['admin', 'staffProv', 'staffRW'],
+                    'roles'   => ['admin', 'staffProv', 'staffRW', 'pimpinan'],
                 ]
             ],
         ];
@@ -90,17 +89,7 @@ class UserPostCommentController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-
-        if ($authUser->can('admin')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== $authUser->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

@@ -4,6 +4,8 @@ namespace app\models;
 
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use app\components\ModelHelper;
@@ -25,6 +27,8 @@ use app\components\ModelHelper;
  */
 class Notification extends \yii\db\ActiveRecord
 {
+    use HasArea, HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
     const STATUS_PUBLISHED = 10;
@@ -39,6 +43,7 @@ class Notification extends \yii\db\ActiveRecord
     const CATEGORY_LABEL_NEWS_IMPORTANT = 'Info Penting Terbaru';
     const CATEGORY_LABEL_ASPIRASI_STATUS = 'Perubahan Status Usulan';
     const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
+    const CATEGORY_LABEL_USER_POST = 'Kegiatan RW';
 
 
     // Memetakan category name dengan target name
@@ -50,6 +55,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_VIDEO              => 'notifikasi',
         self::CATEGORY_LABEL_NEWS_IMPORTANT     => 'notifikasi',
         self::CATEGORY_LABEL_ASPIRASI_STATUS    => 'notifikasi',
+        self::CATEGORY_LABEL_USER_POST          => 'notifikasi',
         self::CATEGORY_LABEL_UPDATE             => 'url',
     ];
 
@@ -62,6 +68,7 @@ class Notification extends \yii\db\ActiveRecord
         self::CATEGORY_LABEL_VIDEO              => [ 'target'   => 'home-results', ],
         self::CATEGORY_LABEL_NEWS_IMPORTANT     => [ 'target'   => 'news-important', ],
         self::CATEGORY_LABEL_ASPIRASI_STATUS    => [ 'target'   => 'aspirasi', ],
+        self::CATEGORY_LABEL_USER_POST          => [ 'target'   => 'user-post', ],
         self::CATEGORY_LABEL_UPDATE             => [
             'target'    => 'url',
             'url'       => self::URL_STORE_ANDROID,
@@ -79,6 +86,9 @@ class Notification extends \yii\db\ActiveRecord
     /** @var string push token for user-specific notification */
     public $push_token;
 
+    /** @var boolean push notification flag */
+    public $is_push_notification = true;
+
     /**
      * {@inheritdoc}
      */
@@ -92,50 +102,27 @@ class Notification extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['title', 'status'], 'required'],
-            [['title', 'description', 'rw', 'meta'], 'trim'],
+            [['title', 'description', 'meta'], 'trim'],
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
             ['description', 'string', 'max' => 1000],
             ['description', InputCleanValidator::class],
-            ['rw', 'string', 'length' => 3],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern')
-            ],
-            ['rw', 'default'],
-            [['author_id', 'category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['category_id', 'validateCategoryID'],
+            [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
             ['meta', 'default'],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesRw(),
+            $this->rulesCategory()
+        );
     }
 
     public function fields()
@@ -167,47 +154,15 @@ class Notification extends \yii\db\ActiveRecord
                     ];
                 },
                 'category_id',
-                'category' => function () {
-                    return [
-                        'id'   => $this->category->id,
-                        'name' => $this->category->name,
-                    ];
-                },
+                'category' => 'CategoryField',
                 'title',
                 'description',
                 'kabkota_id',
-                'kabkota' => function () {
-                    if ($this->kabkota) {
-                        return [
-                            'id'   => $this->kabkota->id,
-                            'name' => $this->kabkota->name,
-                        ];
-                    } else {
-                        return null;
-                    }
-                },
+                'kabkota' => 'KabkotaField',
                 'kec_id',
-                'kecamatan' => function () {
-                    if ($this->kecamatan) {
-                        return [
-                            'id'   => $this->kecamatan->id,
-                            'name' => $this->kecamatan->name,
-                        ];
-                    } else {
-                        return null;
-                    }
-                },
+                'kecamatan' => 'KecamatanField',
                 'kel_id',
-                'kelurahan' => function () {
-                    if ($this->kelurahan) {
-                        return [
-                            'id'   => $this->kelurahan->id,
-                            'name' => $this->kelurahan->name,
-                        ];
-                    } else {
-                        return null;
-                    }
-                },
+                'kelurahan' => 'KelurahanField',
                 'rw',
                 'status',
                 'status_label' => function () {
@@ -294,17 +249,6 @@ class Notification extends \yii\db\ActiveRecord
         }
 
         return parent::afterSave($insert, $changedAttributes);
-    }
-
-    /**
-     * Checks if category type is notification
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 
     protected function generateData()

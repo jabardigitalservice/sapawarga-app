@@ -2,16 +2,12 @@
 
 namespace app\modules\v1\controllers;
 
-use app\models\User;
 use app\models\Video;
 use app\models\VideoSearch;
 use app\models\VideoStatistics;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 
 /**
  * VideoController implements the CRUD actions for Video model.
@@ -36,10 +32,6 @@ class VideoController extends ActiveController
                 'statistics' => ['get'],
                 'likes' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);
@@ -127,11 +119,7 @@ class VideoController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

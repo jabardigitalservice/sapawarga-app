@@ -3,6 +3,7 @@
 namespace tests\unit\models;
 
 use app\models\Gamification;
+use Carbon\Carbon;
 use Codeception\Test\Unit;
 
 class GamificationTest extends Unit
@@ -107,8 +108,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-06-01';
-        $model->end_date   = '2019-09-01';
+        $model->start_date = (new Carbon())->toDateString();
+        $model->end_date   = (new Carbon())->addDays(7)->toDateString();
 
         $model->validate();
 
@@ -152,8 +153,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-06-01';
-        $model->end_date   = '2019-09-01';
+        $model->start_date = (new Carbon())->toDateString();
+        $model->end_date   = (new Carbon())->addDays(7)->toDateString();
 
         $model->validate();
 
@@ -197,8 +198,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-06-01';
-        $model->end_date   = '2019-09-01';
+        $model->start_date = (new Carbon())->toDateString();
+        $model->end_date   = (new Carbon())->addDays(7)->toDateString();
 
         $model->validate();
 
@@ -209,8 +210,8 @@ class GamificationTest extends Unit
     {
         $model = new Gamification();
 
-        $model->start_date = '2019-09-01';
-        $model->end_date   = '2019-06-01';
+        $model->start_date = (new Carbon())->addDays(7)->toDateString();
+        $model->end_date   = (new Carbon())->toDateString();
 
         $model->validate();
 

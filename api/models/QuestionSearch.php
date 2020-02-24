@@ -20,24 +20,7 @@ class QuestionSearch extends Question
      */
     public function search($params)
     {
-        $subQueryLikesCount = Like::find()->select(['entity_id', 'count(id) likes_count'])
-                                ->where(['type' => 'question'])
-                                ->groupBy('entity_id')
-                                ->createCommand()->getRawSql();
-
-        $subQueryCommentCount = QuestionComment::find()->select(['question_id', 'count(id) comments_count'])
-                                ->where(['is_flagged' => 0])
-                                ->groupBy('question_id')
-                                ->createCommand()->getRawSql();
-
         $query = Question::find()
-                ->select([
-                    '{{questions}}.*',
-                    'ifnull(likes_count, 0) as likes_count',
-                    'ifnull(comments_count, 0) as comments_count'
-                ])
-                ->leftJoin("($subQueryLikesCount) as likes", 'likes.entity_id = questions.id')
-                ->leftJoin("($subQueryCommentCount) as comments", 'comments.question_id = questions.id')
                 ->where(['<>', 'questions.status', Question::STATUS_DELETED]);
 
         // Filtering

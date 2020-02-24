@@ -10,7 +10,7 @@ use app\modules\v1\repositories\LikeRepository;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
+use app\components\GamificationActivityHelper;
 
 /**
  * NewsImportantController implements the CRUD actions for NewsImportant model.
@@ -95,6 +95,11 @@ class NewsImportantController extends ActiveController
         if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
+
+        $this->incrementTotalViewers($searchedModel);
+
+        // Record gamification
+        GamificationActivityHelper::saveGamificationActivity('news_important_view_detail', $id);
 
         return $searchedModel;
     }
@@ -217,19 +222,7 @@ class NewsImportantController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        // Admin can do everything
-        if ($authUser->can('admin')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()
@@ -306,5 +299,18 @@ class NewsImportantController extends ActiveController
         // $delete = Yii::$app->fs->delete($filePath);
 
         return $model;
+    }
+
+    /**
+     * Increments total viewers of a NewsImportant model
+     * @param NewsImportant $model
+     */
+    private function incrementTotalViewers($model)
+    {
+        // Increment total views for roles other than 'newsImportantManage'
+        if (Yii::$app->user->can('newsImportantList') === true) {
+            $model->total_viewers = $model->total_viewers + 1;
+            $model->save(false);
+        }
     }
 }

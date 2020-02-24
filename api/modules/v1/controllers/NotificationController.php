@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\ModelHelper;
 use app\filters\auth\HttpBearerAuth;
 use app\models\Notification;
 use app\models\NotificationSearch;
@@ -164,26 +165,14 @@ class NotificationController extends ActiveController
 
         if ($user->role < User::ROLE_ADMIN) {
             // staff dan user hanya boleh melihat Notification yang sesuai dengan area mereka
-            if ($user->kabkota_id) {
-                $searchedModel->andWhere(['or',
-                ['kabkota_id' => $user->kabkota_id],
-                ['kabkota_id' => null]]);
-            }
-            if ($user->kec_id) {
-                $searchedModel->andWhere(['or',
-                ['kec_id' => $user->kec_id],
-                ['kec_id' => null]]);
-            }
-            if ($user->kel_id) {
-                $searchedModel->andWhere(['or',
-                ['kel_id' => $user->kel_id],
-                ['kel_id' => null]]);
-            }
-            if ($user->rw) {
-                $searchedModel->andWhere(['or',
-                ['rw' => $user->rw],
-                ['rw' => null]]);
-            }
+            $params = [
+                'kabkota_id' => $user->kabkota_id,
+                'kec_id' => $user->kec_id,
+                'kel_id' => $user->kel_id,
+                'rw' => $user->rw,
+            ];
+            $params = array_filter($params);
+            $searchedModel = ModelHelper::filterByArea($searchedModel, $params);
         }
 
         $searchedModel = $searchedModel->one();

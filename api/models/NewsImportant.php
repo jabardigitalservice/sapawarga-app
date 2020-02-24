@@ -8,6 +8,7 @@ use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -23,6 +24,9 @@ use yii\db\ActiveRecord;
  * @property string $source_url
  * @property string $public_source_url
  * @property int $kabkota_id
+ * @property int $total_viewers
+ * @property int $likes_count
+ * @property bool $is_push_notification
  * @property string $status
  * @property int $created_by
  * @property int $created_at
@@ -77,6 +81,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
 
             ['kabkota_id', 'integer'],
 
+            ['is_push_notification', 'boolean'],
+
             ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
@@ -110,8 +116,10 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                     'name' => $this->kabkota->name,
                 ];
             },
+            'total_viewers',
             'likes_count',
             'is_liked' => 'IsUserLiked',
+            'is_push_notification',
             'status',
             'attachments' => function () use ($publicBaseUrl) {
                 $attachments = [];
@@ -160,6 +168,13 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => time(),
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];

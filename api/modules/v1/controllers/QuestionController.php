@@ -10,9 +10,6 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
-use app\modules\v1\repositories\QuestionRepository;
-use app\modules\v1\repositories\LikeRepository;
 
 class QuestionController extends ActiveController
 {
@@ -58,29 +55,11 @@ class QuestionController extends ActiveController
         $actions = parent::actions();
 
         // Override Actions
-        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
 
         return $actions;
-    }
-
-     /**
-     * @param $id
-     * @return mixed|Question
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function actionView($id)
-    {
-        $repository = new QuestionRepository();
-        $getDetail = $repository->getDetail($id);
-
-        if ($getDetail === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $getDetail;
     }
 
     /**
@@ -108,13 +87,14 @@ class QuestionController extends ActiveController
      */
     public function actionLikes($id)
     {
-        $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_QUESTION);
+        $setLikeAndCount = $this->setLikeAndCount($id, Like::TYPE_QUESTION, $this->modelClass);
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
+        if ($setLikeAndCount) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
 
-        return 'ok';
+            return 'ok';
+        }
     }
 
     /**
@@ -127,19 +107,7 @@ class QuestionController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        // Admin, staffprov can do everything
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

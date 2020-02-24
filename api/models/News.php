@@ -27,6 +27,7 @@ use yii\db\ActiveRecord;
  * @property string $channel_id
  * @property \app\models\NewsChannel $channel
  * @property int $kabkota_id
+ * @property bool $is_push_notification
  * @property array $meta
  * @property int $status
  */
@@ -35,8 +36,6 @@ class News extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
 
     const STATUS_PUBLISHED = 10;
-
-    public $likes_count = 0;
 
     /**
      * {@inheritdoc}
@@ -94,8 +93,10 @@ class News extends ActiveRecord implements ActiveStatus
 
             ['kabkota_id', 'integer'],
             ['channel_id', 'integer'],
-            ['status', 'integer'],
 
+            ['is_push_notification', 'boolean'],
+
+            ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
@@ -137,6 +138,7 @@ class News extends ActiveRecord implements ActiveStatus
             'total_viewers',
             'likes_count',
             'is_liked' => 'IsUserLiked',
+            'is_push_notification',
             'meta',
             'status',
             'status_label' => 'StatusLabel',
@@ -183,7 +185,7 @@ class News extends ActiveRecord implements ActiveStatus
             'typecast' => [
                 'class' => AttributeTypecastBehavior::class,
                 'attributeTypes' => [
-                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 ],
                 'typecastAfterValidate' => false,
                 'typecastBeforeSave' => false,

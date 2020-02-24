@@ -11,7 +11,6 @@ use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use app\modules\v1\repositories\UserRepository;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
@@ -68,10 +67,6 @@ class StaffController extends ActiveController
                 'export' => ['get'],
                 'import' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         // remove authentication filter

@@ -41,7 +41,7 @@ class ModelHelper
      */
     public static function isSendNotification($insert, $changedAttributes, $model)
     {
-        if (!YII_ENV_TEST) {
+        if (!YII_ENV_TEST && $model->is_push_notification === true) {
             if ($insert) { // Model is created
                 return $model->status == $model::STATUS_PUBLISHED;
             }

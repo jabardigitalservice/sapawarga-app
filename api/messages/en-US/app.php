@@ -16,6 +16,8 @@ return [
     'app.kel_id' => 'Desa/Kelurahan',
     'app.kec_id' => 'Kecamatan',
     'app.kabkota_id' => 'Kabupaten/Kota',
+    'app.job_type_id' => 'Occupation',
+    'app.education_level_id' => 'Education',
 
     'error.login.incorrect' => 'Incorrect username or password.',
     'error.login.inactive' => 'Account is inactive. Please contact 082315192724 (SMS or WhatsApp) and email sapawarga@jabarprov.go.id to activate your account.',
@@ -35,6 +37,7 @@ return [
     'error.empty.internalfill' => 'Please fill internal category',
     'error.empty.externalfill' => 'Please fill link url',
     'error.validation.rangedatefill' => 'The range date has been used',
+    'error.validation.enddate_less_than_today' => 'End date cannot less than today',
 
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 

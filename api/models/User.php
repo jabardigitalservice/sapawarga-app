@@ -5,6 +5,7 @@ namespace app\models;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Collection;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -56,6 +57,8 @@ use yii\web\Request as WebRequest;
  */
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    use HasArea;
+
     const MAX_LENGTH = 255;
 
     // Constants for User's role and status
@@ -115,21 +118,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function tableName()
     {
         return 'user';
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
     public function getJobType()
@@ -404,38 +392,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'rt',
             'rw',
             'kel_id',
-            'kelurahan' => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'kec_id',
-            'kecamatan' => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kabkota_id',
-            'kabkota' => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'lat',
             'lon',
             'photo_url' => function () {
@@ -514,7 +475,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['username', 'email', 'role_id'], 'required', 'on' => self::SCENARIO_REGISTER],
             ['username', 'trim'],
             ['username', 'required'],
@@ -525,12 +486,30 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 'pattern' => '/^[a-z0-9_.]{4,255}$/',
                 'message' => Yii::t('app', 'error.username.pattern')
             ],
-            ['username', 'validateUsername'],
+            [
+                'username',
+                'unique',
+                'targetClass' => User::class,
+                'message' => Yii::t('app', 'error.username.taken'),
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'id', $this->id]);
+                }
+            ],
+
             ['email', 'trim'],
             ['email', 'required'],
             ['email', 'string', 'max' => self::MAX_LENGTH],
             ['email', 'email'],
-            ['email', 'validateEmail'],
+            [
+                'email',
+                'unique',
+                'targetClass' => User::class,
+                'message' => Yii::t('app', 'error.email.taken'),
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'id', $this->id]);
+                }
+            ],
+
             ['password', 'string', 'length' => [5, self::MAX_LENGTH]],
             ['password', 'validatePasswordSubmit'],
             [['confirmed_at', 'blocked_at', 'last_login_at'], 'datetime', 'format' => 'php:U'],
@@ -568,6 +547,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesRw()
+        );
     }
 
     /**
@@ -592,97 +576,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
-    /**
-     * Validate username
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateUsername($attribute, $params)
-    {
-        // get post type - POST or PUT
-        $request = Yii::$app->request;
-
-        // if POST, mode is create
-        if ($request->isPost) {
-            // check username is already taken
-
-            $existingUser = User::find()
-                ->where(['username' => $this->$attribute])
-                ->count();
-            if ($existingUser > 0) {
-                $this->addError($attribute, Yii::t('app', 'error.username.taken'));
-            }
-        } elseif ($request->isPut) {
-            // get current user
-            $user = User::findIdentityWithoutValidation($this->id);
-            if ($user == null) {
-                $this->addError($attribute, Yii::t('app', 'The system cannot find requested user.'));
-            } else {
-                // check username is already taken except own username
-                $existingUser = User::find()
-                    ->where(['=', 'username', $this->$attribute])
-                    ->andWhere(['!=', 'id', $this->id])
-                    ->count();
-                if ($existingUser > 0) {
-                    $this->addError($attribute, Yii::t('app', 'error.username.taken'));
-                }
-            }
-        } else {
-            // unknown request
-            $this->addError($attribute, Yii::t('app', 'Unknown request'));
-        }
-    }
-
     public static function findIdentityWithoutValidation($id)
     {
         $user = static::findOne(['id' => $id]);
 
         return $user;
-    }
-
-    /**
-     * Validate email
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateEmail($attribute, $params)
-    {
-        // get post type - POST or PUT
-        $request = Yii::$app->request;
-
-        // if POST, mode is create
-        if ($request->isPost) {
-            // check username is already taken
-
-            $existingUser = User::find()
-                ->where(['email' => $this->$attribute])
-                ->count();
-
-            if ($existingUser > 0) {
-                $this->addError($attribute, Yii::t('app', 'error.email.taken'));
-            }
-        } elseif ($request->isPut) {
-            // get current user
-            $user = User::findIdentityWithoutValidation($this->id);
-
-            if ($user == null) {
-                $this->addError($attribute, Yii::t('app', 'The system cannot find requested user.'));
-            } else {
-                // check username is already taken except own username
-                $existingUser = User::find()
-                    ->where(['=', 'email', $this->$attribute])
-                    ->andWhere(['!=', 'id', $this->id])
-                    ->count();
-                if ($existingUser > 0) {
-                    $this->addError($attribute, Yii::t('app', 'error.email.taken'));
-                }
-            }
-        } else {
-            // unknown request
-            $this->addError($attribute, Yii::t('app', 'Unknown request'));
-        }
     }
 
     /**

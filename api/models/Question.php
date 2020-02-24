@@ -6,7 +6,6 @@ use app\components\ModelHelper;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -27,9 +26,6 @@ class Question extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    public $likes_count = 0;
-    public $comments_count = 0;
-
     /**
      * {@inheritdoc}
      */
@@ -46,12 +42,6 @@ class Question extends ActiveRecord implements ActiveStatus
     public function getComments()
     {
         return $this->hasMany(QuestionComment::class, ['question_id' => 'id']);
-    }
-
-    public function getLikes()
-    {
-        return $this->hasMany(Like::class, ['entity_id' => 'id'])
-                    ->andOnCondition(['type' => Like::TYPE_QUESTION]);
     }
 
     public function getLastAnswer()
@@ -126,16 +116,6 @@ class Question extends ActiveRecord implements ActiveStatus
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => time(),
-            ],
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::class,
-                'attributeTypes' => [
-                    'likes_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'comments_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                ],
-                'typecastAfterValidate' => false,
-                'typecastBeforeSave' => false,
-                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];

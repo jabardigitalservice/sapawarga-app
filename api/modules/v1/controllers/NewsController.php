@@ -8,14 +8,11 @@ use app\models\News;
 use app\models\NewsSearch;
 use app\models\NewsStatistics;
 use app\models\NewsViewer;
-use app\modules\v1\repositories\LikeRepository;
 use app\modules\v1\repositories\NewsFeaturedRepository;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\ForbiddenHttpException;
 use app\components\GamificationActivityHelper;
 
 /**
@@ -42,10 +39,6 @@ class NewsController extends ActiveController
                 'statistics' => ['get'],
                 'likes' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);
@@ -193,11 +186,7 @@ class NewsController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     /**
@@ -232,13 +221,14 @@ class NewsController extends ActiveController
      */
     public function actionLikes($id)
     {
-        $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_NEWS);
+        $setLikeAndCount = $this->setLikeAndCount($id, Like::TYPE_NEWS, $this->modelClass);
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
+        if ($setLikeAndCount) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
 
-        return 'ok';
+            return 'ok';
+        }
     }
 
     private function saveNewsViewerPerUser($newsId)
@@ -270,7 +260,7 @@ class NewsController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $user   = Yii::$app->user;
+        $user = Yii::$app->user;
         $authUserModel = $user->identity;
         $authKabKotaId = $authUserModel->kabkota_id;
 

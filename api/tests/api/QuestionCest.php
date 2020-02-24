@@ -222,22 +222,25 @@ class QuestionCest
             'updated_by' => 17
         ]);
 
-        // ANSWER
-        $I->haveInDatabase('question_comments', [
-            'id' => 1,
-            'question_id' => 1,
-            'text' => 'Question2 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
-            'is_flagged' => 0,
+        $I->amStaff();
+
+        $data = [
+            'question_id' => 2,
+            'text' => 'Komentar',
             'status' => 10,
-            'created_at'  => '1554706350',
-            'updated_at'  => '1554706350',
-            'created_by' => 17,
-            'updated_by' => 17
+            'is_flagged' => false
+        ];
+
+        $I->sendPOST('/v1/questions/1/comments', $data);
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
         ]);
 
-        $I->amUser('staffrw');
-
-        $I->sendGET('/v1/questions?sort_by=comments_count&sort_order=ascending');
+        $I->sendGET('/v1/questions?sort_by=comments_count&sort_order=descending');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 

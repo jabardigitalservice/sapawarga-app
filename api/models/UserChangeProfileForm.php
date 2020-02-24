@@ -16,6 +16,8 @@ class UserChangeProfileForm extends Model
     public $email;
     public $phone;
     public $address;
+    public $job_type_id;
+    public $education_level_id;
     /** @var User */
     private $_user = false;
 
@@ -41,6 +43,7 @@ class UserChangeProfileForm extends Model
             // [['name', 'phone', 'address'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
+            [['job_type_id', 'education_level_id'], 'integer'],
         ];
     }
 
@@ -52,6 +55,8 @@ class UserChangeProfileForm extends Model
             'email' => Yii::t('app', 'app.email'),
             'phone' => Yii::t('app', 'app.phone'),
             'address' => Yii::t('app', 'app.address'),
+            'job_type_id' => Yii::t('app', 'app.job_type_id'),
+            'education_level_id' => Yii::t('app', 'app.education_level_id'),
         ];
     }
 

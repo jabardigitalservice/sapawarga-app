@@ -71,35 +71,6 @@ class SurveySearch extends Survey
         return $this->getQueryAll($query, $params);
     }
 
-    protected function getQueryAll($query, $params)
-    {
-        // Filter berdasarkan judul, status, dan kategori
-        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $this->filterByStatus($query, $params);
-        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
-        $this->filterByArea($query, $params);
-
-        $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
-        $sortOrder = ModelHelper::getSortOrder($sortOrder);
-
-        $provider = new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
-
-        $provider->sort->attributes['category.name'] = [
-            'asc'  => ['categories.name' => SORT_ASC],
-            'desc' => ['categories.name' => SORT_DESC],
-        ];
-
-        return $provider;
-    }
-
     protected function filterByArea(&$query, $params)
     {
         if (Arr::has($params, 'kabkota_id')
@@ -107,10 +78,10 @@ class SurveySearch extends Survey
             || Arr::has($params, 'kel_id')
             || Arr::has($params, 'rw')) {
             ModelHelper::filterByAreaTopDown($query, $params);
-        } elseif (!Yii::$app->user->can('admin')
-                && !Yii::$app->user->can('pimpinan')
-                && !Yii::$app->user->can('staffProv')) {
-            // By default filter berdasarkan area Staf tersebut
+        } elseif (Yii::$app->user->can('staffKabkota')) {
+            $areaParams = ['kabkota_id' => $this->user->kabkota_id ?? null];
+            ModelHelper::filterByArea($query, $areaParams);
+        } elseif (Yii::$app->user->can('staffRW')) {
             $areaParams = [
                 'kabkota_id' => $this->user->kabkota_id ?? null,
                 'kec_id' => $this->user->kec_id ?? null,
@@ -136,5 +107,34 @@ class SurveySearch extends Survey
         }
 
         return $query;
+    }
+
+    protected function getQueryAll($query, $params)
+    {
+        // Filter berdasarkan judul, status, dan kategori
+        $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
+        $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $this->filterByStatus($query, $params);
+        $this->filterByArea($query, $params);
+
+        $pageLimit = Arr::get($params, 'limit');
+        $sortBy    = Arr::get($params, 'sort_by', 'created_at');
+        $sortOrder = Arr::get($params, 'sort_order', 'descending');
+        $sortOrder = ModelHelper::getSortOrder($sortOrder);
+
+        $provider = new ActiveDataProvider([
+            'query' => $query,
+            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'pagination' => [
+                'pageSize' => $pageLimit,
+            ],
+        ]);
+
+        $provider->sort->attributes['category.name'] = [
+            'asc'  => ['categories.name' => SORT_ASC],
+            'desc' => ['categories.name' => SORT_DESC],
+        ];
+
+        return $provider;
     }
 }

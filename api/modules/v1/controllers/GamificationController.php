@@ -13,7 +13,6 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 
 /**
  * GamificationController implements the CRUD actions for Gamification model.
@@ -58,6 +57,7 @@ class GamificationController extends ActiveController
 
         // Override Actions
         unset($actions['view']);
+        unset($actions['create']);
         unset($actions['update']);
         unset($actions['delete']);
 
@@ -74,6 +74,63 @@ class GamificationController extends ActiveController
     public function actionView($id)
     {
         $model = $this->findModel($id, $this->modelClass);
+        return $model;
+    }
+
+    /**
+     * Create new Gamification content
+     *
+     * @return Gamification
+     * @throws HttpException
+     * @throws InvalidConfigException
+     */
+    public function actionCreate()
+    {
+        $model = new Gamification();
+        $model->scenario = Gamification::SCENARIO_CREATE;
+        $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+        } else {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    /**
+     * Update Gamification content
+     *
+     * @return Gamification
+     * @throws HttpException
+     * @throws InvalidConfigException
+     */
+    public function actionUpdate($id)
+    {
+        $model = Gamification::findOne($id);
+
+        if (empty($model)) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        $model->scenario = Gamification::SCENARIO_UPDATE;
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
+        } else {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
         return $model;
     }
 
@@ -207,29 +264,18 @@ class GamificationController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-
-        // Admin, staffprov can do everything
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== $authUser->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()
     {
         $params = Yii::$app->request->getQueryParams();
         $authUser = Yii::$app->user;
-        $authUserModel = $authUser->identity;
 
         $search = new GamificationSearch();
 
         if ($authUser->can('user') || $authUser->can('staffRW')) {
+            $params['user_id'] = $authUser->id;
             $search->scenario = GamificationSearch::SCENARIO_LIST_USER;
         }
 

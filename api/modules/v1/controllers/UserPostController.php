@@ -12,9 +12,6 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
-use app\modules\v1\repositories\UserPostRepository;
-use app\modules\v1\repositories\LikeRepository;
 use app\components\GamificationActivityHelper;
 
 class UserPostController extends ActiveController
@@ -49,7 +46,7 @@ class UserPostController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'me'],
-                    'roles' => ['admin', 'staffProv', 'staffRW'],
+                    'roles' => ['admin', 'staffProv', 'staffRW', 'pimpinan'],
                 ],
             ],
         ];
@@ -63,7 +60,6 @@ class UserPostController extends ActiveController
 
         // Override Actions
         unset($actions['create']);
-        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
@@ -101,23 +97,6 @@ class UserPostController extends ActiveController
         return $model;
     }
 
-     /**
-     * @param $id
-     * @return mixed|UserPost
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function actionView($id)
-    {
-        $repository = new UserPostRepository();
-        $getDetail = $repository->getDetail($id);
-
-        if ($getDetail === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $getDetail;
-    }
-
     /**
      * Delete entity with soft delete / status flagging
      *
@@ -143,19 +122,14 @@ class UserPostController extends ActiveController
      */
     public function actionLikes($id)
     {
-        $repository = new LikeRepository();
-        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_USER_POST);
-        $likesCount = $repository->getLikesCount($id, Like::TYPE_USER_POST);
+        $setLikeAndCount = $this->setLikeAndCount($id, Like::TYPE_USER_POST, $this->modelClass);
 
-        // Update likes_count
-        $updateLikesCount = UserPost::findOne($id);
-        $updateLikesCount->likes_count = $likesCount;
-        $updateLikesCount->save();
+        if ($setLikeAndCount) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
+            return 'ok';
+        }
     }
 
     /**
@@ -186,19 +160,7 @@ class UserPostController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        $authUser = Yii::$app->user;
-        $authUserId = $authUser->id;
-
-        // Admin, staffprov can do everything
-        if ($authUser->can('admin') || $authUser->can('staffProv')) {
-            return true;
-        }
-
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()
