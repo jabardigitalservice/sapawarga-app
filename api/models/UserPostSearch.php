@@ -23,9 +23,12 @@ class UserPostSearch extends UserPost
     public function search($params)
     {
         $query = UserPost::find();
+        $query->joinWith(['author']);
 
         // Filtering
-        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'search')]);
+        $query->andFilterWhere(['=', 'user.kabkota_id',  Arr::get($params, 'kabkota_id')]);
+        $query->andFilterWhere(['like', 'user.name',  Arr::get($params, 'name')]);
+        $query->andFilterWhere(['like', 'text',  Arr::get($params, 'text')]);
         $query->andFilterWhere(['user_posts.status' => Arr::get($params, 'status')]);
 
         // Filtering by status
@@ -40,6 +43,12 @@ class UserPostSearch extends UserPost
 
     protected function getQueryListUser($query, $params)
     {
+        $query->andFilterWhere([
+            'or',
+            ['like', 'text', Arr::get($params, 'search')],
+            ['like', 'user.name', Arr::get($params, 'search')],
+        ]);
+
         // Query for my post or public post
         if (! empty($this->created_by)) {
             $query->andWhere(['created_by' => $this->created_by]);

@@ -114,6 +114,12 @@ class UserPostComment extends ActiveRecord implements ActiveStatus
             'name' => $this->author->name,
             'photo_url_full' => $this->author->photo_url ? "$publicBaseUrl/{$this->author->photo_url}" : null,
             'role_label' => $this->author->getRoleName(),
+            'kabkota' => isset($this->author->kabkota->name) ? $this->author->kabkota->name : null,
+            'kelurahan' => isset($this->author->kelurahan->name) ? $this->author->kelurahan->name : null,
+            'kecamatan' => isset($this->author->kecamatan->name) ? $this->author->kecamatan->name : null,
+            'rw' => isset($this->author->rw) ? $this->author->rw : null,
+            'role_label' => $this->author->getRoleName(),
+
         ];
     }
 
@@ -140,26 +146,28 @@ class UserPostComment extends ActiveRecord implements ActiveStatus
 
     protected function sendNotification($userIdPost, $userIdComment)
     {
-        $userIdPost = User::findIdentity($userIdPost);
-        $userIdComment = User::findIdentity($userIdComment);
+        if ($userIdPost != $userIdComment) {
+            $userIdPost = User::findIdentity($userIdPost);
+            $userIdComment = User::findIdentity($userIdComment);
 
-        $payload = [
-            'categoryName'  => Notification::CATEGORY_LABEL_USER_POST,
-            'title'         => "{$userIdComment->name} telah memberikan komentar pada kegiatan RW Anda",
-            'description'   => null,
-            'target'        => [
-                'kabkota_id'    => $userIdPost->kabkota_id,
-                'kec_id'        => $userIdPost->kec_id,
-                'kel_id'        => $userIdPost->kel_id,
-                'rw'            => $userIdPost->rw,
-                'push_token'    => $userIdPost->push_token,
-            ],
-            'meta'          => [
-                'target'    => 'user-post',
-                'id'        => $this->user_post_id,
-            ],
-        ];
+            $payload = [
+                'categoryName'  => Notification::CATEGORY_LABEL_USER_POST,
+                'title'         => "{$userIdComment->name} telah memberikan komentar pada kegiatan RW Anda",
+                'description'   => null,
+                'target'        => [
+                    'kabkota_id'    => $userIdPost->kabkota_id,
+                    'kec_id'        => $userIdPost->kec_id,
+                    'kel_id'        => $userIdPost->kel_id,
+                    'rw'            => $userIdPost->rw,
+                    'push_token'    => $userIdPost->push_token,
+                ],
+                'meta'          => [
+                    'target'    => 'user-post',
+                    'id'        => $this->user_post_id,
+                ],
+            ];
 
-        ModelHelper::sendNewContentNotification($payload);
+            ModelHelper::sendNewContentNotification($payload);
+        }
     }
 }
