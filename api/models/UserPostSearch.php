@@ -77,6 +77,7 @@ class UserPostSearch extends UserPost
                     'status',
                     'likes_count',
                     'comments_count',
+                    'user.name',
                 ],
             ],
             'pagination' => [
