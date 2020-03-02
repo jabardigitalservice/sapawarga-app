@@ -46,20 +46,16 @@ class PollingDashboard extends Polling
             ],
         ]);
 
-        // Temp dummy data
+        // Get result for each polling
         $pollings = $provider->getModels();
         foreach ($pollings as $index => $polling) {
-            $pollings[$index]['votes_count'] = 68;
-            $pollings[$index]['results'] = [[
-                'answer_id' => 1,
-                'answer_body' => 'Ya',
-                'votes' => 34,
-            ],
-            [
-                'answer_id' => 2,
-                'answer_body' => 'Tidak',
-                'votes' => 34,
-            ]];
+            $result = $this->getPollingResult(['id' => $pollings[$index]['id']]);
+            $votesCount = array_reduce($result, function ($totalCount, $answer) {
+                $totalCount += $answer['votes'];
+                return $totalCount;
+            });
+            $pollings[$index]['votes_count'] = $votesCount;
+            $pollings[$index]['results'] = $result;
         }
 
         return $pollings;
@@ -70,7 +66,7 @@ class PollingDashboard extends Polling
      *
      * @param array $params['id'] Id of polling
      *
-     * @return SqlDataProvider
+     * @return array
      */
     public function getPollingResult($params)
     {
