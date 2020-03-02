@@ -29,6 +29,7 @@ class UserPostSearch extends UserPost
         $query->andFilterWhere(['=', 'user.kabkota_id',  Arr::get($params, 'kabkota_id')]);
         $query->andFilterWhere(['like', 'user.name',  Arr::get($params, 'name')]);
         $query->andFilterWhere(['like', 'text',  Arr::get($params, 'text')]);
+        $query->andFilterWhere(['tags' => Arr::get($params, 'tags')]);
         $query->andFilterWhere(['user_posts.status' => Arr::get($params, 'status')]);
 
         // Filtering by status

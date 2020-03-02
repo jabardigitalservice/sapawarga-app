@@ -69,7 +69,17 @@ class UserPostTest extends Unit
         $this->assertFalse($model->hasErrors('status'));
     }
 
-    public function testImagePathInput()
+    public function testTagsPathInput()
+    {
+        $model = new UserPost();
+
+        // false
+        $model->tags = 'bencana, siskamling, gotongroyong, pengajian';
+        $model->validate();
+        $this->assertFalse($model->hasErrors('tags'));
+    }
+
+    public function testImageInput()
     {
         $model = new UserPost();
 
