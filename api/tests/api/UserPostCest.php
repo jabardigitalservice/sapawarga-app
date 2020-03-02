@@ -17,6 +17,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 1,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706345',
@@ -29,6 +30,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 2,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => -1,
             'created_at'  => '1554706345',
@@ -41,6 +43,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 3,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 0,
             'created_at'  => '1554706345',
@@ -53,6 +56,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 4,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 0,
             'created_at'  => '1554706345',
@@ -80,6 +84,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 1,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706345',
@@ -106,6 +111,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 1,
             'text' => 'User Post 1 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706345',
@@ -117,6 +123,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 2,
             'text' => 'User Post 2 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706350',
@@ -128,6 +135,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 3,
             'text' => 'User Post 3 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706355',
@@ -162,6 +170,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 1,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706345',
@@ -173,6 +182,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 2,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 10,
             'created_at'  => '1554706346',
@@ -184,6 +194,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 3,
             'text' => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 0,
             'created_at'  => '1554706347',
@@ -216,6 +227,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 1,
             'text' => 'User Post 1 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 0,
             'created_at'  => '1554706345',
@@ -244,6 +256,7 @@ class UserPostCest
         $I->haveInDatabase('user_posts', [
             'id' => 1,
             'text' => 'User Post 1 Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et',
+            'tags' => 'bencana, siskamling, gotongroyong, pengajian',
             'image_path' => 'general/4546546photo.jpg',
             'status' => 0,
             'created_at'  => '1554706345',

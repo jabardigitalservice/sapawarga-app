@@ -26,6 +26,8 @@ class UserPost extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
+    const CATEGORY_TYPE = 'user_post';
+
     /**
      * {@inheritdoc}
      */
@@ -63,8 +65,8 @@ class UserPost extends ActiveRecord implements ActiveStatus
             ['text', 'string', 'max' => 1000],
             ['text', 'string', 'min' => 10],
 
-            [['text'], 'trim'],
-            [['text'], 'safe'],
+            [['text', 'tags'], 'trim'],
+            [['text', 'tags'], 'safe'],
             [['text', 'status', 'image_path'],'required'],
 
             [['status', 'last_user_post_comment_id'], 'integer'],
@@ -77,6 +79,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'text',
+            'tags',
             'image_path_full' => function () {
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
                 return "{$publicBaseUrl}/{$this->image_path}";

@@ -33,12 +33,14 @@ class Category extends ActiveRecord implements ActiveStatus
         Video::CATEGORY_TYPE         => 'Video',
         NewsImportant::CATEGORY_TYPE => 'Info Penting',
         NewsHoax::CATEGORY_TYPE      => 'Berita Saber Hoaks',
+        UserPost::CATEGORY_TYPE      => 'Kegiatan RW',
     ];
 
     // Daftar category type yang tidak bisa diedit oleh staff
     const EXCLUDED_TYPES = [
         Notification::CATEGORY_TYPE,
         NewsHoax::CATEGORY_TYPE,
+        UserPost::CATEGORY_TYPE,
     ];
 
     const DEFAULT_CATEGORY_NAME = 'Lainnya';
