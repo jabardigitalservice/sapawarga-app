@@ -6,14 +6,20 @@ class NewsImportantCommentCest
 {
     private $endpointComment = '/v1/news-important/1/comments';
 
-    public function _before(ApiTester $I)
-    {
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
-        Yii::$app->db->createCommand('TRUNCATE news_important_comments')->execute();
-    }
-
     protected function loadData(ApiTester $I)
     {
+        $I->haveInDatabase('news_important', [
+            'id' => 1,
+            'title' => 'Info Pendidikan',
+            'content' => 'Info Pendidikan',
+            'category_id' => 36,
+            'status' => 10,
+            'created_at' =>1570085400,
+            'updated_at' =>1570085400,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
+
         $I->haveInDatabase('news_important_comments', [
             'id' => 1,
             'news_important_id' => 1,
@@ -37,6 +43,9 @@ class NewsImportantCommentCest
         ]);
     }
 
+    /**
+     * @before loadData
+     */
     public function getCommentListAll(ApiTester $I)
     {
         // RW
@@ -58,6 +67,9 @@ class NewsImportantCommentCest
         $I->canSeeResponseCodeIs(200);
     }
 
+    /**
+     * @before loadData
+     */
     public function postCreateTest(ApiTester $I)
     {
         $data = [
