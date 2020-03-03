@@ -18,8 +18,6 @@ class m200302_084508_update_user_post_add_images_path extends CustomMigration
                 UPDATE user_posts
                 set images = COALESCE(CONCAT(\'[{"path":"\', image_path, \'"}]\'), null)
             ')->execute();
-
-        $this->dropColumn('user_posts', 'image_path');
     }
 
     /**
@@ -27,7 +25,6 @@ class m200302_084508_update_user_post_add_images_path extends CustomMigration
      */
     public function safeDown()
     {
-        $this->addColumn('user_posts', 'image_path', $this->text()->after('tags'));
         $this->dropColumn('user_posts', 'images');
     }
 }
