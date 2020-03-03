@@ -82,6 +82,10 @@ class UserPost extends ActiveRecord implements ActiveStatus
             'id',
             'text',
             'tags',
+            'image_path_full' => function () {
+                $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+                return "{$publicBaseUrl}/{$this->image_path}";
+            },
             'images' => 'imagesField',
             'likes_count',
             'comments_count',
