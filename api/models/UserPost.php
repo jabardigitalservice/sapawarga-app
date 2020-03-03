@@ -9,6 +9,8 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use app\validator\IsArrayValidator;
+
 
 /**
  * This is the model class for table "post".
@@ -68,6 +70,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
             [['text', 'tags'], 'trim'],
             [['text', 'tags'], 'safe'],
             [['text', 'status', 'images'],'required'],
+            ['images', IsArrayValidator::class],
 
             [['status', 'last_user_post_comment_id'], 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
