@@ -86,17 +86,7 @@ class UserPostTest extends Unit
         // false
         $model->images = 'firman';
         $model->validate();
-        $this->assertFalse($model->hasErrors('images'));
-    }
-
-    public function testImageInputTrue()
-    {
-        $model = new UserPost();
-
-        // false
-        $model->images = '[{"path": "general/1580275858-wsYjnF0Z4FUzWnJYIFpO43P87kTssxHc.jpg"}]';
-        $model->validate();
-        $this->assertFalse($model->hasErrors('images'));
+        $this->assertTrue($model->hasErrors('images'));
     }
 
     public function testAnswerIdInputAllowedInteger()
