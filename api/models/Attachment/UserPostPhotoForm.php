@@ -30,6 +30,9 @@ class UserPostPhotoForm extends AttachmentForm
      */
     public function cropAndResizePhoto($filePath)
     {
-        return $this->imageProcessor->make($filePath)->fit(1280, 720);
+        // Make image resize with proporsional ratio
+        return $this->imageProcessor->make($filePath)->resize(640, null, function ($constraint) {
+            $constraint->aspectRatio();
+        });
     }
 }
