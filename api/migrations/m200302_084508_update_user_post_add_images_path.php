@@ -12,6 +12,7 @@ class m200302_084508_update_user_post_add_images_path extends CustomMigration
     public function safeUp()
     {
         $this->addColumn('user_posts', 'images', $this->json()->after('image_path'));
+        $this->alterColumn('user_posts', 'image_path', $this->text()->null());
 
         // Migrate old image from string format to json format
         \Yii::$app->db->createCommand('
