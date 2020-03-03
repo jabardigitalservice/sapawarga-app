@@ -30,12 +30,33 @@ class PollingDashboard extends Polling
             $conditional = 'AND (p.kabkota_id = :kabkota_id OR p.kabkota_id IS NULL ) ';
         }
 
-        $sql = "SELECT p.id, p.category_id, c.name AS category_name, p.name, p.question, p.start_date, p.end_date, p.status
+        $voteSubquery = 'SELECT pa.id AS polling_answers_id, count(pv.id) AS votes
+                        FROM polling_votes pv
+                        LEFT JOIN polling_answers pa ON pa.id = pv.answer_id
+                        GROUP BY answer_id';
+
+        $pollingResultSubquery =
+        "SELECT pa.polling_id,
+                ifnull(vote.votes, 0) AS votes_count,
+                JSON_OBJECT(
+                    'answer_id', pa.id,
+                    'answer_body', pa.body,
+                    'votes', ifnull(vote.votes, 0)
+                ) AS result
+                FROM polling_answers pa
+	    LEFT JOIN ($voteSubquery) AS vote ON vote.polling_answers_id = pa.id
+	    ORDER BY pa.id ASC";
+
+        $sql = "SELECT p.id, p.category_id, c.name AS category_name, p.name, p.question, p.start_date, p.end_date, p.status,
+                       SUM(pr.votes_count) AS votes_count,
+                       JSON_ARRAYAGG(pr.result) AS results
                 FROM polling p
                 LEFT JOIN categories c ON c.id = p.category_id
                 LEFT JOIN user u ON u.id = p.created_by
+                LEFT JOIN ($pollingResultSubquery) AS pr ON p.id = pr.polling_id
                 WHERE p.status = :status_published
                 $conditional
+                GROUP BY p.id
                 ORDER BY p.created_at DESC";
 
         $provider = new SqlDataProvider([
@@ -46,20 +67,11 @@ class PollingDashboard extends Polling
             ],
         ]);
 
-        // Temp dummy data
+        // Typecasts values in 'votes_count' and 'results'
         $pollings = $provider->getModels();
-        foreach ($pollings as $index => $polling) {
-            $pollings[$index]['votes_count'] = 68;
-            $pollings[$index]['results'] = [[
-                'answer_id' => 1,
-                'answer_body' => 'Ya',
-                'votes' => 34,
-            ],
-            [
-                'answer_id' => 2,
-                'answer_body' => 'Tidak',
-                'votes' => 34,
-            ]];
+        foreach ($pollings as &$polling) {
+            $polling['votes_count'] = intval($polling['votes_count']);
+            $polling['results'] = json_decode($polling['results'], true);
         }
 
         return $pollings;
@@ -70,7 +82,7 @@ class PollingDashboard extends Polling
      *
      * @param array $params['id'] Id of polling
      *
-     * @return SqlDataProvider
+     * @return array
      */
     public function getPollingResult($params)
     {
