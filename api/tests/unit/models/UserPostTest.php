@@ -84,7 +84,7 @@ class UserPostTest extends Unit
         $model = new UserPost();
 
         // false
-        $model->image_path = 'firman';
+        $model->images = 'firman';
         $model->validate();
         $this->assertFalse($model->hasErrors('image_path'));
     }
