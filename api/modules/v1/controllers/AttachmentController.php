@@ -11,6 +11,7 @@ use app\models\Attachment\PopupPhotoForm;
 use app\models\Attachment\UserPostPhotoForm;
 use app\models\Attachment\NewsImportantPhotoForm;
 use app\models\Attachment\NewsImportantAttachmentForm;
+use app\models\Attachment\BadgePhotoForm;
 use app\models\AttachmentForm;
 use app\models\UserPhotoUploadForm;
 use Illuminate\Support\Arr;
@@ -115,6 +116,7 @@ class AttachmentController extends ActiveController
             'user_photo' => UserPhotoUploadForm::class,
             'news_important' => NewsImportantPhotoForm::class,
             'news_important_attachment' => NewsImportantAttachmentForm::class,
+            'badge_photo' => BadgePhotoForm::class,
         ];
 
         if (Arr::has($types, $type)) {
