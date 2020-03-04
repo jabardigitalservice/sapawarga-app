@@ -324,6 +324,11 @@ return [
         ]
     ],
     [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/news-important-comment'],
+        'prefix' => 'v1/news-important/<NewsImportantId:\d+>',
+    ],
+    [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/job-type',
         'pluralize' => true,
