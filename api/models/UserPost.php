@@ -9,13 +9,14 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use app\validator\IsArrayValidator;
 
 /**
  * This is the model class for table "post".
  *
  * @property int $id
  * @property string $text
- * @property string $image_path
+ * @property string $images
  * @property int $status
  * @property int $created_by
  * @property int $updated_by
@@ -67,7 +68,8 @@ class UserPost extends ActiveRecord implements ActiveStatus
 
             [['text', 'tags'], 'trim'],
             [['text', 'tags'], 'safe'],
-            [['text', 'status', 'image_path'],'required'],
+            [['text', 'status', 'images'],'required'],
+            ['images', IsArrayValidator::class],
 
             [['status', 'last_user_post_comment_id'], 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
@@ -84,6 +86,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
                 return "{$publicBaseUrl}/{$this->image_path}";
             },
+            'images' => 'imagesField',
             'likes_count',
             'comments_count',
             'last_user_post_comment_id',
@@ -108,7 +111,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
         return [
             'id' => 'ID',
             'text' => 'Deskripsi',
-            'image_path' => 'Photo',
+            'images' => 'Photo',
             'status' => 'Status',
         ];
     }
@@ -142,5 +145,19 @@ class UserPost extends ActiveRecord implements ActiveStatus
             'rw' => isset($this->author->rw) ? $this->author->rw : null,
             'role_label' => $this->author->getRoleName(),
         ];
+    }
+
+    protected function getImagesField()
+    {
+        if ($this->images === null) {
+            return null;
+        }
+
+        return array_map(function ($item) {
+            $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+            return [
+                'url'  => "{$publicBaseUrl}/{$item['path']}",
+            ];
+        }, $this->images);
     }
 }
