@@ -397,4 +397,15 @@ return [
             'OPTIONS my-badge' => 'options',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/otp',
+        'pluralize' => false,
+        'extraPatterns' => [
+            'POST request' => 'request',
+            'OPTIONS request' => 'options',
+            'POST verify' => 'verify',
+            'OPTIONS verify' => 'options',
+        ]
+    ],
 ];
