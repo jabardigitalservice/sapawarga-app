@@ -82,7 +82,7 @@ class UserPostController extends ActiveController
 
         // For old version still can upload one image
         if (! empty($params['image_path']) && empty($params['images'])) {
-            $imagePath = array(array('path' => $params['image_path']));
+            $imagePath = [['path' => $params['image_path']]];
             $model->images = $imagePath;
         }
 
