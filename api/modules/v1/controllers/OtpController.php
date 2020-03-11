@@ -41,10 +41,13 @@ class OtpController extends RestController
      */
     public function actionCheckBalance()
     {
-        return $this->createPostRequest(
+        $response = $this->createPostRequest(
             '/sms/api_sms_otp_balance_json.php',
             ['apikey' => getenv('SMS_API_KEY')]
         );
+
+        $jsonResponse = json_decode($response, true);
+        return $jsonResponse['balance_respon'][0];
     }
 
     /**
