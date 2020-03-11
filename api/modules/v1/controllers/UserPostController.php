@@ -48,6 +48,11 @@ class UserPostController extends ActiveController
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'me'],
                     'roles' => ['admin', 'staffProv', 'staffRW', 'pimpinan'],
                 ],
+                [
+                    'allow' => true,
+                    'actions' => ['index'],
+                    'roles' => ['service_account_dashboard'],
+                ],
             ],
         ];
 
