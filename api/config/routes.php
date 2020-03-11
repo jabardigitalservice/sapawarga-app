@@ -402,6 +402,8 @@ return [
         'controller' => 'v1/otp',
         'pluralize' => false,
         'extraPatterns' => [
+            'POST check-balance' => 'check-balance',
+            'OPTIONS check-balance' => 'options',
             'POST request' => 'request',
             'OPTIONS request' => 'options',
             'POST verify' => 'verify',
