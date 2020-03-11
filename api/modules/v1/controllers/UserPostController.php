@@ -75,14 +75,26 @@ class UserPostController extends ActiveController
     public function actionCreate()
     {
         $model = new UserPost();
-        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $params = Yii::$app->getRequest()->getBodyParams();
+        $model->load($params, '');
 
         $this->checkAccess('create', $model);
 
-        if ($model->validate() && $model->save()) {
-            // Record gamification
-            GamificationActivityHelper::saveGamificationActivity('user_post_create', $model->id);
+        // For old version still can upload one image
+        if (! empty($params['image_path']) && empty($params['images'])) {
+            $imagePath = [['path' => $params['image_path']]];
+            $model->images = $imagePath;
+        }
 
+        // For new version can post and view from the old version
+        // Get the first image on multiple image
+        if (empty($params['image_path']) && ! empty($params['images'])) {
+            $images = $params['images'][0]['path'];
+            $model->image_path = $images;
+        }
+
+        if ($model->validate() && $model->save()) {
+            GamificationActivityHelper::saveGamificationActivity('user_post_create', $model->id);
             LogHelper::logEventByUser('USER_POST_CREATE');
 
             $response = Yii::$app->getResponse();
