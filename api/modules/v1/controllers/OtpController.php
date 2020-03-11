@@ -7,8 +7,7 @@ use yii\filters\AccessControl;
 
 class OtpController extends RestController
 {
-    const baseURI = getenv('SMS_HOST');
-    const timeout = 15.0;
+    const TIMEOUT = 15.0;
 
     public function behaviors()
     {
@@ -73,8 +72,8 @@ class OtpController extends RestController
     protected function createPostRequest($uri, $jsonBody)
     {
         $client = new Client([
-            'base_uri' => self::baseURI,
-            'timeout'  => self::timeout,
+            'base_uri' => getenv('SMS_HOST'),
+            'timeout'  => self::TIMEOUT,
         ]);
 
         $body = [
