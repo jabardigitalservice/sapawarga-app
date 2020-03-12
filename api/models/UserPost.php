@@ -68,7 +68,8 @@ class UserPost extends ActiveRecord implements ActiveStatus
 
             [['text', 'tags'], 'trim'],
             [['text', 'tags'], 'safe'],
-            [['text', 'status', 'images'],'required'],
+            [['text', 'status', 'image_path', 'images'], 'required'],
+
             ['images', IsArrayValidator::class],
 
             [['status', 'last_user_post_comment_id'], 'integer'],
@@ -112,6 +113,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
             'id' => 'ID',
             'text' => 'Deskripsi',
             'images' => 'Photo',
+            'image_path' => 'Photo',
             'status' => 'Status',
         ];
     }
