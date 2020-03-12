@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 
 class OtpController extends RestController
 {
-    const TIMEOUT = 15.0;
+    const TIMEOUT = 30.0;
 
     public function behaviors()
     {
@@ -58,7 +58,27 @@ class OtpController extends RestController
      */
     public function actionRequest()
     {
-        return 'ok';
+        $params = Yii::$app->request->getQueryParams();
+        $phone = Arr::get($params, 'phone'); //number with country code, without the '+' (e.g. 6281xxxxxxxxx)
+        $otpCode = 'xxxxxx';
+        $signature = getenv('MOBILE_APP_SIGNATURE');
+        $message = "Ini adalah kode untuk verifikasi Sapawarga. Jangan memberitahukan kode ini ke siapapun: {$otpCode}\n{$signature}";
+        $data = [
+            'apikey' => getenv('SMS_API_KEY'),
+            'callbackurl' => '',
+            'datapacket' => array([
+                'number' => trim($phone),
+	            'message' => $message,
+            ]),
+        ];
+
+        $response = $this->createPostRequest(
+            '/sms/api_sms_otp_send_json.php',
+            $data
+        );
+
+        $jsonResponse = json_decode($response, true);
+        return $jsonResponse['sending_respon'][0];
     }
 
     /**
