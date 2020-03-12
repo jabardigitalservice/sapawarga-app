@@ -66,10 +66,10 @@ class OtpController extends RestController
         $data = [
             'apikey' => getenv('SMS_API_KEY'),
             'callbackurl' => '',
-            'datapacket' => array([
+            'datapacket' => [[
                 'number' => trim($phone),
-	            'message' => $message,
-            ]),
+                'message' => $message,
+            ]],
         ];
 
         $response = $this->createPostRequest(
