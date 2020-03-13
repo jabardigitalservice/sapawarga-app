@@ -7,6 +7,7 @@ use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -26,6 +27,7 @@ use yii\db\ActiveRecord;
  * @property string $channel_id
  * @property \app\models\NewsChannel $channel
  * @property int $kabkota_id
+ * @property bool $is_push_notification
  * @property array $meta
  * @property int $status
  */
@@ -51,6 +53,17 @@ class News extends ActiveRecord implements ActiveStatus
     public function getKabkota()
     {
         return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+    }
+
+    public function getLikes()
+    {
+        return $this->hasMany(Like::class, ['entity_id' => 'id'])
+                    ->andOnCondition(['type' => Like::TYPE_NEWS]);
+    }
+
+    public function getIsUserLiked()
+    {
+        return ModelHelper::getIsUserLiked($this->id, Like::TYPE_NEWS);
     }
 
     /**
@@ -80,8 +93,10 @@ class News extends ActiveRecord implements ActiveStatus
 
             ['kabkota_id', 'integer'],
             ['channel_id', 'integer'],
-            ['status', 'integer'],
 
+            ['is_push_notification', 'boolean'],
+
+            ['status', 'integer'],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
@@ -121,6 +136,9 @@ class News extends ActiveRecord implements ActiveStatus
                 }
             },
             'total_viewers',
+            'likes_count',
+            'is_liked' => 'IsUserLiked',
+            'is_push_notification',
             'meta',
             'status',
             'status_label' => 'StatusLabel',
@@ -163,6 +181,15 @@ class News extends ActiveRecord implements ActiveStatus
             [
                 'class'     => SluggableBehavior::class,
                 'attribute' => 'title',
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterValidate' => false,
+                'typecastBeforeSave' => false,
+                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];

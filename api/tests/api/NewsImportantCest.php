@@ -1,6 +1,6 @@
 <?php
-use Carbon\Carbon;
 
+use app\models\Like;
 class NewsImportantCest
 {
     public function _before(ApiTester $I)
@@ -8,6 +8,83 @@ class NewsImportantCest
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
         Yii::$app->db->createCommand('TRUNCATE news_important')->execute();
         Yii::$app->db->createCommand('TRUNCATE news_important_attachment')->execute();
+    }
+
+    protected function loadData(ApiTester $I)
+    {
+        $I->haveInDatabase('news_important', [
+            'id' => 1,
+            'title' => 'Info Pendidikan',
+            'content' => 'Info Pendidikan',
+            'category_id' => 36,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 2,
+            'title' => 'Info Lowongan Kerja',
+            'content' => 'Info Lowongan Kerja',
+            'category_id' => 37,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 43,
+            'updated_by' => 43
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 3,
+            'title' => 'Info Inactive',
+            'content' => 'Info Inactive',
+            'category_id' => 37,
+            'status' => 0,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 43,
+            'updated_by' => 43
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 4,
+            'title' => 'Info Deleted',
+            'content' => 'Info Deleted',
+            'category_id' => 37,
+            'status' => -1,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 43,
+            'updated_by' => 43
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 5,
+            'title' => 'Info Pendidikan Kota Bandung',
+            'content' => 'Info Pendidikan Kota Bandung',
+            'category_id' => 36,
+            'kabkota_id' => 22,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
+
+        $I->haveInDatabase('news_important', [
+            'id' => 6,
+            'title' => 'Info Pendidikan Kota Bekasi',
+            'content' => 'Info Pendidikan Kota Bekasi',
+            'category_id' => 36,
+            'kabkota_id' => 23,
+            'status' => 10,
+            'created_at' =>1570085479,
+            'updated_at' =>1570085479,
+            'created_by' => 42,
+            'updated_by' => 42
+        ]);
     }
 
     public function getNewsImportantListNotAllowedUserTest(ApiTester $I)
@@ -20,13 +97,196 @@ class NewsImportantCest
         $I->seeResponseIsJson();
     }
 
-    public function getNewsImportantListTest(ApiTester $I)
+    /**
+     * @before loadData
+     */
+    public function getUserNewsImportantListTest(ApiTester $I)
     {
-        $I->amStaff('staffprov');
+        // Search by RW Kota Bandung
+        $I->amUser('user.bandung');
 
         $I->sendGET('/v1/news-important');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bandung', $data[0][2]['title']);
+
+        // Search by RW Kota Bekasi
+        $I->amUser('user.bekasi');
+
+        $I->sendGET('/v1/news-important');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bekasi', $data[0][2]['title']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getStaffNewsImportantListTest(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+        $I->sendGET('/v1/news-important');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->amStaff('opd.disdik');
+        $I->sendGET('/v1/news-important');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 5);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+        $I->assertEquals('Info Inactive', $data[0][2]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bandung', $data[0][3]['title']);
+        $I->assertEquals('Info Pendidikan Kota Bekasi', $data[0][4]['title']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListSearchByNameTest(ApiTester $I)
+    {
+        // Search by OPD
+        $I->amStaff('opd.disdik');
+
+        $I->sendGET('/v1/news-important?search=Pendidikan');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals('Info Pendidikan', $data[0]['title']);
+
+        // Search by RW
+        $I->amUser('staffrw');
+
+        $I->sendGET('/v1/news-important?search=Info');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals('Info Pendidikan', $data[0][0]['title']);
+        $I->assertEquals('Info Lowongan Kerja', $data[0][1]['title']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListFilterByCategoryTest(ApiTester $I)
+    {
+        // Filter by OPD
+        $I->amStaff('opd.disdik');
+        $I->sendGET('/v1/news-important?category_id=36');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(36, $data[0]['category_id']);
+
+        // Filter by RW
+        $I->amStaff('staffrw');
+        $I->sendGET('/v1/news-important?category_id=37');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(37, $data[0]['category_id']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListFilterByStatusTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disnakertrans');
+        $I->sendGET('/v1/news-important?status=0');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(0, $data[0]['status']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantListFilterByKabkotaTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disnakertrans');
+        $I->sendGET('/v1/news-important?kabkota_id=22');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items[0]');
+        $I->assertEquals(22, $data[0]['kabkota_id']);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function getNewsImportantShowTest(ApiTester $I)
+    {
+        // Public access
+        $I->sendGET('/v1/news-important/3');
+        $I->canSeeResponseCodeIs(404);
+        $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 3,
+            'total_viewers' => 0,
+        ]);
+
+        $I->sendGET('/v1/news-important/4');
+        $I->canSeeResponseCodeIs(404);
+        $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 4,
+            'total_viewers' => 0,
+        ]);
+
+        $I->sendGET('/v1/news-important/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 1,
+            'total_viewers' => 0,
+        ]);
+
+        // User access
+        $I->amUser('staffrw');
+        $I->sendGET('/v1/news-important/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 1,
+            'total_viewers' => 1,
+        ]);
+
+        // Staff access
+        $I->amStaff('opd.disdik');
+        $I->sendGET('/v1/news-important/3');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeInDatabase('news_important', [
+            'id' => 3,
+            'total_viewers' => 0,
+        ]);
     }
 
     public function postUserCreateUnauthorizedTest(ApiTester $I)
@@ -68,6 +328,42 @@ class NewsImportantCest
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'source_url' =>  'https://google.com/',
+            'public_source_url' =>  getenv('FRONTEND_URL') . '/#/info-penting?id=1',
+            'image_path' => 'general/myimage.jpg',
+            'category_id' => 2,
+            'status' => 10,
+        ]);
+    }
+
+    public function postStaffOPDCreateNewsImportantTest(ApiTester $I)
+    {
+        $I->amStaff('opd.disdik');
+
+        $data = [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'source_url' =>  'https://google.com/',
+            'image_path' => 'general/myimage.jpg',
+            'category_id' => 2,
+            'status' => 10,
+            'attachments' => []
+        ];
+
+        $I->sendPOST('/v1/news-important', $data);
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('news_important', [
+            'id' => 1,
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'source_url' =>  'https://google.com/',
+            'public_source_url' =>  getenv('FRONTEND_URL') . '/#/info-penting?id=1',
             'image_path' => 'general/myimage.jpg',
             'category_id' => 2,
             'status' => 10,
@@ -99,9 +395,43 @@ class NewsImportantCest
         $I->seeResponseIsJson();
     }
 
+    /**
+     * @before loadData
+     */
+    public function postUpdateNotOwnUnauthorizedTest(ApiTester $I)
+    {
+        $I->amUser('opd.disdik');
+        $data = [];
+        $I->sendPUT('/v1/news-important/2', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->amUser('opd.disnakertrans');
+        $data = [];
+        $I->sendPUT('/v1/news-important/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+    }
+
     public function deleteUserUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('staffrw');
+
+        $I->sendDELETE('/v1/news-important/1');
+        $I->canSeeResponseCodeIs(403);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function deleteNotOwnUnauthorizedTest(ApiTester $I)
+    {
+        $I->amUser('opd.disdik');
+
+        $I->sendDELETE('/v1/news-important/2');
+        $I->canSeeResponseCodeIs(403);
+
+        $I->amUser('opd.disnakertrans');
 
         $I->sendDELETE('/v1/news-important/1');
         $I->canSeeResponseCodeIs(403);
@@ -129,5 +459,53 @@ class NewsImportantCest
         $I->canSeeResponseCodeIs(204);
 
         $I->seeInDatabase('news_important', ['id' => 1, 'status' => -1]);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function postLikeNewsImportant(ApiTester $I)
+    {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/news-important/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS_IMPORTANT,
+            'user_id' => 17,
+            'entity_id' => 1,
+        ]);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function postUnlikeNewsImportant(ApiTester $I)
+    {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
+        $I->haveInDatabase('likes', [
+            'type' => Like::TYPE_NEWS_IMPORTANT,
+            'entity_id' => 1,
+            'user_id'     => 17,
+            'created_at' => 1578631126,
+            'updated_at' => 1578631126,
+        ]);
+
+        $I->amUser('staffrw');
+
+        $I->sendPOST('/v1/news-important/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->dontSeeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS_IMPORTANT,
+            'user_id' => 17,
+            'entity_id' => 1,
+        ]);
     }
 }

@@ -7,7 +7,7 @@ use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
-use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -23,6 +23,7 @@ use app\components\ModelHelper;
  * @property string $video_url
  * @property int $kabkota_id
  * @property int $total_likes
+ * @property bool $is_push_notification
  * @property int $seq
  * @property int $status
  * @property int $created_by
@@ -67,6 +68,7 @@ class Video extends ActiveRecord implements ActiveStatus
             ],
             ['video_url', 'match', 'pattern' => '/^(https:\/\/www.youtube.com)\/.+$/'],
             ['source', 'in', 'range' => ['youtube']],
+            ['is_push_notification', 'boolean'],
             ['status', 'in', 'range' => [-1, 0, 10]],
             ['seq', 'in', 'range' => [1, 2, 3, 4, 5]],
         ];
@@ -86,6 +88,7 @@ class Video extends ActiveRecord implements ActiveStatus
             'kabkota_id',
             'kabkota' => 'KabkotaField',
             'total_likes',
+            'is_push_notification',
             'seq',
             'status',
             'status_label' => 'StatusLabel',
@@ -123,6 +126,13 @@ class Video extends ActiveRecord implements ActiveStatus
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
+            ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
             ],
             BlameableBehavior::class,
         ];

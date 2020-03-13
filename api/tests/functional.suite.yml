@@ -17,6 +17,7 @@ modules:
       REST:
         depends: PhpBrowser
         url: 'http://nginx:8000'
+        part: Json
 #     Db:
 #       dsn: 'mysql:host=localhost;dbname=test_db'
 #       user: 'test_user'

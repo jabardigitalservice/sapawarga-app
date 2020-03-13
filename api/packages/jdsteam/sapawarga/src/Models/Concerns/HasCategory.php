@@ -29,7 +29,7 @@ trait HasCategory
     }
 
     /**
-     * Checks if category type is aspirasi
+     * Checks if category id is valid
      *
      * @param $attribute
      * @param $params

@@ -6,14 +6,11 @@ use app\components\UserTrait;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserExport;
-use app\models\UserImport;
-use app\models\UserImportCsvUploadForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
+use app\modules\v1\repositories\UserRepository;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
-use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
@@ -21,10 +18,10 @@ use yii\filters\auth\CompositeAuth;
 use yii\helpers\Url;
 use yii\rbac\Permission;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
 
 class StaffController extends ActiveController
 {
@@ -70,10 +67,6 @@ class StaffController extends ActiveController
                 'export' => ['get'],
                 'import' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         // remove authentication filter
@@ -147,6 +140,16 @@ class StaffController extends ActiveController
         // Only admin can see saberhoax
         $search->show_saberhoax = ($currentUser->role == User::ROLE_ADMIN) ? true : false;
 
+        $search->show_trainer = false;
+        if (in_array($currentUser->role, [User::ROLE_STAFF_PROV, User::ROLE_ADMIN])) {
+            $search->show_trainer = true;
+        }
+
+        $search->show_user = false;
+        if (in_array($currentUser->role, [User::ROLE_STAFF_PROV, User::ROLE_ADMIN])) {
+            $search->show_user = true;
+        }
+
         if (!$search->validate()) {
             throw new BadRequestHttpException(
                 'Invalid parameters: ' . json_encode($search->getErrors())
@@ -172,6 +175,7 @@ class StaffController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
         $params['max_roles'] = $maxRoleRange;
         $params['show_saberhoax'] = $currentUser->role == User::ROLE_ADMIN ? 'yes' : 'no';
+        $params['show_trainer'] = in_array($currentUser->role, [User::ROLE_ADMIN, User::ROLE_STAFF_PROV]);
         $params['kabkota_id'] = $params['kabkota_id'] ?? $currentUser->kabkota_id;
         $params['kec_id'] = $params['kec_id'] ?? $currentUser->kec_id;
         $params['kel_id'] = $params['kel_id'] ?? $currentUser->kel_id;
@@ -240,66 +244,6 @@ class StaffController extends ActiveController
         return $filePath;
     }
 
-    public function actionImportTemplate()
-    {
-        $response = Yii::$app->getResponse();
-
-        $filePath = UserImport::generateTemplateFile();
-
-        if (file_exists($filePath) === false) {
-            return $response->setStatusCode(404);
-        }
-
-        $fileUrl = $this->copyTemplateToStorage($filePath);
-
-        return ['file_url' => $fileUrl];
-    }
-
-    protected function copyTemplateToStorage($sourcePath)
-    {
-        $destinationPath = 'template-users-import.csv';
-
-        $contents = file_get_contents($sourcePath);
-
-        Yii::$app->fs->put($destinationPath, $contents);
-
-        $fileUrl = sprintf('%s/%s', Yii::$app->params['storagePublicBaseUrl'], $destinationPath);
-
-        return $fileUrl;
-    }
-
-    public function actionImport()
-    {
-        $currentUser = User::findIdentity(Yii::$app->user->getId());
-
-        $model       = new UserImportCsvUploadForm();
-        $model->file = UploadedFile::getInstanceByName('file');
-
-        if ($model->validate() === false) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
-        }
-
-        // Upload to S3 and push new queue job for async/later processing
-        if ($filePath = $model->upload()) {
-            $this->pushQueueJob($currentUser, $filePath);
-
-            return ['file_path' => $filePath];
-        }
-
-        throw new ServerErrorHttpException('Failed to upload the object for unknown reason.');
-    }
-
-    protected function pushQueueJob($user, $filePath)
-    {
-        Yii::$app->queue->push(new ImportUserJob([
-            'filePath'      => $filePath,
-            'uploaderEmail' => $user->email,
-        ]));
-    }
-
     /**
      * Create new staff member from backend dashboard
      *
@@ -311,6 +255,10 @@ class StaffController extends ActiveController
      */
     public function actionCreate()
     {
+        if (Yii::$app->user->can('create_user') === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        }
+
         $model = new User();
         $model->scenario = User::SCENARIO_REGISTER;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
@@ -342,7 +290,12 @@ class StaffController extends ActiveController
      */
     public function actionUpdate($id)
     {
-        $model = $this->actionView($id);
+        $model = $this->findModel($id, $this->modelClass);
+
+        if (Yii::$app->user->can('edit_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        }
+
         $model->scenario = User::SCENARIO_UPDATE;
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
 
@@ -393,33 +346,13 @@ class StaffController extends ActiveController
      */
     public function actionView($id)
     {
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
-        $role = $currentUser->role;
-        // Admins can see other admins, while staffs can only see staffs one level below them
-        $maxRoleRange = ($role == User::ROLE_ADMIN) ? ($role) : ($role - 1);
+        $model = $this->findModel($id, $this->modelClass);
 
-        $staff = User::find()->where(
-            [
-                'id' => $id
-            ]
-        )->andWhere(
-            [
-                '!=',
-                'status',
-                User::STATUS_DELETED
-            ]
-        )->andWhere(
-            [
-                'or',
-                ['between', 'role', 0, $maxRoleRange],
-                $id . '=' . (string) $currentUser->id
-            ]
-        )->one();
-        if ($staff) {
-            return $staff;
-        } else {
-            throw new NotFoundHttpException("Object not found: $id");
+        if (Yii::$app->user->can('view_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
+
+        return $model;
     }
 
     /**
@@ -446,7 +379,11 @@ class StaffController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->actionView($id);
+        $model = $this->findModel($id, $this->modelClass);
+
+        if (Yii::$app->user->can('delete_user', ['record' => $model]) === false) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        }
 
         return $this->applySoftDelete($model);
     }
@@ -469,6 +406,9 @@ class StaffController extends ActiveController
             User::ROLE_STAFF_KEC,
             User::ROLE_STAFF_KEL,
             User::ROLE_STAFF_SABERHOAX,
+            User::ROLE_SERVICE_ACCOUNT,
+            User::ROLE_STAFF_OPD,
+            User::ROLE_PIMPINAN,
         ];
         return $this->login($roles);
     }
@@ -480,64 +420,26 @@ class StaffController extends ActiveController
      */
     public function actionCount()
     {
-        $roleMap = [
-            User::ROLE_ADMIN => ['level' => 'all', 'name' => 'Semua'],
-            User::ROLE_STAFF_PROV => ['level' => 'prov', 'name' => 'Provinsi'],
-            User::ROLE_STAFF_KABKOTA => ['level' => 'kabkota', 'name' => 'Kabupaten/Kota'],
-            User::ROLE_STAFF_KEC => ['level' => 'kec', 'name' => 'Kecamatan'],
-            User::ROLE_STAFF_KEL => ['level' => 'kel', 'name' => 'Desa/Kelurahan'],
-            User::ROLE_STAFF_RW => ['level' => 'rw', 'name' => 'RW'],
-            User::ROLE_TRAINER => ['level' => 'trainer', 'name' => 'Pelatih'],
-        ];
+        $currentUserId    = Yii::$app->user->getId();
+        $currentUser      = User::findIdentity($currentUserId);
 
-        $currentUser = User::findIdentity(\Yii::$app->user->getId());
+        $currentUserRoles = Yii::$app->authManager->getRolesByUser($currentUserId);
+        $currentUserRole  = Arr::first($currentUserRoles);
 
-        if ($currentUser->role >= User::ROLE_STAFF_PROV) {
-            $roleMap[User::ROLE_STAFF_SABERHOAX] = ['level' => 'saberhoax', 'name' => 'Saber Hoax'];
-        }
+        $filterKabkotaId = $currentUser->kabkota_id;
+        $filterKecId     = $currentUser->kec_id;
+        $filterKelId     = $currentUser->kel_id;
 
-        $kabkota_id = $currentUser->kabkota_id;
-        $kel_id = $currentUser->kel_id;
-        $kec_id = $currentUser->kec_id;
-        $rw = $currentUser->rw;
-        $role = $currentUser->role;
+        $repository    = new UserRepository();
 
-        // Admin will get all user counts, while staffs below admin will get user counts only from areas below them
-        $items = [];
-        $index = 1;
-        foreach ($roleMap as $key => $value) {
-            if ($role == User::ROLE_ADMIN ||
-                $role < User::ROLE_ADMIN && $key < $role
-            ) {
-                $query = User::find();
-                if ($key < User::ROLE_ADMIN) {
-                    $query->where(['role' => $key]);
-                }
+        $selectedRoles = $repository->getDescendantRoles($currentUserRole->name);
 
-                // filter by area (for staffProv and below)
-                if ($kabkota_id) {
-                    $query->andWhere(['kabkota_id' => $kabkota_id]);
-                }
-                if ($kec_id) {
-                    $query->andWhere(['kec_id' => $kec_id]);
-                }
-                if ($kel_id) {
-                    $query->andWhere(['kel_id' => $kel_id]);
-                }
-                if ($rw) {
-                    $query->andWhere(['rw' => $rw]);
-                }
-
-                $count = $query->count();
-                array_push($items, [
-                    'id' => $index,
-                    'level' => $value['level'],
-                    'name' => $value['name'],
-                    'value' => (int) $count,
-                ]);
-                $index++;
-            }
-        }
+        $items = $repository->getUsersCountAllRolesByArea(
+            $selectedRoles,
+            $filterKabkotaId,
+            $filterKecId,
+            $filterKelId
+        );
 
         return ['items' => $items];
     }

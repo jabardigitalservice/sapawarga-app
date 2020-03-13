@@ -6,6 +6,7 @@ use Yii;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use app\models\Category;
+use app\models\Like;
 use app\models\Notification;
 
 class ModelHelper
@@ -13,8 +14,8 @@ class ModelHelper
     /**
      * Checks if category_id is part of category_type
      *
-     * @param $id
-     * @param $params
+     * @param $model
+     * @param $attribute
      */
     public static function validateCategoryID($model, $attribute)
     {
@@ -40,7 +41,7 @@ class ModelHelper
      */
     public static function isSendNotification($insert, $changedAttributes, $model)
     {
-        if (!YII_ENV_TEST) {
+        if (!YII_ENV_TEST && $model->is_push_notification === true) {
             if ($insert) { // Model is created
                 return $model->status == $model::STATUS_PUBLISHED;
             }
@@ -84,6 +85,7 @@ class ModelHelper
             'status'=> Notification::STATUS_PUBLISHED,
             'meta' => $payload['meta'],
         ]);
+        $notifModel->push_token = Arr::get($payload['target'], 'push_token', null);
         $notifModel->save(false);
     }
 
@@ -149,7 +151,6 @@ class ModelHelper
         return $query;
     }
 
-
     public static function filterCurrentActiveNow(&$query, $model)
     {
         $query->andFilterWhere(['=', 'status', $model::STATUS_PUBLISHED]);
@@ -200,5 +201,16 @@ class ModelHelper
         }
 
         return $attributes;
+    }
+
+    public static function getIsUserLiked($id, $type)
+    {
+        $isLiked = Like::find()
+            ->where(['entity_id' => $id])
+            ->andWhere(['type' => $type])
+            ->andWhere(['user_id' => Yii::$app->user->id])
+            ->exists();
+
+        return $isLiked;
     }
 }

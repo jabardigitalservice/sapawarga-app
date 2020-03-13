@@ -33,13 +33,17 @@ class Category extends ActiveRecord implements ActiveStatus
         Video::CATEGORY_TYPE         => 'Video',
         NewsImportant::CATEGORY_TYPE => 'Info Penting',
         NewsHoax::CATEGORY_TYPE      => 'Berita Saber Hoaks',
+        UserPost::CATEGORY_TYPE      => 'Kegiatan RW',
     ];
 
     // Daftar category type yang tidak bisa diedit oleh staff
     const EXCLUDED_TYPES = [
         Notification::CATEGORY_TYPE,
         NewsHoax::CATEGORY_TYPE,
+        UserPost::CATEGORY_TYPE,
     ];
+
+    const DEFAULT_CATEGORY_NAME = 'Lainnya';
 
     /**
      * {@inheritdoc}
@@ -61,6 +65,7 @@ class Category extends ActiveRecord implements ActiveStatus
             [['type', 'name', 'status'], 'required'],
             ['name', 'validateName'],
             ['status', 'integer'],
+            ['type', 'validateCategoryType'],
         ];
     }
 
@@ -136,6 +141,28 @@ class Category extends ActiveRecord implements ActiveStatus
         }
 
         return $this->returnError($existingName, $attribute);
+    }
+
+    /**
+     * Checks if a category type has a default category value ('Lainnya')
+     *
+     * @param $attribute
+     * @param $params
+     */
+    public function validateCategoryType($attribute, $params)
+    {
+        $category = Category::findOne([
+            'type' => $this->type,
+            'name' => Category::DEFAULT_CATEGORY_NAME,
+            'status' => Category::STATUS_ACTIVE,
+        ]);
+
+        if (!$category) {
+            // If the newly created/edited category is not the default category
+            if ($this->name !== Category::DEFAULT_CATEGORY_NAME) {
+                $this->addError($attribute, Yii::t('app', 'error.category.default.required'));
+            }
+        }
     }
 
     protected function returnError(ActiveQuery $existingName, $attribute)

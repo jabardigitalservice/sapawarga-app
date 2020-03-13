@@ -5,10 +5,10 @@ namespace app\models;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Collection;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
-use yii\rbac\Permission;
 use yii\web\Request as WebRequest;
 
 /**
@@ -57,6 +57,8 @@ use yii\web\Request as WebRequest;
  */
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    use HasArea;
+
     const MAX_LENGTH = 255;
 
     // Constants for User's role and status
@@ -66,9 +68,13 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const ROLE_STAFF_KEL = 60;
     const ROLE_STAFF_KEC = 70;
     const ROLE_STAFF_KABKOTA = 80;
+    const ROLE_STAFF_OPD = 88;
     const ROLE_STAFF_SABERHOAX = 89;
     const ROLE_STAFF_PROV = 90;
+    const ROLE_PIMPINAN = 91;
     const ROLE_ADMIN = 99;
+    const ROLE_SERVICE_ACCOUNT = 100; // for third-party app need access (ex: dashboard command center)
+
     const STATUS_DELETED = -1;
     const STATUS_DISABLED = 0;
     const STATUS_PENDING = 1;
@@ -78,14 +84,17 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     // Mapping User role's id type (string to integer)
     const ROLE_MAP = [
         'admin' => self::ROLE_ADMIN,
+        'pimpinan' => self::ROLE_PIMPINAN,
         'staffProv' => self::ROLE_STAFF_PROV,
         'staffSaberhoax' => self::ROLE_STAFF_SABERHOAX,
+        'staffOPD' => self::ROLE_STAFF_OPD,
         'staffKabkota' => self::ROLE_STAFF_KABKOTA,
         'staffKec' => self::ROLE_STAFF_KEC,
         'staffKel' => self::ROLE_STAFF_KEL,
         'staffRW' => self::ROLE_STAFF_RW,
         'trainer' => self::ROLE_TRAINER,
         'user' => self::ROLE_USER,
+        'service_account_dashboard' => self::ROLE_SERVICE_ACCOUNT,
     ];
 
     // Constants for Scenario names
@@ -109,21 +118,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function tableName()
     {
         return 'user';
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
     public function getJobType()
@@ -351,7 +345,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     /** @inheritdoc */
     public function behaviors()
     {
-        // TimestampBehavior also provides a method named touch() that allows you to assign the current timestamp to the specified attribute(s) and save them to the database. For example,
         return [
             [
                 'class' => TimestampBehavior::className(),
@@ -399,38 +392,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'rt',
             'rw',
             'kel_id',
-            'kelurahan' => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'kec_id',
-            'kecamatan' => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kabkota_id',
-            'kabkota' => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'lat',
             'lon',
             'photo_url' => function () {
@@ -454,83 +420,28 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'updated_at',
         ];
 
-        // If role is staff and admin, then return permissions
-        if ($this->role >= self::ROLE_TRAINER && $this->role <= self::ROLE_ADMIN) {
-            $fields['permissions'] = function () {
-                $authManager = Yii::$app->authManager;
-
-                /** @var Permission[] $availablePermissions */
-                $availablePermissions = $authManager->getPermissions();
-
-                /** @var array $tmpPermissions to store permissions assigned to the staff */
-                $tmpPermissions = [];
-                /** @var Permission[] $userPermissions */
-                $userPermissions = $authManager->getPermissionsByUser($this->getId());
-                if (!empty($availablePermissions)) {
-                    /**
-                     * @var string $permissionKey
-                     * @var Permission $permission
-                     */
-                    foreach ($availablePermissions as $permissionKey => $permission) {
-                        $tmpPermission = [
-                            'name' => $permission->name,
-                            'description' => $permission->description,
-                            'checked' => false,
-                        ];
-
-                        if (!empty($userPermissions)) {
-                            foreach ($userPermissions as $userPermissionKey => $userPermission) {
-                                if ($userPermission->name == $permission->name) {
-                                    $tmpPermission['checked'] = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        $tmpPermissions[] = $tmpPermission;
-                    }
-                }
-
-                return $tmpPermissions;
-            };
-        }
-
         return $fields;
     }
 
     public function getRoleLabel()
     {
-        $roleLabel = '';
-        switch ($this->role) {
-            case self::ROLE_USER:
-                $roleLabel = Yii::t('app', 'role.user');
-                break;
-            case self::ROLE_TRAINER:
-                $roleLabel = Yii::t('app', 'role.trainer');
-                break;
-            case self::ROLE_STAFF_RW:
-                $roleLabel = Yii::t('app', 'role.staffRW');
-                break;
-            case self::ROLE_STAFF_KEL:
-                $roleLabel = Yii::t('app', 'role.staffKel');
-                break;
-            case self::ROLE_STAFF_KEC:
-                $roleLabel = Yii::t('app', 'role.staffKec');
-                break;
-            case self::ROLE_STAFF_KABKOTA:
-                $roleLabel = Yii::t('app', 'role.staffKabkota');
-                break;
-            case self::ROLE_STAFF_SABERHOAX:
-                $roleLabel = Yii::t('app', 'role.staffSaberhoax');
-                break;
-            case self::ROLE_STAFF_PROV:
-                $roleLabel = Yii::t('app', 'role.staffProv');
-                break;
-            case self::ROLE_ADMIN:
-                $roleLabel = Yii::t('app', 'role.admin');
-                break;
-        }
-        return $roleLabel;
+        // TODO get from database instead hardcode
+        $roles = [
+            self::ROLE_USER => Yii::t('app', 'role.user'),
+            self::ROLE_TRAINER => Yii::t('app', 'role.trainer'),
+            self::ROLE_STAFF_RW => Yii::t('app', 'role.staffRW'),
+            self::ROLE_STAFF_KEL => Yii::t('app', 'role.staffKel'),
+            self::ROLE_STAFF_KEC => Yii::t('app', 'role.staffKec'),
+            self::ROLE_STAFF_KABKOTA => Yii::t('app', 'role.staffKabkota'),
+            self::ROLE_STAFF_OPD => Yii::t('app', 'role.staffOPD'),
+            self::ROLE_STAFF_SABERHOAX => Yii::t('app', 'role.staffSaberhoax'),
+            self::ROLE_STAFF_PROV => Yii::t('app', 'role.staffProv'),
+            self::ROLE_PIMPINAN => Yii::t('app', 'role.pimpinan'),
+            self::ROLE_ADMIN => Yii::t('app', 'role.admin'),
+            self::ROLE_SERVICE_ACCOUNT => Yii::t('app', 'role.service_account'),
+        ];
+
+        return $roles[$this->role];
     }
 
     /**
@@ -564,7 +475,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['username', 'email', 'role_id'], 'required', 'on' => self::SCENARIO_REGISTER],
             ['username', 'trim'],
             ['username', 'required'],
@@ -575,12 +486,22 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 'pattern' => '/^[a-z0-9_.]{4,255}$/',
                 'message' => Yii::t('app', 'error.username.pattern')
             ],
-            ['username', 'validateUsername'],
+            [
+                'username',
+                'unique',
+                'message' => Yii::t('app', 'error.username.taken'),
+            ],
+
             ['email', 'trim'],
             ['email', 'required'],
             ['email', 'string', 'max' => self::MAX_LENGTH],
             ['email', 'email'],
-            ['email', 'validateEmail'],
+            [
+                'email',
+                'unique',
+                'message' => Yii::t('app', 'error.email.taken'),
+            ],
+
             ['password', 'string', 'length' => [5, self::MAX_LENGTH]],
             ['password', 'validatePasswordSubmit'],
             [['confirmed_at', 'blocked_at', 'last_login_at'], 'datetime', 'format' => 'php:U'],
@@ -588,11 +509,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_PENDING, self::STATUS_DISABLED]],
 
-            ['role_id', 'default', 'value' => 'user'],
             ['role_id', 'in', 'range' => array_keys(self::ROLE_MAP)],
-            ['role_id', 'validateRolePermission', 'on' => self::SCENARIO_REGISTER],
+            ['role_id', 'validateRolePermission'],
 
-            ['permissions', 'validatePermissions',  'on' => self::SCENARIO_UPDATE],
             [['access_token', 'permissions'], 'safe'],
             ['phone', 'trim'],
             ['kabkota_id', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
@@ -620,6 +539,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
             ['phone', 'string', 'length' => [3, 13]],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesRw()
+        );
     }
 
     /**
@@ -644,140 +568,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
-    /**
-     * Validate permissions array
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validatePermissions($attribute, $params)
-    {
-        if (!empty($this->$attribute)) {
-            $authManager = Yii::$app->authManager;
-            // Get existing permissions
-            $existingPermissions = $authManager->getPermissions();
-
-            // Loop attributes
-            foreach ($this->$attribute as $permissionKey => $permission) {
-                // Validate attributes in the array
-                if (array_key_exists('name', $permission) === false ||
-                    array_key_exists('description', $permission) === false ||
-                    array_key_exists('checked', $permission) === false) {
-                    $this->addError($attribute, Yii::t('app', 'The permission is not valid format.'));
-                } elseif (isset($existingPermissions[$permission['name']]) == false) {
-                    // Validate name
-                    $this->addError(
-                        $attribute,
-                        Yii::t(
-                            'app',
-                            'The permission name \'' . $permission['name'] . '\' is not valid.'
-                        )
-                    );
-                } elseif (is_bool($permission['checked']) === false) {
-                    // Validate checked
-                    $this->addError(
-                        $attribute,
-                        Yii::t(
-                            'app',
-                            'The permission checked \'' . $permission['checked'] . '\' is not valid.'
-                        )
-                    );
-                }
-            }
-        }
-    }
-
-    /**
-     * Validate username
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateUsername($attribute, $params)
-    {
-        // get post type - POST or PUT
-        $request = Yii::$app->request;
-
-        // if POST, mode is create
-        if ($request->isPost) {
-            // check username is already taken
-
-            $existingUser = User::find()
-                ->where(['username' => $this->$attribute])
-                ->count();
-            if ($existingUser > 0) {
-                $this->addError($attribute, Yii::t('app', 'error.username.taken'));
-            }
-        } elseif ($request->isPut) {
-            // get current user
-            $user = User::findIdentityWithoutValidation($this->id);
-            if ($user == null) {
-                $this->addError($attribute, Yii::t('app', 'The system cannot find requested user.'));
-            } else {
-                // check username is already taken except own username
-                $existingUser = User::find()
-                    ->where(['=', 'username', $this->$attribute])
-                    ->andWhere(['!=', 'id', $this->id])
-                    ->count();
-                if ($existingUser > 0) {
-                    $this->addError($attribute, Yii::t('app', 'error.username.taken'));
-                }
-            }
-        } else {
-            // unknown request
-            $this->addError($attribute, Yii::t('app', 'Unknown request'));
-        }
-    }
-
     public static function findIdentityWithoutValidation($id)
     {
         $user = static::findOne(['id' => $id]);
 
         return $user;
-    }
-
-    /**
-     * Validate email
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateEmail($attribute, $params)
-    {
-        // get post type - POST or PUT
-        $request = Yii::$app->request;
-
-        // if POST, mode is create
-        if ($request->isPost) {
-            // check username is already taken
-
-            $existingUser = User::find()
-                ->where(['email' => $this->$attribute])
-                ->count();
-
-            if ($existingUser > 0) {
-                $this->addError($attribute, Yii::t('app', 'error.email.taken'));
-            }
-        } elseif ($request->isPut) {
-            // get current user
-            $user = User::findIdentityWithoutValidation($this->id);
-
-            if ($user == null) {
-                $this->addError($attribute, Yii::t('app', 'The system cannot find requested user.'));
-            } else {
-                // check username is already taken except own username
-                $existingUser = User::find()
-                    ->where(['=', 'email', $this->$attribute])
-                    ->andWhere(['!=', 'id', $this->id])
-                    ->count();
-                if ($existingUser > 0) {
-                    $this->addError($attribute, Yii::t('app', 'error.email.taken'));
-                }
-            }
-        } else {
-            // unknown request
-            $this->addError($attribute, Yii::t('app', 'Unknown request'));
-        }
     }
 
     /**
@@ -897,10 +692,17 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getJWT()
     {
+        $expirationDuration = 0;
+        if (in_array($this->role, LoginForm::USER_ROLES)) {
+            $expirationDuration = LoginForm::LOGIN_DURATION_USER;
+        } else {
+            $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
+        }
+
         // Collect all the data
         $secret = static::getSecretKey();
         $currentTime = time();
-        $expire = $currentTime + 2592000; // 30 days
+        $expire = $currentTime + $expirationDuration;
         $request = Yii::$app->request;
         $hostInfo = '';
         // There is also a \yii\console\Request that doesn't have this property
@@ -993,7 +795,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
         // ---- Start to process role
         // When insert new user, assign new role
-        if ($insert == true) {
+        if ($insert === true) {
             $roleName = $this->getRoleName();
 
             $authItem = $authManager->getRole($roleName);
@@ -1010,52 +812,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
         // ---- Finish to process role
 
-        // ---- Start to process permissions
-        if ($this->scenario == self::SCENARIO_REGISTER) {
-            // Assign default permissions based on role
-            if ($this->role != self::ROLE_STAFF_SABERHOAX) {
-                if ($this->role >= self::ROLE_TRAINER && $this->role < self::ROLE_ADMIN) {
-                    $authItem = $authManager->getPermission('manageUsers');
-                    $authManager->assign($authItem, $this->getId());
-                    // Only assign 'manageStaffs' when role is higher than staffRW
-                    if ($this->role > self::ROLE_STAFF_RW) {
-                        $authItem = $authManager->getPermission('manageStaffs');
-                        $authManager->assign($authItem, $this->getId());
-                    }
-                }
-            }
-        } elseif (!empty($this->permissions)) {
-            // permissions only allow to be entered if the role is staff
-            if ($this->role > self::ROLE_STAFF_RW && $this->role < self::ROLE_ADMIN) {
-                $existingPermissions = $authManager->getPermissionsByUser($this->getId());
-                foreach ($this->permissions as $permissionKey => $permission) {
-                    if ($permission['checked'] == true) {
-                        // If not assigned, then add to permission
-                        if (isset($existingPermissions[$permission['name']]) == false) {
-                            $authItem = $authManager->getPermission($permission['name']);
-                            $authManager->assign($authItem, $this->getId());
-                        }
-                    } else {
-                        // If assigned already, then remove from permission
-                        if (isset($existingPermissions[$permission['name']]) == true) {
-                            $authItem = $authManager->getPermission($permission['name']);
-                            $authManager->revoke($authItem, $this->getId());
-                        }
-                    }
-                }
-            } else {
-                // if role is changed and remove all
-                $existingPermissions = $authManager->getPermissionsByUser($this->getId());
-                if (!empty($existingPermissions)) {
-                    foreach ($existingPermissions as $permissionName => $permission) {
-                        $authItem = $authManager->getPermission($permissionName);
-                        $authManager->revoke($authItem, $this->getId());
-                    }
-                }
-            }
-        }
-
-        // ---- Start to process permissions
         return parent::afterSave($insert, $changedAttributes);
     }
 
@@ -1075,45 +831,32 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
-    private function getRoleName()
+    public function getRoleName()
     {
-        $roleName = '';
-        switch ($this->role) {
-            case self::ROLE_USER:
-                $roleName = 'user';
-                break;
-            case self::ROLE_TRAINER:
-                $roleName = 'trainer';
-                break;
-            case self::ROLE_STAFF_RW:
-                $roleName = 'staffRW';
-                break;
-            case self::ROLE_STAFF_KEL:
-                $roleName = 'staffKel';
-                break;
-            case self::ROLE_STAFF_KEC:
-                $roleName = 'staffKec';
-                break;
-            case self::ROLE_STAFF_KABKOTA:
-                $roleName = 'staffKabkota';
-                break;
-            case self::ROLE_STAFF_SABERHOAX:
-                $roleName = 'staffSaberhoax';
-                break;
-            case self::ROLE_STAFF_PROV:
-                $roleName = 'staffProv';
-                break;
-            case self::ROLE_ADMIN:
-                $roleName = 'admin';
-                break;
-        }
-        return $roleName;
+        $roles = [
+            self::ROLE_USER => 'user',
+            self::ROLE_TRAINER => 'trainer',
+            self::ROLE_STAFF_RW => 'staffRW',
+            self::ROLE_STAFF_KEL => 'staffKel',
+            self::ROLE_STAFF_KEC => 'staffKec',
+            self::ROLE_STAFF_KABKOTA => 'staffKabkota',
+            self::ROLE_STAFF_OPD => 'staffOPD',
+            self::ROLE_STAFF_SABERHOAX => 'staffSaberhoax',
+            self::ROLE_STAFF_PROV => 'staffProv',
+            self::ROLE_PIMPINAN => 'pimpinan',
+            self::ROLE_ADMIN => 'admin',
+            self::ROLE_SERVICE_ACCOUNT => 'service_account_dashboard',
+        ];
+
+        return $roles[$this->role];
     }
 
     public function getPassword()
     {
         return '';
     }
+
+    // Functions related to user push token
 
     public function removePushToken()
     {
@@ -1151,5 +894,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             Message::subscribe($pushToken, [Notification::TOPIC_DEFAULT]);
             Message::subscribe($pushToken, $areaIds);
         }
+    }
+
+    public function hasPushToken()
+    {
+        // Use '==' to acommodate falsy values, e.g. null and empty string
+        return $this->push_token == true;
     }
 }

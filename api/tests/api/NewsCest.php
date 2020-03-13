@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Like;
 class NewsCest
 {
     public function _before(ApiTester $I)
@@ -8,6 +9,7 @@ class NewsCest
 
         Yii::$app->db->createCommand('TRUNCATE news')->execute();
         Yii::$app->db->createCommand('TRUNCATE news_channels')->execute();
+        Yii::$app->db->createCommand('TRUNCATE news_viewers')->execute();
 
         $I->haveInDatabase('news_channels', [
             'id'         => 1,
@@ -163,6 +165,7 @@ class NewsCest
             'updated_at'  => '1554706345',
         ]);
 
+        // admin
         $I->amStaff();
 
         $I->sendGET('/v1/news');
@@ -182,6 +185,18 @@ class NewsCest
         $I->assertEquals(2, $data[0][1]['id']);
         $I->assertEquals(3, $data[0][2]['id']);
         $I->assertEquals(5, $data[0][3]['id']);
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/news');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
 
 
         $I->amStaff('staffkabkota');
@@ -899,7 +914,7 @@ class NewsCest
             'updated_by'  => 2,
         ]);
 
-        $I->amStaff();
+        $I->amStaff('staffkabkota');
 
         $data = [
             'title'       => 'Lorem ipsum',
@@ -967,7 +982,7 @@ class NewsCest
             'updated_by'  => 2,
         ]);
 
-        $I->amStaff();
+        $I->amStaff('staffkabkota');
 
         $I->sendDELETE('/v1/news/1');
         $I->canSeeResponseCodeIs(403);
@@ -1007,98 +1022,90 @@ class NewsCest
         $I->assertEquals($read_count + 1, $new_read_count[0]);
     }
 
-    public function getUserIncrementReadCountPerUserForNewUserTest(ApiTester $I)
-    {
-        $I->seeNumRecords(0, 'news_viewers');
+   public function getUserIncrementReadCountPerUserForNewUserTest(ApiTester $I)
+   {
+       $I->seeNumRecords(0, 'news_viewers');
 
-        $read_count = 0;
-        $I->haveInDatabase('news', [
-            'id'            => 1,
-            'channel_id'    => 1,
-            'title'         => 'persib',
-            'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
-            'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
-            'source_date'   => '2019-06-20',
-            'source_url'    => 'https://google.com',
-            'cover_path'    => 'covers/test.jpg',
-            'total_viewers' => $read_count,
-            'status'        => 10,
-            'created_at'    => '1554706345',
-            'updated_at'    => '1554706345',
-        ]);
+       $read_count = 0;
+       $I->haveInDatabase('news', [
+           'id'            => 1,
+           'channel_id'    => 1,
+           'title'         => 'persib',
+           'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+           'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+           'source_date'   => '2019-06-20',
+           'source_url'    => 'https://google.com',
+           'cover_path'    => 'covers/test.jpg',
+           'total_viewers' => $read_count,
+           'status'        => 10,
+           'created_at'    => '1554706345',
+           'updated_at'    => '1554706345',
+       ]);
 
-        $I->amUser('staffrw');
+       $username = 'staffrw';
+       $I->amUser($username);
 
-        $user = $I->grabDataFromResponseByJsonPath('$.data');
+       $I->sendGET('/v1/news/1');
+       $I->canSeeResponseCodeIs(200);
+       $I->seeResponseIsJson();
 
-        $I->sendGET('/v1/news/1');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
+       $I->seeResponseContainsJson([
+           'success' => true,
+           'status'  => 200,
+       ]);
 
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
+       $userId = $I->grabFromDatabase('user', 'id', ['username' => $username]);
+       $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $userId, 'read_count' => $read_count + 1]);
 
-        $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $user[0]['id'], 'read_count' => $read_count + 1]);
+       $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
 
-        $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
+       $I->assertEquals($read_count + 1, $new_read_count[0]);
+   }
 
-        $I->assertEquals($read_count + 1, $new_read_count[0]);
-    }
+   public function getUserIncrementReadCountPerUserForExistingUserTest(ApiTester $I)
+   {
+       $read_count = 10;
 
-    public function getUserIncrementReadCountPerUserForExistUserTest(ApiTester $I)
-    {
-        $read_count = 10;
+       $I->haveInDatabase('news', [
+           'id'            => 1,
+           'channel_id'    => 1,
+           'title'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+           'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+           'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+           'source_date'   => '2019-06-20',
+           'source_url'    => 'https://google.com',
+           'cover_path'    => 'covers/test.jpg',
+           'total_viewers' => $read_count,
+           'status'        => 10,
+           'created_at'    => '1554706345',
+           'updated_at'    => '1554706345',
+       ]);
 
-        $I->haveInDatabase('news', [
-            'id'            => 1,
-            'channel_id'    => 1,
-            'title'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            'slug'          => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
-            'content'       => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
-            'source_date'   => '2019-06-20',
-            'source_url'    => 'https://google.com',
-            'cover_path'    => 'covers/test.jpg',
-            'total_viewers' => $read_count,
-            'status'        => 10,
-            'created_at'    => '1554706345',
-            'updated_at'    => '1554706345',
-        ]);
+       $username = 'staffrw';
+       $I->amUser($username);
+       $userId = $I->grabFromDatabase('user', 'id', ['username' => $username]);
 
-        $I->amUser('staffrw');
+       $I->haveInDatabase('news_viewers', [
+           'news_id'     => 1,
+           'user_id'     => $userId,
+           'read_count'  => $read_count,
+       ]);
 
-        $user = $I->grabDataFromResponseByJsonPath('$.data');
+       $I->sendGET('/v1/news/1');
+       $I->canSeeResponseCodeIs(200);
+       $I->seeResponseIsJson();
 
-        $I->haveInDatabase('news_viewers', [
-            'news_id'     => 1,
-            'user_id'     => $user[0]['id'],
-            'read_count'  => $read_count,
-        ]);
+       $I->seeResponseContainsJson([
+           'success' => true,
+           'status'  => 200,
+       ]);
 
-        $I->sendGET('/v1/news/1');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
+       $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $userId, 'read_count' => $read_count + 1]);
 
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
+       $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
 
-        $I->seeNumRecords(1, 'news_viewers', ['news_id' => 1, 'user_id' => $user[0]['id'], 'read_count' => $read_count + 1]);
-
-        $new_read_count = $I->grabDataFromResponseByJsonPath('$.data.total_viewers');
-
-        $I->assertEquals($read_count + 1, $new_read_count[0]);
-    }
-
-    public function getUserStatisticsUnauthorizedTest(ApiTester $I)
-    {
-        $I->amUser('staffrw');
-
-        $I->sendGET('/v1/news/statistics');
-        $I->canSeeResponseCodeIs(403);
-    }
+       $I->assertEquals($read_count + 1, $new_read_count[0]);
+   }
 
     public function getAdminStatisticsTest(ApiTester $I)
     {
@@ -1124,6 +1131,7 @@ class NewsCest
             'updated_at'  => '1554706345',
         ]);
 
+        // admin
         $I->amStaff();
 
         $I->sendGET('/v1/news/statistics');
@@ -1140,5 +1148,84 @@ class NewsCest
         $I->assertEquals(1, $data[0][0]['count']);
         $I->assertEquals(2, $data[0][1]['id']);
         $I->assertEquals(0, $data[0][1]['count']);
+
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/news/statistics');
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function postLikeNews(ApiTester $I)
+    {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendPOST('/v1/news/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS,
+            'user_id' => 36,
+            'entity_id' => 1,
+        ]);
+    }
+
+    public function postUnlikeNews(ApiTester $I)
+    {
+        Yii::$app->db->createCommand('TRUNCATE likes')->execute();
+
+        $I->haveInDatabase('news', [
+            'id'          => 1,
+            'channel_id'  => 1,
+            'title'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'slug'        => 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit',
+            'content'     => 'Maecenas porttitor suscipit ex vitae hendrerit. Nunc sollicitudin quam et libero fringilla, eget varius nunc hendrerit.',
+            'source_date' => '2019-06-20',
+            'source_url'  => 'https://google.com',
+            'cover_path'  => 'covers/test.jpg',
+            'status'      => 10,
+            'created_at'  => '1554706345',
+            'updated_at'  => '1554706345',
+        ]);
+
+        $I->haveInDatabase('likes', [
+            'type' => Like::TYPE_NEWS,
+            'entity_id' => 1,
+            'user_id'     => 36,
+            'created_at' => 1578631126,
+            'updated_at' => 1578631126,
+        ]);
+
+        $I->amUser('user');
+
+        $I->sendPOST('/v1/news/likes/1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->dontSeeInDatabase('likes', [
+            'type' => Like::TYPE_NEWS,
+            'user_id' => 36,
+            'entity_id' => 1,
+        ]);
     }
 }

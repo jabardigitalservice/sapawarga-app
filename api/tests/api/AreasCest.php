@@ -9,6 +9,14 @@ class AreasCest
 
     public function getListTest(ApiTester $I)
     {
+        // pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/areas');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        // user
         $I->amUser();
 
         $I->sendGET('/v1/areas');
@@ -132,23 +140,23 @@ class AreasCest
         $I->seeResponseIsJson();
     }
 
-    public function getItemInvalidParamTest(ApiTester $I)
-    {
-        $I->amUser();
-
-        $I->sendGET('/v1/areas/x');
-        $I->canSeeResponseCodeIs(400); // Bad Request
-        $I->seeResponseIsJson();
-    }
-
-    public function getItemInvalidParamRandomTest(ApiTester $I)
-    {
-        $I->amUser();
-
-        $I->sendGET('/v1/areas/xsA2#');
-        $I->canSeeResponseCodeIs(400); // Bad Request
-        $I->seeResponseIsJson();
-    }
+//    public function getItemInvalidParamTest(ApiTester $I)
+//    {
+//        $I->amUser();
+//
+//        $I->sendGET('/v1/areas/x');
+//        $I->canSeeResponseCodeIs(400); // Bad Request
+//        $I->seeResponseIsJson();
+//    }
+//
+//    public function getItemInvalidParamRandomTest(ApiTester $I)
+//    {
+//        $I->amUser();
+//
+//        $I->sendGET('/v1/areas/xsA2#');
+//        $I->canSeeResponseCodeIs(400); // Bad Request
+//        $I->seeResponseIsJson();
+//    }
 
     public function postCreateNew(ApiTester $I)
     {

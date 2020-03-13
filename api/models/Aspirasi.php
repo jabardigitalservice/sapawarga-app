@@ -41,6 +41,7 @@ class Aspirasi extends ActiveRecord
 
     const STATUS_APPROVAL_REJECTED = 3;
     const STATUS_APPROVAL_PENDING = 5;
+    const STATUS_UNPUBLISHED = 7;
     const STATUS_PUBLISHED = 10;
 
     const ACTION_APPROVE = 'APPROVE';
@@ -210,6 +211,7 @@ class Aspirasi extends ActiveRecord
         if (in_array($this->status, [
             self::STATUS_DRAFT,
             self::STATUS_PUBLISHED,
+            self::STATUS_UNPUBLISHED,
             self::STATUS_APPROVAL_PENDING,
             self::STATUS_APPROVAL_REJECTED])
         ) {
@@ -226,6 +228,9 @@ class Aspirasi extends ActiveRecord
         switch ($this->status) {
             case self::STATUS_PUBLISHED:
                 $statusLabel = Yii::t('app', 'status.published');
+                break;
+            case self::STATUS_UNPUBLISHED:
+                $statusLabel = Yii::t('app', 'status.unpublished');
                 break;
             case self::STATUS_APPROVAL_PENDING:
                 $statusLabel = Yii::t('app', 'status.approval-pending');
@@ -293,17 +298,18 @@ class Aspirasi extends ActiveRecord
         $isSendNotification = $this->isSendNotification($insert, $changedAttributes);
 
         if ($isSendNotification) {
+            // Send notification for a single user
             $categoryName = Notification::CATEGORY_LABEL_ASPIRASI_STATUS;
             $payload = [
                 'categoryName'  => $categoryName,
                 'title'         => "Usulan Anda dengan judul \"{$this->title}\" telah {$this->getStatusLabel()}",
                 'description'   => null,
-                // Sets target to author's area ids
                 'target'        => [
                     'kabkota_id'    => $this->author->kabkota_id,
                     'kec_id'        => $this->author->kec_id,
                     'kel_id'        => $this->author->kel_id,
                     'rw'            => $this->author->rw,
+                    'push_token'    => $this->author->push_token,
                 ],
                 'meta'          => [
                     'target'    => 'aspirasi',
@@ -319,7 +325,7 @@ class Aspirasi extends ActiveRecord
 
     protected function isSendNotification($insert, $changedAttributes)
     {
-        if (!YII_ENV_TEST && !$insert) { // Model is updated
+        if (!YII_ENV_TEST && $this->author->hasPushToken() && !$insert) { // Model is updated
             if (array_key_exists('status', $changedAttributes)) {
                 $initialStatus = $changedAttributes['status'];
                 $currentStatus = $this->status;

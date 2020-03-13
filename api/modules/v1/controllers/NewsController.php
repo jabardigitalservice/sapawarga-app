@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Like;
 use app\models\NewsFeatured;
 use app\models\News;
 use app\models\NewsSearch;
@@ -9,12 +10,10 @@ use app\models\NewsStatistics;
 use app\models\NewsViewer;
 use app\modules\v1\repositories\NewsFeaturedRepository;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
+use app\components\GamificationActivityHelper;
 
 /**
  * NewsController implements the CRUD actions for News model.
@@ -38,11 +37,8 @@ class NewsController extends ActiveController
                 'public' => ['get'],
                 'featured' => ['get', 'post'],
                 'statistics' => ['get'],
+                'likes' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);
@@ -53,7 +49,7 @@ class NewsController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'featured-update', 'statistics', 'related'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'featured', 'featured-update', 'statistics', 'related', 'likes'],
             'rules' => [
                 [
                     'allow' => true,
@@ -62,7 +58,7 @@ class NewsController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'featured', 'related'],
+                    'actions' => ['index', 'view', 'featured', 'related', 'statistics', 'likes'],
                     'roles' => ['newsList'],
                 ],
             ],
@@ -75,11 +71,11 @@ class NewsController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
+        // Override Actions
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
     }
@@ -95,7 +91,7 @@ class NewsController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -190,11 +186,7 @@ class NewsController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     /**
@@ -202,16 +194,9 @@ class NewsController extends ActiveController
      * @return mixed|\app\models\News
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function actionView($id)
     {
-        $model = News::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', News::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
+        $model = $this->findModel($id, $this->modelClass);
 
         // Increment total views for specific role
         if (Yii::$app->user->can('newsList')) {
@@ -221,9 +206,29 @@ class NewsController extends ActiveController
 
             $model->total_viewers = $totalViewers;
             $model->save(false);
+
+            // Record gamification
+            GamificationActivityHelper::saveGamificationActivity('news_view_detail', $id);
         }
 
         return $model;
+    }
+
+    /**
+     * Gives like/unlike to an entity
+     *
+     * @param $id
+     */
+    public function actionLikes($id)
+    {
+        $setLikeAndCount = $this->setLikeAndCount($id, Like::TYPE_NEWS, $this->modelClass);
+
+        if ($setLikeAndCount) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
+
+            return 'ok';
+        }
     }
 
     private function saveNewsViewerPerUser($newsId)
@@ -255,7 +260,7 @@ class NewsController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $user   = Yii::$app->user;
+        $user = Yii::$app->user;
         $authUserModel = $user->identity;
         $authKabKotaId = $authUserModel->kabkota_id;
 

@@ -67,13 +67,12 @@ class BroadcastController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
         unset($actions['create']);
+        unset($actions['view']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
     }
@@ -110,6 +109,34 @@ class BroadcastController extends ActiveController
         $response->setStatusCode(201);
 
         $this->sendOrScheduleMessage($model);
+
+        return $model;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|\app\models\Broadcast
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+
+        // Mark UserMessage as read
+        $userMessageModel = UserMessage::find()
+            ->where(['type' => Broadcast::CATEGORY_TYPE])
+            ->andWhere(['message_id' => $id])
+            ->andWhere(['recipient_id' => Yii::$app->user->getId()])
+            ->one();
+        if ($userMessageModel !== null) {
+            if ($userMessageModel->read_at === null) {
+                $userMessageModel->touch('read_at');
+                $userMessageModel->save(false);
+            }
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
 
         return $model;
     }
@@ -197,7 +224,7 @@ class BroadcastController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -233,11 +260,12 @@ class BroadcastController extends ActiveController
     }
 
     /**
-     * @param $id
+     * @param string $id
+     * @param $model
      * @return mixed|Broadcast
      * @throws \yii\web\NotFoundHttpException
      */
-    public function findModel($id)
+    public function findModel(string $id, $model)
     {
         $status = [
             Broadcast::STATUS_DRAFT,
@@ -247,41 +275,29 @@ class BroadcastController extends ActiveController
 
         $user = User::findIdentity(Yii::$app->user->getId());
 
-        $model = Broadcast::find()
+        $searchedModel = Broadcast::find()
             ->where(['id' => $id])
             ->andWhere(['in', 'status',  $status]);
 
         if ($user->role < User::ROLE_ADMIN) {
             // staff dan user hanya boleh melihat broadcast yang sesuai dengan area mereka
-            if ($user->kabkota_id) {
-                $model->andWhere(['or',
-                ['kabkota_id' => $user->kabkota_id],
-                ['kabkota_id' => null]]);
-            }
-            if ($user->kec_id) {
-                $model->andWhere(['or',
-                ['kec_id' => $user->kec_id],
-                ['kec_id' => null]]);
-            }
-            if ($user->kel_id) {
-                $model->andWhere(['or',
-                ['kel_id' => $user->kel_id],
-                ['kel_id' => null]]);
-            }
-            if ($user->rw) {
-                $model->andWhere(['or',
-                ['rw' => $user->rw],
-                ['rw' => null]]);
-            }
+            $params = [
+                'kabkota_id' => $user->kabkota_id,
+                'kec_id' => $user->kec_id,
+                'kel_id' => $user->kel_id,
+                'rw' => $user->rw,
+            ];
+            $params = array_filter($params);
+            $searchedModel = ModelHelper::filterByArea($searchedModel, $params);
         }
 
-        $model = $model->one();
+        $searchedModel = $searchedModel->one();
 
-        if ($model === null) {
+        if ($searchedModel === null) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        return $model;
+        return $searchedModel;
     }
 
     public function prepareDataProvider()

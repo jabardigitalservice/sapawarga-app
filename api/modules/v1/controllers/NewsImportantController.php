@@ -2,19 +2,15 @@
 
 namespace app\modules\v1\controllers;
 
-use app\filters\auth\HttpBearerAuth;
-use app\models\User;
+use app\models\Like;
 use app\models\NewsImportant;
 use app\models\NewsImportantSearch;
 use app\models\NewsImportantAttachment;
-use Illuminate\Support\Arr;
+use app\modules\v1\repositories\LikeRepository;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\CompositeAuth;
-use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
-use yii\web\ForbiddenHttpException;
+use app\components\GamificationActivityHelper;
 
 /**
  * NewsImportantController implements the CRUD actions for NewsImportant model.
@@ -27,26 +23,20 @@ class NewsImportantController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['verbs'] = [
-            'class' => VerbFilter::className(),
-            'actions' => [
-                'index' => ['get'],
-                'view' => ['get'],
-                'create' => ['post'],
-                'update' => ['put'],
-                'delete' => ['delete'],
-            ],
-        ];
+        array_push($behaviors['verbs']['actions'], ['likes' => ['post']]);
 
         return $this->behaviorCors($behaviors);
     }
 
     protected function behaviorAccess($behaviors)
     {
+        // add optional authentication for public endpoints
+        $behaviors['authenticator']['optional'] = ['view'];
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'likes'],
             'rules' => [
                 [
                     'allow' => true,
@@ -55,8 +45,13 @@ class NewsImportantController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
+                    'actions' => ['index', 'view', 'likes'],
                     'roles' => ['newsImportantList'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['view'],
+                    'roles' => ['?'],
                 ],
             ],
         ];
@@ -68,15 +63,45 @@ class NewsImportantController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
+        // Override Actions
+        unset($actions['view']);
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|NewsImportant
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $query = NewsImportant::find()->where(['id' => $id]);
+        $user = Yii::$app->user;
+
+        $statuses = [NewsImportant::STATUS_PUBLISHED];
+        if ($user->can('newsImportantManage')) {
+            array_push($statuses, NewsImportant::STATUS_DISABLED);
+        }
+
+        $query->andWhere(['in', 'status',  $statuses]);
+
+        $searchedModel = $query->one();
+        if ($searchedModel === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        $this->incrementTotalViewers($searchedModel);
+
+        // Record gamification
+        GamificationActivityHelper::saveGamificationActivity('news_important_view_detail', $id);
+
+        return $searchedModel;
     }
 
     /**
@@ -92,7 +117,7 @@ class NewsImportantController extends ActiveController
         $model->load(\Yii::$app->getRequest()->getBodyParams(), '');
 
         if ($model->validate() && $model->save()) {
-            $this->saveAttachment($model->id);
+            $this->prepareSaveAttachment($model->id);
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
@@ -117,17 +142,22 @@ class NewsImportantController extends ActiveController
     public function actionUpdate($id)
     {
         $model = NewsImportant::findOne($id);
+        $params = Yii::$app->getRequest()->getBodyParams();
 
         if (empty($model)) {
             throw new NotFoundHttpException("Object not found: $id");
         }
 
-        $params = Yii::$app->request->getQueryParams();
-        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $this->checkAccess('update', $model, $id);
+
+        $model->load($params, '');
 
         if ($model->validate() && $model->save()) {
-            $this->prepareDeleteAttachment($model->id);
-            $this->saveAttachment($model->id);
+            // Delete first when send attachment
+            if (isset($params['attachments'])) {
+                $this->prepareDeleteAttachment($model->id);
+                $this->prepareSaveAttachment($model->id);
+            }
 
             $response = Yii::$app->getResponse();
             $response->setStatusCode(200);
@@ -153,11 +183,33 @@ class NewsImportantController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
         return $this->applySoftDelete($model);
+    }
+
+    /**
+     * Gives like/unlike to an entity
+     *
+     * @param $id
+     */
+    public function actionLikes($id)
+    {
+        $repository = new LikeRepository();
+        $setLikeUnlike = $repository->setLikeUnlike($id, Like::TYPE_NEWS_IMPORTANT);
+        $likesCount = $repository->getLikesCount($id, Like::TYPE_NEWS_IMPORTANT);
+
+        // Update likes_count
+        $updateLikesCount = NewsImportant::findOne($id);
+        $updateLikesCount->likes_count = $likesCount;
+        $updateLikesCount->save();
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 
     /**
@@ -170,30 +222,7 @@ class NewsImportantController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
-    }
-
-    /**
-     * @param $id
-     * @return mixed|\app\models\NewsImportant
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = NewsImportant::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', NewsImportant::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()
@@ -203,39 +232,53 @@ class NewsImportantController extends ActiveController
 
         $search = new NewsImportantSearch();
 
-        if ($user->can('newsImportantManage') === true) {
-            $search->scenario = NewsImportantSearch::SCENARIO_LIST_STAFF;
-        }
+        $search->scenario = $user->can('newsImportantManage') === true ?
+            NewsImportantSearch::SCENARIO_LIST_STAFF :
+            NewsImportantSearch::SCENARIO_LIST_USER;
 
         return $search->search($params);
     }
 
     /**
      * @param $newsImportantId
-     * @return mixed|\app\models\NewsImportant
+     * @return mixed|\app\models\NewsImportantAttachment
      */
-    private function saveAttachment($newsImportantId)
+    private function prepareSaveAttachment($newsImportantId)
     {
         $params = Yii::$app->getRequest()->getBodyParams();
         if (!empty($params['attachments'])) {
             foreach ($params['attachments'] as $val) {
-                $model = new NewsImportantAttachment();
-                $model->news_important_id = $newsImportantId;
-                $model->file_path = $val['file_path'];
-                $model->save(false);
+                $this->saveAttachment($newsImportantId, $val);
             }
         }
     }
 
     /**
-     * @param $newsImportantId
+     * @param $newsImportantId id of news important
+     * @param $val file path of atatchment
+     * @return mixed|\app\models\NewsImportantAttachment
+     */
+    private function saveAttachment($newsImportantId, $val)
+    {
+        if (! empty($val['file_path'])) {
+            $model = new NewsImportantAttachment();
+            $model->news_important_id = $newsImportantId;
+            $model->file_path = $val['file_path'];
+            $model->save(false);
+        }
+    }
+
+    /**
+     * @param $newsImportantId id of news important
      * @return mixed|\app\models\NewsImportant
      */
     private function prepareDeleteAttachment($newsImportantId)
     {
-        $params = Yii::$app->getRequest()->getBodyParams();
-        if (!empty($params['attachments']) > 0) {
-            $newsImportant = NewsImportantAttachment::find()->where(['news_important_id' => $newsImportantId])->all();
+        $newsImportant = NewsImportantAttachment::find()
+                            ->where(['news_important_id' => $newsImportantId])
+                            ->all();
+
+        if (! empty($newsImportant)) {
             foreach ($newsImportant as $val) {
                 $this->deleteAttachment($val->id, $val->file_path);
             }
@@ -256,5 +299,18 @@ class NewsImportantController extends ActiveController
         // $delete = Yii::$app->fs->delete($filePath);
 
         return $model;
+    }
+
+    /**
+     * Increments total viewers of a NewsImportant model
+     * @param NewsImportant $model
+     */
+    private function incrementTotalViewers($model)
+    {
+        // Increment total views for roles other than 'newsImportantManage'
+        if (Yii::$app->user->can('newsImportantList') === true) {
+            $model->total_viewers = $model->total_viewers + 1;
+            $model->save(false);
+        }
     }
 }

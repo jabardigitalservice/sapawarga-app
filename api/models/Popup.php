@@ -13,7 +13,6 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $title
- * @property string $description
  * @property string $image_path
  * @property string $type
  * @property string $link_url
@@ -51,7 +50,7 @@ class Popup extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'image_path', 'type', 'start_date', 'end_date', 'description', 'status'],'required'],
+            [['title', 'image_path', 'type', 'start_date', 'end_date', 'status'],'required'],
             ['title', 'string', 'max' => 100],
             ['title', 'string', 'min' => 10],
             ['title', InputCleanValidator::class],
@@ -70,7 +69,7 @@ class Popup extends ActiveRecord
             [['start_date', 'end_date'], 'validateRangeDateNotMe', 'on' => 'update'],
 
             ['link_url', 'url'],
-            ['internal_object_type', 'in', 'range' => ['news', 'polling', 'survey']],
+            ['internal_object_type', 'in', 'range' => ['news', 'news-important', 'polling', 'survey', 'gamification']],
             [['status', 'internal_object_id'], 'integer'],
 
             ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_ACTIVE, self::STATUS_STARTED]],
@@ -82,7 +81,6 @@ class Popup extends ActiveRecord
         $fields = [
             'id',
             'title',
-            'description',
             'image_path',
             'image_path_url' => function () {
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
@@ -129,7 +127,6 @@ class Popup extends ActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Judul',
-            'description' => 'Deskripsi',
             'image_path' => 'Image Path',
             'type' => 'Tipe',
             'link_url' => 'URL',
@@ -159,7 +156,7 @@ class Popup extends ActiveRecord
     public function validateTypeInternal($attribute, $params)
     {
         if ($this->type === 'internal') {
-            if (empty($this->internal_object_id) && empty($this->internal_object_type)) {
+            if (empty($this->internal_object_type)) {
                 $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
             }
         }

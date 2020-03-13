@@ -152,7 +152,7 @@ class BroadcastTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('title'));
     }
 
-    public function testDescriptionMaximumCharactersShouldSuccess()
+    public function testDescriptionLongCharactersShouldSuccess()
     {
         $model              = new Broadcast();
         $model->description = file_get_contents(__DIR__ . '/../../data/1000chars.txt');
@@ -161,24 +161,15 @@ class BroadcastTest extends \Codeception\Test\Unit
         $this->assertFalse($model->hasErrors('description'));
     }
 
-    public function testDescriptionMaximumCharactersShouldFail()
-    {
-        $model              = new Broadcast();
-        $model->description = file_get_contents(__DIR__ . '/../../data/1000chars.txt') . 'x';
-        $model->validate();
-
-        $this->assertTrue($model->hasErrors('description'));
-    }
-
-    public function testDescriptionNotSafeShouldFail()
+    public function testDescriptionAllowHTMLTags()
     {
         $model = new Broadcast();
 
-        $model->description = '<script>alert()</script>';
+        $model->description = '<p>This is Description</p> <h1>This is Title</h1> <b>Title</b>';
 
         $model->validate();
 
-        $this->assertTrue($model->hasErrors('description'));
+        $this->assertFalse($model->hasErrors('description'));
     }
 
     public function testRWValidation()

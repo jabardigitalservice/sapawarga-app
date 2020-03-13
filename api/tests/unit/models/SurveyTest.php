@@ -167,22 +167,28 @@ class SurveyTest extends Unit
         $model = new Survey();
 
         $model->external_url = 'test';
+        $model->response_url = 'test';
 
         $model->validate();
 
         $this->assertTrue($model->hasErrors('external_url'));
+        $this->assertTrue($model->hasErrors('response_url'));
 
         $model->external_url = 'test.com';
+        $model->response_url = 'test.com';
 
         $model->validate();
 
         $this->assertTrue($model->hasErrors('external_url'));
+        $this->assertTrue($model->hasErrors('response_url'));
 
         $model->external_url = 'http://google.com';
+        $model->response_url = 'http://google.com';
 
         $model->validate();
 
         $this->assertFalse($model->hasErrors('external_url'));
+        $this->assertFalse($model->hasErrors('response_url'));
     }
 
     public function testStartDateValidValue()
@@ -310,5 +316,53 @@ class SurveyTest extends Unit
 
         $this->assertTrue($model->hasErrors('start_date'));
         $this->assertTrue($model->hasErrors('end_date'));
+    }
+
+    public function testKecamatanShouldNull()
+    {
+        $model             = new Survey();
+        $model->kabkota_id = null;
+        $model->kec_id     = 431;
+        $model->kel_id     = 6093;
+        $model->rw         = '001';
+
+        $model->save(false);
+
+        $this->assertNull($model->kabkota_id);
+        $this->assertNull($model->kec_id);
+        $this->assertNull($model->kel_id);
+        $this->assertNull($model->rw);
+    }
+
+    public function testKelurahanShouldNull()
+    {
+        $model             = new Survey();
+        $model->kabkota_id = 22;
+        $model->kec_id     = null;
+        $model->kel_id     = 6093;
+        $model->rw         = '001';
+
+        $model->save(false);
+
+        $this->assertNotNull($model->kabkota_id);
+        $this->assertNull($model->kec_id);
+        $this->assertNull($model->kel_id);
+        $this->assertNull($model->rw);
+    }
+
+    public function testRwShouldNull()
+    {
+        $model             = new Survey();
+        $model->kabkota_id = 22;
+        $model->kec_id     = 431;
+        $model->kel_id     = null;
+        $model->rw         = '001';
+
+        $model->save(false);
+
+        $this->assertNotNull($model->kabkota_id);
+        $this->assertNotNull($model->kec_id);
+        $this->assertNull($model->kel_id);
+        $this->assertNull($model->rw);
     }
 }

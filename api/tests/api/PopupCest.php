@@ -45,7 +45,6 @@ class PopupCest
 
         $data = [
             'title' => 'Lorem ipsum dolor sit amet',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'external',
             'link_url' => 'https://google.com/',
@@ -66,7 +65,6 @@ class PopupCest
         $I->seeInDatabase('popups', [
             'id' => 1,
             'title' => 'Lorem ipsum dolor sit amet',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'external',
             'link_url' => 'https://google.com/',
@@ -80,7 +78,6 @@ class PopupCest
 
         $data = [
             'title' => 'Lorem ipsum dolor sit amet',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'internal',
             'internal_object_type' => 'news',
@@ -103,7 +100,6 @@ class PopupCest
 
         $I->seeInDatabase('popups', [
             'title' => 'Lorem ipsum dolor sit amet',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'internal',
             'internal_object_type' => 'news',
@@ -121,7 +117,6 @@ class PopupCest
         $I->haveInDatabase('popups', [
             'id' =>1,
             'title' =>'Popup ulang tahun Jawa Barat',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' =>'https://cdn.images.com',
             'type' =>'external',
             'link_url' =>'https://news.detik.com/berita-datang-ke-mk',
@@ -140,7 +135,6 @@ class PopupCest
 
         $data = [
             'title' => 'Lorem ipsum dolor sit amet',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' => 'https://cdn.images.com',
             'type' => 'internal',
             'internal_object_type' => 'news',
@@ -162,7 +156,6 @@ class PopupCest
         $I->haveInDatabase('popups', [
             'id' =>1,
             'title' =>'Popup ulang tahun Jawa Barat',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' =>'https://cdn.images.com',
             'type' =>'external',
             'link_url' =>'https://news.detik.com/berita-datang-ke-mk',
@@ -199,7 +192,6 @@ class PopupCest
         $I->haveInDatabase('popups', [
             'id' =>1,
             'title' =>'Popup ulang tahun Jawa Barat',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             'image_path' =>'https://cdn.images.com',
             'type' =>'external',
             'link_url' =>'https://news.detik.com/berita-datang-ke-mk',

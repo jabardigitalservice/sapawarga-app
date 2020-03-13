@@ -6,8 +6,10 @@ use Sentry;
 use Yii;
 use yii\base\Exception;
 use yii\log\Target;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 
 class SentryTarget extends Target
 {
@@ -39,9 +41,7 @@ class SentryTarget extends Target
      */
     public function export()
     {
-        $user = Yii::$app->user->identity;
-
-        if ($this->enabled === false || $user === null) {
+        if ($this->enabled === false) {
             return false;
         }
 
@@ -55,27 +55,41 @@ class SentryTarget extends Target
         list($text, $level, $category, $timestamp, $traces) = $message;
 
         if ($text instanceof NotFoundHttpException ||
+            $text instanceof UnauthorizedHttpException ||
             $text instanceof ForbiddenHttpException) {
             return false;
         }
 
         if ($text instanceof \Throwable || $text instanceof \Exception) {
-            $user = Yii::$app->user->identity;
-
             $releaseVersion = getenv('APP_VERSION');
             $releaseString  = "sapawarga-api@{$releaseVersion}";
 
             Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment, 'release' => $releaseString]);
 
-            Sentry\configureScope(function (Sentry\State\Scope $scope) use ($user): void {
-                $scope->setUser([
-                    'id' => $user->id,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                ]);
+            Sentry\configureScope(function (Sentry\State\Scope $scope) {
+                if (isset(Yii::$app->user) === false) {
+                    return false;
+                }
+
+                $this->setIdentity($scope);
             });
 
             Sentry\captureException($text);
         }
+    }
+
+    protected function setIdentity(&$scope)
+    {
+        $user = Yii::$app->user->identity;
+
+        if ($user === null) {
+            return false;
+        }
+
+        $scope->setUser([
+            'id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+        ]);
     }
 }

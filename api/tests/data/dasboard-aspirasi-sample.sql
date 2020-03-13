@@ -5,4 +5,4 @@ INSERT INTO `aspirasi` (id, author_id,category_id,title,description,kabkota_id,k
 (4,1,10,'Aspirasi Sistem Pendidikan di Indonesia','Lorem ipsum dolor sit amet',23,449,6195,NULL,NULL,NULL,10,1558417371,1558417371,NULL,NULL,NULL, NULL),
 (5,1,9,'Pembangunan Masjid di Gedebage','Lorem ipsum dolor sit amet',22,448,6188,NULL,NULL,NULL,5,1558417371,1558417371,NULL,NULL,NULL, NULL);
 
-INSERT INTO `aspirasi_likes` VALUES (1,1),(2,1),(3,1),(1,2),(2,2),(3,2),(1,3),(3,3),(1,4);
+INSERT INTO `aspirasi_likes` VALUES (1,1),(2,1),(3,1),(1,2),(2,2),(3,2),(1,3),(3,3),(1,4),(4,4);

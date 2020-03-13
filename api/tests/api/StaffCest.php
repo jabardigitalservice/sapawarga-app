@@ -85,22 +85,6 @@ class StaffCest
         ]);
     }
 
-    public function staffLogin(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-        $I->seeResponseMatchesJsonType([
-            'id' => 'integer',
-            'access_token' => 'string',
-        ], '$.data');
-    }
-
     public function staffCreateStaffInvalidFields(ApiTester $I)
     {
         $I->amStaff();
@@ -261,14 +245,14 @@ class StaffCest
         ]);
     }
 
-    public function getItemInvalidParam(ApiTester $I)
-    {
-        $I->amStaff();
-
-        $I->sendGET($this->endpointStaff . '/xsA2#');
-        $I->canSeeResponseCodeIs(400); // Bad Request
-        $I->seeResponseIsJson();
-    }
+//    public function getItemInvalidParam(ApiTester $I)
+//    {
+//        $I->amStaff();
+//
+//        $I->sendGET($this->endpointStaff . '/xsA2#');
+//        $I->canSeeResponseCodeIs(400); // Bad Request
+//        $I->seeResponseIsJson();
+//    }
 
     public function getItemNotFound(ApiTester $I)
     {
@@ -583,11 +567,30 @@ class StaffCest
         ]);
     }
 
-//    public function staffDeleteStaff(ApiTester $I)
-//    {
-//        $I->amStaff();
-//
-//        $I->sendDELETE($this->endpointStaff . '/2');
-//        $I->canSeeResponseCodeIs(204);
-//    }
+    public function staffDeleteStaff(ApiTester $I)
+    {
+        $I->amStaff();
+
+        $I->sendDELETE($this->endpointStaff . '/5');
+        $I->canSeeResponseCodeIs(204);
+    }
+
+    public function canListStaffFilterByRole(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/staff?role_id=trainer');
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'data' => [
+                'items' => [
+                    ['id' => 40]
+                ]
+            ]
+        ]);
+    }
 }

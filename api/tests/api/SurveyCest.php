@@ -24,30 +24,99 @@ class SurveyCest
 
     public function getListTest(ApiTester $I)
     {
-        $I->amUser('user');
-
-        $I->sendGET('/v1/survey');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+        $I->haveInDatabase('survey', [
+            'id'           => 1,
+            'title'        => 'Lorem ipsum.',
+            'status'       => 10,
+            'category_id'  => 20,
+            'start_date'   => (new Carbon())->toDateString(),
+            'end_date'     => (new Carbon())->addDays(7)->toDateString(),
+            'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
         ]);
-    }
 
-    public function getUserRwListTest(ApiTester $I)
-    {
+        $I->haveInDatabase('survey', [
+            'id'           => 2,
+            'title'        => 'Lorem ipsum.',
+            'status'       => 10,
+            'category_id'  => 20,
+            'kabkota_id'   => 23,
+            'start_date'   => (new Carbon())->toDateString(),
+            'end_date'     => (new Carbon())->addDays(7)->toDateString(),
+            'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
+        ]);
+
+        $I->haveInDatabase('survey', [
+            'id'           => 3,
+            'title'        => 'Lorem ipsum.',
+            'status'       => 10,
+            'category_id'  => 20,
+            'kabkota_id'   => 22,
+            'start_date'   => (new Carbon())->toDateString(),
+            'end_date'     => (new Carbon())->addDays(7)->toDateString(),
+            'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
+        ]);
+
+        // staffrw
         $I->amUser('staffrw');
 
         $I->sendGET('/v1/survey');
         $I->canSeeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(3, $data[0][1]['id']);
+
+        //pimpinan
+        $I->amStaff('gubernur');
+
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+
+        //staffprov
+        $I->amStaff('staffprov');
+
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+
+        // staffkabkota
+        $I->amStaff('staffkabkota2');
+
+        $I->sendGET('/v1/survey');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
     }
 
     public function getUserListPublishedShowTest(ApiTester $I)
@@ -60,6 +129,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -85,6 +156,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -108,6 +181,8 @@ class SurveyCest
             'status'       => 0,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -118,6 +193,8 @@ class SurveyCest
             'status'       => 0,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -147,6 +224,8 @@ class SurveyCest
             'status'       => 1,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -157,6 +236,8 @@ class SurveyCest
             'status'       => 10,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -198,6 +279,8 @@ class SurveyCest
             'status'       => 10,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -208,6 +291,8 @@ class SurveyCest
             'status'       => 10,
             'category_id'  => 21,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -238,6 +323,8 @@ class SurveyCest
             'category_id'  => 20,
             'external_url' => 'http://google.com',
             'kabkota_id'   => 22,
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -249,6 +336,8 @@ class SurveyCest
             'category_id'  => 20,
             'external_url' => 'http://google.com',
             'kabkota_id'   => 23,
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -282,6 +371,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -305,6 +396,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -328,6 +421,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -351,6 +446,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -376,6 +473,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -399,6 +498,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -424,6 +525,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -449,6 +552,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->subDays(7)->toDateString(),
             'end_date'     => (new Carbon())->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -474,6 +579,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->subDays(7)->toDateString(),
             'end_date'     => (new Carbon())->subDays(1)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -497,6 +604,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->addDays(7)->toDateString(),
             'end_date'     => (new Carbon())->addDays(14)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -520,6 +629,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->toDateString(),
             'end_date'     => (new Carbon())->addDays(7)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -532,6 +643,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->subDays(7),
             'end_date'     => (new Carbon())->subDays(1)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -544,6 +657,8 @@ class SurveyCest
             'start_date'   => (new Carbon())->addDays(7),
             'end_date'     => (new Carbon())->addDays(14)->toDateString(),
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -569,6 +684,8 @@ class SurveyCest
             'status'       => 0,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -588,10 +705,6 @@ class SurveyCest
     public function postCreateUnauthorizedTest(ApiTester $I)
     {
         $data = [];
-
-        $I->amStaff('staffkabkota');
-        $I->sendPOST('/v1/survey', $data);
-        $I->canSeeResponseCodeIs(403);
 
         $I->amStaff('staffkec');
         $I->sendPOST('/v1/survey', $data);
@@ -661,6 +774,8 @@ class SurveyCest
             'status'       => 0,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);
@@ -706,6 +821,8 @@ class SurveyCest
             'status'       => 0,
             'category_id'  => 20,
             'external_url' => 'http://google.com',
+            'created_by'   => 1,
+            'updated_by'   => 1,
             'created_at'   => '1554706345',
             'updated_at'   => '1554706345',
         ]);

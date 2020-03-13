@@ -1,5 +1,8 @@
 <?php
 
+use yii\rest\UrlRule;
+use yii\web\GroupUrlRule;
+
 return [
     'ping' => 'site/ping',
     'v1/cron/broadcasts' => 'v1/broadcast-cron',
@@ -39,6 +42,17 @@ return [
         ]
     ],
     [
+        'class' => GroupUrlRule::class,
+        'prefix' => 'v1/staff',
+        'routePrefix' => 'v1/staff-import',
+        'rules' => [
+            'GET import-template' => 'download-template',
+            'OPTIONS import-template' => 'options',
+            'POST import' => 'import',
+            'OPTIONS import' => 'options',
+        ],
+    ],
+    [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/staff',
         'pluralize' => false,
@@ -60,10 +74,6 @@ return [
             'OPTIONS me' => 'options',
             'GET export' => 'export',
             'OPTIONS export' => 'options',
-            'POST import' => 'import',
-            'OPTIONS import' => 'options',
-            'GET import-template' => 'import-template',
-            'OPTIONS import-template' => 'options',
         ]
     ],
     [
@@ -190,6 +200,8 @@ return [
             'OPTIONS stats/channel' => 'options',
             'GET statistics' => 'statistics',
             'OPTIONS statistics' => 'options',
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
         ]
     ],
     [
@@ -245,8 +257,16 @@ return [
             'OPTIONS aspirasi-geo' => 'options',
             'GET polling-latest' => 'polling-latest',
             'OPTIONS polling-latest' => 'options',
+            'GET polling-counts' => 'polling-counts',
+            'OPTIONS polling-counts' => 'options',
+            'GET polling-participation' => 'polling-participation',
+            'OPTIONS polling-participation' => 'options',
             'GET news-most-likes' => 'news-most-likes',
             'OPTIONS news-most-likes' => 'options',
+            'GET videos-most-views' => 'videos-most-views',
+            'OPTIONS videos-most-views' => 'options',
+            'GET users-leaderboard' => 'users-leaderboard',
+            'OPTIONS users-leaderboard' => 'options',
         ]
     ],
     [
@@ -298,8 +318,15 @@ return [
             '{id}' => '<id:\d+>',
         ],
         'extraPatterns' => [
-            'OPTIONS {id}' => 'options'
+            'OPTIONS {id}' => 'options',
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
         ]
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/news-important-comment'],
+        'prefix' => 'v1/news-important/<NewsImportantId:\d+>',
     ],
     [
         'class' => 'yii\rest\UrlRule',
@@ -316,5 +343,58 @@ return [
         'tokens' => [
             '{id}' => '<id:\d+>',
         ],
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => 'v1/question',
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
+        ]
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/question-comment'],
+        'prefix' => 'v1/questions/<questionId:\d+>',
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => 'v1/user-post',
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'POST likes/{id}' => 'likes',
+            'OPTIONS likes/{id}' => 'options',
+            'GET me' => 'me',
+            'OPTIONS me' => 'options',
+        ]
+    ],
+    [
+        'class' => UrlRule::class,
+        'controller' => ['comments' => 'v1/user-post-comment'],
+        'prefix' => 'v1/user-posts/<userPostId:\d+>',
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/gamification',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'POST join/{id}' => 'join',
+            'OPTIONS join/{id}' => 'options',
+            'GET my-task/{id}' => 'my-task',
+            'OPTIONS my-task/{id}' => 'options',
+            'GET participant' => 'participant',
+            'OPTIONS participant' => 'options',
+            'GET my-badge' => 'my-badge',
+            'OPTIONS my-badge' => 'options',
+        ]
     ],
 ];

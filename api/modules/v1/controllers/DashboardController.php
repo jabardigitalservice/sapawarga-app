@@ -2,15 +2,14 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Video;
 use Yii;
-use Illuminate\Support\Arr;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\filters\auth\CompositeAuth;
 use app\filters\auth\HttpBearerAuth;
-use yii\web\ServerErrorHttpException;
 
-use app\models\DashboardPolling;
+use app\models\PollingDashboard;
 use app\models\AspirasiDashboard;
 use app\models\NewsDashboard;
 
@@ -71,11 +70,17 @@ class DashboardController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'], //only be applied to
+            'only' => [
+                'aspirasi-most-likes', 'polling-latest', 'polling-counts', 'polling-participation', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
+                'videos-most-views', 'users-leaderboard',
+            ],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['aspirasi-most-likes', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes'],
+                    'actions' => [
+                        'aspirasi-most-likes', 'polling-latest', 'polling-counts', 'polling-participation', 'aspirasi-counts', 'aspirasi-geo', 'news-most-likes',
+                        'videos-most-views', 'users-leaderboard',
+                    ],
                     'roles' => ['dashboardList'],
                 ],
             ],
@@ -87,6 +92,7 @@ class DashboardController extends ActiveController
     public function actionAspirasiMostLikes()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
 
         $aspirasiMostLikes = new AspirasiDashboard();
 
@@ -96,6 +102,7 @@ class DashboardController extends ActiveController
     public function actionAspirasiCounts()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
 
         $aspirasiCounts = new AspirasiDashboard();
 
@@ -105,6 +112,7 @@ class DashboardController extends ActiveController
     public function actionAspirasiCategoryCounts()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
 
         $aspirasiCounts = new AspirasiDashboard();
 
@@ -123,10 +131,31 @@ class DashboardController extends ActiveController
     public function actionPollingLatest()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
 
-        $pollingLatest = new DashboardPolling();
+        $pollingLatest = new PollingDashboard();
 
         return $pollingLatest->getPollingLatest($params);
+    }
+
+    public function actionPollingCounts()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
+
+        $pollingCounts = new PollingDashboard();
+
+        return $pollingCounts->getPollingCounts($params);
+    }
+
+    public function actionPollingParticipation()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $params = $this->filterByStaffLocation($params);
+
+        $pollingCounts = new PollingDashboard();
+
+        return $pollingCounts->getPollingParticipation($params);
     }
 
     public function actionNewsMostLikes()
@@ -136,5 +165,43 @@ class DashboardController extends ActiveController
         $newsMostLikes = new NewsDashboard();
 
         return $newsMostLikes->getNewsMostLikes($params);
+    }
+
+    public function actionVideosMostViews()
+    {
+        // TODO sort by most views (currently latest videos)
+        $query = Video::find()
+            ->where(['status' => Video::STATUS_ACTIVE])
+            ->orderBy(['id' => SORT_DESC])
+            ->limit(10);
+
+        return $query->all();
+    }
+
+    public function actionUsersLeaderboard()
+    {
+        // TODO change to real data
+        return include __DIR__ . '/../../../config/references/dashboard_leaderboard.php';
+    }
+
+    /**
+     * Filtering dashboard by staff location kab kota
+     *
+     * @return $params
+     */
+    public function filterByStaffLocation($params)
+    {
+        $authUser = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+
+        $authKabKotaId = $authUserModel->kabkota_id;
+        $authKecId = $authUserModel->kec_id;
+        $authKelId = $authUserModel->kel_id;
+
+        if ($authUser->can('staffKabkota')) {
+            $params['kabkota_id'] = $authKabKotaId;
+        }
+
+        return $params;
     }
 }

@@ -54,21 +54,6 @@ class CategoryTest extends \Codeception\Test\Unit
         // $this->assertTrue($model->hasErrors('name'));
     }
 
-    public function testTypeMaxCharactersValid()
-    {
-        $model       = new Category();
-        $model->type = 'My Type';
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('type'));
-
-        $model->name = 'klARBlYBSY2wqkyuIz3t1A8AXUQLTDX1Ij7raxZ89r9H97hFLOCbi36BpCIr3yi5';
-
-        $model->validate();
-
-        $this->assertFalse($model->hasErrors('type'));
-    }
 
     public function testTypeTooLong()
     {
@@ -78,5 +63,24 @@ class CategoryTest extends \Codeception\Test\Unit
         $model->validate();
 
         $this->assertTrue($model->hasErrors('type'));
+    }
+
+    public function testDefaultCategory()
+    {
+        $model       = new Category();
+        $model->type = 'type';
+        $model->name = 'New Category';
+        $model->status = Category::STATUS_ACTIVE;
+
+        $model->validate();
+        $this->assertTrue($model->hasErrors('type'));
+
+        $model2       = new Category();
+        $model2->type = 'type';
+        $model2->name = 'Lainnya';
+        $model2->status = Category::STATUS_ACTIVE;
+
+        $model2->validate();
+        $this->assertFalse($model2->hasErrors('type'));
     }
 }

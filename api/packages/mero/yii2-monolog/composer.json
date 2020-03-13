@@ -1,0 +1,28 @@
+{
+  "name": "mero/yii2-monolog",
+  "description": "The Monolog integration for the Yii framework.",
+  "keywords": ["yii2", "monolog", "logging", "log"],
+  "type": "yii2-extension",
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/merorafael/yii2-monolog/issues"
+  },
+  "authors": [
+    {
+      "name": "Rafael Mello",
+      "email": "merorafael@gmail.com"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "*",
+    "monolog/monolog": "^1.20"
+  },
+  "autoload": {
+    "psr-4": { "Mero\\Monolog\\": "src/Mero/Monolog" }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}

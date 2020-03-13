@@ -11,9 +11,4 @@ return [
     'mutex' => \yii\mutex\MysqlMutex::class,
     'serializer' => \yii\queue\serializers\JsonSerializer::class,
     'as log' => \yii\queue\LogBehavior::class,
-    'on afterError' => function (ExecEvent $event) {
-        if ($event->job instanceof ImportUserJob) {
-            $event->job->notifyError($event->error);
-        }
-    },
 ];

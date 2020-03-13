@@ -59,7 +59,7 @@ class AspirasiController extends ActiveController
                 ],
                 [
                     'allow'   => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'me', 'likes'],
+                    'actions' => ['index', 'view', 'delete', 'me', 'likes'],
                     'roles'   => ['aspirasiMobile'],
                 ],
             ],
@@ -72,15 +72,21 @@ class AspirasiController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
-        unset($actions['delete']);
+        // Override Actions
+        unset($actions['view']);
         unset($actions['create']);
         unset($actions['update']);
+        unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     public function actionCreate()
@@ -106,13 +112,18 @@ class AspirasiController extends ActiveController
 
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('update', $model);
 
-        // Allowed to update if status Draft & Rejected only
-        if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
-            throw new ForbiddenHttpException();
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        // StaffRw only allowed to update if status Draft & Rejected
+        if (! $authUser->can('admin') && ! $authUser->can('staffProv')) {
+            if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
+                throw new ForbiddenHttpException();
+            }
         }
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -142,7 +153,7 @@ class AspirasiController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         // Allowed to update if status Draft & Rejected only
         if (! in_array($model->status, [Aspirasi::STATUS_DRAFT, Aspirasi::STATUS_APPROVAL_REJECTED])) {
@@ -158,7 +169,7 @@ class AspirasiController extends ActiveController
 
     public function actionApproval($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         if ($model->status !== Aspirasi::STATUS_APPROVAL_PENDING) {
             $response = Yii::$app->getResponse();
@@ -209,7 +220,7 @@ class AspirasiController extends ActiveController
         /**
          * @var Aspirasi $model
          */
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $count = (new \yii\db\Query())
             ->from('aspirasi_likes')
@@ -240,7 +251,6 @@ class AspirasiController extends ActiveController
         $search->user      = $user;
 
         $params = Yii::$app->request->getQueryParams();
-
         return $search->search($params, true);
     }
 
@@ -257,28 +267,18 @@ class AspirasiController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
+        $authUser = Yii::$app->user;
+        $authUserId = $authUser->id;
+
+        // Admin and staffprov can update status
+        if ($authUser->can('admin') || $authUser->can('staffProv')) {
+            return true;
+        }
+
+        // Check access update and delete for staffRw
         if (in_array($action, ['update', 'delete']) && $model->author_id !== Yii::$app->user->getId()) {
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         }
-    }
-
-    /**
-     * @param $id
-     * @return mixed|Aspirasi
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Aspirasi::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Aspirasi::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

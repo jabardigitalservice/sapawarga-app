@@ -7,6 +7,7 @@ use Jdsteam\Sapawarga\Jobs\EmailJob;
 use Jdsteam\Sapawarga\Jobs\ImportUserJob;
 use Yii;
 use yii\console\Controller;
+use yii\web\BadRequestHttpException;
 
 class SystemController extends Controller
 {
@@ -29,5 +30,10 @@ class SystemController extends Controller
             'uploaderEmail' => 'yohang88@gmail.com',
             'filePath' => __DIR__ . '/../web/export.csv',
         ]));
+    }
+
+    public function actionTestSentry()
+    {
+        throw new BadRequestHttpException('Test send sentry error.');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Jdsteam\Sapawarga\Jobs;
 
+use app\models\User;
 use Yii;
 use yii\base\BaseObject;
 use yii\queue\JobInterface;
@@ -9,29 +10,30 @@ use yii\queue\JobInterface;
 // Queue job to send email in an async way
 class SendConfirmationEmailJob extends BaseObject implements JobInterface
 {
-    public $user;
-    public $email;
+    public $userId;
 
     public function execute($queue)
     {
+        $user = User::findOne($this->userId);
+
         $fromEmail = Yii::$app->params['adminEmail'];
         $fromName  = Yii::$app->params['adminEmailName'];
 
-        $confirmURL = \Yii::$app->params['frontendURL'] . '/#/confirm?id=' . $this->user->id . '&auth_key=' . $this->user->auth_key;
+        $confirmURL = \Yii::$app->params['frontendURL'] . '/#/confirm?id=' . $user->id . '&auth_key=' . $user->auth_key;
 
         $email = \Yii::$app->mailer
             ->compose(
                 ['html' => 'email-profile-updated-html'],
                 [
                     'appName' => \Yii::$app->name,
-                    'name' => $this->user->name,
-                    'email' => $this->user->email,
-                    'phone' => $this->user->phone,
-                    'address' => $this->user->address,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
                     'confirmURL' => $confirmURL,
                 ]
             )
-            ->setTo($this->email)
+            ->setTo($user->email)
             ->setFrom([$fromEmail => $fromName])
             ->setSubject('Update Profil dan Verifikasi Email Akun Sapawarga')
             ->send();

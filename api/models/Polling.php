@@ -5,7 +5,10 @@ namespace app\models;
 use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
+use Jdsteam\Sapawarga\Models\Concerns\HasCategory;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -25,11 +28,14 @@ use yii\db\ActiveRecord;
  * @property int $kec_id
  * @property int $kel_id
  * @property string $rw
+ * @property bool $is_push_notification
  * @property mixed $meta
  * @property int $status
  */
 class Polling extends ActiveRecord
 {
+    use HasArea, HasCategory;
+
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
     const STATUS_DISABLED = 1;
@@ -47,26 +53,6 @@ class Polling extends ActiveRecord
         return 'polling';
     }
 
-    public function getCategory()
-    {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
-    }
-
-    public function getKelurahan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kel_id']);
-    }
-
-    public function getKecamatan()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kec_id']);
-    }
-
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     public function getAnswers()
     {
         return $this->hasMany(PollingAnswer::class, ['polling_id' => 'id']);
@@ -82,7 +68,7 @@ class Polling extends ActiveRecord
      */
     public function rules()
     {
-        return [
+        $rules = [
             [
                 ['name', 'description', 'excerpt', 'question', 'status', 'start_date', 'end_date', 'category_id'],
                 'required',
@@ -94,17 +80,8 @@ class Polling extends ActiveRecord
 
             [['description', 'excerpt'], 'string', 'max' => 1024 * 12],
 
-            ['rw', 'string', 'length' => 3],
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern'),
-            ],
-            ['rw', 'default'],
-            [['category_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
-            ['category_id', 'validateCategoryID'],
-            ['meta', 'default'],
+            [['meta', 'created_by', 'updated_by'], 'default'],
+            [['kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
 
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             [
@@ -114,8 +91,16 @@ class Polling extends ActiveRecord
                 'operator'               => '<',
             ],
 
+            ['is_push_notification', 'boolean'],
+
             ['status', 'in', 'range' => [-1, 0, 1, 10]],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesRw(),
+            $this->rulesCategory()
+        );
     }
 
     public function fields()
@@ -123,49 +108,17 @@ class Polling extends ActiveRecord
         $fields = [
             'id',
             'category_id',
-            'category'     => function () {
-                return [
-                    'id'   => $this->category->id,
-                    'name' => $this->category->name,
-                ];
-            },
+            'category' => 'CategoryField',
             'name',
             'question',
             'description',
             'excerpt',
             'kabkota_id',
-            'kabkota'      => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota' => 'KabkotaField',
             'kec_id',
-            'kecamatan'    => function () {
-                if ($this->kecamatan) {
-                    return [
-                        'id'   => $this->kecamatan->id,
-                        'name' => $this->kecamatan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kecamatan' => 'KecamatanField',
             'kel_id',
-            'kelurahan'    => function () {
-                if ($this->kelurahan) {
-                    return [
-                        'id'   => $this->kelurahan->id,
-                        'name' => $this->kelurahan->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kelurahan' => 'KelurahanField',
             'rw',
             'answers',
             'start_date',
@@ -173,6 +126,7 @@ class Polling extends ActiveRecord
             'votes_count' => function () {
                 return (int) $this->getVotes()->count();
             },
+            'is_push_notification',
             'meta',
             'status',
             'status_label' => function () {
@@ -235,6 +189,13 @@ class Polling extends ActiveRecord
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => time(),
             ],
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'is_push_notification' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                ],
+                'typecastAfterFind' => true,
+            ],
             AreaBehavior::class,
         ];
 
@@ -243,17 +204,5 @@ class Polling extends ActiveRecord
         }
 
         return $behaviors;
-    }
-
-
-    /**
-     * Checks if category type is notification
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateCategoryID($attribute, $params)
-    {
-        ModelHelper::validateCategoryID($this, $attribute);
     }
 }

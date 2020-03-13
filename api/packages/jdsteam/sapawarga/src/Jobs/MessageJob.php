@@ -91,7 +91,7 @@ class MessageJob extends BaseObject implements JobInterface
 
     public function sendPushNotification()
     {
-        Yii::info(sprintf('Sending push notification for type = %s, id = %s', $this->type, $this->instance->id));
+        Yii::info(sprintf('Sending push notification for type = %s, id = %s', $this->type, $this->instance['id']));
 
         $notifModel = new Message();
         $notifModel->setAttributes($this->pushNotifyPayload);

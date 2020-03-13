@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\LogHelper;
+use Monolog\Logger;
 use Yii;
 use yii\base\Model;
 
@@ -15,6 +17,14 @@ class LoginForm extends Model
 {
     // Constants for Scenario names
     const SCENARIO_LOGIN = 'login';
+
+    const LOGIN_DURATION_USER = 3600 * 24 * 30 * 6; // 6 months
+    const LOGIN_DURATION_STAFF = 3600 * 24 * 30; // 1 month
+    const USER_ROLES = [
+        User::ROLE_STAFF_RW,
+        User::ROLE_TRAINER,
+        User::ROLE_USER,
+    ];
 
     public $username;
     public $password;
@@ -116,10 +126,38 @@ class LoginForm extends Model
      */
     public function login()
     {
+        /**
+         * @var Logger $logger
+         */
+        $monologComponent = Yii::$app->monolog;
+        $logger = $monologComponent->getLogger('main');
+
+        $user = $this->getUserByUsername();
+
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            return $this->loginProcess($user);
         }
+
+        if ($user) {
+            LogHelper::logEventByUser('LOGIN_FAILED_INVALID_PASSWORD', [], $user);
+        } else {
+            $logger->info('LOGIN_FAILED_UNKNOWN_USER', ['username' => $this->username]);
+        }
+
         return false;
+    }
+
+    protected function loginProcess($user)
+    {
+        if (in_array($user->role, LoginForm::USER_ROLES)) {
+            $expirationDuration = LoginForm::LOGIN_DURATION_USER;
+        } else {
+            $expirationDuration = LoginForm::LOGIN_DURATION_STAFF;
+        }
+
+        $login = Yii::$app->user->login($this->getUserByUsername(), $this->rememberMe ? $expirationDuration : 0);
+        LogHelper::logEventByUser('LOGIN_SUCCESS');
+        return $login;
     }
 
     /**

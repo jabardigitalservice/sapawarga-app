@@ -22,12 +22,12 @@ versioning:
       - version
 
 code_quality:
-  image: docker:stable
+  image: docker:19.03.5
   stage: code_quality
   only:
     - branches
   services:
-    - docker:stable-dind
+    - docker:19.03.5-dind
   variables:
     DOCKER_DRIVER: overlay2
   dependencies:
@@ -50,11 +50,11 @@ code_quality:
 
 build_image:
   stage: build
-  image: docker:stable
+  image: docker:19.03.5
   only:
     - branches
   services:
-    - docker:stable-dind
+    - docker:19.03.5-dind
   variables:
     DOCKER_DRIVER: overlay2
   dependencies:
@@ -72,62 +72,57 @@ build_image:
     - docker images
     - docker-compose push
 
-# test_api:
-#   stage: test
-#   image: docker:stable
-#   only:
-#     - branches
-#   services:
-#     - docker:stable-dind
-#   variables:
-#     DOCKER_DRIVER: overlay2
-#   dependencies:
-#     - versioning
-#   before_script:
-#     - export VERSION=$(cat ./version)
-#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-#     - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-#     - pip install docker-compose
-#   script:
-#     - cp .env-template .env
-#     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" .env
-#     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${GCP_STAGING_APP_STORAGE_LOCAL_URL}/g" .env
-#     - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
-#     - sed -i "s/%MYSQL_HOST%/${GCP_STAGING_MYSQL_HOST}/g" .env
-#     - sed -i "s/%MYSQL_PORT%/${GCP_STAGING_MYSQL_PORT}/g" .env
-#     - sed -i "s/%MYSQL_DATABASE%/${GCP_STAGING_MYSQL_DATABASE}/g" .env
-#     - sed -i "s/%MYSQL_USER%/${GCP_STAGING_MYSQL_USER}/g" .env
-#     - sed -i "s/%MYSQL_PASSWORD%/${GCP_STAGING_MYSQL_PASSWORD}/g" .env
-#     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${GCP_STAGING_MYSQL_ROOT_PASSWORD}/g" .env
-#     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" .env
-#     - sed -i "s/%ERROR_REPORT%/${GCP_STAGING_ERROR_REPORT}/g" .env
-#     - sed -i "s/%ERROR_ENVIRONMENT%/${GCP_STAGING_ERROR_ENVIRONMENT}/g" .env
-#     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" .env
-#     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" .env
-#     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" .env
-#     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" .env
-#     - sed -i "s/%MAILER_USER%/${MAILER_USER}/g" .env
-#     - sed -i "s/%MAILER_PASSWORD%/${MAILER_PASSWORD}/g" .env
-#     - sed -i "s/%MAILER_PORT%/${MAILER_PORT}/g" .env
-#     - sed -i "s/%MAILER_ENCRYPTION%/${MAILER_ENCRYPTION}/g" .env
-#     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" .env
-#     - sed -i "s/%VERSION%/${VERSION}/g" .env
-#     - cat .env
-#     - docker-compose pull
-#     - docker images
-#     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
-#     - sleep 60
-#     - docker ps
-#     - docker-compose exec -T api composer sniff
-#     - docker-compose exec -T api php yii seeder
-#     - docker-compose exec -T api composer run test
-
+test_api:
+  stage: test
+  image: docker:19.03.5
+  only:
+    - branches
+  services:
+    - docker:19.03.5-dind
+  variables:
+    GIT_COMMIT_SHA: $CI_COMMIT_SHA
+    GIT_BRANCH: $CI_COMMIT_REF_NAME
+  dependencies:
+    - versioning
+  before_script:
+    - apk add git
+    - export VERSION=$(cat ./version)
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+    - apk add --update curl && rm -rf /var/cache/apk/*
+    - pip install docker-compose
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
+    - ./cc-test-reporter before-build
+  script:
+    - cp .env-template .env
+    - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
+    - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
+    - sed -i "s/%MYSQL_HOST%/database/g" .env
+    - sed -i "s/%MYSQL_PORT%/3306/g" .env
+    - sed -i "s/%MYSQL_DATABASE%/sapawarga_test/g" .env
+    - sed -i "s/%MYSQL_USER%/sapawarga/g" .env
+    - sed -i "s/%MYSQL_PASSWORD%/secret/g" .env
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/secret/g" .env
+    - sed -i "s/%ERROR_REPORT%/false/g" .env
+    - cat .env
+    - docker-compose pull
+    - docker images
+    - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
+    - sleep 60
+    - docker ps
+    - docker-compose exec -T api composer sniff
+    - docker-compose exec -T api php yii seeder
+    - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
+    - mv ./api/tests/_output/coverage.xml ./clover.xml
+    - sed -i "s|/srv|$(pwd)/api|g" clover.xml
+    - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
-  image: docker:stable
+  image: docker:19.03.5
   stage: deploy_staging
   only:
-    - master
+    - develop
   dependencies:
     - versioning
   before_script:
@@ -151,7 +146,7 @@ deploy_staging_eks:
   environment:
     name: staging
   only:
-    - master
+    - develop
   dependencies:
     - versioning
   before_script:
@@ -164,11 +159,9 @@ deploy_staging_eks:
     - kubectl cluster-info
   script:
     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
-
     # Mysql STAGING #
     - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST_STAGING}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
@@ -201,15 +194,14 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_S3_BUCKET_REGION%/${APP_STORAGE_S3_BUCKET_REGION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
-    - echo "${APP_STORAGE_S3_KEY}"
-    - echo "${APP_STORAGE_S3_SECRET}"
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
-    # Versioning api
+     # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+     # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
-    - cat kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-api-deployment.yaml
+     # version queue jobs import #
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
         -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
@@ -229,8 +221,11 @@ deploy_staging_eks:
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-import-job.yaml
 
 
 deploy_prod_eks:
@@ -245,15 +240,14 @@ deploy_prod_eks:
     name: production
   before_script:
     - export VERSION=$(cat ./version)
-  script:
     - kubectl config set-cluster k8s --server="${EKS_SERVER_V2}"
     - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA_V2}
     - kubectl config set-credentials gitlab-eks-admin --token="${EKS_TOKEN_V2}"
     - kubectl config set-context default --cluster=k8s --user=gitlab-eks-admin
     - kubectl config use-context default
     - kubectl cluster-info
+  script:
     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${EKS_APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
@@ -284,11 +278,12 @@ deploy_prod_eks:
     - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
-    # Version #
+    # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
-    - cat kubernetes/backend-variables.yaml
-    - cat kubernetes/backend-api-deployment.yaml
+    # version queue jobs import #
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
         -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
@@ -308,5 +303,8 @@ deploy_prod_eks:
         -f kubernetes/backend-memcached-deployment.yaml
         -f kubernetes/backend-memcached-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
+    - kubectl apply -f kubernetes/backend-queue-import-job.yaml

@@ -3,11 +3,17 @@ modules:
     enabled:
         - Asserts
         - Yii2
-        - REST:
-            url: http://nginx:8000
+        - REST
+        - Db
+        - \Helper\Api
+    config:
+        REST:
             depends: PhpBrowser
+            url: http://nginx:8000
             part: Json
-        - Db:
+        Yii2:
+            transaction: false
+        Db:
             dsn: "mysql:host=%MYSQL_HOST%;dbname=%MYSQL_DATABASE%"
             user: "%MYSQL_USER%"
             password: "%MYSQL_PASSWORD%"

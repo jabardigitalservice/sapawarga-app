@@ -8,7 +8,6 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\web\ForbiddenHttpException;
 
 /**
  * BannerController implements the CRUD actions for Banner model.
@@ -62,13 +61,24 @@ class BannerController extends ActiveController
     {
         $actions = parent::actions();
 
-        // Override Delete Action
+        // Override Actions
+        unset($actions['view']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel'] = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|Banner
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     /**
@@ -82,7 +92,7 @@ class BannerController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $this->modelClass);
 
         $this->checkAccess('delete', $model, $id);
 
@@ -99,30 +109,7 @@ class BannerController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
-            if ($model->created_by !== \Yii::$app->user->id) {
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-            }
-        }
-    }
-
-    /**
-     * @param $id
-     * @return mixed|\app\models\Banner
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Banner::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Banner::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
+        return $this->checkAccessDefault($action, $model, $params);
     }
 
     public function prepareDataProvider()

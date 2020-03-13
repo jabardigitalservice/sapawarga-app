@@ -15,7 +15,6 @@ use app\models\UserChangeProfileForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -67,10 +66,6 @@ class UserController extends ActiveController
                 'me-change-password' => ['post'],
                 'me-change-profile' => ['post'],
             ],
-        ];
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
         ];
 
         // remove authentication filter
@@ -456,6 +451,8 @@ class UserController extends ActiveController
         $model->email = Yii::$app->request->post('email');
         $model->phone = Yii::$app->request->post('phone');
         $model->address = Yii::$app->request->post('address');
+        $model->job_type_id = Yii::$app->request->post('job_type_id');
+        $model->education_level_id = Yii::$app->request->post('education_level_id');
 
         if ($model->validate() && $model->changeProfile()) {
             $model->sendConfirmationEmail();

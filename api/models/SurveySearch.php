@@ -5,6 +5,7 @@ namespace app\models;
 use app\components\ModelHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Yii;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -37,7 +38,7 @@ class SurveySearch extends Survey
 
         $query->andFilterWhere(['<>', 'status', Survey::STATUS_DELETED]);
 
-        if ($allLocation == 'true') {
+        if ($allLocation == true) {
             $query->andWhere(
                 ['and',
                 ['is', 'kabkota_id', null],
@@ -70,12 +71,50 @@ class SurveySearch extends Survey
         return $this->getQueryAll($query, $params);
     }
 
+    protected function filterByArea(&$query, $params)
+    {
+        if (Arr::has($params, 'kabkota_id')
+            || Arr::has($params, 'kec_id')
+            || Arr::has($params, 'kel_id')
+            || Arr::has($params, 'rw')) {
+            ModelHelper::filterByAreaTopDown($query, $params);
+        } elseif (Yii::$app->user->can('staffKabkota')) {
+            $areaParams = ['kabkota_id' => $this->user->kabkota_id ?? null];
+            ModelHelper::filterByArea($query, $areaParams);
+        } elseif (Yii::$app->user->can('staffRW')) {
+            $areaParams = [
+                'kabkota_id' => $this->user->kabkota_id ?? null,
+                'kec_id' => $this->user->kec_id ?? null,
+                'kel_id' => $this->user->kel_id ?? null,
+                'rw' => $this->user->rw ?? null,
+            ];
+            ModelHelper::filterByArea($query, $areaParams);
+        }
+    }
+
+    protected function filterByStatus(&$query, $params)
+    {
+        if (Arr::has($params, 'status')) {
+            $status = $params['status'];
+
+            if ($status == Survey::STATUS_STARTED) {
+                ModelHelper::filterCurrentActiveNow($query, $this);
+            } elseif ($status == Survey::STATUS_ENDED) {
+                ModelHelper::filterIsEnded($query, $this);
+            } else {
+                $query->andFilterWhere(['status' => $status]);
+            }
+        }
+
+        return $query;
+    }
+
     protected function getQueryAll($query, $params)
     {
         // Filter berdasarkan judul, status, dan kategori
         $query->andFilterWhere(['like', 'title', Arr::get($params, 'title')]);
-        $this->filterByStatus($query, $params);
         $query->andFilterWhere(['category_id' => Arr::get($params, 'category_id')]);
+        $this->filterByStatus($query, $params);
         $this->filterByArea($query, $params);
 
         $pageLimit = Arr::get($params, 'limit');
@@ -97,37 +136,5 @@ class SurveySearch extends Survey
         ];
 
         return $provider;
-    }
-
-    protected function filterByArea(&$query, $params)
-    {
-        if (Arr::has($params, 'kabkota_id') || Arr::has($params, 'kec_id') || Arr::has($params, 'kel_id')) {
-            ModelHelper::filterByArea($query, $params);
-        } else {
-            // By default filter berdasarkan area Staf tersebut
-            $areaParams = [
-            'kabkota_id' => $this->user->kabkota_id ?? null,
-            'kec_id' => $this->user->kec_id ?? null,
-            'kel_id' => $this->user->kel_id ?? null,
-            ];
-            ModelHelper::filterByArea($query, $areaParams);
-        }
-    }
-
-    protected function filterByStatus(&$query, $params)
-    {
-        if (Arr::has($params, 'status')) {
-            $status = $params['status'];
-
-            if ($status == Survey::STATUS_STARTED) {
-                ModelHelper::filterCurrentActiveNow($query, $this);
-            } elseif ($status == Survey::STATUS_ENDED) {
-                ModelHelper::filterIsEnded($query, $this);
-            } else {
-                $query->andFilterWhere(['status' => $status]);
-            }
-        }
-
-        return $query;
     }
 }

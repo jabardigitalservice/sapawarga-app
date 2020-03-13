@@ -30,6 +30,32 @@ class BroadcastCest
     }
 
     // Test cases for admins
+    public function pimpinanCanCreateBroadcast(ApiTester $I)
+    {
+        $I->amStaff('gubernur');
+
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'status'       => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 201,
+        ]);
+
+        $I->seeInDatabase('broadcasts', [
+            'author_id'    => 44,
+            'category_id'  => 5,
+            'title'        => 'Broadcast Title',
+            'status'       => 10,
+        ]);
+    }
+
     public function staffProvCanCreateBroadcast(ApiTester $I)
     {
         $I->amStaff('staffprov');
@@ -37,7 +63,7 @@ class BroadcastCest
         $I->sendPOST('/v1/broadcasts?test=1', [
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
-            'description'  => 'Broadcast Description',
+            'description'  => '<p>Broadcast Description<p><br>',
             'kabkota_id'   => null,
             'kec_id'       => null,
             'kel_id'       => null,
@@ -57,7 +83,7 @@ class BroadcastCest
             'author_id'    => 2,
             'category_id'  => 5,
             'title'        => 'Broadcast Title',
-            'description'  => 'Broadcast Description',
+            'description'  => '<p>Broadcast Description<p><br>',
             'is_scheduled' => false,
             'kabkota_id'   => null,
             'kec_id'       => null,
@@ -219,6 +245,63 @@ class BroadcastCest
         ]);
     }
 
+    public function staffCanCreateBroadcastWithAction(ApiTester $I)
+    {
+        $I->amStaff('staffprov');
+
+        // broadcast with action link to internal features (polling, survey, news)
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'          => 5,
+            'title'                => 'Broadcast with Internal Reference',
+            'description'          => 'Broadcast Description',
+            'type'                 => 'internal',
+            'internal_object_type' => 'polling',
+            'internal_object_id'   => 1,
+            'internal_object_name' => 'Judul Polling',
+            'kabkota_id'           => 22,
+            'kec_id'               => null,
+            'kel_id'               => null,
+            'rw'                   => null,
+            'status'               => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('broadcasts', [
+            'title'                => 'Broadcast with Internal Reference',
+            'description'          => 'Broadcast Description',
+            'type'                 => 'internal',
+            'internal_object_type' => 'polling',
+            'internal_object_id'   => 1,
+            'internal_object_name' => 'Judul Polling',
+        ]);
+
+        // broadcast with action link to external URLs
+        $I->sendPOST('/v1/broadcasts?test=1', [
+            'category_id'  => 5,
+            'title'        => 'Broadcast with External URL',
+            'description'  => 'Broadcast Description',
+            'type'         => 'external',
+            'link_url'     => 'https://google.com/',
+            'kabkota_id'   => 22,
+            'kec_id'       => null,
+            'kel_id'       => null,
+            'rw'           => null,
+            'status'       => 10,
+        ]);
+
+        $I->canSeeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+
+        $I->seeInDatabase('broadcasts', [
+            'title'        => 'Broadcast with External URL',
+            'description'  => 'Broadcast Description',
+            'type'         => 'external',
+            'link_url'     => 'https://google.com/',
+        ]);
+    }
+
     public function staffCanCreateDraftScheduledBroadcast(ApiTester $I)
     {
         $I->amStaff('staffprov');
@@ -306,6 +389,7 @@ class BroadcastCest
 
     public function updateBroadcast(ApiTester $I)
     {
+        // admin
         $I->haveInDatabase('broadcasts', [
             'id'           => 1,
             'category_id'  => 5,
@@ -320,6 +404,32 @@ class BroadcastCest
         ]);
 
         $I->amStaff();
+
+        $I->sendPUT("{$this->endpointBroadcast}/1?test=1", [
+            'title' => 'Edited',
+        ]);
+
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        // pimpinan
+        $I->haveInDatabase('broadcasts', [
+            'id'           => 2,
+            'category_id'  => 5,
+            'author_id'    => 44,
+            'title'        => 'Kegiatan Gubernur.',
+            'kabkota_id'   => 22,
+            'status'       => 10,
+            'created_at'   => '1554706345',
+            'updated_at'   => '1554706345',
+        ]);
+
+        $I->amStaff('gubernur');
 
         $I->sendPUT("{$this->endpointBroadcast}/1?test=1", [
             'title' => 'Edited',

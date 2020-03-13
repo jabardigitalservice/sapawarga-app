@@ -24,7 +24,8 @@ class NewsSearch extends News
      */
     public function search($params)
     {
-        $query = News::find()->joinWith('channel');
+        $query = News::find()->joinWith('channel')
+                ->where(['<>', '{{news}}.status', News::STATUS_DELETED]);
 
         // grid filtering conditions
         $query->andFilterWhere(['id' => $this->id]);
@@ -36,16 +37,11 @@ class NewsSearch extends News
         $this->filterByKabkota($query, $params);
 
         $query->andFilterWhere(['channel_id' => $filterChannelId]);
-
         $query->andFilterWhere(['like', 'title', $searchKeyword]);
-
         $query->andFilterWhere(['<>', 'news.status', News::STATUS_DELETED]);
+        $query->andFilterWhere(['news.status' => Arr::get($params, 'status')]);
 
-        if (Arr::has($params, 'status')) {
-            $query->andFilterWhere(['news.status' => Arr::get($params, 'status')]);
-        }
-
-        if ($allLocation == 'true') {
+        if ($allLocation == true) {
             $query->andWhere(['is', 'news.kabkota_id', null]);
         }
 

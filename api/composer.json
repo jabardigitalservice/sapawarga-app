@@ -32,7 +32,8 @@
     "vlucas/phpdotenv": "^3.5",
     "creocoder/yii2-flysystem": "^0.9.3",
     "league/flysystem-aws-s3-v3": "^1.0",
-    "box/spout": "^3.0"
+    "box/spout": "^3.0",
+    "monolog/monolog": "^1.25"
   },
   "require-dev": {
     "codeception/codeception": "^2.5.5",
@@ -49,7 +50,8 @@
   "autoload": {
     "psr-4": {
       "Jdsteam\\Sapawarga\\": "packages/jdsteam/sapawarga/src",
-      "Jdsteam\\Yii2Sentry\\": "packages/jdsteam/yii2-sentry/src"
+      "Jdsteam\\Yii2Sentry\\": "packages/jdsteam/yii2-sentry/src",
+      "Mero\\Monolog\\": "packages/mero/yii2-monolog/src/Mero/Monolog"
     }
   },
   "config": {

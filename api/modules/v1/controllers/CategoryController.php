@@ -46,12 +46,12 @@ class CategoryController extends ActiveController
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'types'],
-                    'roles'   => ['admin', 'manageUsers'],
+                    'roles'   => ['admin', 'staffProv'],
                 ],
                 [
                     'allow'   => true,
                     'actions' => ['index', 'view'],
-                    'roles'   => ['user', 'staffRW', 'newsSaberhoaxManage'],
+                    'roles'   => ['@'],
                 ],
             ],
         ];
@@ -69,9 +69,14 @@ class CategoryController extends ActiveController
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['view']['findModel']            = [$this, 'findModel'];
 
         return $actions;
+    }
+
+    public function actionView($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+        return $model;
     }
 
     public function actionCreate()
@@ -97,7 +102,7 @@ class CategoryController extends ActiveController
 
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, Category::class);
         $params = Yii::$app->getRequest()->getBodyParams();
 
         $this->checkAccess('update', $model, $params);
@@ -119,7 +124,7 @@ class CategoryController extends ActiveController
 
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, Category::class);
 
         $this->checkAccess('delete', $model);
 
@@ -145,25 +150,6 @@ class CategoryController extends ActiveController
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
         return [ 'items' => $model ];
-    }
-
-    /**
-     * @param $id
-     * @return mixed|Category
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function findModel($id)
-    {
-        $model = Category::find()
-            ->where(['id' => $id])
-            ->andWhere(['!=', 'status', Category::STATUS_DELETED])
-            ->one();
-
-        if ($model === null) {
-            throw new NotFoundHttpException("Object not found: $id");
-        }
-
-        return $model;
     }
 
     public function prepareDataProvider()

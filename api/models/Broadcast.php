@@ -3,7 +3,6 @@
 namespace app\models;
 
 use app\validator\InputCleanValidator;
-use Carbon\Carbon;
 use Jdsteam\Sapawarga\Behaviors\AreaBehavior;
 use Jdsteam\Sapawarga\Jobs\MessageJob;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
@@ -26,6 +25,11 @@ use yii\db\ActiveRecord;
  * @property int $kec_id
  * @property int $kel_id
  * @property string $rw
+ * @property string $type
+ * @property string $link_url
+ * @property string $internal_object_type
+ * @property int $internal_object_id
+ * @property string $internal_object_name
  * @property mixed $meta
  * @property bool $is_scheduled
  * @property mixed $scheduled_datetime
@@ -67,14 +71,19 @@ class Broadcast extends ActiveRecord
     {
         $rules = [
             [['title', 'status'], 'required'],
-            [['title', 'description', 'rw', 'meta'], 'trim'],
+            [['title', 'description', 'rw', 'meta', 'link_url', 'internal_object_name'], 'trim'],
             ['title', 'string', 'max' => 100],
             ['title', InputCleanValidator::class],
-            ['description', 'string', 'max' => 1000],
-            ['description', InputCleanValidator::class],
             ['rw', 'string', 'length' => 3],
-            [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'status'], 'integer'],
+            [['author_id', 'kabkota_id', 'kec_id', 'kel_id', 'internal_object_id', 'status'], 'integer'],
             ['meta', 'default'],
+
+            ['type', 'in', 'range' => ['internal', 'external']],
+            ['type', 'validateTypeInternal'],
+            ['type', 'validateTypeExternal'],
+            ['link_url', 'url'],
+            ['internal_object_type', 'in', 'range' => ['news', 'news-important', 'polling', 'survey']],
+
             ['is_scheduled', 'default', 'value' => false],
             ['is_scheduled', 'required'],
             ['is_scheduled', 'boolean', 'trueValue' => true, 'falseValue' => false, 'strict' => true],
@@ -84,6 +93,7 @@ class Broadcast extends ActiveRecord
             }],
             ['scheduled_datetime', 'datetime', 'timestampAttribute' => 'scheduled_datetime'],
             ['scheduled_datetime', 'validateScheduledDateTime'],
+
             ['status', 'in', 'range' => [-1, 0, 1, 5, 10]],
         ];
 
@@ -107,6 +117,11 @@ class Broadcast extends ActiveRecord
             'kel_id',
             'kelurahan' => 'KelurahanField',
             'rw',
+            'type',
+            'link_url',
+            'internal_object_type',
+            'internal_object_id',
+            'internal_object_name',
             'meta',
             'is_scheduled',
             'scheduled_datetime',
@@ -185,7 +200,7 @@ class Broadcast extends ActiveRecord
 
         return [
             'title'         => $this->title,
-            'description'   => $this->description,
+            'description'   => null,
             'data'          => $data,
             'topic'         => $this->buildTopicName(),
         ];
@@ -261,6 +276,24 @@ class Broadcast extends ActiveRecord
                 'scheduled_datetime',
                 Yii::t('app', 'error.scheduled_datetime.must_after_now')
             );
+        }
+    }
+
+    public function validateTypeInternal($attribute, $params)
+    {
+        if ($this->type === 'internal') {
+            if (empty($this->internal_object_type)) {
+                $this->addError($attribute, Yii::t('app', 'error.empty.internalfill'));
+            }
+        }
+    }
+
+    public function validateTypeExternal($attribute, $params)
+    {
+        if ($this->type === 'external') {
+            if (empty($this->link_url)) {
+                $this->addError($attribute, Yii::t('app', 'error.empty.externalfill'));
+            }
         }
     }
 

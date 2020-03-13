@@ -6,7 +6,9 @@ class AspirasiCest
 {
     public function _before(ApiTester $I)
     {
-        //
+        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        Yii::$app->db->createCommand('TRUNCATE aspirasi_likes')->execute();
+        Yii::$app->db->createCommand('TRUNCATE aspirasi')->execute();
     }
 
     public function getUserListTest(ApiTester $I)
@@ -224,7 +226,7 @@ class AspirasiCest
         ]);
     }
 
-    public function postCreateTest(ApiTester $I)
+    public function postUserCreateUnauthorizedTest(ApiTester $I)
     {
         $I->amUser('user');
 
@@ -242,16 +244,16 @@ class AspirasiCest
         ];
 
         $I->sendPOST('/v1/aspirasi', $data);
-        $I->canSeeResponseCodeIs(201);
+        $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 201,
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 
-    public function postUpdateTest(ApiTester $I)
+    public function postAdminCanUnpublishedTest(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -261,23 +263,15 @@ class AspirasiCest
             'kabkota_id'  => 22,
             'kec_id'      => 446,
             'kel_id'      => 6082,
-            'status'      => 0,
+            'status'      => 10,
             'category_id' => 9,
             'author_id'   => 36,
         ]);
 
-        $I->amUser('user');
+        $I->amStaff();
 
         $data = [
-            'title'       => 'Lorem ipsum',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            'kabkota_id'  => 22,
-            'kec_id'      => 446,
-            'kel_id'      => 6082,
-            'status'      => 0,
-            'category_id' => 9,
-            'author_id'   => 36,
+            'status'      => 7,
         ];
 
         $I->sendPUT('/v1/aspirasi/1', $data);
@@ -290,7 +284,101 @@ class AspirasiCest
         ]);
     }
 
-    public function userCanUpdateIfStatusDraft(ApiTester $I)
+    public function postAdminCanPublishedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 7,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amStaff();
+
+        $data = [
+            'status' => 10,
+            'approval_note' => 'Lorem ipsum',
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function postStaffProvCanUnpublishedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amStaff('staffprov');
+
+        $data = [
+            'status' => 7, //unpublished
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+    }
+
+    public function postUserCanNotUnpublishedTest(ApiTester $I)
+    {
+        $I->haveInDatabase('aspirasi', [
+            'id'          => 1,
+            'title'       => 'Lorem ipsum',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            'kabkota_id'  => 22,
+            'kec_id'      => 446,
+            'kel_id'      => 6082,
+            'status'      => 10,
+            'category_id' => 9,
+            'author_id'   => 36,
+        ]);
+
+        $I->amUser('user');
+
+        $data = [
+            'status' => 7, //unpublished
+        ];
+
+        $I->sendPUT('/v1/aspirasi/1', $data);
+        $I->canSeeResponseCodeIs(403);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 403,
+        ]);
+    }
+
+    public function userUpdateIfStatusDraftUnauthorized(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -312,16 +400,16 @@ class AspirasiCest
         ];
 
         $I->sendPUT('/v1/aspirasi/1', $data);
-        $I->canSeeResponseCodeIs(200);
+        $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 
-    public function userCanUpdateIfStatusRejected(ApiTester $I)
+    public function userUpdateIfStatusRejectedUnauthorized(ApiTester $I)
     {
         $I->haveInDatabase('aspirasi', [
             'id'          => 1,
@@ -344,12 +432,12 @@ class AspirasiCest
         ];
 
         $I->sendPUT('/v1/aspirasi/1', $data);
-        $I->canSeeResponseCodeIs(200);
+        $I->canSeeResponseCodeIs(403);
         $I->seeResponseIsJson();
 
         $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
+            'success' => false,
+            'status'  => 403,
         ]);
     }
 
