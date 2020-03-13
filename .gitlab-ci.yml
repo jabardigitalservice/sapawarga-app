@@ -111,9 +111,9 @@ test_api:
     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
     - sleep 60
     - docker ps
-    - docker-compose exec -T api composer sniff
-    - docker-compose exec -T api php yii seeder
-    - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
+    - docker-compose exec -T php-fpm composer sniff
+    - docker-compose exec -T php-fpm php yii seeder
+    - docker-compose exec -T php-fpm php vendor/bin/codecept run --coverage --coverage-xml
     - mv ./api/tests/_output/coverage.xml ./clover.xml
     - sed -i "s|/srv|$(pwd)/api|g" clover.xml
     - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
