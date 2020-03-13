@@ -1,4 +1,4 @@
-FROM composer:1.9 as vendor
+FROM composer:1.10 as vendor
 COPY . /app
 
 RUN composer install \
@@ -8,7 +8,7 @@ RUN composer install \
     --no-scripts \
     --prefer-dist
 
-FROM php:7.3-fpm-alpine
+FROM php:7.4-fpm-alpine
 
 RUN apk add --no-cache \
         freetype \
