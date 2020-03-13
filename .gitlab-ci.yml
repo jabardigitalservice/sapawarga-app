@@ -111,7 +111,7 @@ test_api:
     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
     - sleep 60
     - docker ps
-    - docker-compose exec -T php-fpm composer sniff
+    - docker-compose exec -T php-fpm php vendor/bin/phpcs --standard=phpcs.xml --extensions=php
     - docker-compose exec -T php-fpm php yii seeder
     - docker-compose exec -T php-fpm php vendor/bin/codecept run --coverage --coverage-xml
     - mv ./api/tests/_output/coverage.xml ./clover.xml
