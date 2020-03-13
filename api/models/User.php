@@ -489,11 +489,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [
                 'username',
                 'unique',
-                'targetClass' => User::class,
                 'message' => Yii::t('app', 'error.username.taken'),
-                'filter' => function ($query) {
-                    $query->andWhere(['!=', 'id', $this->id]);
-                }
             ],
 
             ['email', 'trim'],
@@ -503,11 +499,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [
                 'email',
                 'unique',
-                'targetClass' => User::class,
                 'message' => Yii::t('app', 'error.email.taken'),
-                'filter' => function ($query) {
-                    $query->andWhere(['!=', 'id', $this->id]);
-                }
             ],
 
             ['password', 'string', 'length' => [5, self::MAX_LENGTH]],

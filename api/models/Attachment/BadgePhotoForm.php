@@ -6,7 +6,7 @@ use app\validator\ImageExactValidator;
 use Yii;
 use app\models\AttachmentForm;
 
-class UserPostPhotoForm extends AttachmentForm
+class BadgePhotoForm extends AttachmentForm
 {
     public function rules()
     {
@@ -31,7 +31,7 @@ class UserPostPhotoForm extends AttachmentForm
     public function cropAndResizePhoto($filePath)
     {
         // Make image resize with proporsional ratio
-        return $this->imageProcessor->make($filePath)->resize(640, null, function ($constraint) {
+        return $this->imageProcessor->make($filePath)->resize(24, null, function ($constraint) {
             $constraint->aspectRatio();
         });
     }
