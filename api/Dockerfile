@@ -11,6 +11,7 @@ RUN composer install \
 FROM php:7.4-fpm-alpine
 
 RUN apk add --no-cache \
+        bash \
         freetype \
         freetype-dev \
         libjpeg-turbo \
@@ -22,5 +23,11 @@ RUN apk add --no-cache \
 
 WORKDIR /srv
 
+COPY --from=vendor --chown=www-data:www-data /usr/bin/composer /usr/bin/composer
 COPY --chown=www-data:www-data . /srv
 COPY --from=vendor --chown=www-data:www-data /app/vendor/ /srv/vendor/
+
+COPY image-files/ /
+RUN chmod 700 /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
