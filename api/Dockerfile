@@ -17,7 +17,8 @@ RUN apk add --no-cache \
         libjpeg-turbo \
         libjpeg-turbo-dev \
         libpng \
-        libpng-dev && \
+        libpng-dev \
+        mysql-client && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install pdo pdo_mysql gd
 
@@ -30,4 +31,4 @@ COPY --from=vendor --chown=www-data:www-data /app/vendor/ /srv/vendor/
 COPY image-files/ /
 RUN chmod 700 /usr/local/bin/docker-entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["docker-entrypoint.sh"]
