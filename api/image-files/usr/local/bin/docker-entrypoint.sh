@@ -19,5 +19,3 @@ printf "Starting php-fpm daemon...\n\n"
 php-fpm --daemonize
 
 set -e
-printf "Starting nginx...\n\n"
-nginx -g "daemon off;"
