@@ -64,7 +64,7 @@ services:
 
 networks:
   internal:
-    driver: bridge
+    # driver: bridge
 
 volumes:
   vol_storage:
