@@ -18,4 +18,4 @@ printf "Upgrading database...\n\n"
 printf "Starting php-fpm daemon...\n\n"
 php-fpm --daemonize
 
-set -e
+exec "$@"
