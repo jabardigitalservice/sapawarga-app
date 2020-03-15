@@ -9,6 +9,7 @@ settings:
     memory_limit: 1024M
     colors: true
 coverage:
+    c3_url: http://127.0.0.1:8000/index-test.php/
     enabled: true
 #    remote: true
     include:
