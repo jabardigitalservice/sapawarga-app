@@ -76,6 +76,7 @@ class AreaSearch extends Area
             'id' => $this->id,
         ]);
 
+        $query->andFilterWhere(['code_bps' => $params['code_bps']]);
         $query->andFilterWhere(['parent_id' => $params['parent_id'] ?? null]);
         $query->andFilterWhere(['depth' => $params['depth'] ?? null]);
         $query->andFilterWhere(['like', 'name', $params['name'] ?? null]);
