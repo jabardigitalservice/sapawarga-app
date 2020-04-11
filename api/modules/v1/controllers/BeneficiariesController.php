@@ -32,20 +32,10 @@ class BeneficiariesController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
-                    'roles'   => ['?'],
-                ],
-                [
-                    'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles' => ['admin', 'staffProv', 'staffRW'],
+                    'roles' => ['admin', 'staffProv', 'staffkel', 'staffRW'],
 
-                ],
-                [
-                    'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update'],
-                    'roles' => ['staffRW', 'staffkel',  'staffkel'],
-                ],
+                ]
             ],
         ];
 
@@ -114,17 +104,14 @@ class BeneficiariesController extends ActiveController
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
-        $authKabKotaId = $authUserModel->kabkota_id;
 
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
 
-        if ($user->can('newsManage') === false) {
+        if ($user->can('staffKel') || $user->can('staffRW')) {
             $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
-        }
-
-        if ($user->can('staffKabkota')) {
-            $params['kabkota_id'] = $authKabKotaId;
+            $params['kel_id'] = $authUserModel->kel_id;
+            $params['rw'] = $authUserModel->rw;
         }
 
         return $search->search($params);

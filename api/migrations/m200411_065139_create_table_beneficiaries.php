@@ -19,6 +19,9 @@ class m200411_065139_create_table_beneficiaries extends CustomMigration
             'kabkota_bps_id' => $this->string(),
             'kec_bps_id' => $this->string(),
             'kel_bps_id' => $this->string(),
+            'kabkota_id' => $this->integer(),
+            'kec_id' => $this->integer(),
+            'kel_id' => $this->integer(),
             'rt' => $this->string(),
             'rw' => $this->string(),
             'address' => $this->string(),
@@ -48,5 +51,4 @@ class m200411_065139_create_table_beneficiaries extends CustomMigration
     {
         $this->dropTable('beneficiaries');
     }
-
 }

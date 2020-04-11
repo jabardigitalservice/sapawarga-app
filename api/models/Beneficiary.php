@@ -5,6 +5,7 @@ namespace app\models;
 use app\components\ModelHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
+use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -21,6 +22,9 @@ use yii\db\ActiveRecord;
  * @property string $kabkota_bps_id
  * @property string $kec_bps_id
  * @property string $kel_bps_id
+ * @property string $kabkota_id
+ * @property string $kec_id
+ * @property string $kel_id
  * @property string $rt
  * @property string $rw
  * @property string $address
@@ -43,7 +47,7 @@ use yii\db\ActiveRecord;
 
 class Beneficiary extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus;
+    use HasArea, HasActiveStatus;
 
     const STATUS_PUBLISHED = 10;
 
@@ -79,7 +83,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             ],
 
             [
-                ['status_verification', 'status', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'income_before', 'income_after', 'total_family_members'],
+                ['status_verification', 'status', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'kabkota_id', 'kec_id', 'kel_id', 'income_before', 'income_after', 'total_family_members'],
                 'integer'
             ],
 
@@ -98,6 +102,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'kabkota_bps_id',
             'kec_bps_id',
             'kel_bps_id',
+            'kabkota_id',
+            'kec_id',
+            'kel_id',
+            'kabkota' => 'KabkotaField',
+            'kecamatan' => 'KecamatanField',
+            'kelurahan' => 'KelurahanField',
             'rt',
             'rw',
             'address',
@@ -169,5 +179,4 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             BlameableBehavior::class,
         ];
     }
-
 }
