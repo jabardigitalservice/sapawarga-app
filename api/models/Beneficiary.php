@@ -38,7 +38,7 @@ use yii\db\ActiveRecord;
  * @property string $image_kk
  * @property int $status_verification
  * @property int $status
- * @property string $info
+ * @property string $notes
  * @property int $created_by
  * @property int $updated_by
  * @property int $created_at
@@ -78,7 +78,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [['nik'], 'unique'],
 
             [
-                ['name', 'address', 'phone', 'no_kk', 'job_type_name', 'job_status', 'info', 'image_ktp', 'image_kk', 'rt', 'rw'],
+                ['name', 'address', 'phone', 'no_kk', 'job_type_name', 'job_status', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw'],
                 'trim'
             ],
 
@@ -125,7 +125,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
                 return $this->image_kk ? "$publicBaseUrl/$this->image_kk" : null;
             },
-            'info',
+            'notes',
             'status_verification',
             'status',
             'status_label' => 'StatusLabel',
@@ -162,7 +162,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'image_kk' => 'Foto KK',
             'status_verification' => 'Status Vefifikasi',
             'status' => '',
-            'info' => 'Keterangan',
+            'notes' => 'Catatan',
         ];
     }
 

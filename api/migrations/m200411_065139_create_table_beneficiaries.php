@@ -35,7 +35,7 @@ class m200411_065139_create_table_beneficiaries extends CustomMigration
             'image_kk' => $this->string(),
             'status_verification' => $this->integer()->notNull(),
             'status' => $this->integer()->notNull(),
-            'info' => $this->string(),
+            'notes' => $this->string(),
 
             'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
