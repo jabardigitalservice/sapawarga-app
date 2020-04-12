@@ -408,4 +408,12 @@ return [
             'OPTIONS {id}' => 'options',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/dinsos-job-type',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
 ];
