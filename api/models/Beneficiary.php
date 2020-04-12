@@ -30,8 +30,8 @@ use yii\db\ActiveRecord;
  * @property string $address
  * @property string $phone
  * @property int $total_family_members
- * @property string $job_type_name
- * @property string $job_status
+ * @property string $job_type_id
+ * @property string $job_status_id
  * @property int $income_before
  * @property int $income_after
  * @property string $image_ktp
@@ -78,12 +78,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [['nik'], 'unique'],
 
             [
-                ['name', 'address', 'phone', 'no_kk', 'job_type_name', 'job_status', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw'],
+                ['name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw'],
                 'trim'
             ],
 
             [
-                ['status_verification', 'status', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'kabkota_id', 'kec_id', 'kel_id', 'income_before', 'income_after', 'total_family_members'],
+                ['status_verification', 'status', 'job_type_id', 'job_status_id', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'kabkota_id', 'kec_id', 'kel_id', 'income_before', 'income_after', 'total_family_members'],
                 'integer'
             ],
 
@@ -113,8 +113,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'address',
             'phone',
             'total_family_members',
-            'job_type_name',
-            'job_status',
+            'job_type_id',
+            'job_status_id',
             'income_before',
             'income_after',
             'image_ktp_url' => function () {
@@ -154,8 +154,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'address' => 'Alamat',
             'phone' => 'Telepon',
             'total_family_members' => 'Total',
-            'job_type_name' => 'Lapangan Usaha',
-            'job_status' => 'Status Kedudukan',
+            'job_type_id' => 'Lapangan Usaha',
+            'job_status_id' => 'Status Kedudukan',
             'income_before' => 'Penghasilan Sebelum',
             'income_after' => 'Penghasilan Sesudah',
             'image_ktp' => 'Foto KTP',
