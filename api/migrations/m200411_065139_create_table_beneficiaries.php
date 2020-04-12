@@ -13,7 +13,7 @@ class m200411_065139_create_table_beneficiaries extends CustomMigration
     {
         $this->createTable('beneficiaries', [
             'id' => $this->primaryKey(),
-            'nik' => $this->string(),
+            'nik' => $this->string()->notNull(),
             'no_kk' => $this->string(),
             'name' => $this->string()->notNull(),
             'kabkota_bps_id' => $this->string(),

@@ -33,7 +33,7 @@ class BeneficiariesController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles' => ['admin', 'staffProv', 'staffkel', 'staffRW'],
+                    'roles' => ['admin', 'staffProv', 'staffkel', 'staffRW', 'trainer'],
 
                 ]
             ],
@@ -108,7 +108,7 @@ class BeneficiariesController extends ActiveController
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
 
-        if ($user->can('staffKel') || $user->can('staffRW')) {
+        if ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
             $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
             $params['kel_id'] = $authUserModel->kel_id;
             $params['rw'] = $authUserModel->rw;
