@@ -33,7 +33,7 @@ class BeneficiariesController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                    'roles' => ['admin', 'staffProv', 'staffkel', 'staffRW', 'trainer'],
+                    'roles' => ['admin', 'staffProv', 'staffKel', 'staffRW', 'trainer'],
 
                 ]
             ],
