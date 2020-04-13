@@ -49,7 +49,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 {
     use HasArea, HasActiveStatus;
 
-    const STATUS_PUBLISHED = 10;
+    const STATUS_PENDING = 1;
+    const STATUS_REJECT = 2;
+    const STATUS_APPROVED = 3;
 
     /**
      * {@inheritdoc}
@@ -127,6 +129,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             },
             'notes',
             'status_verification',
+            'status_verification_label' => 'StatusLabelVerification',
             'status',
             'status_label' => 'StatusLabel',
             'created_at',
@@ -135,6 +138,25 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         ];
 
         return $fields;
+    }
+
+    protected function getStatusLabelVerification()
+    {
+        $statusLabel = '';
+
+        switch ($this->status_verification) {
+            case self::STATUS_PENDING:
+                $statusLabel = Yii::t('app', 'status.beneficiary.pending');
+                break;
+            case self::STATUS_REJECT:
+                $statusLabel = Yii::t('app', 'status.beneficiary.reject');
+                break;
+            case self::STATUS_APPROVED:
+                $statusLabel = Yii::t('app', 'status.beneficiary.approved');
+                break;
+        }
+
+        return $statusLabel;
     }
 
     /**
