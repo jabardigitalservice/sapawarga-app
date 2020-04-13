@@ -68,4 +68,8 @@ return [
     'status.unpublished' => 'Tidak Dipublikasikan',
     'status.approval-pending'  => 'Terkirim',
     'status.approval-rejected' => 'Ditolak',
+
+    'status.beneficiary.pending' => 'Belum Terverifikasi',
+    'status.beneficiary.reject' => 'Ditolak',
+    'status.beneficiary.approved' => 'Diterima',
 ];

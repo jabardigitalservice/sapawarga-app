@@ -68,4 +68,8 @@ return [
     'status.unpublished' => 'Unpublished',
     'status.approval-pending' => 'Sent',
     'status.approval-rejected' => 'Rejected',
+
+    'status.beneficiary.pending' => 'Pending',
+    'status.beneficiary.reject' => 'Rejected',
+    'status.beneficiary.approved' => 'Approved',
 ];
