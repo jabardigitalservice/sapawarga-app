@@ -61,37 +61,6 @@ class BeneficiariesController extends ActiveController
     }
 
     /**
-     * Delete entity with soft delete / status flagging
-     *
-     * @param $id
-     * @return string
-     * @throws \yii\web\ForbiddenHttpException
-     * @throws \yii\web\NotFoundHttpException
-     * @throws \yii\web\ServerErrorHttpException
-     */
-    public function actionDelete($id)
-    {
-        $model = $this->findModel($id, $this->modelClass);
-
-        $this->checkAccess('delete', $model, $id);
-
-        return $this->applySoftDelete($model);
-    }
-
-    /**
-     * Checks the privilege of the current user.
-     * throw ForbiddenHttpException if access should be denied
-     *
-     * @param string $action the ID of the action to be executed
-     * @param object $model the model to be accessed. If null, it means no specific model is being accessed.
-     * @param array $params additional parameters
-     */
-    public function checkAccess($action, $model = null, $params = [])
-    {
-        return $this->checkAccessDefault($action, $model, $params);
-    }
-
-    /**
      * @param $id
      * @return mixed|\app\models\News
      * @throws \yii\web\NotFoundHttpException
