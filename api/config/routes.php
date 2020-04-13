@@ -427,6 +427,8 @@ return [
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
         ]
     ]
 ];

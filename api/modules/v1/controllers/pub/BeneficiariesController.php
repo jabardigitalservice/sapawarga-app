@@ -27,7 +27,7 @@ class BeneficiariesController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index',
+            'index', 'summary'
         ];
 
         // setup access
@@ -37,7 +37,7 @@ class BeneficiariesController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
+                    'actions' => ['index', 'view', 'summary'],
                     'roles' => ['?'],
 
                 ]
@@ -62,7 +62,7 @@ class BeneficiariesController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|\app\models\News
+     * @return mixed|\app\models\pub\Beneficieries
      * @throws \yii\web\NotFoundHttpException
      */
     public function actionView($id)
@@ -71,6 +71,19 @@ class BeneficiariesController extends ActiveController
         return $model;
     }
 
+    /**
+     * @param $id
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionSummary()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $search = new BeneficiarySearch();
+
+        return $search->getSummaryStatusVerification($params);
+    }
 
     public function prepareDataProvider()
     {

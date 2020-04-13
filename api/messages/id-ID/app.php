@@ -71,5 +71,5 @@ return [
 
     'status.beneficiary.pending' => 'Belum Terverifikasi',
     'status.beneficiary.reject' => 'Ditolak',
-    'status.beneficiary.approved' => 'Diterima',
+    'status.beneficiary.approved' => 'Terverifikasi',
 ];

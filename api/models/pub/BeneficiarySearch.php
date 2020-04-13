@@ -5,6 +5,7 @@ namespace app\models\pub;
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
+use yii\data\SqlDataProvider;
 
 /**
  * BeneficiarySearch represents the model behind the search form of `app\models\pub\Beneficiary`.
@@ -34,6 +35,47 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
 
         return $this->getQueryAll($query, $params);
+    }
+
+    /**
+     * Creates data provider instance applied for get total beneficiaries group by status verification
+     *
+     * @param array
+     * $params['kabkota_id'] Filtering by kabkota_id
+     * @return SqlDataProvider
+     */
+    public function getSummaryStatusVerification($params)
+    {
+        $conditional = '';
+        $paramsSql = [':status' => Beneficiary::STATUS_ACTIVE];
+
+        // Filtering
+        if (Arr::get($params, 'kabkota_id')) {
+            $conditional .= 'AND kabkota_id = :kabkota_id ';
+            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
+        }
+
+        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE status = :status $conditional GROUP BY status_verification";
+
+        $provider =  new SqlDataProvider([
+            'sql' => $sql,
+            'params' => $paramsSql,
+        ]);
+
+        $data = ['PENDING' => 0, 'REJECT' => 0, 'APPROVED' => 0];
+        foreach ($data as $key => $value) {
+            foreach ($provider->getModels() as $val) {
+                if ($val['status_verification'] == 1) {
+                    $data['PENDING'] = $val['total'];
+                } elseif ($val['status_verification'] == 2) {
+                    $data['REJECT'] = $val['total'];
+                } elseif ($val['status_verification'] == 3) {
+                    $data['APPROVED'] = $val['total'];
+                }
+            }
+        }
+
+        return $data;
     }
 
     protected function getQueryAll($query, $params)
