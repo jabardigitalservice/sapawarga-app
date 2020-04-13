@@ -408,4 +408,18 @@ return [
             'OPTIONS {id}' => 'options',
         ]
     ],
+
+    //  FOR Public route
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+        ]
+    ],
+
 ];
