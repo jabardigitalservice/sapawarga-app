@@ -80,12 +80,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [['nik'], 'unique'],
 
             [
-                ['name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw'],
+                ['name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw', 'domicile_rw', 'domicile_rt', 'domicile_address'],
                 'trim'
             ],
-
             [
-                ['status_verification', 'status', 'job_type_id', 'job_status_id', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'kabkota_id', 'kec_id', 'kel_id', 'income_before', 'income_after', 'total_family_members'],
+                [
+                    'status_verification', 'status', 'job_type_id', 'job_status_id',
+                    'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'province_id', 'kabkota_id', 'kec_id', 'kel_id',
+                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
+                    'income_before', 'income_after',
+                    'total_family_members'
+                ],
                 'integer'
             ],
 
@@ -104,6 +109,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'kabkota_bps_id',
             'kec_bps_id',
             'kel_bps_id',
+            'province_id',
             'kabkota_id',
             'kec_id',
             'kel_id',
@@ -113,6 +119,13 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'rt',
             'rw',
             'address',
+            'domicile_province_bps_id',
+            'domicile_kabkota_bps_id',
+            'domicile_kec_bps_id',
+            'domicile_kel_bps_id',
+            'domicile_rt',
+            'domicile_rw',
+            'domicile_address',
             'phone',
             'total_family_members',
             'job_type_id',
