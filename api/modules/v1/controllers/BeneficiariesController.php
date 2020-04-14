@@ -97,7 +97,6 @@ class BeneficiariesController extends ActiveController
         return $model;
     }
 
-
     public function prepareDataProvider()
     {
         $params = Yii::$app->request->getQueryParams();

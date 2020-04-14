@@ -33,11 +33,12 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['kabkota_id' => Arr::get($params, 'kabkota_id')]);
         $query->andFilterWhere(['kec_id' => Arr::get($params, 'kec_id')]);
         $query->andFilterWhere(['kel_id' => Arr::get($params, 'kel_id')]);
-        $query->andFilterWhere(['like', 'rw', Arr::get($params, 'rw')]);
-        $query->andFilterWhere(['like', 'rt', Arr::get($params, 'rt')]);
+        $query->andFilterWhere(['rw' => ltrim(Arr::get($params, 'rw'), '0')]);
+        $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
+        $query->andFilterWhere(['like', 'rw', Arr::get($params, 'rw_like')]);
+        $query->andFilterWhere(['like', 'rt', Arr::get($params, 'rt_like')]);
         $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
-
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
