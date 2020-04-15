@@ -430,5 +430,16 @@ return [
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
         ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/area',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options'
+        ]
     ]
 ];
