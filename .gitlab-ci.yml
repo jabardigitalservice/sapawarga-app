@@ -142,7 +142,6 @@ deploy_staging_aws:
 deploy_staging_eks:
   stage: deploy_staging
   image: dtzar/helm-kubectl
-  when: manual
   environment:
     name: staging
   only:
