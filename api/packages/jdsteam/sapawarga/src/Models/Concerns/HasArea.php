@@ -22,19 +22,6 @@ trait HasArea
         return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
     }
 
-    protected function rulesRw()
-    {
-        return [
-            [
-                'rw',
-                'match',
-                'pattern' => '/^[0-9]{3}$/',
-                'message' => Yii::t('app', 'error.rw.pattern'),
-            ],
-            ['rw', 'default'],
-        ];
-    }
-
     protected function getKabkotaField()
     {
         if (empty($this->kabkota)) {
@@ -68,6 +55,75 @@ trait HasArea
         return [
             'id'   => $this->kelurahan->id,
             'name' => $this->kelurahan->name,
+        ];
+    }
+
+
+    // Get name by code_bps
+
+    public function getKelurahanBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kel_bps_id']);
+    }
+
+    public function getKecamatanBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kec_bps_id']);
+    }
+
+    public function getKabkotaBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kabkota_bps_id']);
+    }
+
+
+    protected function getDomicileKabkotaField()
+    {
+        if (empty($this->kabkotaBps)) {
+            return null;
+        }
+
+        return [
+            'id'   => $this->kabkotaBps->id,
+            'name' => $this->kabkotaBps->name,
+        ];
+    }
+
+    protected function getDomicileKecField()
+    {
+        if (empty($this->kecamatanBps)) {
+            return null;
+        }
+
+        return [
+            'id'   => $this->kecamatanBps->id,
+            'name' => $this->kecamatanBps->name,
+        ];
+    }
+
+    protected function getDomicileKelField()
+    {
+        if (empty($this->kelurahanBps)) {
+            return null;
+        }
+
+        return [
+            'id'   => $this->kelurahanBps->id,
+            'name' => $this->kelurahanBps->name,
+        ];
+    }
+
+
+    protected function rulesRw()
+    {
+        return [
+            [
+                'rw',
+                'match',
+                'pattern' => '/^[0-9]{3}$/',
+                'message' => Yii::t('app', 'error.rw.pattern'),
+            ],
+            ['rw', 'default'],
         ];
     }
 }

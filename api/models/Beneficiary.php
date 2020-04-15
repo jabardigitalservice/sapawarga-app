@@ -12,6 +12,7 @@ use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use Illuminate\Support\Collection;
 
 /**
  * This is the model class for table "beneficiaries".
@@ -61,9 +62,26 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         return 'beneficiaries';
     }
 
-    public function getKabkota()
+    public function getJobTypeField()
     {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
+        $configParams = include __DIR__ . '/../config/references/dinsos_job_types.php';
+        $records = new Collection($configParams['job_field']);
+        if ($this->job_type_id === null) {
+            return null;
+        }
+
+        return $records->where('id', '=', $this->job_type_id)->first();
+    }
+
+    public function getJobStatusField()
+    {
+        $configParams = include __DIR__ . '/../config/references/dinsos_job_types.php';
+        $records = new Collection($configParams['job_status']);
+        if ($this->job_type_id === null) {
+            return null;
+        }
+
+        return $records->where('id', '=', $this->job_type_id)->first();
     }
 
     /**
@@ -123,6 +141,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'domicile_kabkota_bps_id',
             'domicile_kec_bps_id',
             'domicile_kel_bps_id',
+            'domicile_kabkota_name' => 'DomicileKabkotaField',
+            'domicile_kec_name' => 'DomicileKecField',
+            'domicile_kel_name' => 'DomicileKelField',
             'domicile_rt',
             'domicile_rw',
             'domicile_address',
@@ -130,6 +151,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'total_family_members',
             'job_type_id',
             'job_status_id',
+            'job_type_name' => 'jobTypeField',
+            'job_status_name' => 'jobStatusField',
             'income_before',
             'income_after',
             'image_ktp',
