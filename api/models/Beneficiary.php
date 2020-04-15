@@ -2,13 +2,10 @@
 
 namespace app\models;
 
-use app\components\ModelHelper;
-use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -98,14 +95,18 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [['nik'], 'unique'],
 
             [
-                ['name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw', 'domicile_rw', 'domicile_rt', 'domicile_address'],
+                [
+                    'name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw',
+                    'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
+                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
+                    'domicile_rw', 'domicile_rt', 'domicile_address'
+                ],
                 'trim'
             ],
             [
                 [
                     'status_verification', 'status', 'job_type_id', 'job_status_id',
-                    'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'province_id', 'kabkota_id', 'kec_id', 'kel_id',
-                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
+                    'province_id', 'kabkota_id', 'kec_id', 'kel_id',
                     'income_before', 'income_after',
                     'total_family_members'
                 ],
