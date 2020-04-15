@@ -132,6 +132,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'job_status_id',
             'income_before',
             'income_after',
+            'image_ktp',
+            'image_kk',
             'image_ktp_url' => function () {
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
                 return $this->image_ktp ? "$publicBaseUrl/$this->image_ktp" : null;
