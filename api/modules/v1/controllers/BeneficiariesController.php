@@ -66,11 +66,6 @@ class BeneficiariesController extends ActiveController
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id, $this->modelClass);
-
-        $this->checkAccess('delete', $model, $id);
-
-        return $this->applySoftDelete($model);
     }
 
     /**
@@ -83,7 +78,6 @@ class BeneficiariesController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        return $this->checkAccessDefault($action, $model, $params);
     }
 
     /**
