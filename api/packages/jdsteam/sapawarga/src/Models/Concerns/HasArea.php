@@ -84,7 +84,7 @@ trait HasArea
         }
 
         return [
-            'id'   => $this->kabkotaBps->id,
+            'code_bps'   => $this->kabkotaBps->code_bps,
             'name' => $this->kabkotaBps->name,
         ];
     }
@@ -96,7 +96,7 @@ trait HasArea
         }
 
         return [
-            'id'   => $this->kecamatanBps->id,
+            'code_bps'   => $this->kecamatanBps->code_bps,
             'name' => $this->kecamatanBps->name,
         ];
     }
@@ -108,7 +108,7 @@ trait HasArea
         }
 
         return [
-            'id'   => $this->kelurahanBps->id,
+            'code_bps'   => $this->kelurahanBps->code_bps,
             'name' => $this->kelurahanBps->name,
         ];
     }

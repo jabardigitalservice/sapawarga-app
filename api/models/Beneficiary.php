@@ -77,11 +77,11 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     {
         $configParams = include __DIR__ . '/../config/references/dinsos_job_types.php';
         $records = new Collection($configParams['job_status']);
-        if ($this->job_type_id === null) {
+        if ($this->job_status_id === null) {
             return null;
         }
 
-        return $records->where('id', '=', $this->job_type_id)->first();
+        return $records->where('id', '=', $this->job_status_id)->first();
     }
 
     /**
