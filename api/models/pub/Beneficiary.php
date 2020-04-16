@@ -58,11 +58,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         return 'beneficiaries';
     }
 
-    public function getKabkota()
-    {
-        return $this->hasOne(Area::className(), ['id' => 'kabkota_id']);
-    }
-
     /**
      * {@inheritdoc}
      */

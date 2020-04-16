@@ -51,8 +51,8 @@ VALUES
     ('notification','Info Penting Terbaru',NULL,10,1557803314,1557803314),
     ('notification','Kegiatan RW',NULL,10,1582190151,1582190151),
     ('user_post','Bencana',NULL,10,1583114202,1583114202),
-    ('user_post','Musyawarah',NULL,10,1583114202,1583114202),
-    ('user_post','Kerja Bakti',NULL,10,1583114202,1583114202),
-    ('user_post','Gotong Royong',NULL,10,1583114202,1583114202),
-    ('user_post','Umum',NULL,10,1583114202,1583114202),
-    ('user_post','Siskamling',NULL,10,1583114202,1583114202);
+    ('user_post','Keamanan',NULL,10,1583114202,1583114202),
+    ('user_post','kebersihan',NULL,10,1583114202,1583114202),
+    ('user_post','Kegiatan Sosial',NULL,10,1583114202,1583114202),
+    ('user_post','Kesehatan',NULL,10,1583114202,1583114202),
+    ('user_post','Lainnya',NULL,10,1583114202,1583114202);

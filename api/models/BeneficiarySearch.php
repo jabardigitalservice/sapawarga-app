@@ -37,6 +37,15 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
         $query->andFilterWhere(['like', 'rw', Arr::get($params, 'rw_like')]);
         $query->andFilterWhere(['like', 'rt', Arr::get($params, 'rt_like')]);
+
+        $query->andFilterWhere(['domicile_kabkota_bps_id' => Arr::get($params, 'domicile_kabkota_bps_id')]);
+        $query->andFilterWhere(['domicile_kec_bps_id' => Arr::get($params, 'domicile_kec_bps_id')]);
+        $query->andFilterWhere(['domicile_kel_bps_id' => Arr::get($params, 'domicile_kel_bps_id')]);
+        $query->andFilterWhere(['domicile_rt' => ltrim(Arr::get($params, 'domicile_rt'), '0')]);
+        $query->andFilterWhere(['domicile_rw' => ltrim(Arr::get($params, 'domicile_rw'), '0')]);
+        $query->andFilterWhere(['like', 'rw', Arr::get($params, 'domicile_rw_like')]);
+        $query->andFilterWhere(['like', 'rt', Arr::get($params, 'domicile_rt_like')]);
+
         $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
