@@ -93,8 +93,6 @@ class BeneficiarySearch extends Beneficiary
                     'name',
                     'rt',
                     'rw',
-                    'kec_bps_id'
-                    'kel_bps_id'
                     'status_verification',
                 ],
             ],
