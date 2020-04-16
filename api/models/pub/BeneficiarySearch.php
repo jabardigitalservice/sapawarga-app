@@ -82,7 +82,7 @@ class BeneficiarySearch extends Beneficiary
     {
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = Arr::get($params, 'sort_by', 'name');
-        $sortOrder = Arr::get($params, 'sort_order', 'descending');
+        $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
@@ -91,12 +91,10 @@ class BeneficiarySearch extends Beneficiary
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
                     'name',
-                    'nik',
-                    'kabkota_id',
-                    'kec_id',
-                    'kel_id',
                     'rt',
                     'rw',
+                    'kec_bps_id'
+                    'kel_bps_id'
                     'status_verification',
                 ],
             ],
