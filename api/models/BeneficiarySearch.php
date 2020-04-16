@@ -60,14 +60,15 @@ class BeneficiarySearch extends Beneficiary
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
+        $defaultOrder = [ $sortBy => $sortOrder ];
+        if ($this->userRole == User::ROLE_STAFF_RW || $this->userRole == User::ROLE_TRAINER) {
+            $defaultOrder = [ 'rw' => SORT_ASC, 'rt' => SORT_ASC ] + $defaultOrder;
+        }
+
         return new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
-                'defaultOrder' => [
-                    'rw' => SORT_ASC,
-                    'rt' => SORT_ASC,
-                    $sortBy => $sortOrder,
-                ],
+                'defaultOrder' => $defaultOrder,
                 'attributes' => [
                     'name',
                     'nik',
