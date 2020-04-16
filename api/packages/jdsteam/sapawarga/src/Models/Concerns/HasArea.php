@@ -29,7 +29,8 @@ trait HasArea
         }
 
         return [
-            'id'   => $this->kabkota->id,
+            'id' => $this->kabkota->id,
+            'code_bps' => $this->kabkota->code_bps,
             'name' => $this->kabkota->name,
         ];
     }
@@ -41,7 +42,8 @@ trait HasArea
         }
 
         return [
-            'id'   => $this->kecamatan->id,
+            'id' => $this->kecamatan->id,
+            'code_bps' => $this->kecamatan->code_bps,
             'name' => $this->kecamatan->name,
         ];
     }
@@ -53,7 +55,8 @@ trait HasArea
         }
 
         return [
-            'id'   => $this->kelurahan->id,
+            'id' => $this->kelurahan->id,
+            'code_bps' => $this->kelurahan->code_bps,
             'name' => $this->kelurahan->name,
         ];
     }
@@ -84,7 +87,7 @@ trait HasArea
         }
 
         return [
-            'code_bps'   => $this->kabkotaBps->code_bps,
+            'code_bps' => $this->kabkotaBps->code_bps,
             'name' => $this->kabkotaBps->name,
         ];
     }
@@ -96,7 +99,7 @@ trait HasArea
         }
 
         return [
-            'code_bps'   => $this->kecamatanBps->code_bps,
+            'code_bps' => $this->kecamatanBps->code_bps,
             'name' => $this->kecamatanBps->name,
         ];
     }
@@ -108,11 +111,10 @@ trait HasArea
         }
 
         return [
-            'code_bps'   => $this->kelurahanBps->code_bps,
+            'code_bps' => $this->kelurahanBps->code_bps,
             'name' => $this->kelurahanBps->name,
         ];
     }
-
 
     protected function rulesRw()
     {
