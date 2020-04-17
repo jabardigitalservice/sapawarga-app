@@ -9,6 +9,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\filters\AccessControl;
+use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -118,9 +120,15 @@ class BeneficiariesController extends ActiveController
     /**
      * @param $id
      * @return array
+     * @throws \yii\web\HttpException
+     * @throws \yii\web\BadRequestHttpException;
      */
     public function actionNik($id)
     {
+        if (!preg_match('/^[0-9]{16}$/', $id)) {
+            throw new BadRequestHttpException('NIK tidak valid');
+        }
+
         $client = new Client([
             'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL'),
             'timeout' => 30.00,
@@ -168,8 +176,7 @@ class BeneficiariesController extends ActiveController
                 'address' => $model['alamat'],
             ];
         } catch (RequestException $e) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(408);
+            throw new HttpException(408, 'Request Time-out');
         }
 
         return $model;
