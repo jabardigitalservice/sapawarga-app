@@ -102,7 +102,6 @@ class BeneficiariesController extends ActiveController
         $search->userRole = $authUserModel->role;
 
         if ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
-
             // Get bps id
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
 
