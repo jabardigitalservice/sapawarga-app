@@ -83,6 +83,8 @@ class BeneficiarySearch extends Beneficiary
                     'nik',
                     'rt',
                     'rw',
+                    'domicile_rt',
+                    'domicile_rw',
                     'income_before',
                     'income_after',
                     'status_verification',
