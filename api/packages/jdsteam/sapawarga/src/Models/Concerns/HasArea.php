@@ -61,9 +61,81 @@ trait HasArea
         ];
     }
 
+    // Get name by code_bps NIK
+    public function getKelurahanNikBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'kel_bps_id']);
+    }
 
-    // Get name by code_bps
+    public function getKecamatanNikBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'kec_bps_id']);
+    }
 
+    public function getKabkotaNikBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'kabkota_bps_id']);
+    }
+
+    public function getProvinceNikBps()
+    {
+        return $this->hasOne(Area::className(), ['code_bps' => 'province_bps_id']);
+    }
+
+    protected function getKabkotaBpsField()
+    {
+        if (empty($this->kabkotaNikBps)) {
+            return null;
+        }
+
+        return [
+            'id' => $this->kabkotaNikBps->id,
+            'code_bps' => $this->kabkotaNikBps->code_bps,
+            'name' => $this->kabkotaNikBps->name,
+        ];
+    }
+
+    protected function getKecBpsField()
+    {
+        if (empty($this->kecamatanNikBps)) {
+            return null;
+        }
+
+        return [
+            'id' => $this->kecamatanNikBps->id,
+            'code_bps' => $this->kecamatanNikBps->code_bps,
+            'name' => $this->kecamatanNikBps->name,
+        ];
+    }
+
+    protected function getKelBpsField()
+    {
+        if (empty($this->kelurahanNikBps)) {
+            return null;
+        }
+
+        return [
+            'id' => $this->kelurahanNikBps->id,
+            'code_bps' => $this->kelurahanNikBps->code_bps,
+            'name' => $this->kelurahanNikBps->name,
+        ];
+    }
+
+    protected function getProvBpsField()
+    {
+        if (empty($this->provinceNikBps)) {
+            return null;
+        }
+
+        return [
+            'id' => $this->provinceNikBps->id,
+            'code_bps' => $this->provinceNikBps->code_bps,
+            'name' => $this->provinceNikBps->name,
+        ];
+    }
+
+
+    // Get name by code_bps domicile
     public function getKelurahanBps()
     {
         return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kel_bps_id']);

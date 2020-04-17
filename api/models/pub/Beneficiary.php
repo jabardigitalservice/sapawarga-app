@@ -72,12 +72,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [['nik'], 'unique'],
 
             [
-                ['name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw'],
+                ['name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk'],
                 'trim'
             ],
 
             [
-                ['status_verification', 'status', 'job_type_id', 'job_status_id', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'kabkota_id', 'kec_id', 'kel_id', 'income_before', 'income_after', 'total_family_members'],
+                ['status_verification', 'status', 'job_type_id', 'job_status_id', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'kabkota_id', 'kec_id', 'kel_id', 'income_before', 'income_after', 'total_family_members', 'rt', 'rw'],
                 'integer'
             ],
 
@@ -91,12 +91,15 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'name',
+
             'kabkota_id',
             'kec_id',
             'kel_id',
+
             'kabkota' => 'KabkotaField',
             'kecamatan' => 'KecamatanField',
             'kelurahan' => 'KelurahanField',
+
             'rt',
             'rw',
             'status'
