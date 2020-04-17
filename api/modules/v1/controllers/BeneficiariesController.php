@@ -9,7 +9,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\filters\AccessControl;
-use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
 /**
@@ -121,12 +120,19 @@ class BeneficiariesController extends ActiveController
      * @param $id
      * @return array
      * @throws \yii\web\HttpException
-     * @throws \yii\web\BadRequestHttpException;
      */
     public function actionNik($id)
     {
+        $model = null;
+
         if (!preg_match('/^[0-9]{16}$/', $id)) {
-            throw new BadRequestHttpException('NIK tidak valid');
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            $model = [
+                "nik" => [ Yii::t('app', 'error.nik.invalid') ]
+            ];
+
+            return $model;
         }
 
         $client = new Client([
@@ -141,7 +147,6 @@ class BeneficiariesController extends ActiveController
             ],
         ];
 
-        $model = null;
         try {
             $response = $client->request('POST', 'kependudukan/nik', $requestBody);
             $responseBody = json_decode($response->getBody(), true);
