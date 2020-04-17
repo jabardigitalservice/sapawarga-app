@@ -127,7 +127,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'name',
             'province_bps_id',
             'kabkota_bps_id',
-            'kabkota_bps_id',
             'kec_bps_id',
             'kel_bps_id',
             'province_id',

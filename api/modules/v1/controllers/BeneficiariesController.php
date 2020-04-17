@@ -121,9 +121,9 @@ class BeneficiariesController extends ActiveController
         ]);
         $requestBody = [
             'json' => [
-                "api_key" => getenv('KEPENDUDUKAN_API_KEY'),
-                "event_key" => "bansos/nik",
-                "nik" => $id ,
+                'api_key' => getenv('KEPENDUDUKAN_API_KEY'),
+                'event_key' => 'bansos/nik',
+                'nik' => $id ,
             ],
         ];
 
