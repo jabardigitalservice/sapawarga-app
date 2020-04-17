@@ -129,7 +129,7 @@ class BeneficiariesController extends ActiveController
             $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
             $model = [
-                "nik" => [ Yii::t('app', 'error.nik.invalid') ]
+                'nik' => [ Yii::t('app', 'error.nik.invalid') ]
             ];
 
             return $model;
