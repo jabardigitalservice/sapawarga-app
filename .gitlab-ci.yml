@@ -177,6 +177,10 @@ deploy_staging_eks:
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
 
+    # External API STAGING
+    - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
+
     # Mailer STAGING #
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
@@ -261,6 +265,9 @@ deploy_prod_eks:
     - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
+    # External API PRODUCTION
+    - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
     # Mailer PRODUCTION
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
