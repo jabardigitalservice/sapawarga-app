@@ -90,7 +90,7 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: APP_STORAGE_S3_KEY
-            
+
             - name: APP_STORAGE_S3_SECRET
               valueFrom:
                 secretKeyRef:
@@ -138,12 +138,24 @@ spec:
                   name: sapawarga-backend-config-env
                   key: FRONTEND_URL
 
+            - name: KEPENDUDUKAN_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: KEPENDUDUKAN_API_BASE_URL
+
+            - name: KEPENDUDUKAN_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: KEPENDUDUKAN_API_KEY
+
             - name: MAILER_TRANSPORT_FILE
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_TRANSPORT_FILE
-                  
+
             - name: MAILER_HOST
               valueFrom:
                 configMapKeyRef:
@@ -155,7 +167,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_PORT
-            
+
             - name: MAILER_FROM_EMAIL
               valueFrom:
                 configMapKeyRef:
@@ -167,7 +179,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_FROM_NAME
-       
+
             - name: APP_STORAGE_S3_BUCKET
               valueFrom:
                 configMapKeyRef:
@@ -191,7 +203,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: APP_STORAGE_S3_BUCKET_REGION
-                  
+
       initContainers:
       - name: volume-permission-fix
         image: busybox

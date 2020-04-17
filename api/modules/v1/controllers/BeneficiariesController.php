@@ -4,10 +4,9 @@ namespace app\modules\v1\controllers;
 
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
-use Illuminate\Support\Arr;
+use GuzzleHttp\Client;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\VerbFilter;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -28,11 +27,11 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik'],
                     'roles' => ['admin', 'staffProv', 'staffKel', 'staffRW', 'trainer'],
 
                 ]
@@ -108,5 +107,59 @@ class BeneficiariesController extends ActiveController
         }
 
         return $search->search($params);
+    }
+
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionNik($id)
+    {
+        $client = new Client([
+            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL')
+        ]);
+        $requestBody = [
+            'json' => [
+                'api_key' => getenv('KEPENDUDUKAN_API_KEY'),
+                'event_key' => 'cek_bansos',
+                'nik' => $id ,
+            ],
+        ];
+
+        $response = $client->request('POST', 'kependudukan/nik', $requestBody);
+        $responseBody = json_decode($response->getBody(), true);
+        $model = $responseBody['data'];
+
+        $model = [
+            'nik' => strval($model['nik']),
+            'no_kk' => strval($model['no_kk']),
+            'name' => $model['nama'],
+            'province_bps_id' => strval($model['no_prop']),
+            'kabkota_bps_id' => $model['kode_kab_bps'],
+            'kec_bps_id' => $model['kode_kec_bps'],
+            'kel_bps_id' => $model['kode_kel_bps'],
+            'province' => [
+                'code_bps' => strval($model['no_prop']),
+                'name' => '',
+            ],
+            'kabkota' => [
+                'code_bps' => $model['kode_kab_bps'],
+                'name' => $model['kab'],
+            ],
+            'kecamatan' => [
+                'code_bps' => $model['kode_kec_bps'],
+                'name' => $model['kec'],
+            ],
+            'kelurahan' => [
+                'code_bps' => $model['kode_kel_bps'],
+                'name' => $model['kel'],
+            ],
+            'rt' => strval($model['rt']),
+            'rw' => strval($model['rw']),
+            'address' => $model['alamat'],
+        ];
+
+        return $model;
     }
 }
