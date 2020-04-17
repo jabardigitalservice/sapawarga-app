@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Area;
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
 use GuzzleHttp\Client;
@@ -101,9 +102,13 @@ class BeneficiariesController extends ActiveController
         $search->userRole = $authUserModel->role;
 
         if ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
+
+            // Get bps id
+            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+
             $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
-            $params['kel_id'] = $authUserModel->kel_id;
-            $params['rw'] = $authUserModel->rw;
+            $params['domicile_kel_bps_id'] = $area->code_bps;
+            $params['domicile_rw'] = $authUserModel->rw;
         }
 
         return $search->search($params);
