@@ -6,6 +6,7 @@ use app\models\Area;
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\filters\AccessControl;
 
@@ -121,7 +122,8 @@ class BeneficiariesController extends ActiveController
     public function actionNik($id)
     {
         $client = new Client([
-            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL')
+            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL'),
+            'timeout' => 30.00,
         ]);
         $requestBody = [
             'json' => [
@@ -131,38 +133,44 @@ class BeneficiariesController extends ActiveController
             ],
         ];
 
-        $response = $client->request('POST', 'kependudukan/nik', $requestBody);
-        $responseBody = json_decode($response->getBody(), true);
-        $model = $responseBody['data'];
+        $model = null;
+        try {
+            $response = $client->request('POST', 'kependudukan/nik', $requestBody);
+            $responseBody = json_decode($response->getBody(), true);
+            $model = $responseBody['data'];
 
-        $model = [
-            'nik' => strval($model['nik']),
-            'no_kk' => strval($model['no_kk']),
-            'name' => $model['nama'],
-            'province_bps_id' => strval($model['no_prop']),
-            'kabkota_bps_id' => $model['kode_kab_bps'],
-            'kec_bps_id' => $model['kode_kec_bps'],
-            'kel_bps_id' => $model['kode_kel_bps'],
-            'province' => [
-                'code_bps' => strval($model['no_prop']),
-                'name' => '',
-            ],
-            'kabkota' => [
-                'code_bps' => $model['kode_kab_bps'],
-                'name' => $model['kab'],
-            ],
-            'kecamatan' => [
-                'code_bps' => $model['kode_kec_bps'],
-                'name' => $model['kec'],
-            ],
-            'kelurahan' => [
-                'code_bps' => $model['kode_kel_bps'],
-                'name' => $model['kel'],
-            ],
-            'rt' => strval($model['rt']),
-            'rw' => strval($model['rw']),
-            'address' => $model['alamat'],
-        ];
+            $model = [
+                'nik' => strval($model['nik']),
+                'no_kk' => strval($model['no_kk']),
+                'name' => $model['nama'],
+                'province_bps_id' => strval($model['no_prop']),
+                'kabkota_bps_id' => $model['kode_kab_bps'],
+                'kec_bps_id' => $model['kode_kec_bps'],
+                'kel_bps_id' => $model['kode_kel_bps'],
+                'province' => [
+                    'code_bps' => strval($model['no_prop']),
+                    'name' => '',
+                ],
+                'kabkota' => [
+                    'code_bps' => $model['kode_kab_bps'],
+                    'name' => $model['kab'],
+                ],
+                'kecamatan' => [
+                    'code_bps' => $model['kode_kec_bps'],
+                    'name' => $model['kec'],
+                ],
+                'kelurahan' => [
+                    'code_bps' => $model['kode_kel_bps'],
+                    'name' => $model['kel'],
+                ],
+                'rt' => strval($model['rt']),
+                'rw' => strval($model['rw']),
+                'address' => $model['alamat'],
+            ];
+        } catch (RequestException $e) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(408);
+        }
 
         return $model;
     }
