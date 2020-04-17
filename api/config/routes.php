@@ -406,8 +406,8 @@ return [
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'POST nik' => 'nik',
-            'OPTIONS nik' => 'options',
+            'GET nik/{id}' => 'nik',
+            'OPTIONS nik/{id}' => 'options',
         ]
     ],
     [

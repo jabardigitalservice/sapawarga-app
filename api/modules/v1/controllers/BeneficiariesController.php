@@ -4,10 +4,9 @@ namespace app\modules\v1\controllers;
 
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
-use Illuminate\Support\Arr;
+use GuzzleHttp\Client;
 use Yii;
 use yii\filters\AccessControl;
-use yii\filters\VerbFilter;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -112,11 +111,26 @@ class BeneficiariesController extends ActiveController
 
 
     /**
+     * @param $id
      * @return array
      */
-    public function actionNik()
+    public function actionNik($id)
     {
-        $model = ['key' => 'value'];
+        $client = new Client([
+            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL')
+        ]);
+        $requestBody = [
+            'json' => [
+                "api_key" => getenv('KEPENDUDUKAN_API_KEY'),
+                "event_key" => "bansos/nik",
+                "nik" => $id ,
+            ],
+        ];
+
+        $response = $client->request('POST', 'kependudukan/nik', $requestBody);
+        $responseBody = json_decode($response->getBody(), true);
+        $model = $responseBody['data'];
+
         return $model;
     }
 }
