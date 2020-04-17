@@ -28,11 +28,11 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik'],
                     'roles' => ['admin', 'staffProv', 'staffKel', 'staffRW', 'trainer'],
 
                 ]
@@ -108,5 +108,15 @@ class BeneficiariesController extends ActiveController
         }
 
         return $search->search($params);
+    }
+
+
+    /**
+     * @return array
+     */
+    public function actionNik()
+    {
+        $model = ['key' => 'value'];
+        return $model;
     }
 }
