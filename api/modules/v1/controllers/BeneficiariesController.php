@@ -84,7 +84,7 @@ class BeneficiariesController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|\app\models\News
+     * @return mixed|\app\models\Beneficiery
      * @throws \yii\web\NotFoundHttpException
      */
     public function actionView($id)
@@ -115,6 +115,22 @@ class BeneficiariesController extends ActiveController
         return $search->search($params);
     }
 
+    /**
+     * @param $id
+     * @return mixed|\app\models\Beneficiery
+     */
+    public function actionCheckExistNik($id)
+    {
+        $model = Beneficiary::find()
+            ->where(['nik' => $id])
+            ->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+            ->exists();
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return $model;
+    }
 
     /**
      * @param $id

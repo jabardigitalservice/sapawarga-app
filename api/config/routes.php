@@ -408,6 +408,8 @@ return [
             'OPTIONS {id}' => 'options',
             'GET nik/{id}' => 'nik',
             'OPTIONS nik/{id}' => 'options',
+            'GET check-exist-nik/{id}' => 'check-exist-nik',
+            'OPTIONS check-exist-nik/{id}' => 'options',
         ]
     ],
     [
