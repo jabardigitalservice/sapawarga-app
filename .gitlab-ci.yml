@@ -2,7 +2,7 @@ stages:
   - versioning
   - code_quality
   - build
-  - test
+  # - test
   - deploy_staging
   - deploy_prod
 
