@@ -19,6 +19,6 @@ class m200417_055433_update_areas_province_bps_id extends CustomMigration
      */
     public function safeDown()
     {
-        $this->dropColumn('areas', 'province_bps_id');
+        $this->dropColumn('beneficiaries', 'province_bps_id');
     }
 }

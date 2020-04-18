@@ -96,7 +96,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
             [
                 [
-                    'name', 'address', 'phone', 'no_kk', 'notes', 'image_ktp', 'image_kk', 'rt', 'rw',
+                    'name', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'image_ktp', 'image_kk', 'rt', 'rw',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
                     'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
                     'domicile_rw', 'domicile_rt', 'domicile_address'
@@ -111,11 +111,13 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                     'status_verification', 'status', 'job_type_id', 'job_status_id',
                     'province_id', 'kabkota_id', 'kec_id', 'kel_id',
                     'income_before', 'income_after',
-                    'total_family_members'
+                    'is_poor_new', 'is_need_help',
+                    'total_family_members',
                 ],
                 'integer'
             ],
 
+            [['is_poor_new', 'is_need_help'], 'in', 'range' => [0, 1]],
             ['status_verification', 'in', 'range' => [1, 2, 3]],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
@@ -171,7 +173,11 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
                 return $this->image_kk ? "$publicBaseUrl/$this->image_kk" : null;
             },
+            'is_need_help',
+            'is_poor_new',
             'notes',
+            'notes_approved',
+            'notes_rejected',
             'status_verification',
             'status_verification_label' => 'StatusLabelVerification',
             'status',
@@ -229,6 +235,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'status_verification' => 'Status Vefifikasi',
             'status' => '',
             'notes' => 'Catatan',
+            'is_poor_new' => 'Warga Miskin Baru',
+            'is_need_help' => 'Butuh Bantuan',
         ];
     }
 
