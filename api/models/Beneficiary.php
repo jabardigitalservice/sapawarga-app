@@ -103,6 +103,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 ],
                 'trim'
             ],
+            [['rw', 'rt', 'domicile_rw', 'domicile_rt'], 'filter', 'filter' => function ($value) {
+                return ltrim($value, '0');
+            }],
             [
                 [
                     'status_verification', 'status', 'job_type_id', 'job_status_id',
