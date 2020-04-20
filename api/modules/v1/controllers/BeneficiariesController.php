@@ -169,7 +169,13 @@ class BeneficiariesController extends ActiveController
             $responseBody = json_decode($response->getBody(), true);
             $model = $responseBody['data']['content'];
             if (!$model) {
-                throw new NotFoundHttpException(Yii::t('app', 'error.nik.notfound'));
+                $response = Yii::$app->getResponse();
+                $response->setStatusCode(422);
+                $model = [
+                    'nik' => [ Yii::t('app', 'error.nik.notfound') ]
+                ];
+
+                return $model;
             }
 
             $model = [
