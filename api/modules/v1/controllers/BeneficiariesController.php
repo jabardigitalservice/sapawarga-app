@@ -30,13 +30,12 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik'],
                     'roles' => ['admin', 'staffProv', 'staffKel', 'staffRW', 'trainer'],
-
                 ]
             ],
         ];
@@ -166,7 +165,7 @@ class BeneficiariesController extends ActiveController
         try {
             $response = $client->request('POST', 'kependudukan/nik', $requestBody);
             $responseBody = json_decode($response->getBody(), true);
-            $model = $responseBody['data'];
+            $model = $responseBody['data']['content'];
 
             $model = [
                 'nik' => strval($model['nik']),
