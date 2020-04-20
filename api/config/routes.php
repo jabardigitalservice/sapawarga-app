@@ -397,4 +397,53 @@ return [
             'OPTIONS my-badge' => 'options',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET nik/{id}' => 'nik',
+            'OPTIONS nik/{id}' => 'options',
+            'GET check-exist-nik/{id}' => 'check-exist-nik',
+            'OPTIONS check-exist-nik/{id}' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/dinsos-job-type',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
+
+    //  FOR Public route
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/area',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options'
+        ]
+    ]
 ];

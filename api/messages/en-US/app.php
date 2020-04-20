@@ -39,6 +39,9 @@ return [
     'error.validation.rangedatefill' => 'The range date has been used',
     'error.validation.enddate_less_than_today' => 'End date cannot less than today',
 
+    'error.nik.invalid' => 'Invalid NIK.',
+    'error.nik.notfound' => 'NIK is not registered in Disdukcapil.',
+
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 
     'error.image.invalid_format' => 'The file "{file}" is not an image.',
@@ -68,4 +71,8 @@ return [
     'status.unpublished' => 'Unpublished',
     'status.approval-pending' => 'Sent',
     'status.approval-rejected' => 'Rejected',
+
+    'status.beneficiary.pending' => 'Pending',
+    'status.beneficiary.reject' => 'Rejected',
+    'status.beneficiary.approved' => 'Approved',
 ];

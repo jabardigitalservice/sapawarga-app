@@ -39,6 +39,9 @@ return [
     'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
     'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh kurang dari hari ini',
 
+    'error.nik.invalid' => 'NIK tidak valid.',
+    'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
+
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
     'error.image.invalid_format' => 'File "{file}" bukan berupa gambar',
@@ -68,4 +71,8 @@ return [
     'status.unpublished' => 'Tidak Dipublikasikan',
     'status.approval-pending'  => 'Terkirim',
     'status.approval-rejected' => 'Ditolak',
+
+    'status.beneficiary.pending' => 'Belum Terverifikasi',
+    'status.beneficiary.reject' => 'Ditolak',
+    'status.beneficiary.approved' => 'Terverifikasi',
 ];
