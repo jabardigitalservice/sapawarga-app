@@ -112,6 +112,8 @@ test_api:
     - sleep 60
     - docker ps
     - docker-compose exec -T api composer sniff
+    - docker-compose exec -T api php yii migrate --migrationPath=@yii/rbac/migrations --interactive=0
+    - docker-compose exec -T api php yii migrate/up --interactive=0
     - docker-compose exec -T api php yii seeder
     - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
     - mv ./api/tests/_output/coverage.xml ./clover.xml
