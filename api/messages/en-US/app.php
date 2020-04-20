@@ -40,7 +40,7 @@ return [
     'error.validation.enddate_less_than_today' => 'End date cannot less than today',
 
     'error.nik.invalid' => 'Invalid NIK.',
-    'error.nik.notfound' => 'NIK not found.',
+    'error.nik.notfound' => 'NIK is not registered in Disdukcapil.',
 
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 
