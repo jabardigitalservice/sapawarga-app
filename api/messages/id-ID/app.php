@@ -40,6 +40,7 @@ return [
     'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh kurang dari hari ini',
 
     'error.nik.invalid' => 'NIK tidak valid.',
+    'error.nik.notfound' => 'NIK tidak ditemukan.',
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 

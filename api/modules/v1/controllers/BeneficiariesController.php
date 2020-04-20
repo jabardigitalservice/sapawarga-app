@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -135,6 +136,7 @@ class BeneficiariesController extends ActiveController
      * @param $id
      * @return array
      * @throws \yii\web\HttpException
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionNik($id)
     {
@@ -166,6 +168,9 @@ class BeneficiariesController extends ActiveController
             $response = $client->request('POST', 'kependudukan/nik', $requestBody);
             $responseBody = json_decode($response->getBody(), true);
             $model = $responseBody['data']['content'];
+            if (!$model) {
+                throw new NotFoundHttpException(Yii::t('app', 'error.nik.notfound'));
+            }
 
             $model = [
                 'nik' => strval($model['nik']),
