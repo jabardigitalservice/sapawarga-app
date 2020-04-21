@@ -55,7 +55,7 @@ class BeneficiarySearch extends Beneficiary
             $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
         }
 
-        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE status = :status $conditional GROUP BY status_verification";
+        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE 1=1 $conditional GROUP BY status_verification";
 
         $provider =  new SqlDataProvider([
             'sql' => $sql,

@@ -50,7 +50,7 @@ class SeederController extends Controller
     {
         Yii::$app->db->createCommand('TRUNCATE areas')->execute();
 
-        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/area.sql');
+        $sql = file_get_contents(__DIR__ . '/../migrations/seeder/area_seed.sql');
         Yii::$app->db->createCommand($sql)->execute();
     }
 

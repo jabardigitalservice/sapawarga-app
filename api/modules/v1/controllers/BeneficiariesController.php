@@ -178,6 +178,11 @@ class BeneficiariesController extends ActiveController
                 return $model;
             }
 
+            $province = Area::find()
+                ->select('name')
+                ->where(['code_bps' => strval($model['no_prop'])])
+                ->one();
+
             $model = [
                 'nik' => strval($model['nik']),
                 'no_kk' => strval($model['no_kk']),
@@ -188,7 +193,7 @@ class BeneficiariesController extends ActiveController
                 'kel_bps_id' => $model['kode_kel_bps'],
                 'province' => [
                     'code_bps' => strval($model['no_prop']),
-                    'name' => '',
+                    'name' => $province->name,
                 ],
                 'kabkota' => [
                     'code_bps' => $model['kode_kab_bps'],
