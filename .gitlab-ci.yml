@@ -109,7 +109,7 @@ test_api:
     - docker-compose pull
     - docker images
     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
-    - sleep 180
+    - sleep 60
     - docker ps
     - docker-compose exec -T api composer sniff
     - docker-compose exec -T api php yii seeder
