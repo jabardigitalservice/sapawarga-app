@@ -25,5 +25,4 @@ class m200420_171857_update_beneficieries_indexing extends CustomMigration
     {
         $this->dropIndex('idx-beneficiaries', 'beneficiaries');
     }
-
 }
