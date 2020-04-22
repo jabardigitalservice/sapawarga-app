@@ -182,6 +182,7 @@ class BeneficiariesController extends ActiveController
                 ->select('name')
                 ->where(['code_bps' => strval($model['no_prop'])])
                 ->one();
+            $provinceName = $province ? $province['name'] : null;
 
             $model = [
                 'nik' => strval($model['nik']),
@@ -193,7 +194,7 @@ class BeneficiariesController extends ActiveController
                 'kel_bps_id' => $model['kode_kel_bps'],
                 'province' => [
                     'code_bps' => strval($model['no_prop']),
-                    'name' => $province->name,
+                    'name' => $provinceName,
                 ],
                 'kabkota' => [
                     'code_bps' => $model['kode_kab_bps'],
