@@ -24,7 +24,7 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
-        $query = Beneficiary::find()->where(['<>', 'status', Beneficiary::STATUS_DELETED]);
+        $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
@@ -58,7 +58,6 @@ class BeneficiarySearch extends Beneficiary
 
     protected function getQueryListUser($query, $params)
     {
-        $query->andFilterWhere(['=', 'status', Beneficiary::STATUS_ACTIVE]);
         return $this->getQueryAll($query, $params);
     }
 
