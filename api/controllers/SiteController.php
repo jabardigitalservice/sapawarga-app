@@ -17,6 +17,15 @@ class SiteController extends Controller
         return $response;
     }
 
+    public function actionStorage()
+    {
+        $response = new Response();
+        $response->statusCode = 200;
+        $response->data = file_get_contents(__DIR__ . '/../web/assets/version.json');
+
+        return $response;
+    }
+
     public function actionError()
     {
         $response = new Response();

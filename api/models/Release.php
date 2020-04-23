@@ -21,8 +21,6 @@ use yii\db\ActiveRecord;
  */
 class Release extends ActiveRecord
 {
-    const FILE_MANIFEST_PATH = '@webroot/storage/version.json';
-
     /**
      * {@inheritdoc}
      */
@@ -110,11 +108,6 @@ class Release extends ActiveRecord
             'force_update' => $latest->force_update,
         ]);
 
-        $jsonfile = Yii::getAlias(self::FILE_MANIFEST_PATH);
-
-        $fp = fopen($jsonfile, 'w+');
-
-        fwrite($fp, $json);
-        fclose($fp);
+        file_put_contents(__DIR__ . '/../web/assets/version.json', $json);
     }
 }
