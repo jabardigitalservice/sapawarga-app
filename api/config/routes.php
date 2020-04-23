@@ -5,6 +5,7 @@ use yii\web\GroupUrlRule;
 
 return [
     'ping' => 'site/ping',
+    'storage/version.json' => 'site/storage',
     'v1/cron/broadcasts' => 'v1/broadcast-cron',
     [
         'class' => 'yii\rest\UrlRule',
