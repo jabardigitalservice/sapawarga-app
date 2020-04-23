@@ -17,7 +17,7 @@ return [
     'jwtSecretCode' => 'someSecretKey',
     'user.passwordResetTokenExpire' => 3600,
     'paginationParams' => $paginationParams,
-    'upload_max_size' => 1024 * 1024 * 5,
+    'upload_max_size' => 1024 * 1024 * 10,
     'storagePublicBaseUrl' => getenv('APP_STORAGE_PUBLIC_URL'),
     'hashidSaltSecret' => 'JDSSaltSecret',
     'hashidLengthPad' => 5,
