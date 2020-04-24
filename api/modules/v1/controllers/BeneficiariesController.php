@@ -49,7 +49,9 @@ class BeneficiariesController extends ActiveController
         $actions = parent::actions();
 
         // Override Actions
+        unset($actions['create']);
         unset($actions['view']);
+        unset($actions['update']);
         unset($actions['delete']);
 
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
@@ -90,6 +92,45 @@ class BeneficiariesController extends ActiveController
     public function actionView($id)
     {
         $model = $this->findModel($id, $this->modelClass);
+        return $model;
+    }
+
+    public function actionCreate()
+    {
+        $model = new Beneficiary();
+
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        return $model;
+    }
+
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id, Beneficiary::class);
+        $params = Yii::$app->getRequest()->getBodyParams();
+
+        $model->load($params, '');
+
+        if ($model->validate() && $model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(200);
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
         return $model;
     }
 
