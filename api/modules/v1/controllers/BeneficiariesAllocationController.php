@@ -2,9 +2,9 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\BeneficiaryAllocation;
 use Yii;
 use app\models\Area;
-use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
 use yii\filters\AccessControl;
 
@@ -13,7 +13,7 @@ use yii\filters\AccessControl;
  */
 class BeneficiariesAllocationController extends ActiveController
 {
-    public $modelClass = Beneficiary::class;
+    public $modelClass = BeneficiaryAllocation::class;
 
     public function behaviors()
     {
