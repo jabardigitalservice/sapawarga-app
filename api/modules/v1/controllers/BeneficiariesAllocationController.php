@@ -3,9 +3,8 @@
 namespace app\modules\v1\controllers;
 
 use app\models\BeneficiaryAllocation;
+use app\models\BeneficiaryAllocationSearch;
 use Yii;
-use app\models\Area;
-use app\models\BeneficiarySearch;
 use yii\filters\AccessControl;
 
 /**
@@ -94,20 +93,10 @@ class BeneficiariesAllocationController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $user = Yii::$app->user;
+        $user          = Yii::$app->user;
         $authUserModel = $user->identity;
 
-        $search = new BeneficiarySearch();
-        $search->userRole = $authUserModel->role;
-
-        if ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
-            // Get bps id
-            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
-
-            $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
-            $params['domicile_kel_bps_id'] = $area->code_bps;
-            $params['domicile_rw'] = $authUserModel->rw;
-        }
+        $search = new BeneficiaryAllocationSearch();
 
         return $search->search($params);
     }
