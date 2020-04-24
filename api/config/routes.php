@@ -413,6 +413,8 @@ return [
             'OPTIONS check-exist-nik/{id}' => 'options',
         ]
     ],
+    'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
+    'GET v1/beneficiaries/allocation/<id:\d+>' => 'v1/beneficiaries-allocation/view',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/dinsos-job-type',
