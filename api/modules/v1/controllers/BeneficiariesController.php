@@ -101,8 +101,6 @@ class BeneficiariesController extends ActiveController
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
-        $this->checkAccess('create', $model);
-
         if ($model->validate() && $model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);

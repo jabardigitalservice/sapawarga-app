@@ -92,7 +92,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'required',
             ],
 
-            ['nik', 'validateExistingNIK'],
+            ['nik', 'unique'],
 
             [
                 [
@@ -252,22 +252,5 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             ],
             BlameableBehavior::class,
         ];
-    }
-
-    /**
-     * Checks if NIK exists in database
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function validateExistingNIK($attribute, $params)
-    {
-        $isExist = Beneficiary::find()
-            ->where(['nik' => $this->nik])
-            ->exists();
-
-        if ($isExist) {
-            $this->addError($attribute, Yii::t('app', 'error.nik.taken'));
-        }
     }
 }
