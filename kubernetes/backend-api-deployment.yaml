@@ -6,7 +6,8 @@ metadata:
   labels:
     app: sapawarga-api
 spec:
-  replicas: 2
+  # temporary during a covid-19 #
+  replicas: 6
   template:
     metadata:
       labels:

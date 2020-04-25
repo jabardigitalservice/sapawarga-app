@@ -50,12 +50,24 @@ class BeneficiarySearch extends Beneficiary
         $paramsSql = [':status' => Beneficiary::STATUS_ACTIVE];
 
         // Filtering
-        if (Arr::get($params, 'kabkota_id')) {
-            $conditional .= 'AND kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
+        if (Arr::get($params, 'domicile_kabkota_bps_id')) {
+            $conditional .= 'AND domicile_kabkota_bps_id = :domicile_kabkota_bps_id ';
+            $paramsSql[':domicile_kabkota_bps_id'] = Arr::get($params, 'domicile_kabkota_bps_id');
+        }
+        if (Arr::get($params, 'domicile_kec_bps_id')) {
+            $conditional .= 'AND domicile_kec_bps_id = :domicile_kec_bps_id ';
+            $paramsSql[':domicile_kec_bps_id'] = Arr::get($params, 'domicile_kec_bps_id');
+        }
+        if (Arr::get($params, 'domicile_kel_bps_id')) {
+            $conditional .= 'AND domicile_kel_bps_id = :domicile_kel_bps_id ';
+            $paramsSql[':domicile_kel_bps_id'] = Arr::get($params, 'domicile_kel_bps_id');
+        }
+        if (Arr::get($params, 'domicile_rw')) {
+            $conditional .= 'AND domicile_rw = :domicile_rw ';
+            $paramsSql[':domicile_rw'] = Arr::get($params, 'domicile_rw');
         }
 
-        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE 1=1 $conditional GROUP BY status_verification";
+        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE status = :status $conditional GROUP BY status_verification";
 
         $provider =  new SqlDataProvider([
             'sql' => $sql,
