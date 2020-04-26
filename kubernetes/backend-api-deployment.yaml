@@ -7,7 +7,7 @@ metadata:
     app: sapawarga-api
 spec:
   # temporary during a covid-19 #
-  replicas: 6
+  replicas: 5
   template:
     metadata:
       labels:
@@ -214,6 +214,16 @@ spec:
       #     mountPath: /data
       imagePullSecrets:
         - name: regcred
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sapawarga-api
+            topologyKey: "kubernetes.io/hostname"
       # volumes:
       # - name: api-persistent-storage
       #   persistentVolumeClaim:
