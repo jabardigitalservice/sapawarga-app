@@ -177,7 +177,6 @@ class BeneficiariesController extends ActiveController
 
     /**
      * @param $nik
-     * @return array
      * @throws \yii\web\HttpException
      * @throws \yii\web\NotFoundHttpException
      */
@@ -195,70 +194,6 @@ class BeneficiariesController extends ActiveController
             return $nikModel->getErrors();
         }
 
-        $client = new Client([
-            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL'),
-            'timeout' => 30.00,
-        ]);
-        $requestBody = [
-            'json' => [
-                'api_key' => getenv('KEPENDUDUKAN_API_KEY'),
-                'event_key' => 'cek_bansos',
-                'nik' => $nik ,
-            ],
-        ];
-
-        try {
-            $response = $client->request('POST', 'kependudukan/nik', $requestBody);
-            $responseBody = json_decode($response->getBody(), true);
-            $model = $responseBody['data']['content'];
-            if (!$model) {
-                $response = Yii::$app->getResponse();
-                $response->setStatusCode(422);
-                $model = [
-                    'nik' => [ Yii::t('app', 'error.nik.notfound') ]
-                ];
-
-                return $model;
-            }
-
-            $province = Area::find()
-                ->select('name')
-                ->where(['code_bps' => strval($model['no_prop'])])
-                ->one();
-            $provinceName = $province ? $province['name'] : null;
-
-            $model = [
-                'nik' => strval($model['nik']),
-                'no_kk' => strval($model['no_kk']),
-                'name' => $model['nama'],
-                'province_bps_id' => strval($model['no_prop']),
-                'kabkota_bps_id' => $model['kode_kab_bps'],
-                'kec_bps_id' => $model['kode_kec_bps'],
-                'kel_bps_id' => $model['kode_kel_bps'],
-                'province' => [
-                    'code_bps' => strval($model['no_prop']),
-                    'name' => $provinceName,
-                ],
-                'kabkota' => [
-                    'code_bps' => $model['kode_kab_bps'],
-                    'name' => $model['kab'],
-                ],
-                'kecamatan' => [
-                    'code_bps' => $model['kode_kec_bps'],
-                    'name' => $model['kec'],
-                ],
-                'kelurahan' => [
-                    'code_bps' => $model['kode_kel_bps'],
-                    'name' => $model['kel'],
-                ],
-                'rt' => strval($model['rt']),
-                'rw' => strval($model['rw']),
-                'address' => $model['alamat'],
-            ];
-        } catch (RequestException $e) {
-            throw new HttpException(408, 'Request Time-out');
-        }
-
-        return $model;
+        return 'OK';
     }
 }
