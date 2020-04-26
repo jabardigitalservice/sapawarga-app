@@ -39,7 +39,7 @@ return [
     'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
     'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh kurang dari hari ini',
 
-    'error.nik.invalid' => 'NIK tidak valid.',
+    'error.nik.invalid' => 'Format NIK tidak valid.',
     'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
     'error.nik.taken' => 'NIK sudah digunakan.',
 

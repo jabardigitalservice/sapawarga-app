@@ -404,11 +404,12 @@ return [
         'pluralize' => false,
         'tokens' => [
             '{id}' => '<id:\d+>',
+            '{nik}' => '<nik:\w+>',
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET nik/{id}' => 'nik',
-            'OPTIONS nik/{id}' => 'options',
+            'GET nik/{nik}' => 'nik',
+            'OPTIONS nik/{nik}' => 'options',
             'GET check-exist-nik/{id}' => 'check-exist-nik',
             'OPTIONS check-exist-nik/{id}' => 'options',
         ]

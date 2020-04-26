@@ -5,9 +5,11 @@ namespace app\modules\v1\controllers;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
+use app\validator\NikValidator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Yii;
+use yii\base\DynamicModel;
 use yii\filters\AccessControl;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -174,23 +176,23 @@ class BeneficiariesController extends ActiveController
     }
 
     /**
-     * @param $id
+     * @param $nik
      * @return array
      * @throws \yii\web\HttpException
      * @throws \yii\web\NotFoundHttpException
      */
-    public function actionNik($id)
+    public function actionNik($nik)
     {
-        $model = null;
+        $nikModel = new DynamicModel(['nik' => $nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+        $nikModel->addRule('nik', NikValidator::class);
 
-        if (!preg_match('/^[0-9]{16}$/', $id)) {
+        if ($nikModel->validate() === false) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
-            $model = [
-                'nik' => [ Yii::t('app', 'error.nik.invalid') ]
-            ];
 
-            return $model;
+            return $nikModel->getErrors();
         }
 
         $client = new Client([
@@ -201,7 +203,7 @@ class BeneficiariesController extends ActiveController
             'json' => [
                 'api_key' => getenv('KEPENDUDUKAN_API_KEY'),
                 'event_key' => 'cek_bansos',
-                'nik' => $id ,
+                'nik' => $nik ,
             ],
         ];
 
