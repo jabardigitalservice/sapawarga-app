@@ -6,13 +6,9 @@ use app\models\Area;
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
 use app\validator\NikValidator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
-use yii\web\HttpException;
-use yii\web\NotFoundHttpException;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -182,17 +178,37 @@ class BeneficiariesController extends ActiveController
      */
     public function actionNik($nik)
     {
+        $user      = Yii::$app->user;
+        $ipAddress = Yii::$app->request->userIP;
+
         $nikModel = new DynamicModel(['nik' => $nik]);
         $nikModel->addRule('nik', 'trim');
         $nikModel->addRule('nik', 'required');
         $nikModel->addRule('nik', NikValidator::class);
 
+        $log = [
+            'user_id'    => $user->id,
+            'nik'        => $nik,
+            'ip_address' => $ipAddress,
+            'status'     => 0,
+            'created_at' => time(),
+            'updated_at' => time(),
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ];
+
         if ($nikModel->validate() === false) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
 
+            Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
+
             return $nikModel->getErrors();
         }
+
+        $log['status'] = 1;
+
+        Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
 
         return 'OK';
     }
