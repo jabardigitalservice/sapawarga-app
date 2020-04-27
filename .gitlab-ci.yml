@@ -201,6 +201,7 @@ deploy_staging_eks:
 
      # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
      # version queue jobs import #
@@ -286,6 +287,7 @@ deploy_prod_eks:
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
     # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
     # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     # version queue jobs import #

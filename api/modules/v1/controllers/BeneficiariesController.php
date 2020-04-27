@@ -5,12 +5,10 @@ namespace app\modules\v1\controllers;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use app\validator\NikValidator;
 use Yii;
+use yii\base\DynamicModel;
 use yii\filters\AccessControl;
-use yii\web\HttpException;
-use yii\web\NotFoundHttpException;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -174,89 +172,44 @@ class BeneficiariesController extends ActiveController
     }
 
     /**
-     * @param $id
-     * @return array
+     * @param $nik
      * @throws \yii\web\HttpException
      * @throws \yii\web\NotFoundHttpException
      */
-    public function actionNik($id)
+    public function actionNik($nik)
     {
-        $model = null;
+        $user      = Yii::$app->user;
+        $ipAddress = Yii::$app->request->userIP;
 
-        if (!preg_match('/^[0-9]{16}$/', $id)) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(422);
-            $model = [
-                'nik' => [ Yii::t('app', 'error.nik.invalid') ]
-            ];
+        $nikModel = new DynamicModel(['nik' => $nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+        $nikModel->addRule('nik', NikValidator::class);
 
-            return $model;
-        }
-
-        $client = new Client([
-            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL'),
-            'timeout' => 30.00,
-        ]);
-        $requestBody = [
-            'json' => [
-                'api_key' => getenv('KEPENDUDUKAN_API_KEY'),
-                'event_key' => 'cek_bansos',
-                'nik' => $id ,
-            ],
+        $log = [
+            'user_id'    => $user->id,
+            'nik'        => $nik,
+            'ip_address' => $ipAddress,
+            'status'     => 0,
+            'created_at' => time(),
+            'updated_at' => time(),
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
         ];
 
-        try {
-            $response = $client->request('POST', 'kependudukan/nik', $requestBody);
-            $responseBody = json_decode($response->getBody(), true);
-            $model = $responseBody['data']['content'];
-            if (!$model) {
-                $response = Yii::$app->getResponse();
-                $response->setStatusCode(422);
-                $model = [
-                    'nik' => [ Yii::t('app', 'error.nik.notfound') ]
-                ];
+        if ($nikModel->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
 
-                return $model;
-            }
+            Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
 
-            $province = Area::find()
-                ->select('name')
-                ->where(['code_bps' => strval($model['no_prop'])])
-                ->one();
-            $provinceName = $province ? $province['name'] : null;
-
-            $model = [
-                'nik' => strval($model['nik']),
-                'no_kk' => strval($model['no_kk']),
-                'name' => $model['nama'],
-                'province_bps_id' => strval($model['no_prop']),
-                'kabkota_bps_id' => $model['kode_kab_bps'],
-                'kec_bps_id' => $model['kode_kec_bps'],
-                'kel_bps_id' => $model['kode_kel_bps'],
-                'province' => [
-                    'code_bps' => strval($model['no_prop']),
-                    'name' => $provinceName,
-                ],
-                'kabkota' => [
-                    'code_bps' => $model['kode_kab_bps'],
-                    'name' => $model['kab'],
-                ],
-                'kecamatan' => [
-                    'code_bps' => $model['kode_kec_bps'],
-                    'name' => $model['kec'],
-                ],
-                'kelurahan' => [
-                    'code_bps' => $model['kode_kel_bps'],
-                    'name' => $model['kel'],
-                ],
-                'rt' => strval($model['rt']),
-                'rw' => strval($model['rw']),
-                'address' => $model['alamat'],
-            ];
-        } catch (RequestException $e) {
-            throw new HttpException(408, 'Request Time-out');
+            return $nikModel->getErrors();
         }
 
-        return $model;
+        $log['status'] = 1;
+
+        Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
+
+        return 'OK';
     }
 }
