@@ -6,6 +6,8 @@ use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use app\validator\NikValidator;
+use yii\base\DynamicModel;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -128,6 +130,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'nik',
+            'is_nik_valid' => 'IsNIKValidField',
             'no_kk',
             'name',
             'province_bps_id',
@@ -207,6 +210,16 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         }
 
         return $statusLabel;
+    }
+
+    protected function getIsNIKValidField()
+    {
+        $nikModel = new DynamicModel(['nik' => $this->nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+        $nikModel->addRule('nik', NikValidator::class);
+
+        return (int)$nikModel->validate();
     }
 
     /**
