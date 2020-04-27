@@ -12,7 +12,7 @@ class NikRateLimitValidator extends Validator
         $count = (new \yii\db\Query())
             ->from('beneficiaries_nik_logs')
             ->where(['user_id' => $model->user_id])
-            ->andWhere(['>=', 'created_at', time() - 10])
+            ->andWhere(['>=', 'created_at', time() - 5])
             ->count();
 
         if ($count > 0) {
