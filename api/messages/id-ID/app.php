@@ -41,7 +41,7 @@ return [
 
     'error.nik.invalid' => 'Format NIK tidak valid.',
     'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
-    'error.nik.taken' => 'NIK sudah digunakan.',
+    'error.nik.taken' => 'NIK sudah terdaftar.',
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 

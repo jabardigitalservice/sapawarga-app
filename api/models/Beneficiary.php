@@ -92,7 +92,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'required',
             ],
 
-            ['nik', 'validateUniqueNIK'],
+            ['nik', 'unique'],
 
             [
                 [
@@ -215,7 +215,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     public function attributeLabels()
     {
         return [
-            'nik' => 'No KTP',
+            'nik' => 'NIK',
             'no_kk' => 'No KK',
             'name' => 'Nama Lengkap',
             'kabkota_bps_id' => 'Kota',
