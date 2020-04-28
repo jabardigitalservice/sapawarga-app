@@ -19,15 +19,13 @@ use Illuminate\Support\Collection;
  * @property int $id
  * @property string $nik
  * @property string $name
- * @property string $kabkota_bps_id
- * @property string $kec_bps_id
- * @property string $kel_bps_id
- * @property string $kabkota_id
- * @property string $kec_id
- * @property string $kel_id
- * @property string $rt
- * @property string $rw
- * @property string $address
+ * @property string $domicile_province_bps_id
+ * @property string $domicile_kabkota_bps_id
+ * @property string $domicile_kec_bps_id
+ * @property string $domicile_kel_bps_id
+ * @property string $domicile_rw
+ * @property string $domicile_rt
+ * @property string $domicile_address
  * @property string $phone
  * @property int $total_family_members
  * @property string $job_type_id
@@ -36,9 +34,14 @@ use Illuminate\Support\Collection;
  * @property int $income_after
  * @property string $image_ktp
  * @property string $image_kk
+ * @property int $is_need_help
+ * @property int $is_poor_new
  * @property int $status_verification
  * @property int $status
  * @property string $notes
+ * @property string $notes_approved
+ * @property string $notes_rejected
+ * @property string $notes_nik_empty
  * @property int $created_by
  * @property int $updated_by
  * @property int $created_at
@@ -98,7 +101,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
             [
                 [
-                    'name', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'image_ktp', 'image_kk', 'rt', 'rw',
+                    'name', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk', 'rt', 'rw',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
                     'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
                     'domicile_rw', 'domicile_rt', 'domicile_address', 'nik'
@@ -181,6 +184,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'notes',
             'notes_approved',
             'notes_rejected',
+            'notes_nik_empty',
             'status_verification',
             'status_verification_label' => 'StatusLabelVerification',
             'status',
