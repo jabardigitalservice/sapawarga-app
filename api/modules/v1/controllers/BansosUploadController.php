@@ -81,14 +81,31 @@ class BansosUploadController extends ActiveController
             return $model->getErrors();
         }
 
-        $kabkota = Area::findOne(['id' => $kabkotaId]);
+        $kabkota   = Area::findOne(['id' => $kabkotaId]);
+        $code      = $kabkota->code_bps;
+        $kecamatan = null;
+
+        if ($kecId !== null) {
+            $kecamatan = Area::findOne(['id' => $kecId]);
+            $code      = $kecamatan->code_bps;
+        }
 
         $ext          = $file->getExtension();
         $date         = date('Ymd_His');
-        $relativePath = "/bansos-bnba/{$kabkota->code_bps}_{$date}.{$ext}";
+        $relativePath = "bansos-bnba/{$code}_{$date}.{$ext}";
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
-        return ['file_path' => $relativePath];
+        return ['file_path' => $this->getFileUrl($relativePath)];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileUrl($relativePath)
+    {
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        return "{$publicBaseUrl}/{$relativePath}";
     }
 }
