@@ -93,7 +93,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     {
         return [
             [
-                ['nik', 'name', 'status_verification', 'status'],
+                ['name', 'status_verification', 'status'],
                 'required',
             ],
 
