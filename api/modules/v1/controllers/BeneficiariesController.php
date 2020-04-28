@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
+use app\validator\NikRateLimitValidator;
 use app\validator\NikValidator;
 use Yii;
 use yii\base\DynamicModel;
@@ -181,10 +182,11 @@ class BeneficiariesController extends ActiveController
         $user      = Yii::$app->user;
         $ipAddress = Yii::$app->request->userIP;
 
-        $nikModel = new DynamicModel(['nik' => $nik]);
+        $nikModel = new DynamicModel(['nik' => $nik, 'user_id' => $user->id]);
         $nikModel->addRule('nik', 'trim');
         $nikModel->addRule('nik', 'required');
         $nikModel->addRule('nik', NikValidator::class);
+        $nikModel->addRule('nik', NikRateLimitValidator::class);
 
         $log = [
             'user_id'    => $user->id,

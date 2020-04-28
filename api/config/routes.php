@@ -416,6 +416,7 @@ return [
     ],
     'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
     'GET v1/beneficiaries/allocation/<id:\d+>' => 'v1/beneficiaries-allocation/view',
+    'v1/bansos/upload' => 'v1/bansos-upload/upload',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/dinsos-job-type',

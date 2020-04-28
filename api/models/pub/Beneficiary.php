@@ -49,6 +49,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     use HasArea, HasActiveStatus;
 
     const STATUS_PUBLISHED = 10;
+    const STATUS_PENDING = 1;
+    const STATUS_REJECT = 2;
+    const STATUS_APPROVED = 3;
 
     /**
      * {@inheritdoc}
@@ -92,20 +95,39 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'id',
             'name',
 
-            'kabkota_id',
-            'kec_id',
-            'kel_id',
+            'domicile_kabkota_bps_id',
+            'domicile_kec_bps_id',
+            'domicile_kel_bps_id',
+            'domicile_kabkota_name' => 'DomicileKabkotaField',
+            'domicile_kec_name' => 'DomicileKecField',
+            'domicile_kel_name' => 'DomicileKelField',
+            'domicile_rt',
+            'domicile_rw',
 
-            'kabkota' => 'KabkotaField',
-            'kecamatan' => 'KecamatanField',
-            'kelurahan' => 'KelurahanField',
-
-            'rt',
-            'rw',
-            'status'
+            'status_verification',
+            'status_verification_label' => 'StatusLabelVerification',
         ];
 
         return $fields;
+    }
+
+    protected function getStatusLabelVerification()
+    {
+        $statusLabel = '';
+
+        switch ($this->status_verification) {
+            case self::STATUS_PENDING:
+                $statusLabel = Yii::t('app', 'status.beneficiary.pending');
+                break;
+            case self::STATUS_REJECT:
+                $statusLabel = Yii::t('app', 'status.beneficiary.reject');
+                break;
+            case self::STATUS_APPROVED:
+                $statusLabel = Yii::t('app', 'status.beneficiary.approved');
+                break;
+        }
+
+        return $statusLabel;
     }
 
     /**

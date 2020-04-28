@@ -7,6 +7,13 @@ use yii\validators\Validator;
 
 class NikValidator extends Validator
 {
+    /**
+     * Regex rules:
+     * - 16 digits
+     * - The first digit is not '0'
+     * - The two first digits denote province code from Kemendagri
+     * - The last 4 digits are not '0000'
+     */
     public function validateAttribute($model, $attribute)
     {
         $value = $model->$attribute;
@@ -20,7 +27,7 @@ class NikValidator extends Validator
 
         $prefix = substr($value, 0, 2);
 
-        if (in_array($prefix, $allowedPrefix) && preg_match('/^[1-9]{1}[0-9]{11}[0-9]{3}[1-9]{1}$/', $value)) {
+        if (in_array($prefix, $allowedPrefix) && preg_match('/^[1-9]{1}[0-9]{11}(?!0{4})[0-9]{4}$/', $value)) {
             return true;
         }
 
