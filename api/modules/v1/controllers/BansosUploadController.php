@@ -64,13 +64,17 @@ class BansosUploadController extends ActiveController
          */
         $filesystem = Yii::$app->fs;
 
+        $type      = Yii::$app->request->post('type');
         $kabkotaId = Yii::$app->request->post('kabkota_id');
         $kecId     = Yii::$app->request->post('kec_id');
+
         $file      = UploadedFile::getInstanceByName('file');
 
-        $model = new DynamicModel(['file' => $file, 'kabkota_id' => $kabkotaId, 'kec_id' => $kecId]);
+        $model = new DynamicModel(['file' => $file, 'type' => $type, 'kabkota_id' => $kabkotaId, 'kec_id' => $kecId]);
 
         $model->addRule('file', 'required');
+        $model->addRule('type', 'trim');
+        $model->addRule('type', 'required');
         $model->addRule('kabkota_id', 'trim');
         $model->addRule('kabkota_id', 'required');
 
@@ -92,7 +96,7 @@ class BansosUploadController extends ActiveController
 
         $ext          = $file->getExtension();
         $date         = date('Ymd_His');
-        $relativePath = "bansos-bnba/{$code}_{$date}.{$ext}";
+        $relativePath = "bansos-bnba/{$code}_{$type}_{$date}.{$ext}";
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
