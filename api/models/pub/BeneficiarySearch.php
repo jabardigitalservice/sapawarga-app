@@ -21,7 +21,6 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
-
         $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
 
         // Filtering
@@ -35,6 +34,7 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['domicile_rw' => ltrim(Arr::get($params, 'domicile_rw'), '0')]);
         $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like')]);
         $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
+        $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
 
         return $this->getQueryAll($query, $params);
     }
