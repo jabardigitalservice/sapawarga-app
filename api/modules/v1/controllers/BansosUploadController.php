@@ -8,7 +8,6 @@ use Yii;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 
 /**
@@ -23,7 +22,7 @@ class BansosUploadController extends ActiveController
         $behaviors = parent::behaviors();
 
         $behaviors['verbs'] = [
-            'class' => VerbFilter::class,
+            'class'   => VerbFilter::class,
             'actions' => [
                 'upload' => ['post'],
             ],
@@ -37,13 +36,13 @@ class BansosUploadController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::class,
-            'only' => ['upload'],
+            'only'  => ['upload'],
             'rules' => [
                 [
-                    'allow' => true,
+                    'allow'   => true,
                     'actions' => ['upload'],
-                    'roles' => ['admin', 'staffKabkota'],
-                ]
+                    'roles'   => ['admin', 'staffKabkota'],
+                ],
             ],
         ];
 
@@ -63,12 +62,12 @@ class BansosUploadController extends ActiveController
          * @var Filesystem $filesystem
          */
         $filesystem = Yii::$app->fs;
+        $user       = Yii::$app->user;
+        $type       = Yii::$app->request->post('type');
+        $kabkotaId  = Yii::$app->request->post('kabkota_id');
+        $kecId      = Yii::$app->request->post('kec_id');
 
-        $type      = Yii::$app->request->post('type');
-        $kabkotaId = Yii::$app->request->post('kabkota_id');
-        $kecId     = Yii::$app->request->post('kec_id');
-
-        $file      = UploadedFile::getInstanceByName('file');
+        $file = UploadedFile::getInstanceByName('file');
 
         $model = new DynamicModel(['file' => $file, 'type' => $type, 'kabkota_id' => $kabkotaId, 'kec_id' => $kecId]);
 
@@ -99,6 +98,20 @@ class BansosUploadController extends ActiveController
         $relativePath = "bansos-bnba/{$code}_{$type}_{$date}.{$ext}";
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
+
+        $record = [
+            'user_id'      => $user->id,
+            'bansos_type'  => $type,
+            'kabkota_code' => $kabkota->code_bps,
+            'file_path'    => $relativePath,
+            'status'       => 0,
+            'created_at'   => time(),
+            'updated_at'   => time(),
+            'created_by'   => $user->id,
+            'updated_by'   => $user->id,
+        ];
+
+        Yii::$app->db->createCommand()->insert('bansos_bnba_upload_histories', $record)->execute();
 
         return ['file_path' => $this->getFileUrl($relativePath)];
     }
