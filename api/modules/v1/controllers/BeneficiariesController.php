@@ -35,7 +35,7 @@ class BeneficiariesController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik'],
-                    'roles' => ['admin', 'staffProv', 'staffKel', 'staffRW', 'trainer'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
                 ]
             ],
         ];
@@ -143,8 +143,12 @@ class BeneficiariesController extends ActiveController
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
 
-        if ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
-            // Get bps id
+        if ($user->can('staffKabkota') ||
+             $user->can('staffKec') ||
+             $user->can('staffKel') ||
+             $user->can('staffRW') ||
+             $user->can('trainer')
+         ) {
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
 
             $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
