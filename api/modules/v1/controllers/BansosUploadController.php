@@ -103,6 +103,7 @@ class BansosUploadController extends ActiveController
             'user_id'      => $user->id,
             'bansos_type'  => $type,
             'kabkota_code' => $kabkota->code_bps,
+            'kec_code'     => $kecamatan ? $kecamatan->code_bps : null,
             'file_path'    => $relativePath,
             'status'       => 0,
             'created_at'   => time(),
