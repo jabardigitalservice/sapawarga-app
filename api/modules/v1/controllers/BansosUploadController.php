@@ -42,7 +42,7 @@ class BansosUploadController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['upload'],
-                    'roles' => ['admin'],
+                    'roles' => ['admin', 'staffKabkota'],
                 ]
             ],
         ];
