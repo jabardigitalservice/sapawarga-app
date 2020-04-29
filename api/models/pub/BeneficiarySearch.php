@@ -95,7 +95,7 @@ class BeneficiarySearch extends Beneficiary
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'name');
+        $sortBy    = Arr::get($params, 'sort_by', 'nik');
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
@@ -104,6 +104,7 @@ class BeneficiarySearch extends Beneficiary
             'sort'       => [
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
+                    'nik',
                     'name',
                     'rt',
                     'rw',
