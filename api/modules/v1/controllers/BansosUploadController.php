@@ -4,8 +4,10 @@ namespace app\modules\v1\controllers;
 
 use app\models\Area;
 use creocoder\flysystem\Filesystem;
+use Illuminate\Support\Collection;
 use Yii;
 use yii\base\DynamicModel;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
@@ -24,6 +26,7 @@ class BansosUploadController extends ActiveController
         $behaviors['verbs'] = [
             'class'   => VerbFilter::class,
             'actions' => [
+                'index'  => ['get'],
                 'upload' => ['post'],
             ],
         ];
@@ -36,11 +39,11 @@ class BansosUploadController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::class,
-            'only'  => ['upload'],
+            'only'  => ['index', 'upload'],
             'rules' => [
                 [
                     'allow'   => true,
-                    'actions' => ['upload'],
+                    'actions' => ['index', 'upload'],
                     'roles'   => ['admin', 'staffKabkota'],
                 ],
             ],
@@ -53,7 +56,42 @@ class BansosUploadController extends ActiveController
     {
         $actions = parent::actions();
 
+        // Override Actions
+        unset($actions['index']);
+        unset($actions['create']);
+        unset($actions['view']);
+        unset($actions['update']);
+        unset($actions['delete']);
+
         return $actions;
+    }
+
+    public function actionIndex()
+    {
+        $user = Yii::$app->user;
+
+        $rows = (new Query())
+            ->from('bansos_bnba_upload_histories')
+            ->join('join', 'areas b','bansos_bnba_upload_histories.kabkota_code = b.code_bps')
+            ->select('bansos_bnba_upload_histories.*, b.name as kabkota_name')
+            ->where(['bansos_bnba_upload_histories.user_id' => $user->id])
+            ->orderBy(['bansos_bnba_upload_histories.created_at' => SORT_DESC])
+            ->all();
+
+        $rows = new Collection($rows);
+
+        return $rows->map(function ($row) {
+            return [
+                'id'           => (int) $row['id'],
+                'bansos_type'  => (int) $row['bansos_type'],
+                'kabkota_code' => $row['kabkota_code'],
+                'kabkota_name' => $row['kabkota_name'],
+                'kec_code'     => $row['kec_code'],
+                'file_path'    => $row['file_path'],
+                'file_url'     => $this->getFileUrl($row['file_path']),
+                'created_at'   => (int) $row['created_at'],
+            ];
+        });
     }
 
     public function actionUpload()
@@ -72,6 +110,8 @@ class BansosUploadController extends ActiveController
         $model = new DynamicModel(['file' => $file, 'type' => $type, 'kabkota_id' => $kabkotaId, 'kec_id' => $kecId]);
 
         $model->addRule('file', 'required');
+        $model->addRule('file', 'file', ['extensions' => 'xlsx', 'checkExtensionByMimeType' => false]);
+
         $model->addRule('type', 'trim');
         $model->addRule('type', 'required');
         $model->addRule('kabkota_id', 'trim');
