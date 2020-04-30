@@ -142,16 +142,16 @@ class BeneficiariesController extends ActiveController
 
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
+        $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
 
-        if ($user->can('staffKabkota') ||
-             $user->can('staffKec') ||
-             $user->can('staffKel') ||
-             $user->can('staffRW') ||
-             $user->can('trainer')
-         ) {
+        if ($user->can('staffKabkota')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['domicile_kabkota_bps_id'] = $area->code_bps;
+        } elseif ($user->can('staffKec')) {
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['domicile_kec_bps_id'] = $area->code_bps;
+        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
-
-            $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
             $params['domicile_kel_bps_id'] = $area->code_bps;
             $params['domicile_rw'] = $authUserModel->rw;
         }
