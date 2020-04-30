@@ -150,10 +150,9 @@ class BeneficiariesController extends ActiveController
         } elseif ($user->can('staffKec')) {
             $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
             $params['domicile_kec_bps_id'] = $area->code_bps;
-        } elseif ($user->can('staffKel') || $user->can('trainer')) {
+        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
             $params['domicile_kel_bps_id'] = $area->code_bps;
-        } elseif ($user->can('staffRW')) {
             $params['domicile_rw'] = $authUserModel->rw;
         }
 
