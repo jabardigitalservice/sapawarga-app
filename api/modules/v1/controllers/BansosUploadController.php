@@ -72,7 +72,7 @@ class BansosUploadController extends ActiveController
 
         $rows = (new Query())
             ->from('bansos_bnba_upload_histories')
-            ->join('join', 'areas b','bansos_bnba_upload_histories.kabkota_code = b.code_bps')
+            ->join('join', 'areas b', 'bansos_bnba_upload_histories.kabkota_code = b.code_bps')
             ->select('bansos_bnba_upload_histories.*, b.name as kabkota_name')
             ->where(['bansos_bnba_upload_histories.user_id' => $user->id])
             ->orderBy(['bansos_bnba_upload_histories.created_at' => SORT_DESC])
