@@ -416,7 +416,8 @@ return [
     ],
     'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
     'GET v1/beneficiaries/allocation/<id:\d+>' => 'v1/beneficiaries-allocation/view',
-    'v1/bansos/upload' => 'v1/bansos-upload/upload',
+    'GET v1/bansos/upload' => 'v1/bansos-upload/index',
+    'POST v1/bansos/upload' => 'v1/bansos-upload/upload',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/dinsos-job-type',
@@ -439,6 +440,11 @@ return [
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
         ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-complain',
+        'pluralize' => false,
     ],
     [
         'class' => 'yii\rest\UrlRule',
