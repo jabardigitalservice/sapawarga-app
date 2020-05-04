@@ -7,9 +7,12 @@ use app\models\Beneficiary;
 use app\models\BeneficiarySearch;
 use app\validator\NikRateLimitValidator;
 use app\validator\NikValidator;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
+use yii\web\HttpException;
 
 /**
  * BeneficiaryController implements the CRUD actions for Beneficiary model.
@@ -183,7 +186,14 @@ class BeneficiariesController extends ActiveController
      */
     public function actionNik($nik)
     {
+        /**
+         * $status 0 = format NIK tidak valid
+         * $status 1 = format NIK valid, tapi gagal cek ke DWH
+         * $status 2 = format NIK valid, tidak ditemukan di DWH
+         * $status 3 = format NIK valid, ditemukan di DWH
+         */
         $user      = Yii::$app->user;
+        $userModel = $user->identity;
         $ipAddress = Yii::$app->request->userIP;
 
         $nikModel = new DynamicModel(['nik' => $nik, 'user_id' => $user->id]);
@@ -212,10 +222,47 @@ class BeneficiariesController extends ActiveController
             return $nikModel->getErrors();
         }
 
-        $log['status'] = 1;
+        $client = new Client([
+            'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL'),
+            'timeout'  => 30.00,
+        ]);
+
+        $requestBody = [
+            'http_errors' => false,
+            'json' => [
+                'user_id'   => "{$userModel->username}@sapawarga",
+                'api_key'   => getenv('KEPENDUDUKAN_API_KEY'),
+                'event_key' => 'cek_bansos',
+                'nik'       => $nik,
+            ],
+        ];
+
+        try {
+            $response = $client->post('kependudukan/nik', $requestBody);
+        } catch (RequestException $e) {
+            throw new HttpException(408, 'Request Time-out');
+        }
+
+        if ($response->getStatusCode() <> 200) {
+            $log['status'] = 1;
+
+            Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
+
+            return 'Error Private API';
+        }
+
+        $responseBody = json_decode($response->getBody(), true);
+
+        $content = $responseBody['data']['content'];
+
+        if ($content) {
+            $log['status'] = 3;
+        } else {
+            $log['status'] = 2;
+        }
 
         Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
 
-        return 'OK';
+        return $log;
     }
 }
