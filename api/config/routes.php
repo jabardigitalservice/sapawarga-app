@@ -443,6 +443,11 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-complain',
+        'pluralize' => false,
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/pub/area',
         'pluralize' => true,
         'tokens' => [
