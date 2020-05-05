@@ -38,19 +38,4 @@ class m200504_095526_update_beneficiaries_index_summary extends CustomMigration
         $this->dropIndex('idx-beneficiaries-kec', 'beneficiaries');
         $this->dropIndex('idx-beneficiaries-kel', 'beneficiaries');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m200504_095526_update_beneficiaries_index_summary cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

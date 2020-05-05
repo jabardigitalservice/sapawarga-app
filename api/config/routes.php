@@ -412,6 +412,10 @@ return [
             'OPTIONS nik/{nik}' => 'options',
             'GET check-exist-nik/{id}' => 'check-exist-nik',
             'OPTIONS check-exist-nik/{id}' => 'options',
+            'GET dashboard-list' => 'dashboard-list',
+            'OPTIONS dashboard-list' => 'options',
+            'GET dashboard-summary' => 'dashboard-summary',
+            'OPTIONS dashboard-summary' => 'options',
         ]
     ],
     'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
@@ -439,10 +443,6 @@ return [
             'OPTIONS {id}' => 'options',
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
-            'GET dashboard-list' => 'dashboard-list',
-            'OPTIONS dashboard-list' => 'options',
-            'GET dashboard-summary' => 'dashboard-summary',
-            'OPTIONS dashboard-summary' => 'options',
         ]
     ],
     [
