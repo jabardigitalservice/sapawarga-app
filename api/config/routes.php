@@ -439,6 +439,10 @@ return [
             'OPTIONS {id}' => 'options',
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
+            'GET dashboard-list' => 'dashboard-list',
+            'OPTIONS dashboard-list' => 'options',
+            'GET dashboard-summary' => 'dashboard-summary',
+            'OPTIONS dashboard-summary' => 'options',
         ]
     ],
     [
