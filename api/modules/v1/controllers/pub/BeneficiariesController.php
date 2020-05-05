@@ -28,8 +28,8 @@ class BeneficiariesController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index', 'summary', 
             'dashboard-list', 'dashboard-summary',
+            'index', 'view', 'summary'
         ];
 
         // setup access
