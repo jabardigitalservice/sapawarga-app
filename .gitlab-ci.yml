@@ -11,6 +11,7 @@ versioning:
   stage: versioning
   only:
     - branches
+    - merge_requests
   before_script:
     - apk add git
   script:
@@ -53,6 +54,7 @@ build_image:
   image: docker:stable
   only:
     - branches
+    - merge_requests
   services:
     - docker:stable-dind
   variables:
@@ -77,6 +79,7 @@ build_image:
 #   image: docker:stable
 #   only:
 #     - branches
+#     - merge_requests
 #   services:
 #     - docker:stable-dind
 #   variables:
