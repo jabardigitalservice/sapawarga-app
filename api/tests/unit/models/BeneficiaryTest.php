@@ -110,4 +110,57 @@ class BeneficiaryTest extends \Codeception\Test\Unit
         $model->validate();
         $this->assertFalse($model->hasErrors('total_family_members'));
     }
+
+    public function testIsPoorNewIsNeedHelp()
+    {
+        $model = new Beneficiary();
+        $model->is_poor_new = 'asd';
+        $model->is_need_help = '0 1';
+        $model->validate();
+        $this->assertTrue($model->hasErrors('is_poor_new'));
+        $this->assertTrue($model->hasErrors('is_need_help'));
+
+        $model = new Beneficiary();
+        $model->is_poor_new = 2;
+        $model->is_need_help = '01';
+        $model->validate();
+        $this->assertTrue($model->hasErrors('is_poor_new'));
+        $this->assertFalse($model->hasErrors('is_need_help'));
+
+        $model->is_poor_new = null;
+        $model->is_need_help = null;
+        $model->validate();
+        $this->assertFalse($model->hasErrors('is_poor_new'));
+        $this->assertFalse($model->hasErrors('is_need_help'));
+
+        $model->is_poor_new = 0;
+        $model->is_need_help = '1';
+        $model->validate();
+        $this->assertFalse($model->hasErrors('is_poor_new'));
+        $this->assertFalse($model->hasErrors('is_need_help'));
+    }
+
+    public function testStatusVerification()
+    {
+        $model = new Beneficiary();
+        $model->status_verification = null;
+        $model->validate();
+        $this->assertTrue($model->hasErrors('status_verification'));
+
+        $model->status_verification = '';
+        $model->validate();
+        $this->assertTrue($model->hasErrors('status_verification'));
+
+        $model->status_verification = 4;
+        $model->validate();
+        $this->assertTrue($model->hasErrors('status_verification'));
+
+        $model->status_verification = '1';
+        $model->validate();
+        $this->assertFalse($model->hasErrors('status_verification'));
+
+        $model->status_verification = 1;
+        $model->validate();
+        $this->assertFalse($model->hasErrors('status_verification'));
+    }
 }
