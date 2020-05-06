@@ -25,7 +25,7 @@ code_quality:
   image: docker:stable
   stage: code_quality
   only:
-    - branches
+    - merge_requests
   services:
     - docker:stable-dind
   variables:
