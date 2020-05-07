@@ -108,33 +108,13 @@ class News extends ActiveRecord implements ActiveStatus
             'title',
             'content',
             'cover_path',
-            'cover_path_url' => function () {
-                $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-
-                return "{$publicBaseUrl}/{$this->cover_path}";
-            },
+            'cover_path_url' => 'CoverPathURL',
             'source_date',
             'source_url',
             'channel_id',
-            'channel'        => function () {
-                return [
-                    'id'       => $this->channel->id,
-                    'name'     => $this->channel->name,
-                    'website'  => $this->channel->website,
-                    'icon_url' => $this->channel->icon_url,
-                ];
-            },
+            'channel'        => 'ChannelField',
             'kabkota_id',
-            'kabkota'      => function () {
-                if ($this->kabkota) {
-                    return [
-                        'id'   => $this->kabkota->id,
-                        'name' => $this->kabkota->name,
-                    ];
-                } else {
-                    return null;
-                }
-            },
+            'kabkota'      => 'KabkotaField',
             'total_viewers',
             'likes_count',
             'is_liked' => 'IsUserLiked',
@@ -229,5 +209,33 @@ class News extends ActiveRecord implements ActiveStatus
         }
 
         return parent::afterSave($insert, $changedAttributes);
+    }
+
+    protected function getCoverPathURL()
+    {
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+        return "{$publicBaseUrl}/{$this->cover_path}";
+    }
+
+    protected function getChannelField()
+    {
+        return [
+            'id'       => $this->channel->id,
+            'name'     => $this->channel->name,
+            'website'  => $this->channel->website,
+            'icon_url' => $this->channel->icon_url,
+        ];
+    }
+
+    protected function getKabkotaField()
+    {
+        if ($this->kabkota) {
+            return [
+                'id'   => $this->kabkota->id,
+                'name' => $this->kabkota->name,
+            ];
+        } else {
+            return null;
+        }
     }
 }
