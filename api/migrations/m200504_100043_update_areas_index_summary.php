@@ -17,7 +17,6 @@ class m200504_100043_update_areas_index_summary extends CustomMigration
             'areas',
             ['code_bps_parent']
         );
-
     }
 
     /**

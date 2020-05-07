@@ -275,7 +275,7 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $transformCount = function($lists) {
+        $transformCount = function ($lists) {
             $status_maps = [
                 '1' => 'pending',
                 '2' => 'rejected',
@@ -286,7 +286,7 @@ class BeneficiariesController extends ActiveController
                 '7' => 'approved_kabkota',
             ];
             $data = [];
-            $jml = Arr::pluck($lists,'jumlah','status_verification');
+            $jml = Arr::pluck($lists, 'jumlah', 'status_verification');
             $total = 0;
             foreach ($status_maps as $key => $map) {
                 $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
@@ -363,7 +363,7 @@ class BeneficiariesController extends ActiveController
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
 
-        $transformCount = function($lists) {
+        $transformCount = function ($lists) {
             $status_maps = [
                 '1' => 'pending',
                 '2' => 'rejected',
@@ -374,7 +374,7 @@ class BeneficiariesController extends ActiveController
                 '7' => 'approved_kabkota',
             ];
             $data = [];
-            $jml = $lists->pluck('jumlah','status_verification');
+            $jml = $lists->pluck('jumlah', 'status_verification');
             $total = 0;
             foreach ($status_maps as $key => $map) {
                 $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
@@ -406,7 +406,7 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('kabkota_bps_id');
                 $counts->transform($transformCount);
-                $areas->transform(function($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     return $area;
                 });
@@ -433,7 +433,7 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('kec_bps_id');
                 $counts->transform($transformCount);
-                $areas->transform(function($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     return $area;
                 });
@@ -460,7 +460,7 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('kel_bps_id');
                 $counts->transform($transformCount);
-                $areas->transform(function($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     return $area;
                 });
@@ -490,7 +490,7 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                     'rw' => '',
                 ]);
-                $areas->transform(function($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts) {
                     $area['data'] = isset($counts[$area['rw']]) ? $counts[$area['rw']] : (object) [];
                     return $area;
                 });
@@ -523,7 +523,7 @@ class BeneficiariesController extends ActiveController
                     'rw' => '',
                     'rt' => '',
                 ]);
-                $areas->transform(function($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts) {
                     $area['data'] = isset($counts[$area['rt']]) ? $counts[$area['rt']] : (object) [];
                     return $area;
                 });
