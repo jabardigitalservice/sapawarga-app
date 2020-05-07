@@ -11,7 +11,6 @@ versioning:
   stage: versioning
   only:
     - branches
-    - merge_requests
   before_script:
     - apk add git
   script:
@@ -25,8 +24,8 @@ versioning:
 code_quality:
   image: docker:stable
   stage: code_quality
-  only:
-    - merge_requests
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
   services:
     - docker:stable-dind
   variables:
@@ -54,7 +53,6 @@ build_image:
   image: docker:stable
   only:
     - branches
-    - merge_requests
   services:
     - docker:stable-dind
   variables:
@@ -79,7 +77,6 @@ build_image:
 #   image: docker:stable
 #   only:
 #     - branches
-#     - merge_requests
 #   services:
 #     - docker:stable-dind
 #   variables:
