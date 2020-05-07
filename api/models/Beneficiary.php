@@ -106,8 +106,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 ],
                 'trim'
             ],
+            [
+                [
+                    'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
+                    'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
+                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id', 'domicile_address'
+                ],
+                'default', 'value' => null
+            ],
             [['rw', 'rt', 'domicile_rw', 'domicile_rt'], 'filter', 'filter' => function ($value) {
-                return ltrim($value, '0');
+                $trimmed = ltrim($value, '0');
+                return $trimmed ? $trimmed : null;
             }],
             [
                 [
