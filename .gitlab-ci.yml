@@ -24,8 +24,8 @@ versioning:
 code_quality:
   image: docker:stable
   stage: code_quality
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
+  only:
+    - branches
   services:
     - docker:stable-dind
   variables:
