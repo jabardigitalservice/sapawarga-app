@@ -38,9 +38,9 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
     public function getStatisticsByType($params)
     {
         $query = (new \yii\db\Query())
-            ->select(['id_tipe_bansos','COUNT(id) AS total'])
+            ->select(['id_tipe_bansos', 'is_dtks', 'COUNT(id) AS total'])
             ->from('beneficiaries_bnba_tahap_1')
-            ->groupBy(['id_tipe_bansos']);
+            ->groupBy(['id_tipe_bansos', 'is_dtks']);
 
         // Filtering Area
         if (! empty(Arr::get($params, 'kabkota_bps_id'))) {

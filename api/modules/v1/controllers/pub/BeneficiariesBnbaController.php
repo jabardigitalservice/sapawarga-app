@@ -94,15 +94,22 @@ class BeneficiariesBnbaController extends ActiveController
             '7' => Yii::t('app', 'type.beneficiaries.dana desa'),
         ];
 
-        $search = Arr::pluck($search, 'total', 'id_tipe_bansos');
-
         $data = [];
-        $total = 0;
         foreach ($beneficiaryTypes as $key => $val) {
-            $data[$val] = isset($search[$key]) ? intval($search[$key]) : 0;
-            $total += $data[$val];
+            $data[$val]['non-dtks'] = 0;
+            $data[$val]['dtks'] = 0;
+            $data[$val]['total'] = 0;
+            foreach ($search as $value) {
+                if ($key == $value['id_tipe_bansos']) {
+                    if (! $value['is_dtks']) {
+                        $data[$val]['non-dtks'] = isset($value['total']) ? intval($value['total']) : 0;
+                    } else {
+                        $data[$val]['dtks'] = isset($value['total']) ? intval($value['total']) : 0;
+                    }
+                    $data[$val]['total'] += intval($value['total']);
+                }
+            }
         }
-        $data['total'] = $total;
 
         return $data;
     }
