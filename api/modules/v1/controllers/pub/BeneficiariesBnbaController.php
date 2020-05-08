@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use Illuminate\Support\Collection;
 use app\modules\v1\controllers\ActiveController as ActiveController;
 
 /**
@@ -93,12 +94,12 @@ class BeneficiariesBnbaController extends ActiveController
             '7' => Yii::t('app', 'type.beneficiaries.dana desa'),
         ];
 
-        $jml = Arr::pluck($search, 'total', 'id_tipe_bansos');
+        $search = Arr::pluck($search, 'total', 'id_tipe_bansos');
 
         $data = [];
         $total = 0;
         foreach ($beneficiaryTypes as $key => $val) {
-            $data[$val] = isset($jml[$key]) ? intval($jml[$key]) : 0;
+            $data[$val] = isset($search[$key]) ? intval($search[$key]) : 0;
             $total += $data[$val];
         }
         $data['total'] = $total;
@@ -112,6 +113,45 @@ class BeneficiariesBnbaController extends ActiveController
      */
     public function actionStatisticsByArea()
     {
+        $params = Yii::$app->request->getQueryParams();
+
+        $params['area_type'] = 'kode_kab';
+        $codeBps = 32;
+        if (Arr::get($params, 'type') == 'kabkota') {
+            $params['area_type'] = 'kode_kec';
+            $codeBps = $params['kabkota_bps_id'];
+        } elseif (Arr::get($params, 'type') == 'kec') {
+            $params['area_type'] = 'kode_kel';
+            $codeBps = $params['kec_bps_id'];
+        } elseif (Arr::get($params, 'type') == 'kel') {
+            $params['area_type'] = 'rw';
+            $codeBps = $params['kel_bps_id'];
+        }
+
+        $search = new BeneficiaryBnbaSearch();
+        $search = $search->getStatisticsByArea($params);
+
+        // Reformat result by areas
+        $areas = (new \yii\db\Query())
+            ->select(['code_bps', 'name'])
+            ->from('areas')
+            ->where(['=','code_bps_parent', $codeBps])
+            ->createCommand()
+            ->queryAll();
+        $areas = new Collection($areas);
+
+        $search = Arr::pluck($search, 'total', $params['area_type']);
+
+        $data = [];
+        foreach ($areas as $key => $area) {
+            $data[$key] = [
+                'code_bps' => $area['code_bps'],
+                'name' => $area['name'],
+                'total' => isset($search[$area['code_bps']]) ? intval($search[$area['code_bps']]) : 0
+            ];
+        }
+
+        return $data;
     }
 
     public function prepareDataProvider()

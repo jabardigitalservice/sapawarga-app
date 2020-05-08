@@ -62,9 +62,31 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         return $query->createCommand()->queryAll();
     }
 
-
-    protected function setBeneficiaryType($array)
+    public function getStatisticsByArea($params)
     {
+        $query = (new \yii\db\Query())
+            ->select([$params['area_type'],'COUNT(id) AS total'])
+            ->from('beneficiaries_bnba_tahap_1')
+            ->groupBy([$params['area_type']]);
+
+        // Filtering Area
+        if (! empty(Arr::get($params, 'kabkota_bps_id'))) {
+            $query->andWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
+        }
+
+        if (! empty(Arr::get($params, 'kec_bps_id'))) {
+            $query->andWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
+        }
+
+        if (! empty(Arr::get($params, 'kel_bps_id'))) {
+            $query->andWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
+        }
+
+        if (! empty(Arr::get($params, 'rw'))) {
+            $query->andWhere(['=', 'rw', Arr::get($params, 'rw')]);
+        }
+
+        return $query->createCommand()->queryAll();
     }
 
     protected function getQueryAll($query, $params)
