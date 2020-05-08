@@ -181,7 +181,7 @@ class BeneficiariesBnbaTahapSatuController extends ActiveController
     {
         set_time_limit(0);
         $params = Yii::$app->request->getQueryParams();
-        
+
         $kode_kab = Arr::get($params, 'kode_kab');
         $kode_kec = Arr::get($params, 'kode_kec');
         $kode_kel = Arr::get($params, 'kode_kel');
@@ -189,18 +189,18 @@ class BeneficiariesBnbaTahapSatuController extends ActiveController
         $rt = Arr::get($params, 'rt');
         if (!empty($rt)) {
             $type = 'rt';
-        } else if (!empty($rw)) {
+        } elseif (!empty($rw)) {
             $type = 'rw';
-        } else if (!empty($kode_kel)) {
+        } elseif (!empty($kode_kel)) {
             $type = 'kel';
-        } else if (!empty($kode_kec)) {
+        } elseif (!empty($kode_kec)) {
             $type = 'kec';
-        } else if (!empty($kode_kab)) {
+        } elseif (!empty($kode_kab)) {
             $type = 'kabkota';
-        } else  {
+        } else {
             $type = 'provinsi';
         }
-        $transformCount = function($lists) {
+        $transformCount = function ($lists) {
             $status_maps = [
                 '1' => 'pkh',
                 '2' => 'bpnt',
@@ -211,7 +211,7 @@ class BeneficiariesBnbaTahapSatuController extends ActiveController
                 '7' => 'dana_desa',
             ];
             $data = [];
-            $jml = Arr::pluck($lists,'jumlah','id_tipe_bansos');
+            $jml = Arr::pluck($lists, 'jumlah', 'id_tipe_bansos');
             $total = 0;
             foreach ($status_maps as $key => $map) {
                 $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
