@@ -193,6 +193,7 @@ class BeneficiariesController extends ActiveController
          * $status 1 = format NIK valid, tapi gagal cek ke DWH
          * $status 2 = format NIK valid, tidak ditemukan di DWH
          * $status 3 = format NIK valid, ditemukan di DWH
+         * $status 4 = format NIK valid, over quota di DWH
          */
         $user      = Yii::$app->user;
         $userModel = $user->identity;
@@ -253,14 +254,21 @@ class BeneficiariesController extends ActiveController
             return 'Error Private API';
         }
 
-        $responseBody = json_decode($response->getBody(), true);
+        $responseBody    = json_decode($response->getBody(), true);
 
-        $content = $responseBody['data']['content'];
-
-        if ($content) {
-            $log['status'] = 3;
-        } else {
+        $contentResponse = $responseBody['data']['content'];
+        $dwhResponse     = $responseBody['data']['dwh_response'];
+        
+        if (isset($dwhResponse['response_code']) && $dwhResponse['response_code'] === '02') {
             $log['status'] = 2;
+        }
+
+        if (isset($dwhResponse['response_code']) && $dwhResponse['response_code'] === '05') {
+            $log['status'] = 4;
+        }
+
+        if (isset($dwhResponse['content'])) {
+            $log['status'] = 3;
         }
 
         Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
