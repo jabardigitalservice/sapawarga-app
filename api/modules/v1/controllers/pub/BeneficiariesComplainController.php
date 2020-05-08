@@ -25,19 +25,18 @@ class BeneficiariesComplainController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'post'
+            'create'
         ];
 
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['post'],
+            'only' => ['create'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['post'],
+                    'actions' => ['create'],
                     'roles' => ['?'],
-
                 ]
             ],
         ];
