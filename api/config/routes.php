@@ -453,6 +453,11 @@ return [
             '{id}' => '<id:\d+>',
         ],
         'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET statistics-by-type' => 'statistics-by-type',
+            'OPTIONS statistics-by-type' => 'options',
+            'GET statistics-by-area' => 'statistics-by-area',
+            'OPTIONS statistics-by-area' => 'options',
         ]
     ],
     [

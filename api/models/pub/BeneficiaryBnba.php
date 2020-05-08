@@ -110,7 +110,7 @@ class BeneficiaryBnba extends ActiveRecord
 
     protected function getNikMasking()
     {
-        return "**** **** **** " . substr($this->nik, -4);
+        return '**** **** **** ' . substr($this->nik, -4);
     }
 
     protected function getBansosType()

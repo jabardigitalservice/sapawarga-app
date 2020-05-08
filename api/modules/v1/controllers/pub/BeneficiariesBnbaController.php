@@ -27,7 +27,7 @@ class BeneficiariesBnbaController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index', 'view'
+            'index', 'view', 'statistics-by-type', 'statistics-by-area'
         ];
 
         // setup access
@@ -37,7 +37,7 @@ class BeneficiariesBnbaController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view'],
+                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area'],
                     'roles' => ['?'],
 
                 ]
@@ -69,6 +69,49 @@ class BeneficiariesBnbaController extends ActiveController
     {
         $model = $this->findModel($id, $this->modelClass);
         return $model;
+    }
+
+    /**
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionStatisticsByType()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $search = new BeneficiaryBnbaSearch();
+        $search = $search->getStatisticsByType($params);
+
+        // Reformat result
+        $beneficiaryTypes = [
+            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
+            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
+            '3' => Yii::t('app', 'type.beneficiaries.bnpt perluasan'),
+            '4' => Yii::t('app', 'type.beneficiaries.bansos tunai'),
+            '5' => Yii::t('app', 'type.beneficiaries.bansos presiden sembako'),
+            '6' => Yii::t('app', 'type.beneficiaries.bansos provinsi'),
+            '7' => Yii::t('app', 'type.beneficiaries.dana desa'),
+        ];
+
+        $jml = Arr::pluck($search, 'total', 'id_tipe_bansos');
+
+        $data = [];
+        $total = 0;
+        foreach ($beneficiaryTypes as $key => $val) {
+            $data[$val] = isset($jml[$key]) ? intval($jml[$key]) : 0;
+            $total += $data[$val];
+        }
+        $data['total'] = $total;
+
+        return $data;
+    }
+
+    /**
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionStatisticsByArea()
+    {
     }
 
     public function prepareDataProvider()
