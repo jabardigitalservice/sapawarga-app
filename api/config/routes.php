@@ -431,7 +431,7 @@ return [
         ],
     ],
 
-    //  FOR Public route
+    //  For Public Route
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/pub/beneficiaries',
@@ -443,6 +443,16 @@ return [
             'OPTIONS {id}' => 'options',
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-bnba',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
         ]
     ],
     [
