@@ -97,7 +97,7 @@ class BeneficiaryBnba extends ActiveRecord
         $fields = [
             'id',
             'nama_krt',
-            'nik',
+            'nik' => 'nikMasking',
             'lapangan_usaha' => 'jobTypeField',
             'rt',
             'rw',
@@ -106,6 +106,11 @@ class BeneficiaryBnba extends ActiveRecord
         ];
 
         return $fields;
+    }
+
+    protected function getNikMasking()
+    {
+        return "**** **** **** " . substr($this->nik, -4);
     }
 
     protected function getBansosType()
