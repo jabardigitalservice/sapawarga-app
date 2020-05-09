@@ -156,6 +156,10 @@ class BeneficiariesBnbaController extends ActiveController
                 'name' => $area['name'],
                 'total' => isset($search[$area['code_bps']]) ? intval($search[$area['code_bps']]) : 0
             ];
+
+            if ($params['area_type'] == 'kode_kab') {
+                $data[$key]['image'] = $area['code_bps'] . '.svg';
+            }
         }
 
         return $data;
