@@ -121,6 +121,7 @@ class BeneficiariesBnbaController extends ActiveController
     public function actionStatisticsByArea()
     {
         $params = Yii::$app->request->getQueryParams();
+        $data = [];
 
         $params['area_type'] = 'kode_kab';
         $codeBps = 32;
@@ -131,12 +132,23 @@ class BeneficiariesBnbaController extends ActiveController
             $params['area_type'] = 'kode_kel';
             $codeBps = $params['kec_bps_id'];
         } elseif (Arr::get($params, 'type') == 'kel') {
-            $params['area_type'] = 'rw';
-            $codeBps = $params['kel_bps_id'];
+            $params['area_type'] = 'RW';
+            $codeBps = null;
         }
 
         $search = new BeneficiaryBnbaSearch();
         $search = $search->getStatisticsByArea($params);
+
+        if ($codeBps == null) {
+            foreach ($search as $key => $val) {
+                $area = $val[$params['area_type']] != null ? $val[$params['area_type']] : 'Tidak Terdaftar';
+                $data[$key] = [
+                    'name' => $params['area_type'] . ' ' . $area,
+                    'total' => $val['total']
+                ];
+            }
+            return $data;
+        }
 
         // Reformat result by areas
         $areas = (new \yii\db\Query())
@@ -149,7 +161,6 @@ class BeneficiariesBnbaController extends ActiveController
 
         $search = Arr::pluck($search, 'total', $params['area_type']);
 
-        $data = [];
         foreach ($areas as $key => $area) {
             $data[$key] = [
                 'code_bps' => $area['code_bps'],
