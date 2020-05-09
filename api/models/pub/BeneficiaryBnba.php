@@ -96,7 +96,7 @@ class BeneficiaryBnba extends ActiveRecord
     {
         $fields = [
             'id',
-            'nama_krt',
+            'nama_masking' => 'nameMasking',
             'nik' => 'nikMasking',
             'lapangan_usaha' => 'jobTypeField',
             'rt',
@@ -111,6 +111,18 @@ class BeneficiaryBnba extends ActiveRecord
     protected function getNikMasking()
     {
         return '**** **** **** ' . substr($this->nik, -4);
+    }
+
+    protected function getNameMasking()
+    {
+        $explodeWords = explode(' ', $this->nama_krt);
+
+        $nameMasking = '';
+        foreach ($explodeWords as $key => $word) {
+            $nameMasking .= substr($word, 0, 2) . str_repeat('*', strlen($word) - 2) . ' ';
+        }
+
+        return rtrim($nameMasking);
     }
 
     protected function getBansosType()
