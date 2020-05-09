@@ -68,15 +68,13 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
             'sort'       => [
                 'defaultOrder' => $defaultOrder,
                 'attributes' => [
+                    'nama_krt',
+                    'nik',
                     'nama_kab',
                     'lapangan_usaha',
                     'penghasilan_sebelum_covid19',
                     'penghasilan_sesudah_covid19',
-                    'id_tipe_bantuan',
-                    'nama_krt',
-                    'nik',
-                    'rt',
-                    'rw',
+                    'id_tipe_bansos',
                     'created_at',
                     'updated_at',
                 ],
