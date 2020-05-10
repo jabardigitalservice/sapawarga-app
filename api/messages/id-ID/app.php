@@ -77,4 +77,12 @@ return [
     'status.beneficiary.pending' => 'Belum Terverifikasi',
     'status.beneficiary.reject' => 'Ditolak',
     'status.beneficiary.approved' => 'Terverifikasi',
+
+    'type.beneficiaries.pkh' => 'PKH',
+    'type.beneficiaries.bnpt' => 'BNPT',
+    'type.beneficiaries.bnpt perluasan' => 'BNPT PERLUASAN',
+    'type.beneficiaries.bansos tunai' => 'BANSOS TUNAI',
+    'type.beneficiaries.bansos presiden sembako' => 'BANSOS PRESIDEN SEMBAKO',
+    'type.beneficiaries.bansos provinsi' => 'BANSOS PROVINSI',
+    'type.beneficiaries.dana desa' => 'DANA DESA',
 ];
