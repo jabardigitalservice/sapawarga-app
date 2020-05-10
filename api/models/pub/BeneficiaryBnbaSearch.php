@@ -24,8 +24,6 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query = BeneficiaryBnba::find()->where(['is_deleted' => null]);
 
         // Filtering
-        $query->andFilterWhere(['id' => $this->id]);
-
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kec_bps_id')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kel_bps_id')]);

@@ -68,8 +68,16 @@ class BeneficiariesBnbaController extends ActiveController
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id, $this->modelClass);
-        return $model;
+        $searchedModel = $this->modelClass::find()
+            ->where(['id' => $id])
+            ->andWhere(['is_deleted' => null])
+            ->one();
+
+        if ($searchedModel === null) {
+            throw new NotFoundHttpException("Object not found: $id");
+        }
+
+        return $searchedModel;
     }
 
     /**
