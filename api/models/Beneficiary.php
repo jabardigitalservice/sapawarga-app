@@ -52,9 +52,18 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 {
     use HasArea, HasActiveStatus;
 
+    // Status ids for verification
     const STATUS_PENDING = 1;
     const STATUS_REJECT = 2;
     const STATUS_APPROVED = 3;
+
+    // Status ids for approval
+    const STATUS_APPROVED_KEL = 4;
+    const STATUS_REJECTED_KEL = 5;
+
+    // Action names for approval
+    const ACTION_APPROVE = 'APPROVE';
+    const ACTION_REJECT = 'REJECT';
 
     /**
      * {@inheritdoc}
