@@ -29,7 +29,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kec_bps_id')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kel_bps_id')]);
-        $query->andFilterWhere(['rw' => Arr::get($params, 'rw')]);
+        $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]) ;
         $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
 
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);

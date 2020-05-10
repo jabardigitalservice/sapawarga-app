@@ -127,7 +127,11 @@ class BeneficiaryBnba extends ActiveRecord
 
         $nameMasking = '';
         foreach ($explodeWords as $key => $word) {
-            $nameMasking .= substr($word, 0, 2) . str_repeat('*', strlen($word) - 2) . ' ';
+            if (strlen($word) <= 2) {
+                $nameMasking .= $word . ' ';
+            } else {
+                $nameMasking .= substr($word, 0, 2) . str_repeat('*', strlen($word) - 2) . ' ';
+            }
         }
 
         return rtrim($nameMasking);
