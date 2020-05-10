@@ -21,7 +21,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
      */
     public function search($params)
     {
-        $query = BeneficiaryBnba::find()->where('1=1');
+        $query = BeneficiaryBnba::find()->where(['is_deleted' => null]);
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);

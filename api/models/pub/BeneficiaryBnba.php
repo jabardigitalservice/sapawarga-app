@@ -110,11 +110,19 @@ class BeneficiaryBnba extends ActiveRecord
 
     protected function getNikMasking()
     {
+        if (empty($this->nik)) {
+            return $this->nik;
+        }
+
         return '**** **** **** ' . substr($this->nik, -4);
     }
 
     protected function getNameMasking()
     {
+        if (strlen($this->nama_krt) >= 0) {
+            return $this->nama_krt;
+        }
+
         $explodeWords = explode(' ', $this->nama_krt);
 
         $nameMasking = '';
