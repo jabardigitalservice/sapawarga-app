@@ -45,6 +45,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query = (new \yii\db\Query())
             ->select(['id_tipe_bansos', 'is_dtks', 'COUNT(id) AS total'])
             ->from('beneficiaries_bnba_tahap_1')
+            ->where(['is_deleted' => null])
             ->groupBy(['id_tipe_bansos', 'is_dtks']);
 
         // Filtering Area
@@ -72,6 +73,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query = (new \yii\db\Query())
             ->select([$params['area_type'],'COUNT(id) AS total'])
             ->from('beneficiaries_bnba_tahap_1')
+            ->where(['is_deleted' => null])
             ->groupBy([$params['area_type']]);
 
         // Filtering Area
