@@ -25,11 +25,16 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
+
+        $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kabkota_bps_id')]);
+        $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kec_bps_id')]);
+        $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kel_bps_id')]);
+        $query->andFilterWhere(['rw' => Arr::get($params, 'rw')]);
+        $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
+
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['like', 'nik', Arr::get($params, 'nik')]);
         $query->andFilterWhere(['lapangan_usaha' => Arr::get($params, 'lapangan_usaha')]);
-        $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
-        $query->andFilterWhere(['rw' => Arr::get($params, 'rw')]);
         $query->andFilterWhere(['id_tipe_bansos' => Arr::get($params, 'id_tipe_bansos')]);
 
         return $this->getQueryAll($query, $params);
@@ -105,8 +110,8 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
                     'nik',
                     'lapangan_usaha',
                     'rt',
-                    'rw',
                     'id_tipe_bansos',
+                    'rw',
                 ],
             ],
             'pagination' => [
