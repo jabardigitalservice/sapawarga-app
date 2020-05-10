@@ -119,7 +119,7 @@ class BeneficiaryBnba extends ActiveRecord
 
     protected function getNameMasking()
     {
-        if (strlen($this->nama_krt) >= 0) {
+        if (strlen($this->nama_krt) <= 1) {
             return $this->nama_krt;
         }
 
