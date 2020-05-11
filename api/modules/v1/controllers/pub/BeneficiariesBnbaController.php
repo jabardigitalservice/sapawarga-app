@@ -163,6 +163,7 @@ class BeneficiariesBnbaController extends ActiveController
             ->select(['code_bps', 'name'])
             ->from('areas')
             ->where(['=','code_bps_parent', $codeBps])
+            ->orderBy('name asc')
             ->createCommand()
             ->queryAll();
         $areas = new Collection($areas);
