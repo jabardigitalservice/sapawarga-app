@@ -99,7 +99,7 @@ class BeneficiaryApprovalCest
     {
         $data = [
             'action' => Beneficiary::ACTION_APPROVE,
-            'id' => [1],
+            'id' => 1,
         ];
 
         $I->amStaff('staffkel');
@@ -114,7 +114,7 @@ class BeneficiaryApprovalCest
 
         $I->seeInDatabase('beneficiaries', [
             'id' => 1,
-            'status_verifcation' => Beneficiary::STATUS_APPROVED_KEL,
+            'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
         ]);
     }
 
@@ -125,7 +125,7 @@ class BeneficiaryApprovalCest
     {
         $data = [
             'action' => Beneficiary::ACTION_REJECT,
-            'id' => [1],
+            'id' => 1,
         ];
 
         $I->amStaff('staffkel');
@@ -140,7 +140,7 @@ class BeneficiaryApprovalCest
 
         $I->seeInDatabase('beneficiaries', [
             'id' => 1,
-            'status_verifcation' => Beneficiary::STATUS_REJECTED_KEL,
+            'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
         ]);
     }
 }
