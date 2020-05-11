@@ -72,6 +72,8 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
                     'nik',
                     'nama_kab',
                     'lapangan_usaha',
+                    'rt',
+                    'rw',
                     'penghasilan_sebelum_covid19',
                     'penghasilan_sesudah_covid19',
                     'id_tipe_bansos',
