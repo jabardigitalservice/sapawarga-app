@@ -35,12 +35,17 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary', 'approval'],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['approval'],
+                    'roles' => ['admin', 'staffKel'],
                 ]
             ],
         ];
@@ -258,7 +263,7 @@ class BeneficiariesController extends ActiveController
 
         $contentResponse = $responseBody['data']['content'];
         $dwhResponse     = $responseBody['data']['dwh_response'];
-        
+
         if (isset($dwhResponse['response_code']) && $dwhResponse['response_code'] === '02') {
             $log['status'] = 2;
         }
@@ -279,7 +284,7 @@ class BeneficiariesController extends ActiveController
     public function actionDashboardSummary()
     {
         $params = Yii::$app->request->getQueryParams();
-        
+
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
@@ -366,7 +371,7 @@ class BeneficiariesController extends ActiveController
     public function actionDashboardList()
     {
         $params = Yii::$app->request->getQueryParams();
-        
+
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
@@ -539,5 +544,45 @@ class BeneficiariesController extends ActiveController
         }
 
         return $areas;
+    }
+
+    public function actionApproval()
+    {
+        $model = $this->findModel(Yii::$app->request->post('id'), $this->modelClass);
+
+        if ($model->status_verification < Beneficiary::STATUS_APPROVED) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(400);
+
+            return 'Bad Request: Invalid Object Status';
+        }
+
+        return $this->processApproval($model);
+    }
+
+    protected function processApproval($model)
+    {
+        $action = Yii::$app->request->post('action');
+
+        $currentUserId = Yii::$app->user->getId();
+
+        if ($action === Beneficiary::ACTION_APPROVE) {
+            $model->status_verification = Beneficiary::STATUS_APPROVED_KEL;
+        } elseif ($action === Beneficiary::ACTION_REJECT) {
+            $model->status_verification = Beneficiary::STATUS_REJECTED_KEL;
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(400);
+            return 'Bad Request: Invalid Action';
+        }
+
+        if ($model->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to process the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 }
