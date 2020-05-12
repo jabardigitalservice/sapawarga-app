@@ -579,7 +579,10 @@ class BeneficiariesController extends ActiveController
         // bulk action
         Beneficiary::updateAll(
             ['status_verification' => $status_verification],
-            ['in', 'id', $ids]
+            [   'and',
+                ['=', 'status', Beneficiary::STATUS_ACTIVE],
+                ['in', 'id', $ids],
+            ]
         );
 
         $response = Yii::$app->getResponse();
