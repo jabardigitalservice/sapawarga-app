@@ -95,11 +95,12 @@ class BeneficiariesBnbaController extends ActiveController
         $beneficiaryTypes = [
             '1' => Yii::t('app', 'type.beneficiaries.pkh'),
             '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
-            '3' => Yii::t('app', 'type.beneficiaries.bnpt perluasan'),
-            '4' => Yii::t('app', 'type.beneficiaries.bansos tunai'),
-            '5' => Yii::t('app', 'type.beneficiaries.bansos presiden sembako'),
-            '6' => Yii::t('app', 'type.beneficiaries.bansos provinsi'),
-            '7' => Yii::t('app', 'type.beneficiaries.dana desa'),
+            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
+            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
+            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
+            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
+            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
+            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
         ];
 
         $data = [];

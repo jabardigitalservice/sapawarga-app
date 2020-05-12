@@ -80,9 +80,10 @@ return [
 
     'type.beneficiaries.pkh' => 'PKH',
     'type.beneficiaries.bnpt' => 'BNPT',
-    'type.beneficiaries.bnpt perluasan' => 'BNPT PERLUASAN',
-    'type.beneficiaries.bansos tunai' => 'BANSOS TUNAI',
-    'type.beneficiaries.bansos presiden sembako' => 'BANSOS PRESIDEN SEMBAKO',
-    'type.beneficiaries.bansos provinsi' => 'BANSOS PROVINSI',
-    'type.beneficiaries.dana desa' => 'DANA DESA',
+    'type.beneficiaries.bnpt_perluasan' => 'BNPT PERLUASAN',
+    'type.beneficiaries.bansos_tunai' => 'BANSOS TUNAI',
+    'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS PRESIDEN SEMBAKO',
+    'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
+    'type.beneficiaries.dana_desa' => 'DANA DESA',
+    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN KOTA',
 ];

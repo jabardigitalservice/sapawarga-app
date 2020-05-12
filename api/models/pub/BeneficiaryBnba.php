@@ -33,6 +33,7 @@ class BeneficiaryBnba extends ActiveRecord
     const TYPE_BANSOS_PRESIDEN_SEMBAKO = 5;
     const TYPE_BANSOS_PROVINSI = 6;
     const TYPE_DANA_DESA = 7;
+    const TYPE_BANSOS_KABKOTA = 8;
 
     /**
      * {@inheritdoc}
@@ -152,19 +153,22 @@ class BeneficiaryBnba extends ActiveRecord
                 $bansosType = Yii::t('app', 'type.beneficiaries.bnpt');
                 break;
             case self::TYPE_BANSOS;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bnpt perluasan');
+                $bansosType = Yii::t('app', 'type.beneficiaries.bnpt_perluasan');
                 break;
             case self::TYPE_BANSOS_TUNAI;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos tunai');
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_tunai');
                 break;
             case self::TYPE_BANSOS_PRESIDEN_SEMBAKO;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos presiden sembako');
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako');
                 break;
             case self::TYPE_BANSOS_PROVINSI;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos provinsi');
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_provinsi');
                 break;
             case self::TYPE_DANA_DESA;
-                $bansosType = Yii::t('app', 'type.beneficiaries.dana desa');
+                $bansosType = Yii::t('app', 'type.beneficiaries.dana_desa');
+                break;
+            case self::TYPE_BANSOS_KABKOTA;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_kabkota');
                 break;
         }
 
