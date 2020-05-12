@@ -99,13 +99,12 @@ class BeneficiaryApprovalCest
     {
         $data = [
             'action' => Beneficiary::ACTION_APPROVE,
-            'id' => 1,
         ];
 
         $I->amStaff('staffkel');
 
         // Action = 'APPROVE'
-        $I->sendPOST("{$this->endpointBeneficiaries}/approval", $data);
+        $I->sendPOST("{$this->endpointBeneficiaries}/approval/1", $data);
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([
@@ -120,7 +119,7 @@ class BeneficiaryApprovalCest
 
         // Action = 'REJECT'
         $data['action'] = Beneficiary::ACTION_REJECT;
-        $I->sendPOST("{$this->endpointBeneficiaries}/approval", $data);
+        $I->sendPOST("{$this->endpointBeneficiaries}/approval/1", $data);
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([
@@ -150,7 +149,7 @@ class BeneficiaryApprovalCest
         $I->amStaff('staffkel');
 
         // Action = 'APPROVE'
-        $I->sendPOST("{$this->endpointBeneficiaries}/bulk_approval", $data);
+        $I->sendPOST("{$this->endpointBeneficiaries}/bulk-approval", $data);
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([
@@ -170,7 +169,7 @@ class BeneficiaryApprovalCest
 
         // Action = 'REJECT'
         $data['action'] = Beneficiary::ACTION_REJECT;
-        $I->sendPOST("{$this->endpointBeneficiaries}/bulk_approval", $data);
+        $I->sendPOST("{$this->endpointBeneficiaries}/bulk-approval", $data);
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([

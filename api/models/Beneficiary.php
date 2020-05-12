@@ -58,8 +58,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     const STATUS_APPROVED = 3;
 
     // Status ids for approval
-    const STATUS_APPROVED_KEL = 4;
-    const STATUS_REJECTED_KEL = 5;
+    const STATUS_REJECTED_KEL = 4;
+    const STATUS_APPROVED_KEL = 5;
 
     // Action names for approval
     const ACTION_APPROVE = 'APPROVE';

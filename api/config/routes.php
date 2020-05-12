@@ -418,8 +418,10 @@ return [
             'OPTIONS dashboard-summary' => 'options',
             'GET bnba-tahap-satu-list' => 'bnba-tahap-satu-list',
             'OPTIONS bnba-tahap-satu-list' => 'options',
-            'POST approval' => 'approval',
-            'OPTIONS approval' => 'options',
+            'POST approval/{id}' => 'approval',
+            'OPTIONS approval/{id}' => 'options',
+            'POST bulk-approval' => 'bulk-approval',
+            'OPTIONS bulk-approval' => 'options',
         ]
     ],
     [
