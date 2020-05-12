@@ -3,7 +3,7 @@
 return [
     'job_field' => [
         ['id' => 1, 'title' => 'Pertanian tanaman padi dan palawija', 'seq' => 1],
-        ['id' => 2, 'title' => 'Hortikultura', 'seq' => 1],
+        ['id' => 2, 'title' => 'Hortikultura (Budidaya tanaman kebun)', 'seq' => 1],
         ['id' => 3, 'title' => 'Perkebunan', 'seq' => 1],
         ['id' => 4, 'title' => 'Perikanan tangkap', 'seq' => 1],
         ['id' => 5, 'title' => 'Perikanan budidaya', 'seq' => 1],
@@ -20,7 +20,7 @@ return [
         ['id' => 16, 'title' => 'Keuangan dan asuransi', 'seq' => 1],
         ['id' => 17, 'title' => 'Jasa pendidikan', 'seq' => 1],
         ['id' => 18, 'title' => 'Jasa kesehatan', 'seq' => 1],
-        ['id' => 19, 'title' => 'Jasa kemasyarakatan, pemerintahan dan perorangan', 'seq' => 1],
+        ['id' => 19, 'title' => 'Jasa kemasyarakatan, pemerintahan dan perorangan (office boy, jasa parkir, asisten rumah tangga, administrasi, dll.)', 'seq' => 1],
         ['id' => 20, 'title' => 'Pemulung', 'seq' => 1],
         ['id' => 21, 'title' => 'Lainnya', 'seq' => 99],
     ],
