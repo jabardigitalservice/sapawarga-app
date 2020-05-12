@@ -35,7 +35,7 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary', 'approval'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
             'rules' => [
                 [
                     'allow' => true,
@@ -44,7 +44,7 @@ class BeneficiariesController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['approval'],
+                    'actions' => ['approval', 'bulk-approval'],
                     'roles' => ['admin', 'staffKel'],
                 ]
             ],
