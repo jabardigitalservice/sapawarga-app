@@ -95,7 +95,7 @@ class BeneficiaryApprovalCest
     /**
      * @before loadData
      */
-    public function postStaffKelAprrove(ApiTester $I)
+    public function postStaffKelApproval(ApiTester $I)
     {
         $data = [
             'action' => Beneficiary::ACTION_APPROVE,
@@ -104,6 +104,7 @@ class BeneficiaryApprovalCest
 
         $I->amStaff('staffkel');
 
+        // Action = 'APPROVE'
         $I->sendPOST("{$this->endpointBeneficiaries}/approval", $data);
         $I->canSeeResponseCodeIs(200);
 
@@ -116,20 +117,9 @@ class BeneficiaryApprovalCest
             'id' => 1,
             'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
         ]);
-    }
 
-    /**
-     * @before loadData
-     */
-    public function postStaffKelReject(ApiTester $I)
-    {
-        $data = [
-            'action' => Beneficiary::ACTION_REJECT,
-            'id' => 1,
-        ];
-
-        $I->amStaff('staffkel');
-
+        // Action = 'REJECT'
+        $data['action'] = Beneficiary::ACTION_REJECT;
         $I->sendPOST("{$this->endpointBeneficiaries}/approval", $data);
         $I->canSeeResponseCodeIs(200);
 
@@ -140,6 +130,61 @@ class BeneficiaryApprovalCest
 
         $I->seeInDatabase('beneficiaries', [
             'id' => 1,
+            'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
+        ]);
+    }
+
+    /**
+     * @before loadData
+     */
+    public function postStaffKelBulkApproval(ApiTester $I)
+    {
+        $data = [
+            'action' => Beneficiary::ACTION_APPROVE,
+            'ids' => [
+                1,
+                2,
+            ],
+        ];
+
+        $I->amStaff('staffkel');
+
+        // Action = 'APPROVE'
+        $I->sendPOST("{$this->endpointBeneficiaries}/bulk_approval", $data);
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('beneficiaries', [
+            'id' => 1,
+            'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
+        ]);
+
+        $I->seeInDatabase('beneficiaries', [
+            'id' => 2,
+            'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
+        ]);
+
+        // Action = 'REJECT'
+        $data['action'] = Beneficiary::ACTION_REJECT;
+        $I->sendPOST("{$this->endpointBeneficiaries}/bulk_approval", $data);
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('beneficiaries', [
+            'id' => 1,
+            'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
+        ]);
+
+        $I->seeInDatabase('beneficiaries', [
+            'id' => 2,
             'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
         ]);
     }
