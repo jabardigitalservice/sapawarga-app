@@ -209,6 +209,7 @@ class BeneficiariesBnbaTahapSatuController extends ActiveController
                 '5' => 'bansos_presiden_sembako_bodebek',
                 '6' => 'bansos_provinsi',
                 '7' => 'dana_desa',
+                '8' => 'bansos_kabkota',
             ];
             $data = [];
             $jml = Arr::pluck($lists, 'jumlah', 'id_tipe_bansos');
