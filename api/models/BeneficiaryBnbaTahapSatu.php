@@ -63,6 +63,15 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
     const STATUS_REJECT = 2;
     const STATUS_APPROVED = 3;
 
+    const TYPE_PKH = 1;
+    const TYPE_BNPT = 2;
+    const TYPE_BANSOS = 3;
+    const TYPE_BANSOS_TUNAI = 4;
+    const TYPE_BANSOS_PRESIDEN_SEMBAKO = 5;
+    const TYPE_BANSOS_PROVINSI = 6;
+    const TYPE_DANA_DESA = 7;
+    const TYPE_BANSOS_KABKOTA = 8;
+
     /**
      * {@inheritdoc}
      */
@@ -94,6 +103,7 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
             'is_nik_valid' => 'IsNIKValidField',
             'is_dtks',
             'id_tipe_bansos',
+            'id_tipe_bansos_name' => 'bansosType',
             'nama_kab',
             'nama_kec',
             'nama_kel',
@@ -129,7 +139,6 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
             'is_pikobar',
             'is_super_clean',
             'is_data_sisa',
-
         ];
 
         return $fields;
@@ -144,6 +153,40 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
         }
 
         return $records->where('id', '=', $this->lapangan_usaha)->first();
+    }
+
+    protected function getBansosType()
+    {
+        $bansosType = '';
+
+        switch ($this->id_tipe_bansos) {
+            case self::TYPE_PKH;
+                $bansosType = Yii::t('app', 'type.beneficiaries.pkh');
+                break;
+            case self::TYPE_BNPT;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bnpt');
+                break;
+            case self::TYPE_BANSOS;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bnpt_perluasan');
+                break;
+            case self::TYPE_BANSOS_TUNAI;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_tunai');
+                break;
+            case self::TYPE_BANSOS_PRESIDEN_SEMBAKO;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako');
+                break;
+            case self::TYPE_BANSOS_PROVINSI;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_provinsi');
+                break;
+            case self::TYPE_DANA_DESA;
+                $bansosType = Yii::t('app', 'type.beneficiaries.dana_desa');
+                break;
+            case self::TYPE_BANSOS_KABKOTA;
+                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_kabkota');
+                break;
+        }
+
+        return $bansosType;
     }
 
     protected function getIsNIKValidField()

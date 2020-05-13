@@ -27,7 +27,7 @@ class BeneficiaryBnba extends ActiveRecord
     use HasArea;
 
     const TYPE_PKH = 1;
-    const TYPE_BNPT = 2;
+    const TYPE_BPNT = 2;
     const TYPE_BANSOS = 3;
     const TYPE_BANSOS_TUNAI = 4;
     const TYPE_BANSOS_PRESIDEN_SEMBAKO = 5;
@@ -105,6 +105,7 @@ class BeneficiaryBnba extends ActiveRecord
             'nama_kel',
             'rt',
             'rw',
+            'alamat' => 'addressMasking',
             'id_tipe_bansos',
             'id_tipe_bansos_name' => 'bansosType',
         ];
@@ -118,7 +119,7 @@ class BeneficiaryBnba extends ActiveRecord
             return $this->nik;
         }
 
-        return '**** **** **** ' . substr($this->nik, -4);
+        return substr($this->nik, 0, 4) . str_repeat('*', strlen($this->nik) - 8) . substr($this->nik, -4);
     }
 
     protected function getNameMasking()
@@ -134,11 +135,28 @@ class BeneficiaryBnba extends ActiveRecord
             if (strlen($word) <= 2) {
                 $nameMasking .= $word . ' ';
             } else {
-                $nameMasking .= substr($word, 0, 2) . str_repeat('*', strlen($word) - 2) . ' ';
+                $nameMasking .= substr($word, 0, 3) . str_repeat('*', strlen($word) - 3) . ' ';
             }
         }
 
         return rtrim($nameMasking);
+    }
+
+    protected function getAddressMasking()
+    {
+        if (str_word_count($this->alamat) <= 3) {
+            return preg_replace('/[0-9]+/', '', $this->alamat);
+        }
+
+        $someWords = implode(' ', array_slice(explode(' ', $this->alamat), 0, 3));
+        $explodeWords = explode(' ', $someWords);
+
+        $addressMasking = '';
+        foreach ($explodeWords as $key => $word) {
+            $addressMasking .= preg_replace('/[0-9]+/', '', $word) . ' ';
+        }
+
+        return rtrim($addressMasking);
     }
 
     protected function getBansosType()
@@ -149,7 +167,7 @@ class BeneficiaryBnba extends ActiveRecord
             case self::TYPE_PKH;
                 $bansosType = Yii::t('app', 'type.beneficiaries.pkh');
                 break;
-            case self::TYPE_BNPT;
+            case self::TYPE_BPNT;
                 $bansosType = Yii::t('app', 'type.beneficiaries.bnpt');
                 break;
             case self::TYPE_BANSOS;
