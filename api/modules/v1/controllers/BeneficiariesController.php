@@ -292,10 +292,12 @@ class BeneficiariesController extends ActiveController
                 '1' => 'pending',
                 '2' => 'rejected',
                 '3' => 'approved',
-                '4' => 'rejected_kec',
-                '5' => 'approved_kec',
-                '6' => 'rejected_kabkota',
-                '7' => 'approved_kabkota',
+                '4' => 'rejected_kel',
+                '5' => 'approved_kel',
+                '6' => 'rejected_kec',
+                '7' => 'approved_kec',
+                '8' => 'rejected_kabkota',
+                '9' => 'approved_kabkota',
             ];
             $data = [];
             $jml = Arr::pluck($lists, 'jumlah', 'status_verification');
@@ -380,10 +382,12 @@ class BeneficiariesController extends ActiveController
                 '1' => 'pending',
                 '2' => 'rejected',
                 '3' => 'approved',
-                '4' => 'rejected_kec',
-                '5' => 'approved_kec',
-                '6' => 'rejected_kabkota',
-                '7' => 'approved_kabkota',
+                '4' => 'rejected_kel',
+                '5' => 'approved_kel',
+                '6' => 'rejected_kec',
+                '7' => 'approved_kec',
+                '8' => 'rejected_kabkota',
+                '9' => 'approved_kabkota',
             ];
             $data = [];
             $jml = $lists->pluck('jumlah', 'status_verification');
