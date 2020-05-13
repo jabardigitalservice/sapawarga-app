@@ -76,7 +76,7 @@ return [
 
     'status.beneficiary.pending' => 'Pending',
     'status.beneficiary.reject' => 'Rejected',
-    'status.beneficiary.approved' => 'Approved',
+    'status.beneficiary.verified' => 'Verified',
 
     'type.beneficiaries.pkh' => 'PKH',
     'type.beneficiaries.bnpt' => 'BNPT',

@@ -554,7 +554,7 @@ class BeneficiariesController extends ActiveController
     {
         $model = $this->findModel($id, $this->modelClass);
 
-        if ($model->status_verification < Beneficiary::STATUS_APPROVED) {
+        if ($model->status_verification < Beneficiary::STATUS_VERIFIED) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(400);
 

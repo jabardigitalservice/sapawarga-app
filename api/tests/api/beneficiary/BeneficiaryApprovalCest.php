@@ -19,7 +19,7 @@ class BeneficiaryApprovalCest
             'nik' => '3200000000000003',
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
-            'status_verification' => Beneficiary::STATUS_APPROVED,
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
             'created_at' => 0,
@@ -31,7 +31,7 @@ class BeneficiaryApprovalCest
             'nik' => '3200000000000002',
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '2',
-            'status_verification' => Beneficiary::STATUS_APPROVED,
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
             'created_at' => 0,
@@ -52,7 +52,7 @@ class BeneficiaryApprovalCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 4,
             'domicile_kel_bps_id' => $this->kelBekasi,
-            'status_verification' => Beneficiary::STATUS_APPROVED,
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
             'created_at' => 0,
@@ -84,7 +84,7 @@ class BeneficiaryApprovalCest
     {
         $I->amStaff('staffkel');
 
-        $I->sendGET($this->endpointBeneficiaries . '?status_verification=' . Beneficiary::STATUS_APPROVED . '&domicile_rw_like=1');
+        $I->sendGET($this->endpointBeneficiaries . '?status_verification=' . Beneficiary::STATUS_VERIFIED . '&domicile_rw_like=1');
         $I->canSeeResponseCodeIs(200);
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
 
