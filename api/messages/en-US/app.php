@@ -79,9 +79,9 @@ return [
     'status.beneficiary.approved' => 'Approved',
 
     'type.beneficiaries.pkh' => 'PKH',
-    'type.beneficiaries.bnpt' => 'BNPT',
-    'type.beneficiaries.bnpt_perluasan' => 'BNPT PERLUASAN',
-    'type.beneficiaries.bansos_tunai' => 'BANSOS TUNAI',
+    'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',
+    'type.beneficiaries.bnpt_perluasan' => 'KARTU SEMBAKO PERLUASAN',
+    'type.beneficiaries.bansos_tunai' => 'BANSOS KEMENSOS TUNAI',
     'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS PRESIDEN SEMBAKO',
     'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
     'type.beneficiaries.dana_desa' => 'DANA DESA',

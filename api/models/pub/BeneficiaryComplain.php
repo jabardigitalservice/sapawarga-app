@@ -50,7 +50,7 @@ class BeneficiaryComplain extends ActiveRecord
     {
         return [
             [
-                ['beneficiaries_id', 'name', 'phone'],
+                ['beneficiaries_id', 'name', 'nik', 'phone'],
                 'required'
             ],
 
@@ -60,7 +60,7 @@ class BeneficiaryComplain extends ActiveRecord
             ],
 
             [
-                ['kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'rt', 'rw'],
+                ['nik', 'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id', 'rt', 'rw'],
                 'integer'
             ],
 
@@ -73,6 +73,7 @@ class BeneficiaryComplain extends ActiveRecord
         $fields = [
             'id',
             'beneficiaries_id',
+            'nik',
             'name',
             'phone',
             'kabkota_bps_id',
