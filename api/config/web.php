@@ -14,15 +14,23 @@ $config = [
     'language' => 'id-ID',
     'components' => [
         'request' => [
-            'enableCookieValidation' => false,
-            'enableCsrfValidation' => false,
             'cookieValidationKey' => getenv('COOKIE_VALIDATION_KEY'),
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
             ],
         ],
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\caching\MemCache',
+            'useMemcached' => getenv('CACHE_USE_MEMCACHED'),
+            'username' => getenv('CACHE_USERNAME'),
+            'password' => getenv('CACHE_PASSWORD'),
+            'servers' => [
+                [
+                    'host' => getenv('CACHE_SERVERS'),
+                    'port' => getenv('CACHE_PORT'),
+                    'weight' => getenv('CACHE_WEIGHT'),
+                ],
+            ],
         ],
         'user' => [
             'identityClass' => 'app\models\User',
