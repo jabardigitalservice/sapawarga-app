@@ -319,6 +319,15 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'kabkota':
                 $counts = (new \yii\db\Query())
@@ -330,6 +339,16 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kabkota_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'kec':
                 $counts = (new \yii\db\Query())
@@ -341,6 +360,16 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kec_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'kel':
                 $counts = (new \yii\db\Query())
@@ -352,6 +381,16 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kel_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'rw':
                 $counts = (new \yii\db\Query())
@@ -364,8 +403,20 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kel_bps_id', $code_bps])
+                    ->andWhere(['=','rw', $rw])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
         }
+        $counts['baru'] = $counts_baru;
         return $counts;
     }
 
