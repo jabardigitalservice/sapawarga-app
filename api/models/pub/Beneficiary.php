@@ -51,7 +51,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     const STATUS_PUBLISHED = 10;
     const STATUS_PENDING = 1;
     const STATUS_REJECT = 2;
-    const STATUS_APPROVED = 3;
+    const STATUS_VERIFIED = 3;
 
     /**
      * {@inheritdoc}
@@ -122,8 +122,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             case self::STATUS_REJECT:
                 $statusLabel = Yii::t('app', 'status.beneficiary.reject');
                 break;
-            case self::STATUS_APPROVED:
-                $statusLabel = Yii::t('app', 'status.beneficiary.approved');
+            case self::STATUS_VERIFIED:
+                $statusLabel = Yii::t('app', 'status.beneficiary.verified');
                 break;
         }
 
