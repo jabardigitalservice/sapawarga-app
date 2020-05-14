@@ -579,7 +579,7 @@ class BeneficiariesController extends ActiveController
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->groupBy(['domicile_rw', 'status_verification'])
-                    ->orderBy('cast(rw as unsigned) asc')
+                    ->orderBy('cast(domicile_rw as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
@@ -591,7 +591,7 @@ class BeneficiariesController extends ActiveController
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
                     ->groupBy(['domicile_rw', 'status_verification'])
-                    ->orderBy('cast(rw as unsigned) asc')
+                    ->orderBy('cast(domicile_rw as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
@@ -623,7 +623,7 @@ class BeneficiariesController extends ActiveController
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['=','domicile_rw', $rw])
                     ->groupBy(['domicile_rt', 'status_verification'])
-                    ->orderBy('cast(rt as unsigned) asc')
+                    ->orderBy('cast(domicile_rt as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
@@ -636,7 +636,7 @@ class BeneficiariesController extends ActiveController
                     ->andWhere(['=','domicile_rw', $rw])
                     ->andWhere(['<>','created_by', 2])
                     ->groupBy(['domicile_rt', 'status_verification'])
-                    ->orderBy('cast(rt as unsigned) asc')
+                    ->orderBy('cast(domicile_rt as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
