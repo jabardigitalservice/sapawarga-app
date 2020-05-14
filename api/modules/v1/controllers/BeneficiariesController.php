@@ -324,6 +324,15 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'kabkota':
                 $counts = (new \yii\db\Query())
@@ -335,6 +344,16 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kabkota_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'kec':
                 $counts = (new \yii\db\Query())
@@ -346,6 +365,16 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kec_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'kel':
                 $counts = (new \yii\db\Query())
@@ -357,6 +386,16 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kel_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
             case 'rw':
                 $counts = (new \yii\db\Query())
@@ -369,8 +408,20 @@ class BeneficiariesController extends ActiveController
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kel_bps_id', $code_bps])
+                    ->andWhere(['=','rw', $rw])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $transformCount($counts_baru);
                 break;
         }
+        $counts['baru'] = $counts_baru;
         return $counts;
     }
 
@@ -427,8 +478,19 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('kabkota_bps_id');
                 $counts->transform($transformCount);
-                $areas->transform(function ($area) use (&$counts) {
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['kabkota_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['<>','created_by', 2])
+                    ->groupBy(['kabkota_bps_id', 'status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $counts_baru->groupBy('kabkota_bps_id');
+                $counts_baru->transform($transformCount);
+                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
+                    $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
                     return $area;
                 });
                 break;
@@ -454,8 +516,20 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('kec_bps_id');
                 $counts->transform($transformCount);
-                $areas->transform(function ($area) use (&$counts) {
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['kec_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kabkota_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['kec_bps_id', 'status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $counts_baru->groupBy('kec_bps_id');
+                $counts_baru->transform($transformCount);
+                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
+                    $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
                     return $area;
                 });
                 break;
@@ -481,8 +555,20 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('kel_bps_id');
                 $counts->transform($transformCount);
-                $areas->transform(function ($area) use (&$counts) {
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['kel_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kec_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['kel_bps_id', 'status_verification'])
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $counts_baru->groupBy('kel_bps_id');
+                $counts_baru->transform($transformCount);
+                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
+                    $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
                     return $area;
                 });
                 break;
@@ -499,6 +585,18 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('rw');
                 $counts->transform($transformCount);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['rw', 'status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kel_bps_id', $code_bps])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['rw', 'status_verification'])
+                    ->orderBy('cast(rw as unsigned) asc')
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $counts_baru->groupBy('rw');
+                $counts_baru->transform($transformCount);
                 foreach ($counts as $rw => $count) {
                     $areas->push([
                         'name' => 'RW ' . $rw,
@@ -511,8 +609,9 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                     'rw' => '',
                 ]);
-                $areas->transform(function ($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['rw']]) ? $counts[$area['rw']] : (object) [];
+                    $area['data_baru'] = isset($counts_baru[$area['rw']]) ? $counts_baru[$area['rw']] : (object) [];
                     return $area;
                 });
                 break;
@@ -530,6 +629,19 @@ class BeneficiariesController extends ActiveController
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('rt');
                 $counts->transform($transformCount);
+                $counts_baru = (new \yii\db\Query())
+                    ->select(['rt', 'status_verification','COUNT(*) AS jumlah'])
+                    ->from('beneficiaries')
+                    ->where(['=','kel_bps_id', $code_bps])
+                    ->andWhere(['=','rw', $rw])
+                    ->andWhere(['<>','created_by', 2])
+                    ->groupBy(['rt', 'status_verification'])
+                    ->orderBy('cast(rt as unsigned) asc')
+                    ->createCommand()
+                    ->queryAll();
+                $counts_baru = new Collection($counts_baru);
+                $counts_baru = $counts_baru->groupBy('rt');
+                $counts_baru->transform($transformCount);
                 foreach ($counts as $rt => $count) {
                     $areas->push([
                         'name' => 'RT ' . $rt,
@@ -544,8 +656,9 @@ class BeneficiariesController extends ActiveController
                     'rw' => '',
                     'rt' => '',
                 ]);
-                $areas->transform(function ($area) use (&$counts) {
+                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['rt']]) ? $counts[$area['rt']] : (object) [];
+                    $area['data_baru'] = isset($counts_baru[$area['rt']]) ? $counts_baru[$area['rt']] : (object) [];
                     return $area;
                 });
                 break;
