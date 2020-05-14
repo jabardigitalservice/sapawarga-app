@@ -76,7 +76,7 @@ return [
 
     'status.beneficiary.pending' => 'Belum Terverifikasi',
     'status.beneficiary.reject' => 'Ditolak',
-    'status.beneficiary.approved' => 'Terverifikasi',
+    'status.beneficiary.verified' => 'Terverifikasi',
 
     'type.beneficiaries.pkh' => 'PKH',
     'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',

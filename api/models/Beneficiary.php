@@ -52,9 +52,18 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 {
     use HasArea, HasActiveStatus;
 
+    // Status ids for verification
     const STATUS_PENDING = 1;
     const STATUS_REJECT = 2;
-    const STATUS_APPROVED = 3;
+    const STATUS_VERIFIED = 3;
+
+    // Status ids for approval
+    const STATUS_REJECTED_KEL = 4;
+    const STATUS_APPROVED_KEL = 5;
+
+    // Action names for approval
+    const ACTION_APPROVE = 'APPROVE';
+    const ACTION_REJECT = 'REJECT';
 
     /**
      * {@inheritdoc}
@@ -215,8 +224,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             case self::STATUS_REJECT:
                 $statusLabel = Yii::t('app', 'status.beneficiary.reject');
                 break;
-            case self::STATUS_APPROVED:
-                $statusLabel = Yii::t('app', 'status.beneficiary.approved');
+            case self::STATUS_VERIFIED:
+                $statusLabel = Yii::t('app', 'status.beneficiary.verified');
                 break;
         }
 

@@ -61,7 +61,7 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
 
     const STATUS_PENDING = 1;
     const STATUS_REJECT = 2;
-    const STATUS_APPROVED = 3;
+    const STATUS_VERIFIED = 3;
 
     const TYPE_PKH = 1;
     const TYPE_BNPT = 2;

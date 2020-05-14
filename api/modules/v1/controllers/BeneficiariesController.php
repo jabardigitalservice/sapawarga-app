@@ -35,12 +35,17 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['approval', 'bulk-approval'],
+                    'roles' => ['admin', 'staffKel'],
                 ]
             ],
         ];
@@ -258,7 +263,7 @@ class BeneficiariesController extends ActiveController
 
         $contentResponse = $responseBody['data']['content'];
         $dwhResponse     = $responseBody['data']['dwh_response'];
-        
+
         if (isset($dwhResponse['response_code']) && $dwhResponse['response_code'] === '02') {
             $log['status'] = 2;
         }
@@ -283,7 +288,7 @@ class BeneficiariesController extends ActiveController
     public function actionDashboardSummary()
     {
         $params = Yii::$app->request->getQueryParams();
-        
+
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
@@ -372,7 +377,7 @@ class BeneficiariesController extends ActiveController
     public function actionDashboardList()
     {
         $params = Yii::$app->request->getQueryParams();
-        
+
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
@@ -547,5 +552,74 @@ class BeneficiariesController extends ActiveController
         }
 
         return $areas;
+    }
+
+    public function actionApproval($id)
+    {
+        $model = $this->findModel($id, $this->modelClass);
+
+        if ($model->status_verification < Beneficiary::STATUS_VERIFIED) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(400);
+
+            return 'Bad Request: Invalid Object Status';
+        }
+
+        return $this->processApproval($model);
+    }
+
+    public function actionBulkApproval()
+    {
+        $action = Yii::$app->request->post('action');
+        $ids = Yii::$app->request->post('ids');
+
+        $status_verification = null;
+        if ($action === Beneficiary::ACTION_APPROVE) {
+            $status_verification = Beneficiary::STATUS_APPROVED_KEL;
+        } elseif ($action === Beneficiary::ACTION_REJECT) {
+            $status_verification = Beneficiary::STATUS_REJECTED_KEL;
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(400);
+            return 'Bad Request: Invalid Action';
+        }
+
+        // bulk action
+        Beneficiary::updateAll(
+            ['status_verification' => $status_verification],
+            [   'and',
+                ['=', 'status', Beneficiary::STATUS_ACTIVE],
+                ['in', 'id', $ids],
+            ]
+        );
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
+    }
+
+    protected function processApproval($model)
+    {
+        $action = Yii::$app->request->post('action');
+
+        if ($action === Beneficiary::ACTION_APPROVE) {
+            $model->status_verification = Beneficiary::STATUS_APPROVED_KEL;
+        } elseif ($action === Beneficiary::ACTION_REJECT) {
+            $model->status_verification = Beneficiary::STATUS_REJECTED_KEL;
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(400);
+            return 'Bad Request: Invalid Action';
+        }
+
+        if ($model->save(false) === false) {
+            throw new ServerErrorHttpException('Failed to process the object for unknown reason.');
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
     }
 }
