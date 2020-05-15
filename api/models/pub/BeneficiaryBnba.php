@@ -119,7 +119,8 @@ class BeneficiaryBnba extends ActiveRecord
             return $this->nik;
         }
 
-        return substr($this->nik, 0, 4) . str_repeat('*', strlen($this->nik) - 8) . substr($this->nik, -4);
+        $maskMultiplier = max((strlen($this->nik) - 10), 0);
+        return substr($this->nik, 0, 10) . str_repeat('*', $maskMultiplier);
     }
 
     protected function getNameMasking()
