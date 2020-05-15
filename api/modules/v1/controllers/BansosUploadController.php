@@ -87,6 +87,7 @@ class BansosUploadController extends ActiveController
                 'kabkota_code' => $row['kabkota_code'],
                 'kabkota_name' => $row['kabkota_name'],
                 'kec_code'     => $row['kec_code'],
+                'notes'        => $row['notes'],
                 'file_path'    => $row['file_path'],
                 'file_url'     => $this->getFileUrl($row['file_path']),
                 'created_at'   => (int) $row['created_at'],
