@@ -67,8 +67,10 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             $query->andWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
         }
 
-        if (! empty(Arr::get($params, 'rw'))) {
-            $query->andWhere(['=', 'rw', Arr::get($params, 'rw')]);
+        if (Arr::get($params, 'rw') == 'Tidak') {
+            $query->andWhere(['rw' => null]);
+        } else {
+            $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
         }
 
         return $query->createCommand()->queryAll();

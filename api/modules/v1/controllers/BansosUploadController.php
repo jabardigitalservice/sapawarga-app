@@ -90,6 +90,7 @@ class BansosUploadController extends ActiveController
                 'notes'        => $row['notes'],
                 'file_path'    => $row['file_path'],
                 'file_url'     => $this->getFileUrl($row['file_path']),
+                'status'       => $row['status'],
                 'created_at'   => (int) $row['created_at'],
             ];
         });
