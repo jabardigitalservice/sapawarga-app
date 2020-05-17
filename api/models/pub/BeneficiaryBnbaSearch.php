@@ -21,15 +21,20 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
      */
     public function search($params)
     {
-        $query = BeneficiaryBnba::find()->where(['is_deleted' => null]);
+        $query = BeneficiaryBnba::find()->andWhere(['or', ['is_deleted' => null], ['is_deleted' => 0]]);
 
         // Filtering
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kec_bps_id')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kel_bps_id')]);
-        $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]) ;
-        $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
 
+        if (Arr::get($params, 'rw') == 'Tidak') {
+            $query->andWhere(['rw' => null]);
+        } else {
+            $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
+        }
+
+        $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['like', 'nik', Arr::get($params, 'nik')]);
         $query->andFilterWhere(['lapangan_usaha' => Arr::get($params, 'lapangan_usaha')]);
@@ -43,7 +48,10 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query = (new \yii\db\Query())
             ->select(['id_tipe_bansos', 'is_dtks', 'COUNT(id) AS total'])
             ->from('beneficiaries_bnba_tahap_1')
-            ->where(['is_deleted' => null])
+            ->andWhere(['or',
+                ['is_deleted' => null],
+                ['is_deleted' => 0]
+            ])
             ->groupBy(['id_tipe_bansos', 'is_dtks']);
 
         // Filtering Area
@@ -71,7 +79,10 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query = (new \yii\db\Query())
             ->select([$params['area_type'],'COUNT(id) AS total'])
             ->from('beneficiaries_bnba_tahap_1')
-            ->where(['is_deleted' => null])
+            ->andWhere(['or',
+                ['is_deleted' => null],
+                ['is_deleted' => 0]
+            ])
             ->groupBy([$params['area_type']]);
 
         // Filtering Area
