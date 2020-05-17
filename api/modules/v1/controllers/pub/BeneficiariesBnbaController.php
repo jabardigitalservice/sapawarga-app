@@ -180,7 +180,7 @@ class BeneficiariesBnbaController extends ActiveController
             ];
 
             if ($params['area_type'] == 'kode_kab') {
-                $data[$key]['image'] = "$publicBaseUrl/kabkota_logo/{$area['code_bps']}.svg";
+                $data[$key]['image'] = "$area['code_bps'].svg";
             }
         }
 
