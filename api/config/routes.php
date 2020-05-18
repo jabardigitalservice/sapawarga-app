@@ -422,6 +422,8 @@ return [
             'OPTIONS approval/{id}' => 'options',
             'POST bulk-approval' => 'bulk-approval',
             'OPTIONS bulk-approval' => 'options',
+            'GET dashboard-approval' => 'dashboard-approval',
+            'OPTIONS dashboard-approval' => 'options',
         ]
     ],
     [

@@ -667,6 +667,13 @@ class BeneficiariesController extends ActiveController
         return $areas;
     }
 
+    /* APPROVAL */
+
+    public function actionDashboardApproval()
+    {
+        return 'ok';
+    }
+
     public function actionApproval($id)
     {
         $model = $this->findModel($id, $this->modelClass);
