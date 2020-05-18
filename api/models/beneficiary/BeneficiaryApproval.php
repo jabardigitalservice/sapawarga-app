@@ -3,6 +3,8 @@
 namespace app\models\beneficiary;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use app\models\Area;
 use app\models\Beneficiary;
 
 /**
@@ -38,8 +40,49 @@ class BeneficiaryApproval extends Beneficiary
     {
         // get params
         $type = Arr::get($params, 'type');
-        $area_id = Arr::get($params, 'area_id');
+        $area = Area::find()->where(['id' => Arr::get($params, 'area_id')])->one();
+        $code_bps = $area->code_bps ?? null;
 
-        return [];
+        $statutes = [
+            Beneficiary::STATUS_VERIFIED,
+            Beneficiary::STATUS_PENDING,
+            Beneficiary::STATUS_REJECT,
+        ];
+
+        $counts = Beneficiary::find()
+            ->select(['status_verification','COUNT(status) AS jumlah'])
+            // ->where(['=','domicile_kabkota_bps_id', $code_bps])
+            ->where(['in', 'status_verification', $statutes])
+            ->groupBy(['status_verification'])
+            ->asArray()
+            ->all();
+        $counts = new Collection($counts);
+        $counts = $this->transformCount($counts);
+
+        return $counts;
+    }
+
+    public function transformCount($lists)
+    {
+        $status_maps = [
+            '1' => 'pending',
+            '2' => 'rejected',
+            '3' => 'approved',
+            '4' => 'rejected_kel',
+            '5' => 'approved_kel',
+            '6' => 'rejected_kec',
+            '7' => 'approved_kec',
+            '8' => 'rejected_kabkota',
+            '9' => 'approved_kabkota',
+        ];
+        $data = [];
+        $jml = Arr::pluck($lists, 'jumlah', 'status_verification');
+        $total = 0;
+        foreach ($status_maps as $key => $map) {
+            $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
+            $total += $data[$map];
+        }
+        $data['total'] = $total;
+        return $data;
     }
 }
