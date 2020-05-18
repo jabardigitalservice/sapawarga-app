@@ -674,26 +674,36 @@ class BeneficiariesController extends ActiveController
 
     public function actionDashboardApproval()
     {
-        $params = [
-            'area_id' => null,
-        ];
+        $params = null;
         $authUser = Yii::$app->user;
         $authUserModel = $authUser->identity;
         switch ($authUserModel->role) {
             case User::ROLE_STAFF_KEL:
-                $params['area_id'] = $authUserModel->kel_id;
+                $params = [
+                    'type' => 'kel',
+                    'area_id' => $authUserModel->kel_id,
+                ];
                 break;
             case User::ROLE_STAFF_KEC:
-                $params['area_id'] = $authUserModel->kec_id;
+                $params = [
+                    'type' => 'kec',
+                    'area_id' => $authUserModel->kec_id,
+                ];
                 break;
             case User::ROLE_STAFF_KABKOTA:
-                $params['area_id'] = $authUserModel->kabkota_id;
+                $params = [
+                    'type' => 'kabkota',
+                    'area_id' => $authUserModel->kabkota_id,
+                ];
                 break;
             case User::ROLE_STAFF_OPD:
             case User::ROLE_STAFF_PROV:
             case User::ROLE_PIMPINAN:
             case User::ROLE_ADMIN:
-                $params['area_id'] = null;
+                $params = [
+                    'type' => 'provinsi',
+                    'area_id' => null,
+                ];
                 break;
             default:
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
