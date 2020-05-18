@@ -69,7 +69,7 @@ test_api:
   image: docker/compose:latest
   rules:
     - changes:
-      - "**/*.{php,sql}"
+      - "**/*.{php,sql,yml}"
   services:
     - docker:stable-dind
   variables:
