@@ -4,7 +4,9 @@ namespace app\modules\v1\controllers;
 
 use app\models\Area;
 use app\models\Beneficiary;
+use app\models\beneficiary\BeneficiaryApproval;
 use app\models\BeneficiarySearch;
+use app\models\User;
 use app\validator\NikRateLimitValidator;
 use app\validator\NikValidator;
 use GuzzleHttp\Client;
@@ -12,6 +14,7 @@ use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
@@ -44,7 +47,7 @@ class BeneficiariesController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['approval', 'bulk-approval'],
+                    'actions' => ['approval', 'bulk-approval', 'dashboard-approval'],
                     'roles' => ['admin', 'staffKel'],
                 ]
             ],
@@ -671,7 +674,33 @@ class BeneficiariesController extends ActiveController
 
     public function actionDashboardApproval()
     {
-        return 'ok';
+        $params = [
+            'area_id' => null,
+        ];
+        $authUser = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+        switch ($authUserModel->role) {
+            case User::ROLE_STAFF_KEL:
+                $params['area_id'] = $authUserModel->kel_id;
+                break;
+            case User::ROLE_STAFF_KEC:
+                $params['area_id'] = $authUserModel->kec_id;
+                break;
+            case User::ROLE_STAFF_KABKOTA:
+                $params['area_id'] = $authUserModel->kabkota_id;
+                break;
+            case User::ROLE_STAFF_OPD:
+            case User::ROLE_STAFF_PROV:
+            case User::ROLE_PIMPINAN:
+            case User::ROLE_ADMIN:
+                $params['area_id'] = null;
+                break;
+            default:
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+                break;
+        }
+        $model = new BeneficiaryApproval();
+        return $model->getDashboardApproval($params);
     }
 
     public function actionApproval($id)
