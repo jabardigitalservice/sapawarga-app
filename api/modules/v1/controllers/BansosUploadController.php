@@ -169,6 +169,10 @@ class BansosUploadController extends ActiveController implements ActiveStatus
      */
     public function getFileUrl($relativePath)
     {
+        if(!$relativePath) {
+            return null;
+        }
+
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
         return "{$publicBaseUrl}/{$relativePath}";
