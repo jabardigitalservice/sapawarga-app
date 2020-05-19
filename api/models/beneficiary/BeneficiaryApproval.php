@@ -20,26 +20,31 @@ class BeneficiaryApproval extends Beneficiary
     // Determines statuses shown for each type of dashboard
     const DASHBOARD_STATUSES = [
         Beneficiary::TYPE_PROVINSI => [
-            Beneficiary::STATUS_APPROVED_KEC,
-            Beneficiary::STATUS_REJECTED_KABKOTA,
-            Beneficiary::STATUS_APPROVED_KABKOTA,
+            'pending' => Beneficiary::STATUS_APPROVED_KEC,
+            'rejected' => Beneficiary::STATUS_REJECTED_KABKOTA,
+            'approved' => Beneficiary::STATUS_APPROVED_KABKOTA,
         ],
         Beneficiary::TYPE_KABKOTA => [
-            Beneficiary::STATUS_APPROVED_KEC,
-            Beneficiary::STATUS_REJECTED_KABKOTA,
-            Beneficiary::STATUS_APPROVED_KABKOTA,
+            'pending' => Beneficiary::STATUS_APPROVED_KEC,
+            'rejected' => Beneficiary::STATUS_REJECTED_KABKOTA,
+            'approved' => Beneficiary::STATUS_APPROVED_KABKOTA,
         ],
         Beneficiary::TYPE_KEC => [
-            Beneficiary::STATUS_APPROVED_KEL,
-            Beneficiary::STATUS_REJECTED_KEC,
-            Beneficiary::STATUS_APPROVED_KEC,
+            'pending' => Beneficiary::STATUS_APPROVED_KEL,
+            'rejected' => Beneficiary::STATUS_REJECTED_KEC,
+            'approved' => Beneficiary::STATUS_APPROVED_KEC,
         ],
         Beneficiary::TYPE_KEL => [
-            Beneficiary::STATUS_VERIFIED,
-            Beneficiary::STATUS_REJECTED_KEL,
-            Beneficiary::STATUS_APPROVED_KEL,
+            'pending' => Beneficiary::STATUS_VERIFIED,
+            'rejected' => Beneficiary::STATUS_REJECTED_KEL,
+            'approved' => Beneficiary::STATUS_APPROVED_KEL,
         ],
     ];
+
+    public $approved;
+    public $rejected;
+    public $pending;
+    public $total;
 
     public function fields()
     {
@@ -68,45 +73,27 @@ class BeneficiaryApproval extends Beneficiary
             $area = Area::find()->where(['id' => $area_id])->one();
             $area_id = $area->code_bps;
         }
-        $statutes = self::DASHBOARD_STATUSES[$type];
+        $statuses = array_values(self::DASHBOARD_STATUSES[$type]);
 
+        // select required status_verification based on $statuses value
         $counts = Beneficiary::find()->select(['status_verification','COUNT(status) AS jumlah']);
         if ($area_id) {
             $counts = $counts->where(['=','domicile_kabkota_bps_id', $area_id]);
         }
-        $counts = $counts->where(['in', 'status_verification', $statutes])
+        $counts = $counts->where(['in', 'status_verification', $statuses])
             ->groupBy(['status_verification'])
             ->asArray()
             ->all();
-        $counts = new Collection($counts);
-        $counts = $this->transformCount($counts);
 
-        return $counts;
-    }
-
-    public function transformCount($lists)
-    {
-        $status_maps = [
-            '1' => 'pending',
-            '2' => 'rejected',
-            '3' => 'approved',
-            '4' => 'rejected_kel',
-            '5' => 'approved_kel',
-            '6' => 'rejected_kec',
-            '7' => 'approved_kec',
-            '8' => 'rejected_kabkota',
-            '9' => 'approved_kabkota',
-        ];
-        $data = [];
-        $jml = Arr::pluck($lists, 'jumlah', 'status_verification');
-        $total = 0;
-        foreach ($status_maps as $key => $map) {
-            if (isset($jml[$key])) {
-                $data[$map] = intval($jml[$key]);
-                $total += $data[$map];
-            }
-        }
-        $data['total'] = $total;
-        return $data;
+        // instantiate the model as return value
+        $model = new BeneficiaryApproval();
+        $idx = array_search(self::DASHBOARD_STATUSES[$type]['approved'], array_column($counts, 'status_verification'));
+        $model->approved = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
+        $idx = array_search(self::DASHBOARD_STATUSES[$type]['rejected'], array_column($counts, 'status_verification'));
+        $model->rejected = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
+        $idx = array_search(self::DASHBOARD_STATUSES[$type]['pending'], array_column($counts, 'status_verification'));
+        $model->pending = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
+        $model->total = $model->approved + $model->rejected + $model->pending;
+        return $model;
     }
 }
