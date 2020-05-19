@@ -85,16 +85,18 @@ class BansosUploadController extends ActiveController implements ActiveStatus
 
         return $rows->map(function ($row) {
             return [
-                'id'           => (int) $row['id'],
-                'bansos_type'  => (int) $row['bansos_type'],
-                'kabkota_code' => $row['kabkota_code'],
-                'kabkota_name' => $row['kabkota_name'],
-                'kec_code'     => $row['kec_code'],
-                'notes'        => $row['notes'],
-                'file_path'    => $row['file_path'],
-                'file_url'     => $this->getFileUrl($row['file_path']),
-                'status'       => $row['status'],
-                'created_at'   => (int) $row['created_at'],
+                'id'                => (int) $row['id'],
+                'bansos_type'       => (int) $row['bansos_type'],
+                'kabkota_code'      => $row['kabkota_code'],
+                'kabkota_name'      => $row['kabkota_name'],
+                'kec_code'          => $row['kec_code'],
+                'notes'             => $row['notes'],
+                'file_path'         => $row['file_path'],
+                'file_url'          => $this->getFileUrl($row['file_path']),
+                'invalid_file_path' => $row['invalid_file_path'],
+                'invalid_file_url'  => $this->getFileUrl($row['invalid_file_path']),
+                'status'            => $row['status'],
+                'created_at'        => (int) $row['created_at'],
             ];
         });
     }
@@ -121,12 +123,6 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         $model->addRule('type', 'required');
         $model->addRule('kabkota_id', 'trim');
         $model->addRule('kabkota_id', 'required');
-        $model->addRule('status', 'in', ['range' => [
-            self::STATUS_DELETED,
-            self::STATUS_DISABLED,
-            self::STATUS_ACTIVE,
-            self::STATUS_INVALID,
-        ]]);
 
         if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
