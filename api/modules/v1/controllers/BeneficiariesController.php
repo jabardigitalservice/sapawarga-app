@@ -672,7 +672,7 @@ class BeneficiariesController extends ActiveController
 
     /* APPROVAL */
 
-    public function actionDashboardApproval()
+    public function actionApprovalDashboard()
     {
         $params = null;
         $authUser = Yii::$app->user;
@@ -711,6 +711,11 @@ class BeneficiariesController extends ActiveController
         }
         $model = new BeneficiaryApproval();
         return $model->getDashboardApproval($params);
+    }
+
+    public function actionApprovalList()
+    {
+        return 'ok';
     }
 
     public function actionApproval($id)

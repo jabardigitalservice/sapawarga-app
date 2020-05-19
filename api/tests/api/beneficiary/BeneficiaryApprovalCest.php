@@ -122,7 +122,7 @@ class BeneficiaryApprovalCest
     {
         $I->amStaff('staffkel');
 
-        $I->sendGET("{$this->endpointBeneficiaries}/dashboard-approval");
+        $I->sendGET("{$this->endpointBeneficiaries}/approval-dashboard");
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([
