@@ -17,6 +17,30 @@ use app\models\Beneficiary;
  */
 class BeneficiaryApproval extends Beneficiary
 {
+    // Determines statuses shown for each type of dashboard
+    const DASHBOARD_STATUSES = [
+        Beneficiary::TYPE_PROVINSI => [
+            Beneficiary::STATUS_APPROVED_KEC,
+            Beneficiary::STATUS_REJECTED_KABKOTA,
+            Beneficiary::STATUS_APPROVED_KABKOTA,
+        ],
+        Beneficiary::TYPE_KABKOTA => [
+            Beneficiary::STATUS_APPROVED_KEC,
+            Beneficiary::STATUS_REJECTED_KABKOTA,
+            Beneficiary::STATUS_APPROVED_KABKOTA,
+        ],
+        Beneficiary::TYPE_KEC => [
+            Beneficiary::STATUS_APPROVED_KEL,
+            Beneficiary::STATUS_REJECTED_KEC,
+            Beneficiary::STATUS_APPROVED_KEC,
+        ],
+        Beneficiary::TYPE_KEL => [
+            Beneficiary::STATUS_VERIFIED,
+            Beneficiary::STATUS_REJECTED_KEL,
+            Beneficiary::STATUS_APPROVED_KEL,
+        ],
+    ];
+
     public function fields()
     {
         return [
@@ -30,29 +54,27 @@ class BeneficiaryApproval extends Beneficiary
     /**
      * Returns approval summary based on Beneficiary's status_verification
      *
-     * @param array $params['limit'] Limit result data
-     * @param array $params['category_id'] Filtering by category_id
-     * @param array $params['kabkota_id'] Filtering by kabkota_id
+     * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel)
+     * @param array $params['area_id'] area id of the user
      *
-     * @return SqlDataProvider
+     * @return array
      */
     public function getDashboardApproval($params)
     {
-        // get params
+        // get params, converting area_id to BPS code
         $type = Arr::get($params, 'type');
-        $area = Area::find()->where(['id' => Arr::get($params, 'area_id')])->one();
-        $code_bps = $area->code_bps ?? null;
+        $area_id = Arr::get($params, 'area_id');
+        if ($area_id) {
+            $area = Area::find()->where(['id' => $area_id])->one();
+            $area_id = $area->code_bps;
+        }
+        $statutes = self::DASHBOARD_STATUSES[$type];
 
-        $statutes = [
-            Beneficiary::STATUS_VERIFIED,
-            Beneficiary::STATUS_PENDING,
-            Beneficiary::STATUS_REJECT,
-        ];
-
-        $counts = Beneficiary::find()
-            ->select(['status_verification','COUNT(status) AS jumlah'])
-            // ->where(['=','domicile_kabkota_bps_id', $code_bps])
-            ->where(['in', 'status_verification', $statutes])
+        $counts = Beneficiary::find()->select(['status_verification','COUNT(status) AS jumlah']);
+        if ($area_id) {
+            $counts = $counts->where(['=','domicile_kabkota_bps_id', $area_id]);
+        }
+        $counts = $counts->where(['in', 'status_verification', $statutes])
             ->groupBy(['status_verification'])
             ->asArray()
             ->all();
@@ -79,8 +101,10 @@ class BeneficiaryApproval extends Beneficiary
         $jml = Arr::pluck($lists, 'jumlah', 'status_verification');
         $total = 0;
         foreach ($status_maps as $key => $map) {
-            $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
-            $total += $data[$map];
+            if (isset($jml[$key])) {
+                $data[$map] = intval($jml[$key]);
+                $total += $data[$map];
+            }
         }
         $data['total'] = $total;
         return $data;

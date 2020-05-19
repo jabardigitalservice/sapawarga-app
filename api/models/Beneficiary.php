@@ -60,10 +60,21 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     // Status ids for approval
     const STATUS_REJECTED_KEL = 4;
     const STATUS_APPROVED_KEL = 5;
+    const STATUS_REJECTED_KEC = 6;
+    const STATUS_APPROVED_KEC = 7;
+    const STATUS_REJECTED_KABKOTA = 8;
+    const STATUS_APPROVED_KABKOTA = 9;
 
     // Action names for approval
     const ACTION_APPROVE = 'APPROVE';
     const ACTION_REJECT = 'REJECT';
+
+    // Types used on Dashboards
+    const TYPE_PROVINSI = 'provinsi';
+    const TYPE_KABKOTA = 'kabkota';
+    const TYPE_KEC = 'kec';
+    const TYPE_KEL = 'kel';
+    const TYPE_RW = 'rw';
 
     /**
      * {@inheritdoc}
