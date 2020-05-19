@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\models\Area;
 use creocoder\flysystem\Filesystem;
 use Illuminate\Support\Collection;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\base\DynamicModel;
 use yii\db\Query;
@@ -15,8 +16,10 @@ use yii\web\UploadedFile;
 /**
  * BansosUploadController implements the CRUD actions for Banner model.
  */
-class BansosUploadController extends ActiveController
+class BansosUploadController extends ActiveController implements ActiveStatus
 {
+    const STATUS_INVALID = 20;
+
     public $modelClass = DynamicModel::class;
 
     public function behaviors()
@@ -118,6 +121,12 @@ class BansosUploadController extends ActiveController
         $model->addRule('type', 'required');
         $model->addRule('kabkota_id', 'trim');
         $model->addRule('kabkota_id', 'required');
+        $model->addRule('status', 'in', ['range' => [
+            self::STATUS_DELETED,
+            self::STATUS_DISABLED,
+            self::STATUS_ACTIVE,
+            self::STATUS_INVALID,
+        ]]);
 
         if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
