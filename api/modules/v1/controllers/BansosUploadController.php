@@ -169,7 +169,7 @@ class BansosUploadController extends ActiveController implements ActiveStatus
      */
     public function getFileUrl($relativePath)
     {
-        if(!$relativePath) {
+        if (!$relativePath) {
             return null;
         }
 
