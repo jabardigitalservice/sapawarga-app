@@ -78,9 +78,19 @@ class BeneficiaryApproval extends Beneficiary
         // select required status_verification based on $statuses value
         $counts = Beneficiary::find()->select(['status_verification','COUNT(status) AS jumlah']);
         if ($area_id) {
-            $counts = $counts->where(['=','domicile_kabkota_bps_id', $area_id]);
+            switch ($type) {
+                case Beneficiary::TYPE_KABKOTA:
+                    $counts = $counts->andWhere(['domicile_kabkota_bps_id' => $area_id]);
+                    break;
+                case Beneficiary::TYPE_KEC:
+                    $counts = $counts->andWhere(['domicile_kec_bps_id' => $area_id]);
+                    break;
+                case Beneficiary::TYPE_KEL:
+                    $counts = $counts->andWhere(['domicile_kel_bps_id' => $area_id]);
+                    break;
+            }
         }
-        $counts = $counts->where(['in', 'status_verification', $statuses])
+        $counts = $counts->andWhere(['in', 'status_verification', $statuses])
             ->groupBy(['status_verification'])
             ->asArray()
             ->all();

@@ -62,6 +62,17 @@ class BeneficiaryApprovalCest
 
         $I->haveInDatabase('beneficiaries', [
             'id' => 5,
+            'nik' => '3200000000000005',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'status_verification' => Beneficiary::STATUS_PENDING,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 6,
             'domicile_kel_bps_id' => $this->kelBekasi,
             'status_verification' => Beneficiary::STATUS_VERIFIED,
             'status' => Beneficiary::STATUS_ACTIVE,
@@ -74,11 +85,11 @@ class BeneficiaryApprovalCest
     /**
      * @before loadData
      */
-    public function getStaffKelListAll(ApiTester $I)
+    public function getStaffKelApproval(ApiTester $I)
     {
         $I->amStaff('staffkel');
 
-        $I->sendGET($this->endpointBeneficiaries);
+        $I->sendGET("{$this->endpointBeneficiaries}/approval");
         $I->canSeeResponseCodeIs(200);
         $I->seeHttpHeader('X-Pagination-Total-Count', 4);
 
@@ -115,10 +126,14 @@ class BeneficiaryApprovalCest
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([
-            'approved' => 1,
-            'rejected' => 1,
-            'pending' => 2,
-            'total' => 4,
+            'success' => true,
+            'status'  => 200,
+            'data' => [
+                'approved' => 1,
+                'rejected' => 1,
+                'pending' => 2,
+                'total' => 4,
+            ]
         ]);
     }
 
