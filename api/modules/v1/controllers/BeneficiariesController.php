@@ -48,8 +48,8 @@ class BeneficiariesController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['approval', 'bulk-approval', 'dashboard-approval'],
-                    'roles' => ['admin', 'staffKel'],
-                ]
+                    'roles' => ['admin', 'staffKabkota', 'staffKec', 'staffKel'],
+                ],
             ],
         ];
 
@@ -729,7 +729,31 @@ class BeneficiariesController extends ActiveController
             return 'Bad Request: Invalid Object Status';
         }
 
-        return $this->processApproval($model);
+        $authUser = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+        $params = null;
+        switch ($authUserModel->role) {
+            case User::ROLE_STAFF_KEL:
+                $params = ['type' => Beneficiary::TYPE_KEL];
+                break;
+            case User::ROLE_STAFF_KEC:
+                $params = ['type' => Beneficiary::TYPE_KEC];
+                break;
+            case User::ROLE_STAFF_KABKOTA:
+                $params = ['type' => Beneficiary::TYPE_KABKOTA];
+                break;
+            case User::ROLE_STAFF_OPD:
+            case User::ROLE_STAFF_PROV:
+            case User::ROLE_PIMPINAN:
+            case User::ROLE_ADMIN:
+                $params = ['type' => Beneficiary::TYPE_PROVINSI];
+                break;
+            default:
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+                break;
+        }
+
+        return $this->processApproval($model, $params);
     }
 
     public function actionBulkApproval()
@@ -763,18 +787,36 @@ class BeneficiariesController extends ActiveController
         return 'ok';
     }
 
-    protected function processApproval($model)
+    protected function processApproval($model, $params)
     {
+        $type = Arr::get($params, 'type');
         $action = Yii::$app->request->post('action');
 
-        if ($action === Beneficiary::ACTION_APPROVE) {
-            $model->status_verification = Beneficiary::STATUS_APPROVED_KEL;
-        } elseif ($action === Beneficiary::ACTION_REJECT) {
-            $model->status_verification = Beneficiary::STATUS_REJECTED_KEL;
-        } else {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(400);
-            return 'Bad Request: Invalid Action';
+        switch ($type) {
+            case Beneficiary::TYPE_KEL:
+                if ($action === Beneficiary::ACTION_APPROVE) {
+                    $model->status_verification = Beneficiary::STATUS_APPROVED_KEL;
+                } elseif ($action === Beneficiary::ACTION_REJECT) {
+                    $model->status_verification = Beneficiary::STATUS_REJECTED_KEL;
+                }
+                break;
+            case Beneficiary::TYPE_KEC:
+                if ($action === Beneficiary::ACTION_APPROVE) {
+                    $model->status_verification = Beneficiary::STATUS_APPROVED_KEC;
+                } elseif ($action === Beneficiary::ACTION_REJECT) {
+                    $model->status_verification = Beneficiary::STATUS_REJECTED_KEC;
+                }
+                break;
+            case Beneficiary::TYPE_KABKOTA:
+                if ($action === Beneficiary::ACTION_APPROVE) {
+                    $model->status_verification = Beneficiary::STATUS_APPROVED_KABKOTA;
+                } elseif ($action === Beneficiary::ACTION_REJECT) {
+                    $model->status_verification = Beneficiary::STATUS_REJECTED_KABKOTA;
+                }
+                break;
+            default:
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+                break;
         }
 
         if ($model->save(false) === false) {
