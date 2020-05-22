@@ -672,6 +672,10 @@ class BeneficiariesController extends ActiveController
 
     /* APPROVAL */
 
+    /**
+     * Generates common params for approval-related actions (approval dashboard, list, single/bulk approve)
+     * @return array
+     */
     public function getApprovalParams()
     {
         $authUser = Yii::$app->user;
@@ -792,28 +796,48 @@ class BeneficiariesController extends ActiveController
 
     protected function processBulkApproval($params)
     {
+        $type = Arr::get($params, 'type');
         $action = Yii::$app->request->post('action');
         $ids = Yii::$app->request->post('ids');
-
         $status_verification = null;
-        if ($action === Beneficiary::ACTION_APPROVE) {
-            $status_verification = Beneficiary::STATUS_APPROVED_KEL;
-        } elseif ($action === Beneficiary::ACTION_REJECT) {
-            $status_verification = Beneficiary::STATUS_REJECTED_KEL;
-        } else {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(400);
-            return 'Bad Request: Invalid Action';
+
+        switch ($type) {
+            case Beneficiary::TYPE_KEL:
+                if ($action === Beneficiary::ACTION_APPROVE) {
+                    $status_verification = Beneficiary::STATUS_APPROVED_KEL;
+                } elseif ($action === Beneficiary::ACTION_REJECT) {
+                    $status_verification = Beneficiary::STATUS_REJECTED_KEL;
+                }
+                break;
+            case Beneficiary::TYPE_KEC:
+                if ($action === Beneficiary::ACTION_APPROVE) {
+                    $status_verification = Beneficiary::STATUS_APPROVED_KEC;
+                } elseif ($action === Beneficiary::ACTION_REJECT) {
+                    $status_verification = Beneficiary::STATUS_REJECTED_KEC;
+                }
+                break;
+            case Beneficiary::TYPE_KABKOTA:
+                if ($action === Beneficiary::ACTION_APPROVE) {
+                    $status_verification = Beneficiary::STATUS_APPROVED_KABKOTA;
+                } elseif ($action === Beneficiary::ACTION_REJECT) {
+                    $status_verification = Beneficiary::STATUS_REJECTED_KABKOTA;
+                }
+                break;
+            default:
+                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+                break;
         }
 
-        // bulk action
-        Beneficiary::updateAll(
-            ['status_verification' => $status_verification],
-            [   'and',
-                ['=', 'status', Beneficiary::STATUS_ACTIVE],
-                ['in', 'id', $ids],
-            ]
-        );
+        if ($status_verification && $ids) {
+            // bulk action
+            Beneficiary::updateAll(
+                ['status_verification' => $status_verification],
+                [   'and',
+                    ['=', 'status', Beneficiary::STATUS_ACTIVE],
+                    ['in', 'id', $ids],
+                ]
+            );
+        }
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
