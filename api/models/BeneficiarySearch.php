@@ -29,7 +29,7 @@ class BeneficiarySearch extends Beneficiary
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
-        $query->andFilterWhere(['like', 'nik', Arr::get($params, 'nik')]);
+        $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['kabkota_id' => Arr::get($params, 'kabkota_id')]);
         $query->andFilterWhere(['kec_id' => Arr::get($params, 'kec_id')]);
         $query->andFilterWhere(['kel_id' => Arr::get($params, 'kel_id')]);

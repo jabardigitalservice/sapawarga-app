@@ -29,7 +29,7 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
-        $query->andFilterWhere(['like', 'nik', Arr::get($params, 'nik')]);
+        $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['like', 'no_kk', Arr::get($params, 'no_kk')]);
         $query->andFilterWhere(['rw' => ltrim(Arr::get($params, 'rw'), '0')]);
         $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
