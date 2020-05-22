@@ -672,27 +672,28 @@ class BeneficiariesController extends ActiveController
 
     /* APPROVAL */
 
-    public function actionApprovalDashboard()
+    public function getApprovalParams()
     {
-        $params = null;
         $authUser = Yii::$app->user;
         $authUserModel = $authUser->identity;
+        $params = null;
+
         switch ($authUserModel->role) {
             case User::ROLE_STAFF_KEL:
                 $params = [
-                    'type' => 'kel',
+                    'type' => Beneficiary::TYPE_KEL,
                     'area_id' => $authUserModel->kel_id,
                 ];
                 break;
             case User::ROLE_STAFF_KEC:
                 $params = [
-                    'type' => 'kec',
+                    'type' => Beneficiary::TYPE_KEC,
                     'area_id' => $authUserModel->kec_id,
                 ];
                 break;
             case User::ROLE_STAFF_KABKOTA:
                 $params = [
-                    'type' => 'kabkota',
+                    'type' => Beneficiary::TYPE_KABKOTA,
                     'area_id' => $authUserModel->kabkota_id,
                 ];
                 break;
@@ -701,7 +702,7 @@ class BeneficiariesController extends ActiveController
             case User::ROLE_PIMPINAN:
             case User::ROLE_ADMIN:
                 $params = [
-                    'type' => 'provinsi',
+                    'type' => Beneficiary::TYPE_PROVINSI,
                     'area_id' => null,
                 ];
                 break;
@@ -709,6 +710,13 @@ class BeneficiariesController extends ActiveController
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
                 break;
         }
+
+        return $params;
+    }
+
+    public function actionApprovalDashboard()
+    {
+        $params = $this->getApprovalParams();
         $model = new BeneficiaryApproval();
         return $model->getDashboardApproval($params);
     }
@@ -721,7 +729,6 @@ class BeneficiariesController extends ActiveController
     public function actionApproval($id)
     {
         $model = $this->findModel($id, $this->modelClass);
-
         if ($model->status_verification < Beneficiary::STATUS_VERIFIED) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(400);
@@ -729,29 +736,7 @@ class BeneficiariesController extends ActiveController
             return 'Bad Request: Invalid Object Status';
         }
 
-        $authUser = Yii::$app->user;
-        $authUserModel = $authUser->identity;
-        $params = null;
-        switch ($authUserModel->role) {
-            case User::ROLE_STAFF_KEL:
-                $params = ['type' => Beneficiary::TYPE_KEL];
-                break;
-            case User::ROLE_STAFF_KEC:
-                $params = ['type' => Beneficiary::TYPE_KEC];
-                break;
-            case User::ROLE_STAFF_KABKOTA:
-                $params = ['type' => Beneficiary::TYPE_KABKOTA];
-                break;
-            case User::ROLE_STAFF_OPD:
-            case User::ROLE_STAFF_PROV:
-            case User::ROLE_PIMPINAN:
-            case User::ROLE_ADMIN:
-                $params = ['type' => Beneficiary::TYPE_PROVINSI];
-                break;
-            default:
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-                break;
-        }
+        $params = $this->getApprovalParams();
 
         return $this->processApproval($model, $params);
     }
