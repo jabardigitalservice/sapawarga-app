@@ -5,6 +5,7 @@ namespace app\modules\v1\controllers;
 use app\models\Area;
 use creocoder\flysystem\Filesystem;
 use Illuminate\Support\Collection;
+use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
 use yii\base\DynamicModel;
 use yii\db\Query;
@@ -15,8 +16,10 @@ use yii\web\UploadedFile;
 /**
  * BansosUploadController implements the CRUD actions for Banner model.
  */
-class BansosUploadController extends ActiveController
+class BansosUploadController extends ActiveController implements ActiveStatus
 {
+    const STATUS_INVALID = 20;
+
     public $modelClass = DynamicModel::class;
 
     public function behaviors()
@@ -82,16 +85,18 @@ class BansosUploadController extends ActiveController
 
         return $rows->map(function ($row) {
             return [
-                'id'           => (int) $row['id'],
-                'bansos_type'  => (int) $row['bansos_type'],
-                'kabkota_code' => $row['kabkota_code'],
-                'kabkota_name' => $row['kabkota_name'],
-                'kec_code'     => $row['kec_code'],
-                'notes'        => $row['notes'],
-                'file_path'    => $row['file_path'],
-                'file_url'     => $this->getFileUrl($row['file_path']),
-                'status'       => $row['status'],
-                'created_at'   => (int) $row['created_at'],
+                'id'                => (int) $row['id'],
+                'bansos_type'       => (int) $row['bansos_type'],
+                'kabkota_code'      => $row['kabkota_code'],
+                'kabkota_name'      => $row['kabkota_name'],
+                'kec_code'          => $row['kec_code'],
+                'notes'             => $row['notes'],
+                'file_path'         => $row['file_path'],
+                'file_url'          => $this->getFileUrl($row['file_path']),
+                'invalid_file_path' => $row['invalid_file_path'],
+                'invalid_file_url'  => $this->getFileUrl($row['invalid_file_path']),
+                'status'            => $row['status'],
+                'created_at'        => (int) $row['created_at'],
             ];
         });
     }
@@ -164,6 +169,10 @@ class BansosUploadController extends ActiveController
      */
     public function getFileUrl($relativePath)
     {
+        if (!$relativePath) {
+            return null;
+        }
+
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
         return "{$publicBaseUrl}/{$relativePath}";

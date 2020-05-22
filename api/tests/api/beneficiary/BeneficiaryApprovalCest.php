@@ -51,6 +51,28 @@ class BeneficiaryApprovalCest
 
         $I->haveInDatabase('beneficiaries', [
             'id' => 4,
+            'nik' => '3200000000000004',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 5,
+            'nik' => '3200000000000005',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'status_verification' => Beneficiary::STATUS_PENDING,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 6,
             'domicile_kel_bps_id' => $this->kelBekasi,
             'status_verification' => Beneficiary::STATUS_VERIFIED,
             'status' => Beneficiary::STATUS_ACTIVE,
@@ -63,18 +85,19 @@ class BeneficiaryApprovalCest
     /**
      * @before loadData
      */
-    public function getStaffKelListAll(ApiTester $I)
+    public function getStaffKelApproval(ApiTester $I)
     {
         $I->amStaff('staffkel');
 
-        $I->sendGET($this->endpointBeneficiaries);
+        $I->sendGET("{$this->endpointBeneficiaries}/approval");
         $I->canSeeResponseCodeIs(200);
-        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
         $I->assertEquals(3, $data[0][0]['id']);
         $I->assertEquals(2, $data[0][1]['id']);
         $I->assertEquals(1, $data[0][2]['id']);
+        $I->assertEquals(4, $data[0][3]['id']);
     }
 
     /**
@@ -90,6 +113,28 @@ class BeneficiaryApprovalCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
         $I->assertEquals(1, $data[0][0]['id']);
+    }
+
+     /**
+     * @before loadData
+     */
+    public function getStaffKelDashboard(ApiTester $I)
+    {
+        $I->amStaff('staffkel');
+
+        $I->sendGET("{$this->endpointBeneficiaries}/approval-dashboard");
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+            'data' => [
+                'approved' => 1,
+                'rejected' => 1,
+                'pending' => 2,
+                'total' => 4,
+            ]
+        ]);
     }
 
     /**
