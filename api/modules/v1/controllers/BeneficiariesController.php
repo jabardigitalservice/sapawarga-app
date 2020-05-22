@@ -682,35 +682,29 @@ class BeneficiariesController extends ActiveController
     {
         $authUser = Yii::$app->user;
         $authUserModel = $authUser->identity;
-        $params = null;
+        $params = [
+            'type' => null,
+            'area_id' => null,
+        ];
 
         switch ($authUserModel->role) {
             case User::ROLE_STAFF_KEL:
-                $params = [
-                    'type' => Beneficiary::TYPE_KEL,
-                    'area_id' => $authUserModel->kel_id,
-                ];
+                $params['type'] = Beneficiary::TYPE_KEL;
+                $params['area_id'] = $authUserModel->kel_id;
                 break;
             case User::ROLE_STAFF_KEC:
-                $params = [
-                    'type' => Beneficiary::TYPE_KEC,
-                    'area_id' => $authUserModel->kec_id,
-                ];
+                $params['type'] = Beneficiary::TYPE_KEC;
+                $params['area_id'] = $authUserModel->kec_id;
                 break;
             case User::ROLE_STAFF_KABKOTA:
-                $params = [
-                    'type' => Beneficiary::TYPE_KABKOTA,
-                    'area_id' => $authUserModel->kabkota_id,
-                ];
+                $params['type'] = Beneficiary::TYPE_KABKOTA;
+                $params['area_id'] = $authUserModel->kabkota_id;
                 break;
             case User::ROLE_STAFF_OPD:
             case User::ROLE_STAFF_PROV:
             case User::ROLE_PIMPINAN:
             case User::ROLE_ADMIN:
-                $params = [
-                    'type' => Beneficiary::TYPE_PROVINSI,
-                    'area_id' => null,
-                ];
+                $params['type'] = Beneficiary::TYPE_PROVINSI;
                 break;
             default:
                 throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
@@ -764,40 +758,20 @@ class BeneficiariesController extends ActiveController
      */
     public function getNewStatusVerification($type, $action)
     {
+        if (!array_key_exists($type, BeneficiaryApproval::APPROVAL_MAP)) {
+            throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
+        };
+
         if ($action !== Beneficiary::ACTION_APPROVE &&
             $action !== Beneficiary::ACTION_REJECT) {
             throw new BadRequestHttpException('Bad Request: Invalid Action');
         }
 
-        $newStatusVerification = null;
-        switch ($type) {
-            case Beneficiary::TYPE_KEL:
-                if ($action === Beneficiary::ACTION_APPROVE) {
-                    $newStatusVerification = Beneficiary::STATUS_APPROVED_KEL;
-                } elseif ($action === Beneficiary::ACTION_REJECT) {
-                    $newStatusVerification = Beneficiary::STATUS_REJECTED_KEL;
-                }
-                break;
-            case Beneficiary::TYPE_KEC:
-                if ($action === Beneficiary::ACTION_APPROVE) {
-                    $newStatusVerification = Beneficiary::STATUS_APPROVED_KEC;
-                } elseif ($action === Beneficiary::ACTION_REJECT) {
-                    $newStatusVerification = Beneficiary::STATUS_REJECTED_KEC;
-                }
-                break;
-            case Beneficiary::TYPE_KABKOTA:
-                if ($action === Beneficiary::ACTION_APPROVE) {
-                    $newStatusVerification = Beneficiary::STATUS_APPROVED_KABKOTA;
-                } elseif ($action === Beneficiary::ACTION_REJECT) {
-                    $newStatusVerification = Beneficiary::STATUS_REJECTED_KABKOTA;
-                }
-                break;
-            default:
-                throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
-                break;
+        if ($action === Beneficiary::ACTION_APPROVE) {
+            return BeneficiaryApproval::APPROVAL_MAP[$type]['approved'];
+        } elseif ($action === Beneficiary::ACTION_REJECT) {
+            return BeneficiaryApproval::APPROVAL_MAP[$type]['rejected'];
         }
-
-        return $newStatusVerification;
     }
 
     protected function processSingleApproval($model, $params)

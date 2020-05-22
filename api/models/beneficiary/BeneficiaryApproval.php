@@ -18,7 +18,7 @@ use app\models\Beneficiary;
 class BeneficiaryApproval extends Beneficiary
 {
     // Determines statuses shown for each type of dashboard
-    const DASHBOARD_STATUSES = [
+    const APPROVAL_MAP = [
         Beneficiary::TYPE_PROVINSI => [
             'pending' => Beneficiary::STATUS_APPROVED_KEC,
             'rejected' => Beneficiary::STATUS_REJECTED_KABKOTA,
@@ -73,7 +73,7 @@ class BeneficiaryApproval extends Beneficiary
             $area = Area::find()->where(['id' => $area_id])->one();
             $area_id = $area->code_bps;
         }
-        $statuses = array_values(self::DASHBOARD_STATUSES[$type]);
+        $statuses = array_values(self::APPROVAL_MAP[$type]);
 
         // select required status_verification based on $statuses value
         $counts = Beneficiary::find()->select(['status_verification','COUNT(status) AS jumlah']);
@@ -97,11 +97,11 @@ class BeneficiaryApproval extends Beneficiary
 
         // instantiate the model as return value
         $model = new BeneficiaryApproval();
-        $idx = array_search(self::DASHBOARD_STATUSES[$type]['approved'], array_column($counts, 'status_verification'));
+        $idx = array_search(self::APPROVAL_MAP[$type]['approved'], array_column($counts, 'status_verification'));
         $model->approved = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
-        $idx = array_search(self::DASHBOARD_STATUSES[$type]['rejected'], array_column($counts, 'status_verification'));
+        $idx = array_search(self::APPROVAL_MAP[$type]['rejected'], array_column($counts, 'status_verification'));
         $model->rejected = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
-        $idx = array_search(self::DASHBOARD_STATUSES[$type]['pending'], array_column($counts, 'status_verification'));
+        $idx = array_search(self::APPROVAL_MAP[$type]['pending'], array_column($counts, 'status_verification'));
         $model->pending = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
         $model->total = $model->approved + $model->rejected + $model->pending;
         return $model;
