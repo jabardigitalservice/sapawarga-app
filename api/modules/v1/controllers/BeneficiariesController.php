@@ -738,41 +738,17 @@ class BeneficiariesController extends ActiveController
 
         $params = $this->getApprovalParams();
 
-        return $this->processApproval($model, $params);
+        return $this->processSingleApproval($model, $params);
     }
 
     public function actionBulkApproval()
     {
-        $action = Yii::$app->request->post('action');
-        $ids = Yii::$app->request->post('ids');
+        $params = $this->getApprovalParams();
 
-        $status_verification = null;
-        if ($action === Beneficiary::ACTION_APPROVE) {
-            $status_verification = Beneficiary::STATUS_APPROVED_KEL;
-        } elseif ($action === Beneficiary::ACTION_REJECT) {
-            $status_verification = Beneficiary::STATUS_REJECTED_KEL;
-        } else {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(400);
-            return 'Bad Request: Invalid Action';
-        }
-
-        // bulk action
-        Beneficiary::updateAll(
-            ['status_verification' => $status_verification],
-            [   'and',
-                ['=', 'status', Beneficiary::STATUS_ACTIVE],
-                ['in', 'id', $ids],
-            ]
-        );
-
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
-
-        return 'ok';
+        return $this->processBulkApproval($params);
     }
 
-    protected function processApproval($model, $params)
+    protected function processSingleApproval($model, $params)
     {
         $type = Arr::get($params, 'type');
         $action = Yii::$app->request->post('action');
@@ -807,6 +783,37 @@ class BeneficiariesController extends ActiveController
         if ($model->save(false) === false) {
             throw new ServerErrorHttpException('Failed to process the object for unknown reason.');
         }
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return 'ok';
+    }
+
+    protected function processBulkApproval($params)
+    {
+        $action = Yii::$app->request->post('action');
+        $ids = Yii::$app->request->post('ids');
+
+        $status_verification = null;
+        if ($action === Beneficiary::ACTION_APPROVE) {
+            $status_verification = Beneficiary::STATUS_APPROVED_KEL;
+        } elseif ($action === Beneficiary::ACTION_REJECT) {
+            $status_verification = Beneficiary::STATUS_REJECTED_KEL;
+        } else {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(400);
+            return 'Bad Request: Invalid Action';
+        }
+
+        // bulk action
+        Beneficiary::updateAll(
+            ['status_verification' => $status_verification],
+            [   'and',
+                ['=', 'status', Beneficiary::STATUS_ACTIVE],
+                ['in', 'id', $ids],
+            ]
+        );
 
         $response = Yii::$app->getResponse();
         $response->setStatusCode(200);
