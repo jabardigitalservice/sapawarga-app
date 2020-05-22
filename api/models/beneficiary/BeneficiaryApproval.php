@@ -62,7 +62,7 @@ class BeneficiaryApproval extends Beneficiary
      * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel)
      * @param array $params['area_id'] area id of the user
      *
-     * @return array
+     * @return BeneficiaryApproval
      */
     public function getDashboardApproval($params)
     {
