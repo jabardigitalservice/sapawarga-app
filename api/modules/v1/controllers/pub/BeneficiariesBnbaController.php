@@ -105,6 +105,7 @@ class BeneficiariesBnbaController extends ActiveController
 
         $data = [];
         foreach ($beneficiaryTypes as $key => $val) {
+            $data[$val]['source'] = $this->setSourceBeneficiaries($key);
             $data[$val]['non-dtks'] = 0;
             $data[$val]['dtks'] = 0;
             $data[$val]['total'] = 0;
@@ -121,6 +122,22 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         return $data;
+    }
+
+    protected function setSourceBeneficiaries($key)
+    {
+        $sourceBeneficiaries = '';
+        if (in_array($key, [1, 2, 3, 4, 5])) {
+            $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.kemensos');
+        } elseif ($key == 6) {
+            $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.apbdpemprovjabar');
+        } elseif ($key == 7) {
+            $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.apbdkotajabar');
+        } elseif ($key == 8) {
+            $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.kemendes');
+        }
+
+        return $sourceBeneficiaries;
     }
 
     /**
