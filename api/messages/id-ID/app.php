@@ -85,11 +85,11 @@ return [
     'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS SEMBAKO PRESIDEN',
     'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
     'type.beneficiaries.dana_desa' => 'DANA DESA',
-    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN KOTA',
+    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN / KOTA',
 
     'source.beneficiaries.kemensos' => 'Kementerian Sosial',
     'source.beneficiaries.apbdpemprovjabar' => 'APBD Pemdaprov Jabar',
-    'source.beneficiaries.apbdkotajabar' => 'APBD Kota/Kab Jabar',
+    'source.beneficiaries.apbdkotajabar' => 'APBD Kota / Kab Jabar',
     'source.beneficiaries.kemendes' => 'Kementerian Desa, PDT dan Transmigrasi',
 
     'beneficiaries.incomplete_address' => 'Alamat Tidak Lengkap',
