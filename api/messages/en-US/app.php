@@ -91,4 +91,6 @@ return [
     'source.beneficiaries.apbdpemprovjabar' => 'APBD Pemdaprov Jabar',
     'source.beneficiaries.apbdkotajabar' => 'APBD Kota/Kab Jabar',
     'source.beneficiaries.kemendes' => 'Kementerian Desa, PDT dan Transmigrasi',
+
+    'beneficiaries.incomplete_address' => 'Incomplete Address',
 ];
