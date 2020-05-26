@@ -66,7 +66,8 @@ class BeneficiariesBnbaController extends ActiveController
         return $actions;
     }
 
-    public function actionDownload() {
+    public function actionDownload()
+    {
         $params = Yii::$app->request->getQueryParams();
 
         $user = Yii::$app->user;
@@ -76,11 +77,11 @@ class BeneficiariesBnbaController extends ActiveController
             $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $params['kode_kab'] = $parent_area->code_bps;
             if (isset($params['kode_kec'])) {
-                $params['kode_kec'] = explode(",", $params['kode_kec']);
+                $params['kode_kec'] = explode(',', $params['kode_kec']);
             }
         } elseif ($user->can('staffProv')) {
             if (isset($params['kode_kec'])) {
-                $params['kode_kec'] = explode(",", $params['kode_kec']);
+                $params['kode_kec'] = explode(',', $params['kode_kec']);
             }
         }
 
@@ -97,7 +98,7 @@ class BeneficiariesBnbaController extends ActiveController
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
         $nowDate = date('Y-m-d-H-i-s');
         $fileName = "export-bnba-tahap-1-$nowDate.xlsx";
-        $filenameTemp = "temp-".$fileName;
+        $filenameTemp = 'temp-' . $fileName;
         $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $filenameTemp;
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
