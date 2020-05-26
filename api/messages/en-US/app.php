@@ -77,6 +77,12 @@ return [
     'status.beneficiary.pending' => 'Pending',
     'status.beneficiary.reject' => 'Rejected',
     'status.beneficiary.verified' => 'Verified',
+    'status.beneficiary.rejected_kel' => 'Rejected by Desa/Kel',
+    'status.beneficiary.approved_kel' => 'Approved by Desa/Kel',
+    'status.beneficiary.rejected_kec' => 'Rejected by Kec',
+    'status.beneficiary.approved_kec' => 'Approved by Kec',
+    'status.beneficiary.rejected_kabkota' => 'Rejected by Kab/Kota',
+    'status.beneficiary.approved_kabkota' => 'Approved by Kab/Kota',
 
     'type.beneficiaries.pkh' => 'PKH',
     'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',

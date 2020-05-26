@@ -76,6 +76,19 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     const TYPE_KEL = 'kel';
     const TYPE_RW = 'rw';
 
+    // Label for status_verification
+    const STATUS_VERIFICATION_LABEL = [
+        self::STATUS_PENDING => 'status.beneficiary.pending',
+        self::STATUS_REJECT => 'status.beneficiary.reject',
+        self::STATUS_VERIFIED => 'status.beneficiary.verified',
+        self::STATUS_REJECTED_KEL => 'status.beneficiary.rejected_kel',
+        self::STATUS_APPROVED_KEL => 'status.beneficiary.approved_kel',
+        self::STATUS_REJECTED_KEC => 'status.beneficiary.rejected_kec',
+        self::STATUS_APPROVED_KEC => 'status.beneficiary.approved_kec',
+        self::STATUS_REJECTED_KABKOTA => 'status.beneficiary.rejected_kabkota',
+        self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -226,21 +239,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     protected function getStatusLabelVerification()
     {
-        $statusLabel = '';
-
-        switch ($this->status_verification) {
-            case self::STATUS_PENDING:
-                $statusLabel = Yii::t('app', 'status.beneficiary.pending');
-                break;
-            case self::STATUS_REJECT:
-                $statusLabel = Yii::t('app', 'status.beneficiary.reject');
-                break;
-            case self::STATUS_VERIFIED:
-                $statusLabel = Yii::t('app', 'status.beneficiary.verified');
-                break;
-        }
-
-        return $statusLabel;
+        return Yii::t('app', self::STATUS_VERIFICATION_LABEL[$this->status_verification]);
     }
 
     protected function getIsNIKValidField()
