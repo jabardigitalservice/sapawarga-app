@@ -132,9 +132,9 @@ class BeneficiariesBnbaController extends ActiveController
         } elseif ($key == 6) {
             $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.apbdpemprovjabar');
         } elseif ($key == 7) {
-            $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.apbdkotajabar');
-        } elseif ($key == 8) {
             $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.kemendes');
+        } elseif ($key == 8) {
+            $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.apbdkotajabar');
         }
 
         return $sourceBeneficiaries;
