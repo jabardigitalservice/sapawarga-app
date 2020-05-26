@@ -77,6 +77,12 @@ return [
     'status.beneficiary.pending' => 'Belum Terverifikasi',
     'status.beneficiary.reject' => 'Ditolak',
     'status.beneficiary.verified' => 'Terverifikasi',
+    'status.beneficiary.rejected_kel' => 'Ditolak Desa/Kel',
+    'status.beneficiary.approved_kel' => 'Disetujui Desa/Kel',
+    'status.beneficiary.rejected_kec' => 'Ditolak Kec',
+    'status.beneficiary.approved_kec' => 'Disetujui Kec',
+    'status.beneficiary.rejected_kabkota' => 'Ditolak Kab/Kota',
+    'status.beneficiary.approved_kabkota' => 'Disetujui Kab/Kota',
 
     'type.beneficiaries.pkh' => 'PKH',
     'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',

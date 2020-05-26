@@ -238,6 +238,24 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             case self::STATUS_VERIFIED:
                 $statusLabel = Yii::t('app', 'status.beneficiary.verified');
                 break;
+            case self::STATUS_REJECTED_KEL:
+                $statusLabel = Yii::t('app', 'status.beneficiary.rejected_kel');
+                break;
+            case self::STATUS_APPROVED_KEL:
+                $statusLabel = Yii::t('app', 'status.beneficiary.approved_kel');
+                break;
+            case self::STATUS_REJECTED_KEC:
+                $statusLabel = Yii::t('app', 'status.beneficiary.rejected_kec');
+                break;
+            case self::STATUS_APPROVED_KEC:
+                $statusLabel = Yii::t('app', 'status.beneficiary.approved_kec');
+                break;
+            case self::STATUS_REJECTED_KABKOTA:
+                $statusLabel = Yii::t('app', 'status.beneficiary.rejected_kabkota');
+                break;
+            case self::STATUS_APPROVED_KABKOTA:
+                $statusLabel = Yii::t('app', 'status.beneficiary.approved_kabkota');
+                break;
         }
 
         return $statusLabel;
