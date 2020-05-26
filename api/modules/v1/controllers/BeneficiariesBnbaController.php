@@ -72,15 +72,9 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
-        /*
-        $search = new BeneficiaryBnbaTahapSatuSearch();
-        $search->userRole = $authUserModel->role;
-        $search->scenario = BeneficiaryBnbaTahapSatuSearch::SCENARIO_LIST_USER;
-        */
-
         if ($user->can('staffKabkota')) {
             $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
-            $params['kode_kab'] = $area->code_bps;
+            $params['kode_kab'] = $parent_area->code_bps;
             if (isset($params['kode_kec'])) {
                 $params['kode_kec'] = explode(",", $params['kode_kec']);
             }
