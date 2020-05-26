@@ -70,7 +70,7 @@ class BeneficiarySearch extends Beneficiary
         $type = Arr::get($params, 'type');
 
         $statuses = array_values(BeneficiaryApproval::APPROVAL_MAP[$type]);
-        $query->andWhere(['in', 'status_verification', $statuses]);
+        $query->andWhere(['>=', 'status_verification', min($statuses)]);
 
         return $this->getQueryAll($query, $params);
     }
