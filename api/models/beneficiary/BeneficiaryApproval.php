@@ -73,10 +73,17 @@ class BeneficiaryApproval extends Beneficiary
             $area = Area::find()->where(['id' => $area_id])->one();
             $area_id = $area->code_bps;
         }
-        $statuses = array_values(self::APPROVAL_MAP[$type]);
 
-        // select required status_verification based on $statuses value
-        $counts = Beneficiary::find()->select(['status_verification','COUNT(status) AS jumlah']);
+        // select required status_verification values based on $type
+        $statusApproved = self::APPROVAL_MAP[$type]['approved'];
+        $statusRejected = self::APPROVAL_MAP[$type]['rejected'];
+        $statusPending = self::APPROVAL_MAP[$type]['pending'];
+
+        $counts = Beneficiary::find()->select([
+            "SUM(status_verification >= ${statusApproved}) as 'approved'",
+            "SUM(status_verification = ${statusRejected}) as 'rejected'",
+            "SUM(status_verification = ${statusPending}) as 'pending'",
+        ]);
         if ($area_id) {
             switch ($type) {
                 case Beneficiary::TYPE_KABKOTA:
@@ -90,19 +97,13 @@ class BeneficiaryApproval extends Beneficiary
                     break;
             }
         }
-        $counts = $counts->andWhere(['in', 'status_verification', $statuses])
-            ->groupBy(['status_verification'])
-            ->asArray()
-            ->all();
+        $counts = $counts->asArray()->all();
 
         // instantiate the model as return value
         $model = new BeneficiaryApproval();
-        $idx = array_search(self::APPROVAL_MAP[$type]['approved'], array_column($counts, 'status_verification'));
-        $model->approved = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
-        $idx = array_search(self::APPROVAL_MAP[$type]['rejected'], array_column($counts, 'status_verification'));
-        $model->rejected = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
-        $idx = array_search(self::APPROVAL_MAP[$type]['pending'], array_column($counts, 'status_verification'));
-        $model->pending = $idx !== false ? intval($counts[$idx]['jumlah']) : 0;
+        $model->approved = intval($counts[0]['approved']);
+        $model->rejected = intval($counts[0]['rejected']);
+        $model->pending = intval($counts[0]['pending']);
         $model->total = $model->approved + $model->rejected + $model->pending;
         return $model;
     }
