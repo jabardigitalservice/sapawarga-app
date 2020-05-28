@@ -101,6 +101,7 @@ class BeneficiarySearch extends Beneficiary
                     'income_before',
                     'income_after',
                     'status_verification',
+                    'total_family_members',
                     'created_at',
                     'updated_at',
                 ],
