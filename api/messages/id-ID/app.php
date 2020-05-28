@@ -79,8 +79,10 @@ return [
     'status.beneficiary.verified' => 'Terverifikasi',
     'status.beneficiary.rejected_kel' => 'Ditolak Desa/Kel',
     'status.beneficiary.approved_kel' => 'Disetujui Desa/Kel',
+    'status.beneficiary.pending_kec' => 'Belum Disetujui Kec',
     'status.beneficiary.rejected_kec' => 'Ditolak Kec',
     'status.beneficiary.approved_kec' => 'Disetujui Kec',
+    'status.beneficiary.pending_kabkota' => 'Belum Disetujui Kab/Kota',
     'status.beneficiary.rejected_kabkota' => 'Ditolak Kab/Kota',
     'status.beneficiary.approved_kabkota' => 'Disetujui Kab/Kota',
 

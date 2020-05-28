@@ -11,6 +11,7 @@ use yii\base\DynamicModel;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -82,9 +83,15 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         self::STATUS_REJECT => 'status.beneficiary.reject',
         self::STATUS_VERIFIED => 'status.beneficiary.verified',
         self::STATUS_REJECTED_KEL => 'status.beneficiary.rejected_kel',
-        self::STATUS_APPROVED_KEL => 'status.beneficiary.approved_kel',
+        self::STATUS_APPROVED_KEL => [
+            'default' => 'status.beneficiary.approved_kel',
+            User::ROLE_STAFF_KEC => 'status.beneficiary.pending_kec',
+        ],
         self::STATUS_REJECTED_KEC => 'status.beneficiary.rejected_kec',
-        self::STATUS_APPROVED_KEC => 'status.beneficiary.approved_kec',
+        self::STATUS_APPROVED_KEC => [
+            'default' => 'status.beneficiary.approved_kec',
+            User::ROLE_STAFF_KABKOTA => 'status.beneficiary.pending_kabkota',
+        ],
         self::STATUS_REJECTED_KABKOTA => 'status.beneficiary.rejected_kabkota',
         self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
     ];
@@ -239,7 +246,24 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     protected function getStatusLabelVerification()
     {
-        return Yii::t('app', self::STATUS_VERIFICATION_LABEL[$this->status_verification]);
+        $authUser = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+        $localizationKey = null;
+
+        // Handle cases where there are two possible localization strings for one value
+        if ($this->status_verification == self::STATUS_APPROVED_KEL
+         || $this->status_verification == self::STATUS_APPROVED_KEC) {
+            $localizationKey = Arr::get(
+                self::STATUS_VERIFICATION_LABEL[$this->status_verification],
+                $authUserModel->role,
+                self::STATUS_VERIFICATION_LABEL[$this->status_verification]['default']
+            );
+
+            return Yii::t('app', $localizationKey);
+        }
+
+        $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+        return Yii::t('app', $localizationKey);
     }
 
     protected function getIsNIKValidField()
