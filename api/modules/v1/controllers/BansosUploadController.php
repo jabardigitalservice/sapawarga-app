@@ -91,9 +91,9 @@ class BansosUploadController extends ActiveController implements ActiveStatus
                 'kabkota_name'      => $row['kabkota_name'],
                 'kec_code'          => $row['kec_code'],
                 'notes'             => $row['notes'],
-                'file_path'         => $row['file_path'],
+                'file_name'         => $this->getFileName($row['file_path']),
                 'file_url'          => $this->getFileUrl($row['file_path']),
-                'invalid_file_path' => $row['invalid_file_path'],
+                'invalid_file_name' => $this->getFileName($row['invalid_file_path']),
                 'invalid_file_url'  => $this->getFileUrl($row['invalid_file_path']),
                 'status'            => $row['status'],
                 'created_at'        => (int) $row['created_at'],
@@ -176,5 +176,16 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
         return "{$publicBaseUrl}/{$relativePath}";
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileName($relativePath)
+    {
+        if (!$relativePath) {
+            return null;
+        }
+        return basename($relativePath);
     }
 }
