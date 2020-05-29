@@ -83,7 +83,7 @@ class BeneficiarySearch extends Beneficiary
                     $data['PENDING'] = $val['total'];
                 } elseif ($val['status_verification'] == 2) {
                     $data['REJECT'] = $val['total'];
-                } elseif ($val['status_verification'] == 3) {
+                } elseif ($val['status_verification'] >= 3) {
                     $data['APPROVED'] = $val['total'];
                 }
             }
