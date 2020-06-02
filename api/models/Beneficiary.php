@@ -170,7 +170,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             ],
 
             [['is_poor_new', 'is_need_help'], 'in', 'range' => [0, 1]],
-            ['status_verification', 'in', 'range' => [1, 2, 3]],
+            ['status_verification', 'in', 'range' => [
+                self::STATUS_PENDING,
+                self::STATUS_REJECT,
+                self::STATUS_VERIFIED,
+                self::STATUS_REJECTED_KEL,
+                self::STATUS_APPROVED_KEL,
+                self::STATUS_REJECTED_KEC,
+                self::STATUS_APPROVED_KEC,
+                self::STATUS_REJECTED_KABKOTA,
+                self::STATUS_APPROVED_KABKOTA,
+            ]],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
