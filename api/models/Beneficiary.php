@@ -83,15 +83,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         self::STATUS_REJECT => 'status.beneficiary.reject',
         self::STATUS_VERIFIED => 'status.beneficiary.verified',
         self::STATUS_REJECTED_KEL => 'status.beneficiary.rejected_kel',
-        self::STATUS_APPROVED_KEL => [
-            'default' => 'status.beneficiary.approved_kel',
-            User::ROLE_STAFF_KEC => 'status.beneficiary.pending_kec',
-        ],
+        self::STATUS_APPROVED_KEL => 'status.beneficiary.approved_kel',
         self::STATUS_REJECTED_KEC => 'status.beneficiary.rejected_kec',
-        self::STATUS_APPROVED_KEC => [
-            'default' => 'status.beneficiary.approved_kec',
-            User::ROLE_STAFF_KABKOTA => 'status.beneficiary.pending_kabkota',
-        ],
+        self::STATUS_APPROVED_KEC => 'status.beneficiary.approved_kec',
         self::STATUS_REJECTED_KABKOTA => 'status.beneficiary.rejected_kabkota',
         self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
     ];
@@ -260,19 +254,36 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $authUserModel = $authUser->identity;
         $localizationKey = null;
 
-        // Handle cases where there are two possible localization strings for one value
-        if ($this->status_verification == self::STATUS_APPROVED_KEL
-         || $this->status_verification == self::STATUS_APPROVED_KEC) {
-            $localizationKey = Arr::get(
-                self::STATUS_VERIFICATION_LABEL[$this->status_verification],
-                $authUserModel->role,
-                self::STATUS_VERIFICATION_LABEL[$this->status_verification]['default']
-            );
-
-            return Yii::t('app', $localizationKey);
+        switch ($authUserModel->role) {
+            case User::ROLE_TRAINER:
+            case User::ROLE_STAFF_RW:
+                // When status_verification >= 3, status label for staffRW does not change
+                if ($this-> status_verification >= self::STATUS_VERIFIED) {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[self::STATUS_VERIFIED];
+                } else {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                }
+                break;
+            // Handle special cases for staffKec and staffKabkota
+            case User::ROLE_STAFF_KEC:
+                if ($this-> status_verification == self::STATUS_APPROVED_KEL) {
+                    $localizationKey = 'status.beneficiary.pending_kec';
+                } else {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                }
+                break;
+            case User::ROLE_STAFF_KABKOTA:
+                if ($this-> status_verification == self::STATUS_APPROVED_KEC) {
+                    $localizationKey = 'status.beneficiary.pending_kabkota';
+                } else {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                }
+                break;
+            default:
+                $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                break;
         }
 
-        $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
         return Yii::t('app', $localizationKey);
     }
 
