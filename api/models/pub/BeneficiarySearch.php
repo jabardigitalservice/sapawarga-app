@@ -26,13 +26,15 @@ class BeneficiarySearch extends Beneficiary
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
+
+        $query->andFilterWhere(['domicile_kabkota_bps_id' => Arr::get($params, 'domicile_kabkota_bps_id')]);
+        $query->andFilterWhere(['domicile_kec_bps_id' => Arr::get($params, 'domicile_kec_bps_id')]);
+        $query->andFilterWhere(['domicile_kel_bps_id' => Arr::get($params, 'domicile_kel_bps_id')]);
+        $query->andFilterWhere(['domicile_rt' => ltrim(Arr::get($params, 'domicile_rt'), '0')]);
+        $query->andFilterWhere(['domicile_rw' => ltrim(Arr::get($params, 'domicile_rw'), '0')]);
+        $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like')]);
+        $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
         $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
-        $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
-        $query->andFilterWhere(['kabkota_id' => Arr::get($params, 'kabkota_id')]);
-        $query->andFilterWhere(['kec_id' => Arr::get($params, 'kec_id')]);
-        $query->andFilterWhere(['kel_id' => Arr::get($params, 'kel_id')]);
-        $query->andFilterWhere(['rw' => Arr::get($params, 'rw')]);
-        $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -50,12 +52,24 @@ class BeneficiarySearch extends Beneficiary
         $paramsSql = [':status' => Beneficiary::STATUS_ACTIVE];
 
         // Filtering
-        if (Arr::get($params, 'kabkota_id')) {
-            $conditional .= 'AND kabkota_id = :kabkota_id ';
-            $paramsSql[':kabkota_id'] = Arr::get($params, 'kabkota_id');
+        if (Arr::get($params, 'domicile_kabkota_bps_id')) {
+            $conditional .= 'AND domicile_kabkota_bps_id = :domicile_kabkota_bps_id ';
+            $paramsSql[':domicile_kabkota_bps_id'] = Arr::get($params, 'domicile_kabkota_bps_id');
+        }
+        if (Arr::get($params, 'domicile_kec_bps_id')) {
+            $conditional .= 'AND domicile_kec_bps_id = :domicile_kec_bps_id ';
+            $paramsSql[':domicile_kec_bps_id'] = Arr::get($params, 'domicile_kec_bps_id');
+        }
+        if (Arr::get($params, 'domicile_kel_bps_id')) {
+            $conditional .= 'AND domicile_kel_bps_id = :domicile_kel_bps_id ';
+            $paramsSql[':domicile_kel_bps_id'] = Arr::get($params, 'domicile_kel_bps_id');
+        }
+        if (Arr::get($params, 'domicile_rw')) {
+            $conditional .= 'AND domicile_rw = :domicile_rw ';
+            $paramsSql[':domicile_rw'] = Arr::get($params, 'domicile_rw');
         }
 
-        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE 1=1 $conditional GROUP BY status_verification";
+        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE status = :status $conditional GROUP BY status_verification";
 
         $provider =  new SqlDataProvider([
             'sql' => $sql,
@@ -81,7 +95,7 @@ class BeneficiarySearch extends Beneficiary
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'name');
+        $sortBy    = Arr::get($params, 'sort_by', 'nik');
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
@@ -90,6 +104,7 @@ class BeneficiarySearch extends Beneficiary
             'sort'       => [
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [
+                    'nik',
                     'name',
                     'rt',
                     'rw',

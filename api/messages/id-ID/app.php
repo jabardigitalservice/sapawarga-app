@@ -39,8 +39,10 @@ return [
     'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
     'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh kurang dari hari ini',
 
-    'error.nik.invalid' => 'NIK tidak valid.',
+    'error.nik.invalid' => 'Format NIK tidak valid.',
     'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
+    'error.nik.taken' => 'NIK sudah terdaftar.',
+    'error.nik.limit' => 'Tunggu beberapa saat untuk bisa Cek NIK kembali.',
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
@@ -74,5 +76,21 @@ return [
 
     'status.beneficiary.pending' => 'Belum Terverifikasi',
     'status.beneficiary.reject' => 'Ditolak',
-    'status.beneficiary.approved' => 'Terverifikasi',
+    'status.beneficiary.verified' => 'Terverifikasi',
+
+    'type.beneficiaries.pkh' => 'PKH',
+    'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',
+    'type.beneficiaries.bnpt_perluasan' => 'KARTU SEMBAKO PERLUASAN',
+    'type.beneficiaries.bansos_tunai' => 'BANSOS TUNAI KEMENSOS',
+    'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS SEMBAKO PRESIDEN',
+    'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
+    'type.beneficiaries.dana_desa' => 'DANA DESA',
+    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN / KOTA',
+
+    'source.beneficiaries.kemensos' => 'Kementerian Sosial',
+    'source.beneficiaries.apbdpemprovjabar' => 'APBD Pemdaprov Jabar',
+    'source.beneficiaries.apbdkotajabar' => 'APBD Kota / Kab Jabar',
+    'source.beneficiaries.kemendes' => 'Kementerian Desa, PDT dan Transmigrasi',
+
+    'beneficiaries.incomplete_address' => 'Alamat Tidak Lengkap',
 ];

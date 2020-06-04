@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 /**
  * BeneficiarySearch represents the model behind the search form of `app\models\Beneficiary`.
  */
-class BeneficiarySearch extends Beneficiary
+class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
 {
     const SCENARIO_LIST_USER = 'list-user';
 
@@ -24,30 +24,20 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
-        $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+        $query = BeneficiaryBnbaTahapSatu::find();
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
+        $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
-        $query->andFilterWhere(['kabkota_id' => Arr::get($params, 'kabkota_id')]);
-        $query->andFilterWhere(['kec_id' => Arr::get($params, 'kec_id')]);
-        $query->andFilterWhere(['kel_id' => Arr::get($params, 'kel_id')]);
+        $query->andFilterWhere(['like', 'no_kk', Arr::get($params, 'no_kk')]);
         $query->andFilterWhere(['rw' => ltrim(Arr::get($params, 'rw'), '0')]);
         $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
-        $query->andFilterWhere(['like', 'rw', Arr::get($params, 'rw_like')]);
-        $query->andFilterWhere(['like', 'rt', Arr::get($params, 'rt_like')]);
+        $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
 
-        $query->andFilterWhere(['domicile_kabkota_bps_id' => Arr::get($params, 'domicile_kabkota_bps_id')]);
-        $query->andFilterWhere(['domicile_kec_bps_id' => Arr::get($params, 'domicile_kec_bps_id')]);
-        $query->andFilterWhere(['domicile_kel_bps_id' => Arr::get($params, 'domicile_kel_bps_id')]);
-        $query->andFilterWhere(['domicile_rt' => ltrim(Arr::get($params, 'domicile_rt'), '0')]);
-        $query->andFilterWhere(['domicile_rw' => ltrim(Arr::get($params, 'domicile_rw'), '0')]);
-        $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like')]);
-        $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
-
-        $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
-        $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
+        $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kode_kab')]);
+        $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kode_kec')]);
+        $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kode_kel')]);
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
@@ -78,15 +68,15 @@ class BeneficiarySearch extends Beneficiary
             'sort'       => [
                 'defaultOrder' => $defaultOrder,
                 'attributes' => [
-                    'name',
+                    'nama_krt',
                     'nik',
+                    'nama_kab',
+                    'lapangan_usaha',
                     'rt',
                     'rw',
-                    'domicile_rt',
-                    'domicile_rw',
-                    'income_before',
-                    'income_after',
-                    'status_verification',
+                    'penghasilan_sebelum_covid19',
+                    'penghasilan_sesudah_covid19',
+                    'id_tipe_bansos',
                     'created_at',
                     'updated_at',
                 ],

@@ -129,7 +129,7 @@ class NewsPhotoFormTest extends \Codeception\Test\Unit
                 'tmp_name' => __DIR__ . '/../../../data/1280x720.jpg',
                 'name'     => '1280x720.jpg',
                 'type'     => 'image/jpeg ',
-                'size'     => 1024 * 1024 * 10, // override
+                'size'     => 1024 * 1024 * 11, // override
                 'error'    => 0,
             ],
         ];

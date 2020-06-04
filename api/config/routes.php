@@ -404,15 +404,48 @@ return [
         'pluralize' => false,
         'tokens' => [
             '{id}' => '<id:\d+>',
+            '{nik}' => '<nik:\w+>',
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET nik/{id}' => 'nik',
-            'OPTIONS nik/{id}' => 'options',
+            'GET nik/{nik}' => 'nik',
+            'OPTIONS nik/{nik}' => 'options',
             'GET check-exist-nik/{id}' => 'check-exist-nik',
             'OPTIONS check-exist-nik/{id}' => 'options',
+            'GET dashboard-list' => 'dashboard-list',
+            'OPTIONS dashboard-list' => 'options',
+            'GET dashboard-summary' => 'dashboard-summary',
+            'OPTIONS dashboard-summary' => 'options',
+            'GET bnba-tahap-satu-list' => 'bnba-tahap-satu-list',
+            'OPTIONS bnba-tahap-satu-list' => 'options',
+            'GET approval' => 'approval-list',
+            'OPTIONS approval' => 'options',
+            'POST approval/{id}' => 'approval',
+            'OPTIONS approval/{id}' => 'options',
+            'POST bulk-approval' => 'bulk-approval',
+            'OPTIONS bulk-approval' => 'options',
+            'GET approval-dashboard' => 'approval-dashboard',
+            'OPTIONS approval-dashboard' => 'options',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-bnba-tahap-satu',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+            '{nik}' => '<nik:\w+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
+        ]
+    ],
+    'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
+    'GET v1/beneficiaries/allocation/<id:\d+>' => 'v1/beneficiaries-allocation/view',
+    'GET v1/bansos/upload' => 'v1/bansos-upload/index',
+    'POST v1/bansos/upload' => 'v1/bansos-upload/upload',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/dinsos-job-type',
@@ -422,7 +455,7 @@ return [
         ],
     ],
 
-    //  FOR Public route
+    //  For Public Route
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/pub/beneficiaries',
@@ -435,6 +468,26 @@ return [
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
         ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-bnba',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET statistics-by-type' => 'statistics-by-type',
+            'OPTIONS statistics-by-type' => 'options',
+            'GET statistics-by-area' => 'statistics-by-area',
+            'OPTIONS statistics-by-area' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-complain',
+        'pluralize' => false,
     ],
     [
         'class' => 'yii\rest\UrlRule',

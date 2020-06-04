@@ -6,6 +6,8 @@ use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
 use Yii;
+use app\validator\NikValidator;
+use yii\base\DynamicModel;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -17,15 +19,13 @@ use Illuminate\Support\Collection;
  * @property int $id
  * @property string $nik
  * @property string $name
- * @property string $kabkota_bps_id
- * @property string $kec_bps_id
- * @property string $kel_bps_id
- * @property string $kabkota_id
- * @property string $kec_id
- * @property string $kel_id
- * @property string $rt
- * @property string $rw
- * @property string $address
+ * @property string $domicile_province_bps_id
+ * @property string $domicile_kabkota_bps_id
+ * @property string $domicile_kec_bps_id
+ * @property string $domicile_kel_bps_id
+ * @property string $domicile_rw
+ * @property string $domicile_rt
+ * @property string $domicile_address
  * @property string $phone
  * @property int $total_family_members
  * @property string $job_type_id
@@ -34,9 +34,14 @@ use Illuminate\Support\Collection;
  * @property int $income_after
  * @property string $image_ktp
  * @property string $image_kk
+ * @property int $is_need_help
+ * @property int $is_poor_new
  * @property int $status_verification
  * @property int $status
  * @property string $notes
+ * @property string $notes_approved
+ * @property string $notes_rejected
+ * @property string $notes_nik_empty
  * @property int $created_by
  * @property int $updated_by
  * @property int $created_at
@@ -47,9 +52,29 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 {
     use HasArea, HasActiveStatus;
 
+    // Status ids for verification
     const STATUS_PENDING = 1;
     const STATUS_REJECT = 2;
-    const STATUS_APPROVED = 3;
+    const STATUS_VERIFIED = 3;
+
+    // Status ids for approval
+    const STATUS_REJECTED_KEL = 4;
+    const STATUS_APPROVED_KEL = 5;
+    const STATUS_REJECTED_KEC = 6;
+    const STATUS_APPROVED_KEC = 7;
+    const STATUS_REJECTED_KABKOTA = 8;
+    const STATUS_APPROVED_KABKOTA = 9;
+
+    // Action names for approval
+    const ACTION_APPROVE = 'APPROVE';
+    const ACTION_REJECT = 'REJECT';
+
+    // Types used on Dashboards
+    const TYPE_PROVINSI = 'provinsi';
+    const TYPE_KABKOTA = 'kabkota';
+    const TYPE_KEC = 'kec';
+    const TYPE_KEL = 'kel';
+    const TYPE_RW = 'rw';
 
     /**
      * {@inheritdoc}
@@ -88,23 +113,30 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     {
         return [
             [
-                ['nik', 'name', 'status_verification', 'status'],
+                ['name', 'status_verification', 'status'],
                 'required',
             ],
 
-            [['nik'], 'unique'],
-
             [
                 [
-                    'name', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'image_ktp', 'image_kk', 'rt', 'rw',
+                    'name', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk', 'rt', 'rw',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
                     'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
-                    'domicile_rw', 'domicile_rt', 'domicile_address'
+                    'domicile_rw', 'domicile_rt', 'domicile_address', 'nik'
                 ],
                 'trim'
             ],
+            [
+                [
+                    'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
+                    'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
+                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id', 'domicile_address'
+                ],
+                'default', 'value' => null
+            ],
             [['rw', 'rt', 'domicile_rw', 'domicile_rt'], 'filter', 'filter' => function ($value) {
-                return ltrim($value, '0');
+                $trimmed = ltrim($value, '0');
+                return $trimmed ? $trimmed : null;
             }],
             [
                 [
@@ -128,6 +160,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'nik',
+            'is_nik_valid' => 'IsNIKValidField',
             'no_kk',
             'name',
             'province_bps_id',
@@ -178,6 +211,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'notes',
             'notes_approved',
             'notes_rejected',
+            'notes_nik_empty',
             'status_verification',
             'status_verification_label' => 'StatusLabelVerification',
             'status',
@@ -201,12 +235,22 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             case self::STATUS_REJECT:
                 $statusLabel = Yii::t('app', 'status.beneficiary.reject');
                 break;
-            case self::STATUS_APPROVED:
-                $statusLabel = Yii::t('app', 'status.beneficiary.approved');
+            case self::STATUS_VERIFIED:
+                $statusLabel = Yii::t('app', 'status.beneficiary.verified');
                 break;
         }
 
         return $statusLabel;
+    }
+
+    protected function getIsNIKValidField()
+    {
+        $nikModel = new DynamicModel(['nik' => $this->nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+        $nikModel->addRule('nik', NikValidator::class);
+
+        return (int)$nikModel->validate();
     }
 
     /**
@@ -215,7 +259,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     public function attributeLabels()
     {
         return [
-            'nik' => 'No KTP',
+            'nik' => 'NIK',
             'no_kk' => 'No KK',
             'name' => 'Nama Lengkap',
             'kabkota_bps_id' => 'Kota',

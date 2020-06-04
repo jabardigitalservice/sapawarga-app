@@ -41,6 +41,8 @@ return [
 
     'error.nik.invalid' => 'Invalid NIK.',
     'error.nik.notfound' => 'NIK is not registered in Disdukcapil.',
+    'error.nik.taken' => 'NIK has already been taken.',
+    'error.nik.limit' => 'Please wait before check NIK.',
 
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 
@@ -74,5 +76,21 @@ return [
 
     'status.beneficiary.pending' => 'Pending',
     'status.beneficiary.reject' => 'Rejected',
-    'status.beneficiary.approved' => 'Approved',
+    'status.beneficiary.verified' => 'Verified',
+
+    'type.beneficiaries.pkh' => 'PKH',
+    'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',
+    'type.beneficiaries.bnpt_perluasan' => 'KARTU SEMBAKO PERLUASAN',
+    'type.beneficiaries.bansos_tunai' => 'BANSOS TUNAI KEMENSOS',
+    'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS SEMBAKO PRESIDEN',
+    'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
+    'type.beneficiaries.dana_desa' => 'DANA DESA',
+    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN / KOTA',
+
+    'source.beneficiaries.kemensos' => 'Kementerian Sosial',
+    'source.beneficiaries.apbdpemprovjabar' => 'APBD Pemdaprov Jabar',
+    'source.beneficiaries.apbdkotajabar' => 'APBD Kota / Kab Jabar',
+    'source.beneficiaries.kemendes' => 'Kementerian Desa, PDT dan Transmigrasi',
+
+    'beneficiaries.incomplete_address' => 'Incomplete Address',
 ];
