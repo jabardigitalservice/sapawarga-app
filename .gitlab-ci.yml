@@ -161,12 +161,19 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_VERSION%/${VERSION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%COOKIE_VALIDATION_KEY%/${COOKIE_VALIDATION_KEY}/g" kubernetes/backend-variables.yaml
-    # Mysql STAGING #
+    # Mysql master staging #
     - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST_STAGING}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+    # mysql replica staging #
+    - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_2%/${MYSQL_HOST_SLAVE_2}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_3%/${MYSQL_HOST_SLAVE_3}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER_SLAVE%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD_SLAVE%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
 
     # Push Notif Staging #
     - sed -i "s/%FCM_KEY%/${FCM_KEY_STAGING}/g" kubernetes/backend-variables.yaml
@@ -261,6 +268,15 @@ deploy_prod_eks:
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+     # mysql replica production #
+    - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_2%/${MYSQL_HOST_SLAVE_2}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_3%/${MYSQL_HOST_SLAVE_3}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER_SLAVE%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD_SLAVE%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
