@@ -91,6 +91,7 @@ class BansosUploadController extends ActiveController implements ActiveStatus
                 'kabkota_name'      => $row['kabkota_name'],
                 'kec_code'          => $row['kec_code'],
                 'notes'             => $row['notes'],
+                'original_filename' => $row['original_filename'],
                 'file_name'         => $this->getFileName($row['file_path']),
                 'file_url'          => $this->getFileUrl($row['file_path']),
                 'invalid_file_name' => $this->getFileName($row['invalid_file_path']),
@@ -117,7 +118,7 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         $model = new DynamicModel(['file' => $file, 'type' => $type, 'kabkota_id' => $kabkotaId, 'kec_id' => $kecId]);
 
         $model->addRule('file', 'required');
-        $model->addRule('file', 'file', ['extensions' => 'xlsx', 'checkExtensionByMimeType' => false]);
+        $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
 
         $model->addRule('type', 'trim');
         $model->addRule('type', 'required');
@@ -147,16 +148,17 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
         $record = [
-            'user_id'      => $user->id,
-            'bansos_type'  => $type,
-            'kabkota_code' => $kabkota->code_bps,
-            'kec_code'     => $kecamatan ? $kecamatan->code_bps : null,
-            'file_path'    => $relativePath,
-            'status'       => 0,
-            'created_at'   => time(),
-            'updated_at'   => time(),
-            'created_by'   => $user->id,
-            'updated_by'   => $user->id,
+            'user_id'           => $user->id,
+            'bansos_type'       => $type,
+            'kabkota_code'      => $kabkota->code_bps,
+            'kec_code'          => $kecamatan ? $kecamatan->code_bps : null,
+            'original_filename' => $file->name,
+            'file_path'         => $relativePath,
+            'status'            => 0,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+            'created_by'        => $user->id,
+            'updated_by'        => $user->id,
         ];
 
         Yii::$app->db->createCommand()->insert('bansos_bnba_upload_histories', $record)->execute();
