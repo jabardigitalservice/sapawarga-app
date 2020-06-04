@@ -168,7 +168,7 @@ class BeneficiariesBnbaController extends ActiveController
 
         if ($codeBps == null) {
             foreach ($search as $key => $val) {
-                $areaName = $val[$params['area_type']] != null ? 'RW ' .  $val[$params['area_type']] : Yii::t('app', 'beneficiaries.incomplete_address');
+                $areaName = $val[$params['area_type']] != null ? 'RW ' . $val[$params['area_type']] : Yii::t('app', 'beneficiaries.incomplete_address');
                 $data[$key] = [
                     'name' => $areaName,
                     'total' => $val['total']

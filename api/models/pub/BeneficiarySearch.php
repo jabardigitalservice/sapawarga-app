@@ -68,26 +68,26 @@ class BeneficiarySearch extends Beneficiary
             $conditional .= 'AND domicile_rw = :domicile_rw ';
             $paramsSql[':domicile_rw'] = Arr::get($params, 'domicile_rw');
         }
+        $paramsSql[':status_pending'] = Beneficiary::STATUS_PENDING;
+        $paramsSql[':status_reject'] = Beneficiary::STATUS_REJECT;
+        $paramsSql[':status_verified'] = Beneficiary::STATUS_VERIFIED;
 
-        $sql = "SELECT status_verification, count(status_verification) AS total FROM beneficiaries WHERE status = :status $conditional GROUP BY status_verification";
+        $sql = "SELECT SUM(status_verification = :status_pending) AS 'PENDING',
+            SUM(status_verification = :status_reject) AS 'REJECT',
+            SUM(status_verification >= :status_verified) AS 'APPROVED'
+            FROM beneficiaries WHERE status = :status $conditional";
 
         $provider =  new SqlDataProvider([
             'sql' => $sql,
             'params' => $paramsSql,
         ]);
 
-        $data = ['PENDING' => 0, 'REJECT' => 0, 'APPROVED' => 0];
-        foreach ($data as $key => $value) {
-            foreach ($provider->getModels() as $val) {
-                if ($val['status_verification'] == 1) {
-                    $data['PENDING'] = $val['total'];
-                } elseif ($val['status_verification'] == 2) {
-                    $data['REJECT'] = $val['total'];
-                } elseif ($val['status_verification'] == 3) {
-                    $data['APPROVED'] = $val['total'];
-                }
-            }
-        }
+        $val = $provider->getModels();
+        $data = [
+            'PENDING' => $val[0]['PENDING'],
+            'REJECT' => $val[0]['REJECT'],
+            'APPROVED' => $val[0]['APPROVED'],
+        ];
 
         return $data;
     }

@@ -151,7 +151,7 @@ class BeneficiaryTest extends \Codeception\Test\Unit
         $model->validate();
         $this->assertTrue($model->hasErrors('status_verification'));
 
-        $model->status_verification = 4;
+        $model->status_verification = 100;
         $model->validate();
         $this->assertTrue($model->hasErrors('status_verification'));
 

@@ -11,6 +11,7 @@ use yii\base\DynamicModel;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -75,6 +76,19 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     const TYPE_KEC = 'kec';
     const TYPE_KEL = 'kel';
     const TYPE_RW = 'rw';
+
+    // Label for status_verification
+    const STATUS_VERIFICATION_LABEL = [
+        self::STATUS_PENDING => 'status.beneficiary.pending',
+        self::STATUS_REJECT => 'status.beneficiary.reject',
+        self::STATUS_VERIFIED => 'status.beneficiary.verified',
+        self::STATUS_REJECTED_KEL => 'status.beneficiary.rejected_kel',
+        self::STATUS_APPROVED_KEL => 'status.beneficiary.approved_kel',
+        self::STATUS_REJECTED_KEC => 'status.beneficiary.rejected_kec',
+        self::STATUS_APPROVED_KEC => 'status.beneficiary.approved_kec',
+        self::STATUS_REJECTED_KABKOTA => 'status.beneficiary.rejected_kabkota',
+        self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
+    ];
 
     /**
      * {@inheritdoc}
@@ -150,7 +164,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             ],
 
             [['is_poor_new', 'is_need_help'], 'in', 'range' => [0, 1]],
-            ['status_verification', 'in', 'range' => [1, 2, 3]],
+            ['status_verification', 'in', 'range' => [
+                self::STATUS_PENDING,
+                self::STATUS_REJECT,
+                self::STATUS_VERIFIED,
+                self::STATUS_REJECTED_KEL,
+                self::STATUS_APPROVED_KEL,
+                self::STATUS_REJECTED_KEC,
+                self::STATUS_APPROVED_KEC,
+                self::STATUS_REJECTED_KABKOTA,
+                self::STATUS_APPROVED_KABKOTA,
+            ]],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }
@@ -226,21 +250,41 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     protected function getStatusLabelVerification()
     {
-        $statusLabel = '';
+        $authUser = Yii::$app->user;
+        $authUserModel = $authUser->identity;
+        $localizationKey = null;
 
-        switch ($this->status_verification) {
-            case self::STATUS_PENDING:
-                $statusLabel = Yii::t('app', 'status.beneficiary.pending');
+        switch ($authUserModel->role) {
+            case User::ROLE_TRAINER:
+            case User::ROLE_STAFF_RW:
+                // When status_verification >= 3, status label for staffRW does not change
+                if ($this-> status_verification >= self::STATUS_VERIFIED) {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[self::STATUS_VERIFIED];
+                } else {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                }
                 break;
-            case self::STATUS_REJECT:
-                $statusLabel = Yii::t('app', 'status.beneficiary.reject');
+            // Handle special cases for staffKec and staffKabkota
+            case User::ROLE_STAFF_KEC:
+                if ($this-> status_verification == self::STATUS_APPROVED_KEL) {
+                    $localizationKey = 'status.beneficiary.pending_kec';
+                } else {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                }
                 break;
-            case self::STATUS_VERIFIED:
-                $statusLabel = Yii::t('app', 'status.beneficiary.verified');
+            case User::ROLE_STAFF_KABKOTA:
+                if ($this-> status_verification == self::STATUS_APPROVED_KEC) {
+                    $localizationKey = 'status.beneficiary.pending_kabkota';
+                } else {
+                    $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
+                }
+                break;
+            default:
+                $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
                 break;
         }
 
-        return $statusLabel;
+        return Yii::t('app', $localizationKey);
     }
 
     protected function getIsNIKValidField()

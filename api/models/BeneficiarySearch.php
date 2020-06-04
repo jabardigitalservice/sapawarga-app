@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\components\ModelHelper;
+use app\models\beneficiary\BeneficiaryApproval;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
 
@@ -12,6 +13,7 @@ use yii\data\ActiveDataProvider;
 class BeneficiarySearch extends Beneficiary
 {
     const SCENARIO_LIST_USER = 'list-user';
+    const SCENARIO_LIST_APPROVAL = 'list-approval';
 
     public $userRole;
 
@@ -46,11 +48,19 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like')]);
         $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
 
-        $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
+        // Includes verified data that have been followed up to desa/kel/kec/kab/kota for approval (status_verification >= Beneficiary::STATUS_VERIFIED),
+        if (Arr::get($params, 'status_verification') < Beneficiary::STATUS_VERIFIED) {
+            $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
+        } else {
+            $query->andFilterWhere(['>=', 'status_verification', Arr::get($params, 'status_verification')]);
+        }
+
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
         if ($this->scenario === self::SCENARIO_LIST_USER) {
             return $this->getQueryListUser($query, $params);
+        } elseif ($this->scenario === self::SCENARIO_LIST_APPROVAL) {
+            return $this->getQueryListApproval($query, $params);
         }
 
         return $this->getQueryAll($query, $params);
@@ -58,6 +68,16 @@ class BeneficiarySearch extends Beneficiary
 
     protected function getQueryListUser($query, $params)
     {
+        return $this->getQueryAll($query, $params);
+    }
+
+    protected function getQueryListApproval($query, $params)
+    {
+        $type = Arr::get($params, 'type');
+
+        $statuses = array_values(BeneficiaryApproval::APPROVAL_MAP[$type]);
+        $query->andWhere(['>=', 'status_verification', min($statuses)]);
+
         return $this->getQueryAll($query, $params);
     }
 
@@ -87,6 +107,7 @@ class BeneficiarySearch extends Beneficiary
                     'income_before',
                     'income_after',
                     'status_verification',
+                    'total_family_members',
                     'created_at',
                     'updated_at',
                 ],
