@@ -14,10 +14,10 @@ return [
     // configuration for slaves
     'slaveConfig' => [
         'username' => getenv('MYSQL_USER_SLAVE'),
-        'password' => getenv('MYSQL_PASSWORD_SLAVE')
+        'password' => getenv('MYSQL_PASSWORD_SLAVE'),
         'attributes' => [
             // use a smaller connection timeout
-            PDO::ATTR_TIMEOUT => 30,
+            PDO::ATTR_TIMEOUT => 30
         ],
     ],
 
