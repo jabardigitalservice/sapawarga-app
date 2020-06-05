@@ -124,7 +124,7 @@ class ExportBnbaJob extends BaseObject implements JobInterface
 
         $filesystem->writeStream($relativePath, $stream);
         // if S3 account does not provide cloudfront for publicly accessing file, 
-        // we must manually set public ACL
+        // we must manually set public ACL. in that case, use below code instead of above
         //$filesystem->writeStream($relativePath, $stream, [
             //'visibility' => AdapterInterface::VISIBILITY_PUBLIC
         //]);
@@ -132,7 +132,8 @@ class ExportBnbaJob extends BaseObject implements JobInterface
         $final_url = $publicBaseUrl;
         // if S3 account does not provide cloudfront for publicly accessing file
         // we could use generic amazon s3 url (only if file already has public access ACL)
-        // $final_url = sprintf('https://%s.s3.%s.amazonaws.com', $filesystem->bucket, $filesystem->region);
+        // in that case, use below code instead of above
+        //$final_url = sprintf('https://%s.s3.%s.amazonaws.com', $filesystem->bucket, $filesystem->region);
         $final_url .= "/$relativePath";
         unlink($filePathTemp);
 
