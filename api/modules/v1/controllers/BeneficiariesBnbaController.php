@@ -16,8 +16,7 @@ use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Box\Spout\Common\Entity\Row;
+use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
 
 /**
  * BeneficiariesBnbaTahapSatuController implements the CRUD actions for BeneficiaryBnbaTahapSatu model.
@@ -83,71 +82,16 @@ class BeneficiariesBnbaController extends ActiveController
             if (isset($params['kode_kec'])) {
                 $params['kode_kec'] = explode(',', $params['kode_kec']);
             }
+        } else {
+          return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
-        $query = BeneficiaryBnbaTahapSatu::find()->where($params);
-        $list_bnba = $query->all();
+        // export bnba
+        $id = Yii::$app->queue->ttr(30 * 60)->push(new ExportBnbaJob([
+            'params' => $params,
+            'user_id' => $user->id,
+        ]));
 
-        /* Generate export file using box/spout library.
-         * ref: https://opensource.box.com/spout/getting-started/#writer */
-        $writer = WriterEntityFactory::createXLSXWriter();
-        // $writer = WriterEntityFactory::createODSWriter();
-        //$writer = WriterEntityFactory::createCSVWriter();
-        
-        // Initial varieble location, filename, path
-        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-        $nowDate = date('Y-m-d-H-i-s');
-        $fileName = "export-bnba-tahap-1-$nowDate.xlsx";
-        $filenameTemp = 'temp-' . $fileName;
-        $filePathTemp = Yii::getAlias('@webroot/storage') . '/' . $filenameTemp;
-
-        $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
-        //$writer->openToBrowser($fileName); // stream data directly to the browser
-
-        /** Shortcut: add a row from an array of values */
-        $columns = [
-            'id',
-            //'is_nik_valid' ,
-            //'is_dtks',
-            //'id_tipe_bansos',
-            //'id_tipe_bansos_name',
-            'kode_kab',
-            'kode_kec',
-            'kode_kel',
-            'nama_kab',
-            'nama_kec',
-            'nama_kel',
-            'rt',
-            'rw',
-            'alamat',
-            'nama_krt',
-            'nik',
-            'no_kk',
-            'jumlah_art_tanggungan',
-            'nomor_hp',
-            'lapangan_usaha',
-            //'lapangan_usaha_type',
-            'status_kedudukan',
-            'penghasilan_sebelum_covid19',
-            'penghasilan_setelah_covid',
-            'keterangan',
-        ];
-        $rowFromValues = WriterEntityFactory::createRowFromArray($columns);
-        $writer->addRow($rowFromValues);
-        $data = ArrayHelper::toArray($list_bnba, [
-            'app\models\BeneficiaryBnbaTahapSatu' => $columns,
-        ]);
-
-        foreach ($data as $row) {
-            $rowFromValues = WriterEntityFactory::createRowFromArray($row);
-            $writer->addRow($rowFromValues);
-        }
-
-        $writer->close();
-
-        $response = \Yii::$app->response->sendFile($filePathTemp, $fileName, ['mimeType'=>'applications/xlsx']);
-        unlink($filePathTemp);
-
-        return $response;
+        return [ 'job_id' => $id ];
     }
 }

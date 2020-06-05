@@ -63,7 +63,7 @@ $config = [
             'class' => 'yii\web\Response',
             'on beforeSend' => function ($event) {
                 $response = $event->sender;
-                if ($response->format == 'html') {
+                if (in_array($response->format, ['html', 'raw'])) {
                     return $response;
                 }
 
