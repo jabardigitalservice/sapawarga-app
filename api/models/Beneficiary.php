@@ -254,11 +254,15 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $authUserModel = $authUser->identity;
         $localizationKey = null;
 
+        if (!$this->status_verification) {
+            return '';
+        }
+
         switch ($authUserModel->role) {
             case User::ROLE_TRAINER:
             case User::ROLE_STAFF_RW:
                 // When status_verification >= 3, status label for staffRW does not change
-                if ($this-> status_verification >= self::STATUS_VERIFIED) {
+                if ($this->status_verification >= self::STATUS_VERIFIED) {
                     $localizationKey = self::STATUS_VERIFICATION_LABEL[self::STATUS_VERIFIED];
                 } else {
                     $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
@@ -266,14 +270,14 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 break;
             // Handle special cases for staffKec and staffKabkota
             case User::ROLE_STAFF_KEC:
-                if ($this-> status_verification == self::STATUS_APPROVED_KEL) {
+                if ($this->status_verification == self::STATUS_APPROVED_KEL) {
                     $localizationKey = 'status.beneficiary.pending_kec';
                 } else {
                     $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
                 }
                 break;
             case User::ROLE_STAFF_KABKOTA:
-                if ($this-> status_verification == self::STATUS_APPROVED_KEC) {
+                if ($this->status_verification == self::STATUS_APPROVED_KEC) {
                     $localizationKey = 'status.beneficiary.pending_kabkota';
                 } else {
                     $localizationKey = self::STATUS_VERIFICATION_LABEL[$this->status_verification];
