@@ -79,8 +79,7 @@ class BeneficiarySearch extends Beneficiary
         // different filter behavior based on `status_verification` filter
         if (!$statusVerificationFilter) {
             $query->andFilterWhere(['>=', 'status_verification', $statuses['pending']]);
-        }
-        else if ($statusVerificationFilter == $statuses['approved']) {
+        } elseif ($statusVerificationFilter == $statuses['approved']) {
             $query->andFilterWhere(['>=', 'status_verification', $statusVerificationFilter]);
         } else {
             $query->andFilterWhere(['status_verification' => $statusVerificationFilter]);
