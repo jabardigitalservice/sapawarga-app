@@ -114,19 +114,25 @@ class ExportBnbaJob extends BaseObject implements JobInterface
 
         echo "Finished generating export file" . PHP_EOL;
 
-        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
-        $final_url = "$publicBaseUrl/$fileName";
-
         // upload to S3
         echo "Uploading to S3 storage" . PHP_EOL;
         $filesystem = Yii::$app->fs;
         $relativePath = "export-bnba-list/$fileName";
 
         $stream = fopen($filePathTemp, 'r+');
-        $filesystem->writeStream($relativePath, $stream, [
-            'visibility' => AdapterInterface::VISIBILITY_PUBLIC
-        ]);
-        $final_url = getenv('APP_STORAGE_S3_PUBLIC_BASE_URL') ?: sprintf('https://%s.s3.%s.amazonaws.com',Yii::$app->fs->bucket, Yii::$app->fs->region);
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        $filesystem->writeStream($relativePath, $stream);
+        // if S3 account does not provide cloudfront for publicly accessing file, 
+        // we must manually set public ACL
+        //$filesystem->writeStream($relativePath, $stream, [
+            //'visibility' => AdapterInterface::VISIBILITY_PUBLIC
+        //]);
+
+        $final_url = $publicBaseUrl;
+        // if S3 account does not provide cloudfront for publicly accessing file
+        // we could use generic amazon s3 url (only if file already has public access ACL)
+        // $final_url = sprintf('https://%s.s3.%s.amazonaws.com', $filesystem->bucket, $filesystem->region);
         $final_url .= "/$relativePath";
         unlink($filePathTemp);
 
