@@ -83,7 +83,7 @@ class BeneficiariesBnbaController extends ActiveController
                 $params['kode_kec'] = explode(',', $params['kode_kec']);
             }
         } else {
-          return 'Fitur download data BNBA tidak tersedia untuk user ini';
+            return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
         // export bnba
