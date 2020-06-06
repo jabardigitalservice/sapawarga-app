@@ -237,7 +237,7 @@ class BeneficiariesController extends ActiveController
 
         $client = new Client([
             'base_uri' => getenv('KEPENDUDUKAN_API_BASE_URL'),
-            'timeout'  => 30.00,
+            'timeout'  => 15.00,
         ]);
 
         $requestBody = [
@@ -253,7 +253,9 @@ class BeneficiariesController extends ActiveController
         try {
             $response = $client->post('kependudukan/nik', $requestBody);
         } catch (RequestException $e) {
-            throw new HttpException(408, 'Request Time-out');
+            $log['status'] = 1;
+            Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
+            return 'Error Private API';
         }
 
         if ($response->getStatusCode() <> 200) {
