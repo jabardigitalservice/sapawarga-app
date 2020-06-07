@@ -62,7 +62,7 @@ build_image:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - cp .env-template .env
-    - docker-compose build
+    - docker-compose build --no-cache
     - docker images
     - docker-compose push
 
@@ -275,7 +275,7 @@ deploy_prod_eks:
     - sed -i "s/%MYSQL_USER_SLAVE%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_PASSWORD_SLAVE%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
 
-    
+
     # External API PRODUCTION
     - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
