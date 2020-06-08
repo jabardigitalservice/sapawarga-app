@@ -88,8 +88,14 @@ class BeneficiariesBnbaController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $search = new BeneficiaryBnbaSearch();
-        $search = $search->getStatisticsByType($params);
+        if (empty($params)) {
+            $search = (new \yii\db\Query())
+                    ->from('beneficiaries_bnba_statistic_type')
+                    ->all();
+        } else {
+            $search = new BeneficiaryBnbaSearch();
+            $search = $search->getStatisticsByType($params);
+        }
 
         // Reformat result
         $beneficiaryTypes = [
@@ -163,8 +169,15 @@ class BeneficiariesBnbaController extends ActiveController
             $codeBps = null;
         }
 
-        $search = new BeneficiaryBnbaSearch();
-        $search = $search->getStatisticsByArea($params);
+
+        if ($params['area_type'] == 'kode_kab') {
+            $search = (new \yii\db\Query())
+                    ->from('beneficiaries_bnba_statistic_area')
+                    ->all();
+        } else {
+            $search = new BeneficiaryBnbaSearch();
+            $search = $search->getStatisticsByArea($params);
+        }
 
         if ($codeBps == null) {
             foreach ($search as $key => $val) {
