@@ -5,11 +5,8 @@ use app\models\Beneficiary;
 class BeneficiaryApprovalCest
 {
     private $endpointBeneficiaries = '/v1/beneficiaries';
-    private $kabkotaBandung = '3273';
     private $kecBandung = '3273230';
     private $kelBandung = '3273230006';
-    private $kabkotaBekasi = '3275';
-    private $kecBekasi = '3275012';
     private $kelBekasi = '3275012003';
 
     protected function loadData(ApiTester $I)
@@ -45,6 +42,7 @@ class BeneficiaryApprovalCest
             'nik' => '3200000000000001',
             'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
@@ -57,6 +55,7 @@ class BeneficiaryApprovalCest
             'nik' => '3200000000000004',
             'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
@@ -69,6 +68,7 @@ class BeneficiaryApprovalCest
             'nik' => '3200000000000005',
             'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_APPROVED_KEC,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
@@ -81,6 +81,7 @@ class BeneficiaryApprovalCest
             'nik' => '3200000000000006',
             'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_PENDING,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
@@ -91,6 +92,7 @@ class BeneficiaryApprovalCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 7,
             'domicile_kel_bps_id' => $this->kelBekasi,
+            'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
             'status' => Beneficiary::STATUS_ACTIVE,
             'name' => 'Name',
@@ -123,12 +125,22 @@ class BeneficiaryApprovalCest
     {
         $I->amStaff('staffkel');
 
-        $I->sendGET($this->endpointBeneficiaries . '/approval?status_verification=' . Beneficiary::STATUS_VERIFIED . '&domicile_rw_like=1');
+        // approved status
+        $I->sendGET($this->endpointBeneficiaries . '/approval?status_verification=' . Beneficiary::STATUS_APPROVED_KEL . '&domicile_rw_like=1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(3, $data[0][0]['id']);
+        $I->assertEquals(5, $data[0][1]['id']);
+
+        // pending/rejected status
+        $I->sendGET($this->endpointBeneficiaries . '/approval?status_verification=' . Beneficiary::STATUS_REJECTED_KEL . '&domicile_rw_like=1');
         $I->canSeeResponseCodeIs(200);
         $I->seeHttpHeader('X-Pagination-Total-Count', 1);
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
-        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(4, $data[0][0]['id']);
     }
 
      /**
