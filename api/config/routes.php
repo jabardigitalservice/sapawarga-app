@@ -444,6 +444,19 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-verval-upload',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'POST upload' => 'upload',
+            'OPTIONS upload' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba',
         'pluralize' => false,
         'extraPatterns' => [
