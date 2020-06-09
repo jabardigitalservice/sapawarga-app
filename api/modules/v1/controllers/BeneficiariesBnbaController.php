@@ -68,27 +68,35 @@ class BeneficiariesBnbaController extends ActiveController
     public function actionDownload()
     {
         $params = Yii::$app->request->getQueryParams();
+        $query_params = [];
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
         if ($user->can('staffKabkota')) {
             $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
-            $params['kode_kab'] = $parent_area->code_bps;
+            $query_params['kode_kab'] = $parent_area->code_bps;
             if (isset($params['kode_kec'])) {
-                $params['kode_kec'] = explode(',', $params['kode_kec']);
+                $query_params['kode_kec'] = explode(',', $params['kode_kec']);
             }
         } elseif ($user->can('staffProv')) {
             if (isset($params['kode_kec'])) {
-                $params['kode_kec'] = explode(',', $params['kode_kec']);
+                $query_params['kode_kec'] = explode(',', $params['kode_kec']);
             }
         } else {
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
+        if (isset($query_params['kode_kec'])) {
+            $null_value_pos = array_search('0', $query_params['kode_kec']);
+            if ($null_value_pos !== false) {
+                $query_params['kode_kec'][$null_value_pos] = null;
+            }
+        }
+
         // export bnba
         $id = Yii::$app->queue->ttr(30 * 60)->push(new ExportBnbaJob([
-            'params' => $params,
+            'params' => $query_params,
             'user_id' => $user->id,
         ]));
 
