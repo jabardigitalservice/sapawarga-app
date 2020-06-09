@@ -11,12 +11,15 @@
     <tr>
         <td valign="top" class="mcnTextContent" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: left; padding: 36px; word-break: break-word;">
             <div style="text-align: left; word-wrap: break-word;">
-
-                <br />Terima kasih telah menggunakan aplikasi Sapawarga. Hasil export list BNBA yang anda minta telah kami selesaikan. Silahkan mengunduh file list BNBA melalui link berikut:
+                <br/>Admin yang baik,
+                <br />
+                <br/>Terima kasih telah menggunakan SAPAWARGA. Proses export daftar BNBA yang Anda minta telah selesai. Silakan mengunduh file tersebut dengan klik pranala berikut:
                 <br />
                 <br /><a href="<?=Html::encode($final_url);?>" target="_blank"><?=Html::encode($final_url);?></a>
+
             </div>
         </td>
     </tr>
     </tbody>
 </table>
+

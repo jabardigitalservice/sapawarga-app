@@ -2,9 +2,13 @@
     <tbody>
     <tr>
         <td valign="top" class="mcnTextContent" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: left; padding: 36px; word-break: break-word;">
-            <br />Terima kasih,
-            <br />Admin Sapawarga
-            <br />No. Telp: 081212124023
+            <br />Terima kasih
+            <br />
+            <br />Salam,
+            <br />
+            <br />Tim Sapawarga
+            <br />Pemdaprov Jabar
+            <br />Hotline: <a href="tel:+62 812-2008-2668">+62 812-2008-2668</a>
             <br />Email: <a href = "mailto: sapawarga@jabarprov.go.id">sapawarga@jabarprov.go.id</a>
         </td>
     </tr>
