@@ -148,7 +148,7 @@ class ExportBnbaJob extends BaseObject implements JobInterface
             'content' => [
                 'final_url' => $final_url,
             ],
-            'subject' => 'Notifikasi dari Sapawarga : Hasil export list BNBA',
+            'subject' => 'Notifikasi dari Sapawarga: Hasil export daftar BNBA sudah bisa diunduh!',
         ]));
 
     }
