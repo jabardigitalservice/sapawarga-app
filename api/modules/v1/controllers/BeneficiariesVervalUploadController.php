@@ -79,10 +79,20 @@ class BeneficiariesVervalUploadController extends ActiveController
         $filesystem = Yii::$app->fs;
 
         $user = Yii::$app->user;
-        $vervalType = Yii::$app->request->post('verval_type');
-        $kabkotaId  = Yii::$app->request->post('kabkota_id');
-        $kecId = Yii::$app->request->post('kec_id');
-        $kelId = Yii::$app->request->post('kel_id');
+        $userIdentity = $user->identity;
+
+        $vervalType = null;
+        if ($userIdentity->role == 80) {
+            $vervalType = 'kabkota';
+        } elseif ($userIdentity->role == 70) {
+            $vervalType = 'kecamatan';
+        } elseif ($userIdentity->role == 60) {
+            $vervalType = 'kelurahan';
+        }
+
+        $kabkotaId  = $userIdentity->kabkota_id;
+        $kecId = $userIdentity->kec_id;
+        $kelId = $userIdentity->kel_id;
 
         $file = UploadedFile::getInstanceByName('file');
 
@@ -127,8 +137,8 @@ class BeneficiariesVervalUploadController extends ActiveController
             'user_id'           => $user->id,
             'verval_type'       => $vervalType,
             'kabkota_code'      => $kabkota->code_bps,
-            'kec_code'          => $kec ? $kec->code_bps : null,
-            'kel_code'          => $kel ? $kel->code_bps : null,
+            'kec_code'          => $kecId ? $kec->code_bps : null,
+            'kel_code'          => $kelId ? $kel->code_bps : null,
             'original_filename' => $file->name,
             'file_path'         => $relativePath,
             'status'            => 0,
