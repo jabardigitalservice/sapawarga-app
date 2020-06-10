@@ -6,8 +6,10 @@ use app\models\pub\BeneficiaryBnba;
 use app\models\pub\BeneficiaryBnbaSearch;
 use Illuminate\Support\Arr;
 use Yii;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\web\NotFoundHttpException;
 use Illuminate\Support\Collection;
 use app\modules\v1\controllers\ActiveController as ActiveController;
 
@@ -213,6 +215,80 @@ class BeneficiariesBnbaController extends ActiveController
                 $data[$key]['image'] = $area['code_bps'] . '.svg';
             }
         }
+
+        return $data;
+    }
+
+    /**
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionStatisticsUpdate()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        if (empty($params)) {
+            // throw new NotFoundHttpException("Object not found: $id");
+            throw new NotFoundHttpException("Object not found");
+
+
+        }
+
+        // Update statistic calculation by Area kabkota
+        $searchType = new BeneficiaryBnbaSearch();
+        $statisticByType = $searchType->getStatisticsByType($params);
+
+        $rowsType = [];
+        foreach ($statisticByType as $key => $val) {
+            $rowsType[] = [
+                'id_tipe_bansos' => $val['id_tipe_bansos'],
+                'is_dtks' => $val['is_dtks'],
+                'total' => $val['total'],
+            ];
+        }
+
+        if (count($rowsType) > 0) {
+            Yii::$app->db->createCommand()->truncateTable('beneficiaries_bnba_statistic_type')->execute();
+            Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_type', [
+                'id_tipe_bansos',
+                'is_dtks',
+                'total'
+            ], $rowsType)->execute();
+        }
+
+        // Update statistic calculation by Area kabkota
+        $searchArea = new BeneficiaryBnbaSearch();
+        $params['area_type'] = 'kode_kab';
+        $statisticByArea = $searchArea->getStatisticsByArea($params);
+
+        $rowsArea = [];
+        foreach ($statisticByArea as $key => $val) {
+            $rowsArea[] = [
+                'kode_kab' => $val['kode_kab'],
+                'total' => $val['total'],
+            ];
+        }
+
+        if (count($rowsArea) > 0) {
+            Yii::$app->db->createCommand()->truncateTable('beneficiaries_bnba_statistic_area')->execute();
+            Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_area', [
+                'kode_kab',
+                'total'
+            ], $rowsArea)->execute();
+        }
+
+        $rowsType = (new Query())
+            ->from('beneficiaries_bnba_statistic_type')
+            ->select('id_tipe_bansos, is_dtks, total')
+            ->all();
+
+        $rowsArea = (new Query())
+            ->from('beneficiaries_bnba_statistic_area')
+            ->select('kode_kab, total')
+            ->all();
+
+        $data['statistics_by_type'] = $rowsType;
+        $data['statistics_by_area'] = $rowsArea;
 
         return $data;
     }
