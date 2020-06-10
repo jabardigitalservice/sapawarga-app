@@ -228,10 +228,7 @@ class BeneficiariesBnbaController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         if (empty($params)) {
-            // throw new NotFoundHttpException("Object not found: $id");
-            throw new NotFoundHttpException("Object not found");
-
-
+            throw new NotFoundHttpException('Object not found');
         }
 
         // Update statistic calculation by Area kabkota
