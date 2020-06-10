@@ -30,7 +30,7 @@ class BeneficiariesBnbaController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index', 'view', 'statistics-by-type', 'statistics-by-area'
+            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update'
         ];
 
         // setup access
@@ -40,9 +40,8 @@ class BeneficiariesBnbaController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area'],
+                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update'],
                     'roles' => ['?'],
-
                 ]
             ],
         ];
