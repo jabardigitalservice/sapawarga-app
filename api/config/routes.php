@@ -503,6 +503,8 @@ return [
             'OPTIONS statistics-by-type' => 'options',
             'GET statistics-by-area' => 'statistics-by-area',
             'OPTIONS statistics-by-area' => 'options',
+            'GET statistics-update' => 'statistics-update',
+            'OPTIONS statistics-update' => 'options',
         ]
     ],
     [
