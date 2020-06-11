@@ -463,6 +463,17 @@ return [
             'GET download' => 'download',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-complain',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+        ]
+    ],
     'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
     'GET v1/beneficiaries/allocation/<id:\d+>' => 'v1/beneficiaries-allocation/view',
     'GET v1/bansos/upload' => 'v1/bansos-upload/index',
