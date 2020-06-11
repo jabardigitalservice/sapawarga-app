@@ -174,7 +174,11 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'trim'
             ],
             ['name', 'string', 'length' => [2, 100]],
-            ['name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'], 'on' => self::SCENARIO_VALIDATE_ADDRESS],
+            [
+                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
+                'message' => Yii::t('app', 'error.address.duplicate'),
+                'on' => self::SCENARIO_VALIDATE_ADDRESS
+            ],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
@@ -345,12 +349,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'nik' => 'NIK',
             'no_kk' => 'No KK',
             'name' => 'Nama Lengkap',
-            'kabkota_bps_id' => 'Kota',
-            'kec_bps_id' => 'Kecamatan',
-            'kel_bps_id' => 'Kelurahan / Desa',
-            'rt' => 'RT',
-            'rw' => 'RW',
-            'address' => 'Alamat',
+            'domicile_kabkota_bps_id' => 'Kabupaten/Kota',
+            'domicile_kec_bps_id' => 'Kecamatan',
+            'domicile_kel_bps_id' => 'Desa/Kelurahan',
+            'domicile_rt' => 'RT',
+            'domicile_rw' => 'RW',
+            'domicile_address' => 'Alamat',
             'phone' => 'Telepon',
             'total_family_members' => 'Total',
             'job_type_id' => 'Lapangan Usaha',
