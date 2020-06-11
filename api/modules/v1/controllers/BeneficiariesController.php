@@ -215,6 +215,7 @@ class BeneficiariesController extends ActiveController
     public function actionCheckAddress()
     {
         $model = new Beneficiary();
+        $model->scenario = Beneficiary::SCENARIO_VALIDATE_ADDRESS;
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
         $result = $model->validate();

@@ -90,6 +90,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
     ];
 
+    // Constants for Scenario names
+    const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+
     /**
      * {@inheritdoc}
      */
@@ -118,6 +121,26 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         }
 
         return $records->where('id', '=', $this->job_status_id)->first();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $attributes = [
+            'name',
+            'domicile_kabkota_bps_id',
+            'domicile_kec_bps_id',
+            'domicile_kel_bps_id',
+            'domicile_rt',
+            'domicile_rw',
+            'domicile_address',
+        ];
+
+        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributes;
+        return $scenarios;
     }
 
     /**
