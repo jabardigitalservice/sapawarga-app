@@ -405,6 +405,7 @@ return [
         'tokens' => [
             '{id}' => '<id:\d+>',
             '{nik}' => '<nik:\w+>',
+            '{kk}' => '<kk:\w+>',
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
@@ -412,6 +413,8 @@ return [
             'OPTIONS nik/{nik}' => 'options',
             'GET check-exist-nik/{id}' => 'check-exist-nik',
             'OPTIONS check-exist-nik/{id}' => 'options',
+            'GET check-exist-kk/{kk}' => 'check-exist-kk',
+            'OPTIONS check-exist-kk/{kk}' => 'options',
             'GET dashboard-list' => 'dashboard-list',
             'OPTIONS dashboard-list' => 'options',
             'GET dashboard-summary' => 'dashboard-summary',
