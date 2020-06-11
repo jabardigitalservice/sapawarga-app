@@ -127,7 +127,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     {
         return [
             [
-                ['name', 'status_verification', 'status'],
+                [
+                    'name',
+                    'domicile_kabkota_bps_id',
+                    'domicile_kec_bps_id',
+                    'domicile_kel_bps_id',
+                    'domicile_rt',
+                    'domicile_rw',
+                    'domicile_address',
+                    'status_verification',
+                    'status',
+                ],
                 'required',
             ],
 

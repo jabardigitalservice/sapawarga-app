@@ -19,45 +19,6 @@ class BeneficiaryTest extends \Codeception\Test\Unit
         $this->assertTrue($model->hasErrors('status'));
     }
 
-    public function testDomicileRWRT()
-    {
-        // domicile_rw
-        $model = new Beneficiary();
-        $model->domicile_rw = null;
-        $model->validate();
-        $this->assertFalse($model->hasErrors('domicile_rw'));
-
-        $model->domicile_rw = ' 1 ';
-        $model->validate();
-        $this->assertEquals('1', $model->domicile_rw);
-
-        $model->domicile_rw = '001';
-        $model->validate();
-        $this->assertEquals('1', $model->domicile_rw);
-
-        $model->domicile_rw = 1;
-        $model->validate();
-        $this->assertEquals('1', $model->domicile_rw);
-
-        // domicile_rt
-        $model = new Beneficiary();
-        $model->domicile_rt = null;
-        $model->validate();
-        $this->assertFalse($model->hasErrors('domicile_rt'));
-
-        $model->domicile_rt = ' 1 ';
-        $model->validate();
-        $this->assertEquals('1', $model->domicile_rt);
-
-        $model->domicile_rt = '001';
-        $model->validate();
-        $this->assertEquals('1', $model->domicile_rt);
-
-        $model->domicile_rt = 1;
-        $model->validate();
-        $this->assertEquals('1', $model->domicile_rt);
-    }
-
     public function testNIK()
     {
         // use core validation rules
@@ -105,6 +66,58 @@ class BeneficiaryTest extends \Codeception\Test\Unit
         $model->name = 'Aa';
         $model->validate();
         $this->assertFalse($model->hasErrors('name'));
+    }
+
+    public function testDomicile()
+    {
+        // test required
+        $model = new Beneficiary();
+        $model->domicile_kabkota_bps_id = null;
+        $model->domicile_kec_bps_id = null;
+        $model->domicile_kel_bps_id = null;
+        $model->domicile_rw = null;
+        $model->domicile_rt = null;
+        $model->domicile_address = null;
+
+        $model->validate();
+
+        $this->assertTrue($model->hasErrors('domicile_kabkota_bps_id'));
+        $this->assertTrue($model->hasErrors('domicile_kec_bps_id'));
+        $this->assertTrue($model->hasErrors('domicile_kel_bps_id'));
+        $this->assertTrue($model->hasErrors('domicile_rw'));
+        $this->assertTrue($model->hasErrors('domicile_rt'));
+        $this->assertTrue($model->hasErrors('domicile_address'));
+    }
+
+    public function testDomicileRWRT()
+    {
+        // domicile_rw
+        $model = new Beneficiary();
+        $model->domicile_rw = ' 1 ';
+        $model->validate();
+        $this->assertEquals('1', $model->domicile_rw);
+
+        $model->domicile_rw = '001';
+        $model->validate();
+        $this->assertEquals('1', $model->domicile_rw);
+
+        $model->domicile_rw = 1;
+        $model->validate();
+        $this->assertEquals('1', $model->domicile_rw);
+
+        // domicile_rt
+        $model = new Beneficiary();
+        $model->domicile_rt = ' 1 ';
+        $model->validate();
+        $this->assertEquals('1', $model->domicile_rt);
+
+        $model->domicile_rt = '001';
+        $model->validate();
+        $this->assertEquals('1', $model->domicile_rt);
+
+        $model->domicile_rt = 1;
+        $model->validate();
+        $this->assertEquals('1', $model->domicile_rt);
     }
 
     public function testFamilyMembers()
