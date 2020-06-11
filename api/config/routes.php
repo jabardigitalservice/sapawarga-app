@@ -415,6 +415,8 @@ return [
             'OPTIONS check-exist-nik/{id}' => 'options',
             'GET check-exist-kk/{kk}' => 'check-exist-kk',
             'OPTIONS check-exist-kk/{kk}' => 'options',
+            'POST check-address' => 'check-address',
+            'OPTIONS check-address' => 'options',
             'GET dashboard-list' => 'dashboard-list',
             'OPTIONS dashboard-list' => 'options',
             'GET dashboard-summary' => 'dashboard-summary',

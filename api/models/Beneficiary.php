@@ -151,11 +151,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'trim'
             ],
             ['name', 'string', 'length' => [2, 100]],
+            ['name', 'unique', 'targetAttribute'=> ['name', 'domicile_address']],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
-                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id', 'domicile_address'
+                    'domicile_province_bps_id'
                 ],
                 'default', 'value' => null
             ],
