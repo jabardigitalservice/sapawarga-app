@@ -87,6 +87,26 @@ class BeneficiaryTest extends \Codeception\Test\Unit
         $this->assertFalse($model->hasErrors('nik'));
     }
 
+    public function testName()
+    {
+        $model = new Beneficiary();
+        $model->name = ' Name ';
+        $model->validate();
+        $this->assertEquals('Name', $model->name);
+
+        $model->name = 'A';
+        $model->validate();
+        $this->assertTrue($model->hasErrors('name'));
+
+        $model->name = 'Adolph Blaine Charles David Earl Frederick Gerald Hubert Irvin John Kenneth Lloyd Martin Nero Oliver P';
+        $model->validate();
+        $this->assertTrue($model->hasErrors('name'));
+
+        $model->name = 'Aa';
+        $model->validate();
+        $this->assertFalse($model->hasErrors('name'));
+    }
+
     public function testFamilyMembers()
     {
         $model = new Beneficiary();

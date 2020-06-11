@@ -140,6 +140,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 ],
                 'trim'
             ],
+            ['name', 'string', 'length' => [2, 100]],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
