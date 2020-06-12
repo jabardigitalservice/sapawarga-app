@@ -90,6 +90,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
     ];
 
+    // Constants for Scenario names
+    const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+
     /**
      * {@inheritdoc}
      */
@@ -123,11 +126,41 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     /**
      * {@inheritdoc}
      */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $attributes = [
+            'name',
+            'domicile_kabkota_bps_id',
+            'domicile_kec_bps_id',
+            'domicile_kel_bps_id',
+            'domicile_rt',
+            'domicile_rw',
+            'domicile_address',
+        ];
+
+        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributes;
+        return $scenarios;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function rules()
     {
         return [
             [
-                ['name', 'status_verification', 'status'],
+                [
+                    'name',
+                    'domicile_kabkota_bps_id',
+                    'domicile_kec_bps_id',
+                    'domicile_kel_bps_id',
+                    'domicile_rt',
+                    'domicile_rw',
+                    'domicile_address',
+                    'status_verification',
+                    'status',
+                ],
                 'required',
             ],
 
@@ -140,11 +173,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 ],
                 'trim'
             ],
+            ['name', 'string', 'length' => [2, 100]],
+            [
+                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
+                'message' => Yii::t('app', 'error.address.duplicate'),
+                'on' => self::SCENARIO_VALIDATE_ADDRESS
+            ],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
-                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id', 'domicile_address'
+                    'domicile_province_bps_id'
                 ],
                 'default', 'value' => null
             ],
@@ -310,12 +349,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'nik' => 'NIK',
             'no_kk' => 'No KK',
             'name' => 'Nama Lengkap',
-            'kabkota_bps_id' => 'Kota',
-            'kec_bps_id' => 'Kecamatan',
-            'kel_bps_id' => 'Kelurahan / Desa',
-            'rt' => 'RT',
-            'rw' => 'RW',
-            'address' => 'Alamat',
+            'domicile_kabkota_bps_id' => 'Kabupaten/Kota',
+            'domicile_kec_bps_id' => 'Kecamatan',
+            'domicile_kel_bps_id' => 'Desa/Kelurahan',
+            'domicile_rt' => 'RT',
+            'domicile_rw' => 'RW',
+            'domicile_address' => 'Alamat',
             'phone' => 'Telepon',
             'total_family_members' => 'Total',
             'job_type_id' => 'Lapangan Usaha',

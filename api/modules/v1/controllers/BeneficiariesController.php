@@ -40,11 +40,11 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'dashboard-list', 'dashboard-summary'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
                 ],
                 [
@@ -176,7 +176,7 @@ class BeneficiariesController extends ActiveController
 
     /**
      * @param $id
-     * @return mixed|\app\models\Beneficiery
+     * @return array
      */
     public function actionCheckExistNik($id)
     {
@@ -189,6 +189,43 @@ class BeneficiariesController extends ActiveController
         $response->setStatusCode(200);
 
         return $model;
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionCheckExistKk($kk)
+    {
+        $model = Beneficiary::find()
+            ->where(['no_kk' => $kk])
+            ->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+            ->exists();
+
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(200);
+
+        return $model;
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionCheckAddress()
+    {
+        $model = new Beneficiary();
+        $model->scenario = Beneficiary::SCENARIO_VALIDATE_ADDRESS;
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        $result = $model->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $model->getErrors();
+        }
+
+        return $result;
     }
 
     /**
