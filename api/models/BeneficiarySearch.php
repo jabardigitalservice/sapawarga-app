@@ -100,6 +100,23 @@ class BeneficiarySearch extends Beneficiary
 
         return new ActiveDataProvider([
             'query'      => $query,
+            'sort'       => [
+                'defaultOrder' => $defaultOrder,
+                'attributes' => [
+                    'name',
+                    'nik',
+                    'rt',
+                    'rw',
+                    'domicile_rt',
+                    'domicile_rw',
+                    'income_before',
+                    'income_after',
+                    'status_verification',
+                    'total_family_members',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
