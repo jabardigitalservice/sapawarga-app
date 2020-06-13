@@ -44,6 +44,8 @@ return [
     'error.nik.taken' => 'NIK sudah terdaftar.',
     'error.nik.limit' => 'Tunggu beberapa saat untuk bisa Cek NIK kembali.',
 
+    'error.address.duplicate' => 'Nama dan alamat telah terdaftar',
+
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
     'error.image.invalid_format' => 'File "{file}" bukan berupa gambar',
