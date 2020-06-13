@@ -116,17 +116,17 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
 
         return new ActiveDataProvider([
             'query'      => $query,
-            'sort'       => [
-                'defaultOrder' => [$sortBy => $sortOrder],
-                'attributes' => [
-                    'nama_krt',
-                    'nik',
-                    'lapangan_usaha',
-                    'rt',
-                    'id_tipe_bansos',
-                    'rw',
-                ],
-            ],
+            // 'sort'       => [
+            //     'defaultOrder' => [$sortBy => $sortOrder],
+            //     'attributes' => [
+            //         'nama_krt',
+            //         'nik',
+            //         'lapangan_usaha',
+            //         'rt',
+            //         'id_tipe_bansos',
+            //         'rw',
+            //     ],
+            // ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
