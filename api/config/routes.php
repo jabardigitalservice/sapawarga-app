@@ -409,10 +409,8 @@ return [
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET nik/{nik}' => 'nik',
-            'OPTIONS nik/{nik}' => 'options',
-            'GET check-exist-nik/{id}' => 'check-exist-nik',
-            'OPTIONS check-exist-nik/{id}' => 'options',
+            'GET check-nik' => 'check-nik',
+            'OPTIONS check-nik' => 'options',
             'GET check-exist-kk/{kk}' => 'check-exist-kk',
             'OPTIONS check-exist-kk/{kk}' => 'options',
             'POST check-address' => 'check-address',

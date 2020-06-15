@@ -40,11 +40,11 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'nik', 'check-exist-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
                 ],
                 [
@@ -175,20 +175,24 @@ class BeneficiariesController extends ActiveController
     }
 
     /**
-     * @param $id
      * @return array
      */
-    public function actionCheckExistNik($id)
+    public function actionCheckNik()
     {
-        $model = Beneficiary::find()
-            ->where(['nik' => $id])
-            ->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
-            ->exists();
+        $model = new Beneficiary();
+        $model->scenario = Beneficiary::SCENARIO_VALIDATE_NIK;
+        $model->load(Yii::$app->request->getQueryParams(), '');
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
+        $result = $model->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $model->getErrors();
+        }
 
-        return $model;
+        $this->actionNik($model->nik);
+
+        return $result;
     }
 
     /**

@@ -92,6 +92,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     // Constants for Scenario names
     const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+    const SCENARIO_VALIDATE_NIK = 'validate-nik';
 
     /**
      * {@inheritdoc}
@@ -129,7 +130,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $attributes = [
+        $attributeNik = ['id', 'nik'];
+        $attributesAddress = [
             'name',
             'domicile_kabkota_bps_id',
             'domicile_kec_bps_id',
@@ -139,7 +141,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'domicile_address',
         ];
 
-        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributes;
+        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributesAddress;
+        $scenarios[self::SCENARIO_VALIDATE_NIK] = $attributeNik;
         return $scenarios;
     }
 
@@ -174,6 +177,16 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'trim'
             ],
             ['name', 'string', 'length' => [2, 100]],
+            [ 'nik', 'required', 'on' => self::SCENARIO_VALIDATE_NIK],
+            [
+                'nik', 'unique',
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'NIK sudah ada'),
+                'on' => self::SCENARIO_VALIDATE_NIK
+            ],
             [
                 'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
                 'message' => Yii::t('app', 'error.address.duplicate'),
