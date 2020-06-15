@@ -25,12 +25,14 @@ class BeneficiaryComplainSearch extends BeneficiaryComplain
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
+        $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.nik', Arr::get($params, 'nik')]);
         $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.kode_kab', Arr::get($params, 'kode_kab')]);
         $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.kode_kec', Arr::get($params, 'kode_kec')]);
         $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.kode_kel', Arr::get($params, 'kode_kel')]);
         $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.rw', Arr::get($params, 'rw')]);
         $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.rt', Arr::get($params, 'rt')]);
+        $query->andFilterWhere(['like', 'notes_reason', Arr::get($params, 'notes_reason')]);
 
         return $this->getQueryAll($query, $params);
     }
