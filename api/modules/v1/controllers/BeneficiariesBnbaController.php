@@ -10,9 +10,12 @@ use app\validator\NikValidator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Yii;
+use yii\db\Query;
+use yii\data\ArrayDataProvider;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
 use yii\web\HttpException;
+use yii\web\ForbiddenHttpException;
 use yii\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
@@ -42,7 +45,12 @@ class BeneficiariesBnbaController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['download'],
-                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['monitoring'],
+                    'roles' => ['admin', 'staffProv'],
                 ]
             ],
         ];
@@ -59,8 +67,6 @@ class BeneficiariesBnbaController extends ActiveController
         unset($actions['view']);
         unset($actions['update']);
         unset($actions['delete']);
-
-        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
 
         return $actions;
     }
@@ -79,14 +85,25 @@ class BeneficiariesBnbaController extends ActiveController
             if (isset($params['kode_kec'])) {
                 $query_params['kode_kec'] = explode(',', $params['kode_kec']);
             }
-        } elseif ($user->can('staffProv')) {
+        } elseif ($user->can('staffProv') || $user->can('admin')) {
             if (isset($params['kode_kec'])) {
                 $query_params['kode_kec'] = explode(',', $params['kode_kec']);
+            }
+            if (isset($params['kode_kab'])) {
+                $query_params['kode_kab'] = explode(',', $params['kode_kab']);
+            }
+            if (isset($params['bansos_type'])) {
+                $bansos_type = explode(',', $params['bansos_type']);
+                $is_dtks = [];
+                if (in_array('dtks',$bansos_type)) $is_dtks[] = 1;
+                if (in_array('non-dtks',$bansos_type)) array_push($is_dtks, 0,null);
+                $query_params['is_dtks'] = $is_dtks;
             }
         } else {
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
+        // handler utk row dengan kolom kode_kec kosong
         if (isset($query_params['kode_kec'])) {
             $null_value_pos = array_search('0', $query_params['kode_kec']);
             if ($null_value_pos !== false) {
@@ -101,5 +118,65 @@ class BeneficiariesBnbaController extends ActiveController
         ]));
 
         return [ 'job_id' => $id ];
+    }
+
+    public function actionMonitoring()
+    {
+        $user = Yii::$app->user;
+
+        $params = Yii::$app->request->getQueryParams();
+
+        // EXIST query ref: https://stackoverflow.com/a/10688065
+        $exist_subquery = <<<SQL
+            EXISTS(
+                SELECT 1 
+                FROM beneficiaries_bnba_tahap_1 
+                WHERE beneficiaries_bnba_tahap_1.kode_kab = areas.code_bps
+                  %s # custom query utk is_dtks
+                LIMIT 1
+            )
+SQL;
+        $query = (new Query())
+          ->select([
+            'id', 
+            'name',
+            'dtks_exist'     => sprintf($exist_subquery, 'AND is_dtks = 1'),
+            'non-dtks_exist' => sprintf($exist_subquery, 'AND (is_dtks != 1 OR is_dtks IS NULL)'  ),
+          ])
+          ->from('areas')
+          ->where(['areas.depth' => 2 ])
+          ;
+
+        if (isset($params['kode_kab'])) {
+            $query = $query->andWhere([ 'areas.code_bps' => explode(',', $params['kode_kab']) ]);
+        }
+        if (isset($params['bansos_type']) && !empty($params['bansos_type'])) {
+            $params['bansos_type'] = explode(',', $params['bansos_type']);
+        } else {
+            $params['bansos_type'] = ['dtks','non-dtks'];
+        }
+
+        $final_rows = [];
+        $rows = $query->all();
+        foreach ($rows as $row) {
+            foreach( $params['bansos_type'] as $type) {
+                if ($row[$type.'_exist'])
+                    $final_rows[] = [
+                        'id' => $row['id'],
+                        'name' => $row['name'],
+                        'type' => $type,
+                    ];
+            }
+        }
+
+        $pageLimit = Arr::get($params, 'limit', 10);
+        $provider = new ArrayDataProvider([
+            'allModels' => $final_rows,
+            'pagination' => [
+                'pageSize' => $pageLimit,
+            ],
+        ]);
+
+        return $provider;
     }
 }
