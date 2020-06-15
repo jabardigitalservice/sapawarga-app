@@ -40,11 +40,11 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-exist-kk', 'check-address', 'dashboard-list', 'dashboard-summary'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-kk', 'check-address', 'dashboard-list', 'dashboard-summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
                 ],
                 [
@@ -197,17 +197,20 @@ class BeneficiariesController extends ActiveController
      * @param $id
      * @return array
      */
-    public function actionCheckExistKk($kk)
+    public function actionCheckKk()
     {
-        $model = Beneficiary::find()
-            ->where(['no_kk' => $kk])
-            ->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
-            ->exists();
+        $model = new Beneficiary();
+        $model->scenario = Beneficiary::SCENARIO_VALIDATE_KK;
+        $model->load(Yii::$app->request->getQueryParams(), '');
 
-        $response = Yii::$app->getResponse();
-        $response->setStatusCode(200);
+        $result = $model->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $model->getErrors();
+        }
 
-        return $model;
+        return 'ok';
     }
 
     /**

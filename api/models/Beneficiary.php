@@ -92,6 +92,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     // Constants for Scenario names
     const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+    const SCENARIO_VALIDATE_KK = 'validate-kk';
     const SCENARIO_VALIDATE_NIK = 'validate-nik';
 
     /**
@@ -131,6 +132,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     {
         $scenarios = parent::scenarios();
         $attributeNik = ['id', 'nik'];
+        $attributeKk = ['id', 'no_kk'];
         $attributesAddress = [
             'name',
             'domicile_kabkota_bps_id',
@@ -143,6 +145,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
         $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributesAddress;
         $scenarios[self::SCENARIO_VALIDATE_NIK] = $attributeNik;
+        $scenarios[self::SCENARIO_VALIDATE_KK] = $attributeKk;
         return $scenarios;
     }
 
@@ -235,7 +238,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [
                 'nik', 'unique',
                 'filter' => function ($query) {
-                    // var_dump($this->id);
                     $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
                           ->andFilterWhere(['!=', 'id', $this->id]);
                 },
@@ -247,7 +249,18 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     protected function rulesKk()
     {
-        return [];
+        return [
+            [ 'no_kk', 'required', 'on' => self::SCENARIO_VALIDATE_KK ],
+            [
+                'no_kk', 'unique',
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.kk.taken'),
+                'on' => self::SCENARIO_VALIDATE_KK
+            ],
+        ];
     }
 
     protected function rulesAddress()
