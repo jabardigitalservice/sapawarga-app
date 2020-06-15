@@ -190,9 +190,7 @@ class BeneficiariesController extends ActiveController
             return $model->getErrors();
         }
 
-        $this->actionNik($model->nik);
-
-        return $result;
+        return $this->actionNik($model->nik);
     }
 
     /**
