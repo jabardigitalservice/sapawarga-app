@@ -24,21 +24,17 @@ class ExportBnbaJob extends BaseObject implements JobInterface
         $batch_size = 1000;
 
         $query = BeneficiaryBnbaTahapSatu::find()->where($this->params);
-        //$list_bnba = $query->all();
 
         $row_numbers = $query->count();
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
-        echo sprintf( "Starting generating BNBA list export for kode_kab %s", $this->params['kode_kab']);
-        if ( isset($this->params['kode_kec']) && is_array($this->params['kode_kec']) )
-          echo sprintf( " and kode_kec %s", implode(',', $this->params['kode_kec'] ));
-        echo PHP_EOL;
+        echo "Starting generating BNBA list export\n" ;
+        echo "Params:". PHP_EOL;
+        print_r($this->params);
 
         /* Generate export file using box/spout library.
          * ref: https://opensource.box.com/spout/getting-started/#writer */
         $writer = WriterEntityFactory::createXLSXWriter();
-        // $writer = WriterEntityFactory::createODSWriter();
-        //$writer = WriterEntityFactory::createCSVWriter();
         
         // Initial varieble location, filename, path
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
@@ -47,16 +43,9 @@ class ExportBnbaJob extends BaseObject implements JobInterface
         $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
-        //\Yii::$app->response->format = \yii\web\Response::FORMAT_RAW; // return raw response
-        //\Yii::$app->response->setStatusCode(200)->send();
-        //$writer->openToBrowser($fileName); // stream data directly to the browser
 
         $columns = [
             'id',
-            //'is_nik_valid' ,
-            //'is_dtks',
-            //'id_tipe_bansos',
-            //'id_tipe_bansos_name',
             'kode_kab',
             'kode_kec',
             'kode_kel',
@@ -72,7 +61,6 @@ class ExportBnbaJob extends BaseObject implements JobInterface
             'jumlah_art_tanggungan',
             'nomor_hp',
             'lapangan_usaha',
-            //'lapangan_usaha_type',
             'status_kedudukan',
             'penghasilan_sebelum_covid19',
             'penghasilan_setelah_covid',

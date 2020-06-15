@@ -466,6 +466,7 @@ return [
         'pluralize' => false,
         'extraPatterns' => [
             'GET download' => 'download',
+            'GET monitoring' => 'monitoring',
         ]
     ],
     [
