@@ -41,7 +41,7 @@ return [
 
     'error.nik.invalid' => 'Format NIK tidak valid.',
     'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
-    'error.nik.taken' => 'NIK sudah terdaftar.',
+    'error.nik.taken' => 'Warga dengan NIK {value} sudah terdaftar pada list verifikasi.',
     'error.nik.limit' => 'Tunggu beberapa saat untuk bisa Cek NIK kembali.',
 
     'error.address.duplicate' => 'Nama dan alamat telah terdaftar',

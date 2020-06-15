@@ -151,7 +151,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
      */
     public function rules()
     {
-        return [
+        $rules = [
             [
                 [
                     'name',
@@ -177,16 +177,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'trim'
             ],
             ['name', 'string', 'length' => [2, 100]],
-            [ 'nik', 'required', 'on' => self::SCENARIO_VALIDATE_NIK],
-            [
-                'nik', 'unique',
-                'filter' => function ($query) {
-                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
-                          ->andFilterWhere(['!=', 'id', $this->id]);
-                },
-                'message' => Yii::t('app', 'NIK sudah ada'),
-                'on' => self::SCENARIO_VALIDATE_NIK
-            ],
             [
                 'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
                 'message' => Yii::t('app', 'error.address.duplicate'),
@@ -229,6 +219,40 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             ]],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
+
+        return array_merge(
+            $rules,
+            $this->rulesNik(),
+            $this->rulesKk(),
+            $this->rulesAddress()
+        );
+    }
+
+    protected function rulesNik()
+    {
+        return [
+            [ 'nik', 'required', 'on' => self::SCENARIO_VALIDATE_NIK ],
+            [
+                'nik', 'unique',
+                'filter' => function ($query) {
+                    // var_dump($this->id);
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.nik.taken'),
+                'on' => self::SCENARIO_VALIDATE_NIK
+            ],
+        ];
+    }
+
+    protected function rulesKk()
+    {
+        return [];
+    }
+
+    protected function rulesAddress()
+    {
+        return [];
     }
 
     public function fields()

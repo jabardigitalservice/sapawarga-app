@@ -41,7 +41,7 @@ return [
 
     'error.nik.invalid' => 'Invalid NIK.',
     'error.nik.notfound' => 'NIK is not registered in Disdukcapil.',
-    'error.nik.taken' => 'NIK has already been taken.',
+    'error.nik.taken' => 'NIK {value} has already been registered on the verification list.',
     'error.nik.limit' => 'Please wait before check NIK.',
 
     'error.address.duplicate' => 'Name and address have already been registered',
