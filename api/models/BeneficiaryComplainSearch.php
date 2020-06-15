@@ -20,17 +20,17 @@ class BeneficiaryComplainSearch extends BeneficiaryComplain
      */
     public function search($params)
     {
-        $query = BeneficiaryComplain::find()->joinWith('beneficiary')
+        $query = BeneficiaryComplain::find()->joinWith('beneficiaryBnba')
                     ->where(['=', 'beneficiaries_complain.status', BeneficiaryComplain::STATUS_ACTIVE]);
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'beneficiaries.nik', Arr::get($params, 'nik')]);
-        $query->andFilterWhere(['like', 'beneficiaries.name', Arr::get($params, 'name')]);
-        $query->andFilterWhere(['like', 'beneficiaries.domicile_rt', Arr::get($params, 'domicile_rt')]);
-        $query->andFilterWhere(['like', 'beneficiaries.domicile_rw', Arr::get($params, 'domicile_rw')]);
-        $query->andFilterWhere(['like', 'beneficiaries.domicile_address', Arr::get($params, 'domicile_address')]);
-        $query->andFilterWhere(['like', 'beneficiaries.notes_reason', Arr::get($params, 'notes_reason')]);
+        $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.nik', Arr::get($params, 'nik')]);
+        $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.kode_kab', Arr::get($params, 'kode_kab')]);
+        $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.kode_kec', Arr::get($params, 'kode_kec')]);
+        $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.kode_kel', Arr::get($params, 'kode_kel')]);
+        $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.rw', Arr::get($params, 'rw')]);
+        $query->andFilterWhere(['=', 'beneficiaries_bnba_tahap_1.rt', Arr::get($params, 'rt')]);
 
         return $this->getQueryAll($query, $params);
     }

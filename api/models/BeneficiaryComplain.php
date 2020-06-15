@@ -48,9 +48,9 @@ class BeneficiaryComplain extends ActiveRecord implements ActiveStatus
         return 'beneficiaries_complain';
     }
 
-    public function getBeneficiary()
+    public function getBeneficiaryBnba()
     {
-        return $this->hasOne(Beneficiary::class, ['id' => 'beneficiaries_id']);
+        return $this->hasOne(BeneficiaryBnbaTahapSatu::class, ['id' => 'beneficiaries_id']);
     }
 
     /**
@@ -83,7 +83,7 @@ class BeneficiaryComplain extends ActiveRecord implements ActiveStatus
         $fields = [
             'id',
             'beneficiaries_id',
-            'beneficiary' => 'beneficiary',
+            'beneficiary_bnba' => 'beneficiaryBnba',
             'nik',
             'name',
             'phone',

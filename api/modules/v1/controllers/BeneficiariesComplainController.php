@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\models\Area;
 use app\models\BeneficiaryComplain;
 use app\models\BeneficiaryComplainSearch;
 use Yii;
@@ -95,6 +96,18 @@ class BeneficiariesComplainController extends ActiveController
 
         $user          = Yii::$app->user;
         $authUserModel = $user->identity;
+
+        if ($user->can('staffKabkota')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
+        } elseif ($user->can('staffKec')) {
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['kode_kec'] = $area->code_bps;
+        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
+            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+            $params['kode_kel'] = $area->code_bps;
+            $params['rw'] = $authUserModel->rw;
+        }
 
         $search = new BeneficiaryComplainSearch();
 
