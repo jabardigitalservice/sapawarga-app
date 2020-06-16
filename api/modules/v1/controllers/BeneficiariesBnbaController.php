@@ -140,6 +140,7 @@ SQL;
           ->select([
             'id', 
             'name',
+            'code_bps',
             'dtks_exist'     => sprintf($exist_subquery, 'AND is_dtks = 1'),
             'non-dtks_exist' => sprintf($exist_subquery, 'AND (is_dtks != 1 OR is_dtks IS NULL)'  ),
           ])
@@ -164,6 +165,7 @@ SQL;
                     $final_rows[] = [
                         'id' => $row['id'],
                         'name' => $row['name'],
+                        'code_bps' => $row['code_bps'],
                         'type' => $type,
                     ];
             }
