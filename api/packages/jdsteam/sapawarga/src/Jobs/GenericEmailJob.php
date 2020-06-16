@@ -31,4 +31,14 @@ class GenericEmailJob extends BaseObject implements JobInterface
 
         return $email;
     }
+
+    public function getTtr()
+    {
+        return 15 * 60;
+    }
+
+    public function canRetry($attempt, $error)
+    {
+        return ($attempt < 3);
+    }
 }

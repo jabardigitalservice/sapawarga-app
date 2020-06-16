@@ -130,7 +130,7 @@ class ExportBnbaJob extends BaseObject implements JobInterface
         // send result notification to user
         echo "Sending notification email" . PHP_EOL;
         $user = User::findOne($this->user_id);
-        Yii::$app->queue->ttr(30 * 60)->push(new GenericEmailJob([
+        Yii::$app->queue->priority(10)->push(new GenericEmailJob([
             'destination' => $user->email,
             'template' => ['html' => 'email-result-export-list-bnba'],
             'content' => [
@@ -139,5 +139,15 @@ class ExportBnbaJob extends BaseObject implements JobInterface
             'subject' => 'Notifikasi dari Sapawarga: Hasil export daftar BNBA sudah bisa diunduh!',
         ]));
 
+    }
+
+    public function getTtr()
+    {
+        return 60 * 60;
+    }
+
+    public function canRetry($attempt, $error)
+    {
+        return ($attempt < 3);
     }
 }
