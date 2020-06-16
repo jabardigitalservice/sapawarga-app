@@ -24,8 +24,8 @@ use Illuminate\Support\Collection;
  * @property string $domicile_kabkota_bps_id
  * @property string $domicile_kec_bps_id
  * @property string $domicile_kel_bps_id
- * @property string $domicile_rw
  * @property string $domicile_rt
+ * @property string $domicile_rw
  * @property string $domicile_address
  * @property string $phone
  * @property int $total_family_members
@@ -134,6 +134,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $attributeNik = ['id', 'nik'];
         $attributeKk = ['id', 'no_kk'];
         $attributesAddress = [
+            'id',
             'name',
             'domicile_kabkota_bps_id',
             'domicile_kec_bps_id',
@@ -180,11 +181,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'trim'
             ],
             ['name', 'string', 'length' => [2, 100]],
-            [
-                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
-                'message' => Yii::t('app', 'error.address.duplicate'),
-                'on' => self::SCENARIO_VALIDATE_ADDRESS
-            ],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
@@ -265,7 +261,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     protected function rulesAddress()
     {
-        return [];
+        return [
+            [
+                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.address.duplicate'),
+                'on' => self::SCENARIO_VALIDATE_ADDRESS
+            ]
+        ];
     }
 
     public function fields()

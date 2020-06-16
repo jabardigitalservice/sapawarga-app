@@ -413,7 +413,7 @@ return [
             'OPTIONS check-nik' => 'options',
             'GET check-kk' => 'check-kk',
             'OPTIONS check-kk' => 'options',
-            'POST check-address' => 'check-address',
+            'GET check-address' => 'check-address',
             'OPTIONS check-address' => 'options',
             'GET dashboard-list' => 'dashboard-list',
             'OPTIONS dashboard-list' => 'options',

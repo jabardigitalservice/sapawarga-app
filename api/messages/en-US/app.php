@@ -46,7 +46,7 @@ return [
 
     'error.kk.taken' => 'KK number {value} has already been registered on the verification list.',
 
-    'error.address.duplicate' => 'Name and address have already been registered',
+    'error.address.duplicate' => 'Name and address have already been registered.',
 
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 

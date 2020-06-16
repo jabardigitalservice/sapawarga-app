@@ -221,7 +221,7 @@ class BeneficiariesController extends ActiveController
     {
         $model = new Beneficiary();
         $model->scenario = Beneficiary::SCENARIO_VALIDATE_ADDRESS;
-        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $model->load(Yii::$app->request->getQueryParams(), '');
 
         $result = $model->validate();
         if ($result === false) {

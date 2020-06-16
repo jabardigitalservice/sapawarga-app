@@ -46,7 +46,7 @@ return [
 
     'error.kk.taken' => 'Warga dengan Nomor KK {value} sudah terdaftar pada list verifikasi.',
 
-    'error.address.duplicate' => 'Nama dan alamat telah terdaftar',
+    'error.address.duplicate' => 'Nama dan alamat telah terdaftar.',
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
