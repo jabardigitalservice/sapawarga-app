@@ -130,14 +130,11 @@ class BeneficiariesBnbaController extends ActiveController
 
         $params = Yii::$app->request->getQueryParams();
 
-        // EXIST query ref: https://stackoverflow.com/a/10688065
-        $exist_subquery = <<<SQL
-            EXISTS(
-                SELECT 1 
-                FROM beneficiaries_bnba_tahap_1 
-                WHERE beneficiaries_bnba_tahap_1.kode_kab = areas.code_bps
-                  %s # custom query utk is_dtks
-                LIMIT 1
+        $last_updated_subquery = <<<SQL
+            (SELECT MAX(updated_at)
+            FROM bansos_bnba_upload_histories
+            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps  
+              %s
             )
 SQL;
         $query = (new Query())
@@ -145,8 +142,8 @@ SQL;
             'id',
             'name',
             'code_bps',
-            'dtks_exist'     => sprintf($exist_subquery, 'AND is_dtks = 1'),
-            'non-dtks_exist' => sprintf($exist_subquery, 'AND (is_dtks != 1 OR is_dtks IS NULL)'),
+            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50'),
+            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10'  ),
           ])
           ->from('areas')
           ->where(['areas.depth' => 2 ])
@@ -164,13 +161,14 @@ SQL;
         $final_rows = [];
         $rows = $query->all();
         foreach ($rows as $row) {
-            foreach ($params['bansos_type'] as $type) {
-                if ($row[$type . '_exist']) {
+            foreach( $params['bansos_type'] as $type) {
+                if ($row[$type.'_last_update'] != null) {
                     $final_rows[] = [
                         'id' => $row['id'],
                         'name' => $row['name'],
                         'code_bps' => $row['code_bps'],
                         'type' => $type,
+                        'last_update' => $row[$type.'_last_update'],
                     ];
                 }
             }
