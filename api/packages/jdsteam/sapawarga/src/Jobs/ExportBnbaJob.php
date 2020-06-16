@@ -4,7 +4,7 @@ namespace Jdsteam\Sapawarga\Jobs;
 
 use Yii;
 use yii\base\BaseObject;
-use yii\queue\JobInterface;
+use yii\queue\RetryableJobInterface;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\User;
 use yii\helpers\ArrayHelper;
@@ -13,7 +13,7 @@ use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 use League\Flysystem\AdapterInterface;
 
-class ExportBnbaJob extends BaseObject implements JobInterface
+class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 {
     public $params;
     public $user_id;
@@ -130,7 +130,7 @@ class ExportBnbaJob extends BaseObject implements JobInterface
         // send result notification to user
         echo "Sending notification email" . PHP_EOL;
         $user = User::findOne($this->user_id);
-        Yii::$app->queue->ttr(30 * 60)->push(new GenericEmailJob([
+        Yii::$app->queue->priority(10)->push(new GenericEmailJob([
             'destination' => $user->email,
             'template' => ['html' => 'email-result-export-list-bnba'],
             'content' => [
@@ -139,5 +139,15 @@ class ExportBnbaJob extends BaseObject implements JobInterface
             'subject' => 'Notifikasi dari Sapawarga: Hasil export daftar BNBA sudah bisa diunduh!',
         ]));
 
+    }
+
+    public function getTtr()
+    {
+        return 60 * 60;
+    }
+
+    public function canRetry($attempt, $error)
+    {
+        return ($attempt < 3);
     }
 }

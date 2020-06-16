@@ -95,7 +95,7 @@ class BeneficiariesDownloadController extends ActiveController
         }
 
         // export bnba
-        $id = Yii::$app->queue->ttr(30 * 60)->push(new ExportBeneficiariesJob([
+        $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
             'params' => $query_params,
             'user_id' => $user->id,
         ]));
