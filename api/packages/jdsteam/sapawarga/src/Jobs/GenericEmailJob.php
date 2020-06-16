@@ -5,10 +5,10 @@ namespace Jdsteam\Sapawarga\Jobs;
 use app\models\User;
 use Yii;
 use yii\base\BaseObject;
-use yii\queue\JobInterface;
+use yii\queue\RetryableJobInterface;
 
 // Queue job to send email in an async way
-class GenericEmailJob extends BaseObject implements JobInterface
+class GenericEmailJob extends BaseObject implements RetryableJobInterface
 {
     public $destination;
     public $template;

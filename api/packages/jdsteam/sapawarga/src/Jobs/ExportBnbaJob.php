@@ -4,7 +4,7 @@ namespace Jdsteam\Sapawarga\Jobs;
 
 use Yii;
 use yii\base\BaseObject;
-use yii\queue\JobInterface;
+use yii\queue\RetryableJobInterface;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\User;
 use yii\helpers\ArrayHelper;
@@ -13,7 +13,7 @@ use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 use League\Flysystem\AdapterInterface;
 
-class ExportBnbaJob extends BaseObject implements JobInterface
+class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 {
     public $params;
     public $user_id;

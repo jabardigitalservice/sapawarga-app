@@ -4,7 +4,7 @@ namespace Jdsteam\Sapawarga\Jobs;
 
 use Yii;
 use yii\base\BaseObject;
-use yii\queue\JobInterface;
+use yii\queue\RetryableJobInterface;
 use yii\db\Query;
 use app\models\Beneficiary;
 use app\models\User;
@@ -13,7 +13,7 @@ use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 use League\Flysystem\AdapterInterface;
 
-class ExportBeneficiariesJob extends BaseObject implements JobInterface
+class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 {
     public $params;
     public $user_id;
