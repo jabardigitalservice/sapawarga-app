@@ -460,6 +460,7 @@ return [
             'OPTIONS upload' => 'options',
         ]
     ],
+    'GET v1/beneficiaries/download' => 'v1/beneficiaries-download/download',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba',
