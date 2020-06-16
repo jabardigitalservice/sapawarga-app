@@ -87,8 +87,8 @@ class BeneficiariesDownloadController extends ActiveController
         }
 
         // handler utk row dengan kolom kode_kec kosong
-        if (isset($query_params['kode_kec'])) {
-            $null_value_pos = array_search('0', $query_params['kode_kec']);
+        if (isset($query_params['domicile_kec_bps_id'])) {
+            $null_value_pos = array_search('0', $query_params['domicile_kec_bps_id']);
             if ($null_value_pos !== false) {
                 $query_params['domicile_kec_bps_id'][$null_value_pos] = null;
             }
