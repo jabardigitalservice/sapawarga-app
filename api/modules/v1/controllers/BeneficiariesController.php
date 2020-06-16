@@ -327,11 +327,7 @@ class BeneficiariesController extends ActiveController
 
         Yii::$app->db->createCommand()->insert('beneficiaries_nik_logs', $log)->execute();
 
-        unset($responseBody['data']['dwh_response']);
-
-        $log['response'] = $responseBody['data'];
-
-        return $log;
+        return 'ok';
     }
 
     public function actionDashboardSummary()
