@@ -95,8 +95,12 @@ class BeneficiariesBnbaController extends ActiveController
             if (isset($params['bansos_type'])) {
                 $bansos_type = explode(',', $params['bansos_type']);
                 $is_dtks = [];
-                if (in_array('dtks',$bansos_type)) $is_dtks[] = 1;
-                if (in_array('non-dtks',$bansos_type)) array_push($is_dtks, 0,null);
+                if (in_array('dtks', $bansos_type)) {
+                    $is_dtks[] = 1;
+                }
+                if (in_array('non-dtks', $bansos_type)) {
+                    array_push($is_dtks, 0, null);
+                }
                 $query_params['is_dtks'] = $is_dtks;
             }
         } else {
@@ -138,11 +142,11 @@ class BeneficiariesBnbaController extends ActiveController
 SQL;
         $query = (new Query())
           ->select([
-            'id', 
+            'id',
             'name',
             'code_bps',
             'dtks_exist'     => sprintf($exist_subquery, 'AND is_dtks = 1'),
-            'non-dtks_exist' => sprintf($exist_subquery, 'AND (is_dtks != 1 OR is_dtks IS NULL)'  ),
+            'non-dtks_exist' => sprintf($exist_subquery, 'AND (is_dtks != 1 OR is_dtks IS NULL)'),
           ])
           ->from('areas')
           ->where(['areas.depth' => 2 ])
@@ -160,14 +164,15 @@ SQL;
         $final_rows = [];
         $rows = $query->all();
         foreach ($rows as $row) {
-            foreach( $params['bansos_type'] as $type) {
-                if ($row[$type.'_exist'])
+            foreach ($params['bansos_type'] as $type) {
+                if ($row[$type . '_exist']) {
                     $final_rows[] = [
                         'id' => $row['id'],
                         'name' => $row['name'],
                         'code_bps' => $row['code_bps'],
                         'type' => $type,
                     ];
+                }
             }
         }
 

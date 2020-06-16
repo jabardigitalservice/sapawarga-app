@@ -24,8 +24,8 @@ use Illuminate\Support\Collection;
  * @property string $domicile_kabkota_bps_id
  * @property string $domicile_kec_bps_id
  * @property string $domicile_kel_bps_id
- * @property string $domicile_rw
  * @property string $domicile_rt
+ * @property string $domicile_rw
  * @property string $domicile_address
  * @property string $phone
  * @property int $total_family_members
@@ -92,6 +92,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
 
     // Constants for Scenario names
     const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+    const SCENARIO_VALIDATE_KK = 'validate-kk';
+    const SCENARIO_VALIDATE_NIK = 'validate-nik';
 
     /**
      * {@inheritdoc}
@@ -129,7 +131,10 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $attributes = [
+        $attributeNik = ['id', 'nik'];
+        $attributeKk = ['id', 'no_kk'];
+        $attributesAddress = [
+            'id',
             'name',
             'domicile_kabkota_bps_id',
             'domicile_kec_bps_id',
@@ -139,7 +144,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'domicile_address',
         ];
 
-        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributes;
+        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributesAddress;
+        $scenarios[self::SCENARIO_VALIDATE_NIK] = $attributeNik;
+        $scenarios[self::SCENARIO_VALIDATE_KK] = $attributeKk;
         return $scenarios;
     }
 
@@ -148,7 +155,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
      */
     public function rules()
     {
-        return [
+        $rules = [
             [
                 [
                     'name',
@@ -174,11 +181,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 'trim'
             ],
             ['name', 'string', 'length' => [2, 100]],
-            [
-                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
-                'message' => Yii::t('app', 'error.address.duplicate'),
-                'on' => self::SCENARIO_VALIDATE_ADDRESS
-            ],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
@@ -215,6 +217,60 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 self::STATUS_APPROVED_KABKOTA,
             ]],
             ['status', 'in', 'range' => [-1, 0, 10]],
+        ];
+
+        return array_merge(
+            $rules,
+            $this->rulesNik(),
+            $this->rulesKk(),
+            $this->rulesAddress()
+        );
+    }
+
+    protected function rulesNik()
+    {
+        return [
+            [ 'nik', 'required', 'on' => self::SCENARIO_VALIDATE_NIK ],
+            [
+                'nik', 'unique',
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.nik.taken'),
+                'on' => self::SCENARIO_VALIDATE_NIK
+            ],
+        ];
+    }
+
+    protected function rulesKk()
+    {
+        return [
+            [ 'no_kk', 'required', 'on' => self::SCENARIO_VALIDATE_KK ],
+            [
+                'no_kk', 'unique',
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.kk.taken'),
+                'on' => self::SCENARIO_VALIDATE_KK
+            ],
+        ];
+    }
+
+    protected function rulesAddress()
+    {
+        return [
+            [
+                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.address.duplicate'),
+                'on' => self::SCENARIO_VALIDATE_ADDRESS
+            ]
         ];
     }
 
