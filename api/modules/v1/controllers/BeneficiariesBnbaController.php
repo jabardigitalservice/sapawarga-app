@@ -143,7 +143,7 @@ SQL;
             'name',
             'code_bps',
             'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50'),
-            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10'  ),
+            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10'),
           ])
           ->from('areas')
           ->where(['areas.depth' => 2 ])
@@ -161,14 +161,14 @@ SQL;
         $final_rows = [];
         $rows = $query->all();
         foreach ($rows as $row) {
-            foreach( $params['bansos_type'] as $type) {
-                if ($row[$type.'_last_update'] != null) {
+            foreach ($params['bansos_type'] as $type) {
+                if ($row[$type . '_last_update'] != null) {
                     $final_rows[] = [
                         'id' => $row['id'],
                         'name' => $row['name'],
                         'code_bps' => $row['code_bps'],
                         'type' => $type,
-                        'last_update' => $row[$type.'_last_update'],
+                        'last_update' => $row[$type . '_last_update'],
                     ];
                 }
             }

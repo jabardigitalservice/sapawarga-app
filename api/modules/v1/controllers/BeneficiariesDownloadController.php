@@ -80,8 +80,12 @@ class BeneficiariesDownloadController extends ActiveController
             if (isset($params['bansos_type'])) {
                 $bansos_type = explode(',', $params['bansos_type']);
                 $is_dtks = [];
-                if (in_array('dtks',$bansos_type)) $is_dtks[] = 1;
-                if (in_array('non-dtks',$bansos_type)) array_push($is_dtks, 0,null);
+                if (in_array('dtks', $bansos_type)) {
+                    $is_dtks[] = 1;
+                }
+                if (in_array('non-dtks', $bansos_type)) {
+                    array_push($is_dtks, 0, null);
+                }
                 $query_params['is_dtks'] = $is_dtks;
             }
         }
@@ -102,5 +106,4 @@ class BeneficiariesDownloadController extends ActiveController
 
         return [ 'job_id' => $id ];
     }
-
 }
