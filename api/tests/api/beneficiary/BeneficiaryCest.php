@@ -70,6 +70,53 @@ class BeneficiaryCest
         ]);
     }
 
+    protected function loadDataByTahap(ApiTester $I)
+    {
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 1,
+            'nik' => '3200000000000001',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => Beneficiary::STATUS_VERIFIED,
+            'tahap_2_verval' => Beneficiary::STATUS_VERIFIED,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 2,
+            'nik' => '3200000000000002',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => null,
+            'tahap_2_verval' => Beneficiary::STATUS_VERIFIED,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 3,
+            'nik' => '3200000000000003',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => null,
+            'tahap_2_verval' => null,
+            'tahap_3_verval' => Beneficiary::STATUS_VERIFIED,
+        ]);
+    }
+
+
 
     /**
      * @before loadData
@@ -121,5 +168,28 @@ class BeneficiaryCest
         $I->assertEquals(3, $data[0][0]['id']);
         $I->assertEquals(1, $data[0][1]['id']);
         $I->assertEquals(4, $data[0][2]['id']);
+    }
+
+    /**
+     * @before loadDataByTahap
+     */
+    public function getStaffKelListFilterByTahap(ApiTester $I)
+    {
+        $I->amStaff('staffrw');
+
+        $I->sendGET($this->endpointBeneficiaries . '?tahap=1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+
+        $I->sendGET($this->endpointBeneficiaries . '?tahap=2');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
     }
 }

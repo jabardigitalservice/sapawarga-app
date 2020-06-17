@@ -57,6 +57,8 @@ class BeneficiarySearch extends Beneficiary
 
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
+        $query->andFilterWhere(['tahap_2_verval' => Arr::get($params, 'tahap')]);
+
         return $this->getQueryAll($query, $params);
     }
 
