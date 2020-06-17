@@ -16,6 +16,24 @@ class BeneficiarySearch extends Beneficiary
     const SCENARIO_LIST_APPROVAL = 'list-approval';
 
     public $userRole;
+    public $tahap;
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $attributes = ['tahap'];
+
+        $scenarios[self::SCENARIO_LIST_USER] = $attributes;
+        $scenarios[self::SCENARIO_LIST_APPROVAL] = $attributes;
+        return $scenarios;
+    }
+
+    public function rules()
+    {
+        return [
+            ['tahap', 'in', 'range' => [1, 2, 3, 4]],
+        ];
+    }
 
     /**
      * Creates data provider instance with search query applied
@@ -57,7 +75,9 @@ class BeneficiarySearch extends Beneficiary
 
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
-        $query->andFilterWhere(['tahap_2_verval' => Arr::get($params, 'tahap')]);
+        if ($this->tahap) {
+            $query->andWhere(['is not', "tahap_{$this->tahap}_verval", null]);
+        }
 
         return $this->getQueryAll($query, $params);
     }
