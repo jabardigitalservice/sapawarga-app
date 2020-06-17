@@ -31,6 +31,7 @@ class BeneficiarySearch extends Beneficiary
     public function rules()
     {
         return [
+            ['tahap', 'integer'],
             ['tahap', 'in', 'range' => [1, 2, 3, 4]],
         ];
     }
@@ -38,7 +39,7 @@ class BeneficiarySearch extends Beneficiary
     /**
      * Creates data provider instance with search query applied
      *
-     * @param array $params
+     * @param array $paramsp
      *
      * @return ActiveDataProvider
      */
@@ -75,6 +76,7 @@ class BeneficiarySearch extends Beneficiary
 
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
+        // Use different column for each tahap (tahap 1 until tahap 4)
         if ($this->tahap) {
             $query->andWhere(['is not', "tahap_{$this->tahap}_verval", null]);
         }
