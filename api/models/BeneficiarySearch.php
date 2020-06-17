@@ -122,7 +122,7 @@ class BeneficiarySearch extends Beneficiary
             $defaultOrder = [ 'rw' => SORT_ASC, 'rt' => SORT_ASC ] + $defaultOrder;
         }
 
-        return new ActiveDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
                 'defaultOrder' => $defaultOrder,
@@ -145,5 +145,16 @@ class BeneficiarySearch extends Beneficiary
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        // Modify status_verification value based on tahap
+        if ($this->tahap) {
+            $models = $dataProvider->getModels();
+            foreach ($models as $model) {
+                $model->status_verification = $model["tahap_{$this->tahap}_verval"];
+            }
+            $dataProvider->setModels($models);
+        }
+
+        return $dataProvider;
     }
 }
