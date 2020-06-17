@@ -59,6 +59,46 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: CACHE_PORT
+
+            - name: APP_STORAGE_S3_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: APP_STORAGE_S3_KEY
+
+            - name: APP_STORAGE_S3_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: APP_STORAGE_S3_SECRET
+
+
+            - name: APP_STORAGE_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_S3_BUCKET
+
+            - name: APP_STORAGE_FS
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_FS
+
+            - name: APP_STORAGE_PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_PUBLIC_URL
+
+            - name: APP_STORAGE_S3_BUCKET_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_S3_BUCKET_REGION
+            
+
+            
       imagePullSecrets:
         - name: regcred
       restartPolicy: OnFailure
