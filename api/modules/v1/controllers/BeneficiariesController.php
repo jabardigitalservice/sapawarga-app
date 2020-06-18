@@ -345,7 +345,9 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $transformCount = function ($lists) {
+        $statusVerificationColumn = $this->getStatusVerificationColumn(Arr::get($params, 'tahap'));
+
+        $transformCount = function ($lists, $statusVerificationColumn) {
             $status_maps = [
                 '1' => 'pending',
                 '2' => 'rejected',
@@ -358,7 +360,7 @@ class BeneficiariesController extends ActiveController
                 '9' => 'approved_kabkota',
             ];
             $data = [];
-            $jml = Arr::pluck($lists, 'jumlah', 'status_verification');
+            $jml = Arr::pluck($lists, 'jumlah', $statusVerificationColumn);
             $total = 0;
             foreach ($status_maps as $key => $map) {
                 $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
@@ -370,108 +372,108 @@ class BeneficiariesController extends ActiveController
         switch ($type) {
             case 'provinsi':
                 $counts = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts);
+                $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['<>','created_by', 2])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru);
+                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kabkota':
                 $counts = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kabkota_bps_id', $code_bps])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts);
+                $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kabkota_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru);
+                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kec':
                 $counts = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kec_bps_id', $code_bps])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts);
+                $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kec_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru);
+                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kel':
                 $counts = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts);
+                $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru);
+                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'rw':
                 $counts = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['=','domicile_rw', $rw])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts);
+                $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['status_verification','COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['=','domicile_rw', $rw])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['status_verification'])
+                    ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru);
+                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
                 break;
         }
         $counts['baru'] = $counts_baru;
@@ -485,8 +487,9 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
+        $statusVerificationColumn = $this->getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
-        $transformCount = function ($lists) {
+        $transformCount = function ($lists) use ($statusVerificationColumn) {
             $status_maps = [
                 '1' => 'pending',
                 '2' => 'rejected',
@@ -499,7 +502,7 @@ class BeneficiariesController extends ActiveController
                 '9' => 'approved_kabkota',
             ];
             $data = [];
-            $jml = $lists->pluck('jumlah', 'status_verification');
+            $jml = $lists->pluck('jumlah', $statusVerificationColumn);
             $total = 0;
             foreach ($status_maps as $key => $map) {
                 $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
@@ -523,19 +526,19 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                 ]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_kabkota_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_kabkota_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->groupBy(['domicile_kabkota_bps_id', 'status_verification'])
+                    ->groupBy(['domicile_kabkota_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('domicile_kabkota_bps_id');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_kabkota_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_kabkota_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['<>','created_by', 2])
-                    ->groupBy(['domicile_kabkota_bps_id', 'status_verification'])
+                    ->groupBy(['domicile_kabkota_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
@@ -560,21 +563,21 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                 ]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_kec_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_kec_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kabkota_bps_id', $code_bps])
-                    ->groupBy(['domicile_kec_bps_id', 'status_verification'])
+                    ->groupBy(['domicile_kec_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('domicile_kec_bps_id');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_kec_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_kec_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kabkota_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['domicile_kec_bps_id', 'status_verification'])
+                    ->groupBy(['domicile_kec_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
@@ -599,21 +602,21 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                 ]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_kel_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_kel_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kec_bps_id', $code_bps])
-                    ->groupBy(['domicile_kel_bps_id', 'status_verification'])
+                    ->groupBy(['domicile_kel_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $counts->groupBy('domicile_kel_bps_id');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_kel_bps_id', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_kel_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kec_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['domicile_kel_bps_id', 'status_verification'])
+                    ->groupBy(['domicile_kel_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts_baru = new Collection($counts_baru);
@@ -628,10 +631,10 @@ class BeneficiariesController extends ActiveController
             case 'kel':
                 $areas = new Collection([]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_rw', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_rw', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->groupBy(['domicile_rw', 'status_verification'])
+                    ->groupBy(['domicile_rw', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rw as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
@@ -639,11 +642,11 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_rw');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_rw', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_rw', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['domicile_rw', 'status_verification'])
+                    ->groupBy(['domicile_rw', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rw as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
@@ -671,11 +674,11 @@ class BeneficiariesController extends ActiveController
             case 'rw':
                 $areas = new Collection([]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_rt', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_rt', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['=','domicile_rw', $rw])
-                    ->groupBy(['domicile_rt', 'status_verification'])
+                    ->groupBy(['domicile_rt', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rt as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
@@ -683,12 +686,12 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_rt');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_rt', 'status_verification','COUNT(*) AS jumlah'])
+                    ->select(['domicile_rt', $statusVerificationColumn,'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
                     ->where(['=','domicile_kel_bps_id', $code_bps])
                     ->andWhere(['=','domicile_rw', $rw])
                     ->andWhere(['<>','created_by', 2])
-                    ->groupBy(['domicile_rt', 'status_verification'])
+                    ->groupBy(['domicile_rt', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rt as unsigned) asc')
                     ->createCommand()
                     ->queryAll();
@@ -896,5 +899,21 @@ class BeneficiariesController extends ActiveController
         $response->setStatusCode(200);
 
         return 'ok';
+    }
+
+    /**
+     * Determines column to be used as status_verification, depending on $tahap paramter value
+     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
+     *
+     * @param integer $tahap
+     * @return string
+     */
+    public function getStatusVerificationColumn($tahap)
+    {
+        $result = 'status_verification';
+        if ($tahap) {
+            $result = "tahap_{$tahap}_verval";
+        }
+        return $result;
     }
 }
