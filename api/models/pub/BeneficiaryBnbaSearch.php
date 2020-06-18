@@ -39,6 +39,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['lapangan_usaha' => Arr::get($params, 'lapangan_usaha')]);
         $query->andFilterWhere(['id_tipe_bansos' => Arr::get($params, 'id_tipe_bansos')]);
+        $query->andFilterWhere(['tahap' => Arr::get($params, 'tahap_bantuan')]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -73,6 +74,10 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
         }
 
+        if (! empty(Arr::get($params, 'tahap'))) {
+            $query->andWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
+        }
+
         return $query->createCommand()->queryAll();
     }
 
@@ -104,29 +109,19 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             $query->andWhere(['=', 'rw', Arr::get($params, 'rw')]);
         }
 
+        if (! empty(Arr::get($params, 'tahap'))) {
+            $query->andWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
+        }
+
         return $query->createCommand()->queryAll();
     }
 
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'nik');
-        $sortOrder = Arr::get($params, 'sort_order', 'ascending');
-        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query'      => $query,
-            // 'sort'       => [
-            //     'defaultOrder' => [$sortBy => $sortOrder],
-            //     'attributes' => [
-            //         'nama_krt',
-            //         'nik',
-            //         'lapangan_usaha',
-            //         'rt',
-            //         'id_tipe_bansos',
-            //         'rw',
-            //     ],
-            // ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
