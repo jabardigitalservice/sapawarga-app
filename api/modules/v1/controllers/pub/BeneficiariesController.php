@@ -81,6 +81,14 @@ class BeneficiariesController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         $search = new BeneficiarySearch();
+        $search->tahap = Arr::get($params, 'tahap');
+
+        $result = $search->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $search->getErrors();
+        }
 
         return $search->getSummaryStatusVerification($params);
     }
@@ -90,6 +98,14 @@ class BeneficiariesController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
 
         $search = new BeneficiarySearch();
+        $search->tahap = Arr::get($params, 'tahap');
+
+        $result = $search->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $search->getErrors();
+        }
 
         return $search->search($params);
     }

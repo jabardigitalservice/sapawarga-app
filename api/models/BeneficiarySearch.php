@@ -56,7 +56,7 @@ class BeneficiarySearch extends Beneficiary
     /**
      * Creates data provider instance with search query applied
      *
-     * @param array $paramsp
+     * @param array $params
      *
      * @return ActiveDataProvider
      */
