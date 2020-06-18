@@ -766,6 +766,7 @@ class BeneficiariesController extends ActiveController
     {
         $params = $this->getApprovalParams();
         $model = new BeneficiaryApproval();
+        $model->tahap = Arr::get(Yii::$app->request->getQueryParams(), 'tahap');
         return $model->getDashboardApproval($params);
     }
 
