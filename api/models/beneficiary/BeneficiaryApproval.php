@@ -41,10 +41,14 @@ class BeneficiaryApproval extends Beneficiary
         ],
     ];
 
+    // Attributes returned as response
     public $approved;
     public $rejected;
     public $pending;
     public $total;
+
+    public $tahap;
+    public $statusVerificationColumn = 'status_verification';
 
     public function fields()
     {
@@ -66,6 +70,9 @@ class BeneficiaryApproval extends Beneficiary
      */
     public function getDashboardApproval($params)
     {
+        // get column name for status_verification
+        $this->statusVerificationColumn = $this->getStatusVerificationColumn($this->tahap);
+
         // get params, converting area_id to BPS code
         $type = Arr::get($params, 'type');
         $area_id = Arr::get($params, 'area_id');
@@ -80,9 +87,9 @@ class BeneficiaryApproval extends Beneficiary
         $statusPending = self::APPROVAL_MAP[$type]['pending'];
 
         $counts = Beneficiary::find()->select([
-            "SUM(status_verification >= ${statusApproved}) as 'approved'",
-            "SUM(status_verification = ${statusRejected}) as 'rejected'",
-            "SUM(status_verification = ${statusPending}) as 'pending'",
+            "SUM($this->statusVerificationColumn >= ${statusApproved}) as 'approved'",
+            "SUM($this->statusVerificationColumn = ${statusRejected}) as 'rejected'",
+            "SUM($this->statusVerificationColumn = ${statusPending}) as 'pending'",
         ]);
         if ($area_id) {
             switch ($type) {
@@ -106,5 +113,21 @@ class BeneficiaryApproval extends Beneficiary
         $model->pending = intval($counts[0]['pending']);
         $model->total = $model->approved + $model->rejected + $model->pending;
         return $model;
+    }
+
+    /**
+     * Determines column to be used as status_verification, depending on $tahap paramter value
+     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
+     *
+     * @param integer $tahap
+     * @return string
+     */
+    public function getStatusVerificationColumn($tahap)
+    {
+        $result = 'status_verification';
+        if ($tahap) {
+            $result = "tahap_{$tahap}_verval";
+        }
+        return $result;
     }
 }

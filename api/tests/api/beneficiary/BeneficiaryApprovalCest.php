@@ -101,6 +101,52 @@ class BeneficiaryApprovalCest
         ]);
     }
 
+    protected function loadDataByTahap(ApiTester $I)
+    {
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 1,
+            'nik' => '3200000000000001',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'status_verification' => Beneficiary::STATUS_VERIFIED,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => Beneficiary::STATUS_VERIFIED,
+            'tahap_2_verval' => Beneficiary::STATUS_VERIFIED,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 2,
+            'nik' => '3200000000000002',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => null,
+            'tahap_2_verval' => Beneficiary::STATUS_APPROVED_KEL,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 3,
+            'nik' => '3200000000000003',
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => null,
+            'tahap_2_verval' => null,
+            'tahap_3_verval' => Beneficiary::STATUS_APPROVED_KEL,
+        ]);
+    }
+
     /**
      * @before loadData
      */
@@ -167,6 +213,42 @@ class BeneficiaryApprovalCest
         $I->amStaff('staffkec');
 
         $I->sendGET("{$this->endpointBeneficiaries}/approval-dashboard");
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+            'data' => [
+                'approved' => 1,
+                'rejected' => 0,
+                'pending' => 1,
+                'total' => 2,
+            ]
+        ]);
+    }
+
+    /**
+     * @before loadDataByTahap
+     */
+    public function getStaffKelDashboardFilterByTahap(ApiTester $I)
+    {
+        $I->amStaff('staffkel');
+
+        $I->sendGET("{$this->endpointBeneficiaries}/approval-dashboard?tahap=1");
+        $I->canSeeResponseCodeIs(200);
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+            'data' => [
+                'approved' => 0,
+                'rejected' => 0,
+                'pending' => 1,
+                'total' => 1,
+            ]
+        ]);
+
+        $I->sendGET("{$this->endpointBeneficiaries}/approval-dashboard?tahap=2");
         $I->canSeeResponseCodeIs(200);
 
         $I->seeResponseContainsJson([
