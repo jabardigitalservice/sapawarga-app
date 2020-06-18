@@ -135,7 +135,7 @@ class BeneficiarySearch extends Beneficiary
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
-        return new ActiveDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
                 'defaultOrder' => [$sortBy => $sortOrder],
@@ -155,5 +155,16 @@ class BeneficiarySearch extends Beneficiary
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        // Modify status_verification value based on tahap
+        if ($this->tahap) {
+            $models = $dataProvider->getModels();
+            foreach ($models as $model) {
+                $model->status_verification = $model[$this->statusVerificationColumn];
+            }
+            $dataProvider->setModels($models);
+        }
+
+        return $dataProvider;
     }
 }
