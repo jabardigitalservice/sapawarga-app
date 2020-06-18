@@ -157,6 +157,7 @@ class BeneficiariesController extends ActiveController
 
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
+        $search->tahap = Arr::get($params, 'tahap');
         $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
 
         if ($user->can('staffKabkota')) {
@@ -169,6 +170,13 @@ class BeneficiariesController extends ActiveController
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
             $params['domicile_kel_bps_id'] = $area->code_bps;
             $params['domicile_rw'] = $authUserModel->rw;
+        }
+
+        $result = $search->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $search->getErrors();
         }
 
         return $search->search($params);
@@ -772,6 +780,7 @@ class BeneficiariesController extends ActiveController
 
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
+        $search->tahap = Arr::get($params, 'tahap');
         $search->scenario = BeneficiarySearch::SCENARIO_LIST_APPROVAL;
 
         if ($user->can('staffKabkota')) {
@@ -784,6 +793,13 @@ class BeneficiariesController extends ActiveController
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
             $params['domicile_kel_bps_id'] = $area->code_bps;
             $params['domicile_rw'] = $authUserModel->rw;
+        }
+
+        $result = $search->validate();
+        if ($result === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $search->getErrors();
         }
 
         return $search->search($params);

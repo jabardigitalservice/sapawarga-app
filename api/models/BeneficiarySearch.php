@@ -16,6 +16,42 @@ class BeneficiarySearch extends Beneficiary
     const SCENARIO_LIST_APPROVAL = 'list-approval';
 
     public $userRole;
+    public $tahap;
+    public $statusVerificationColumn = 'status_verification';
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $attributes = ['tahap'];
+
+        $scenarios[self::SCENARIO_LIST_USER] = $attributes;
+        $scenarios[self::SCENARIO_LIST_APPROVAL] = $attributes;
+        return $scenarios;
+    }
+
+    public function rules()
+    {
+        return [
+            ['tahap', 'integer'],
+            ['tahap', 'in', 'range' => [1, 2, 3, 4]],
+        ];
+    }
+
+    /**
+     * Determines column to be used as status_verification, depending on $tahap paramter value
+     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
+     *
+     * @param integer $tahap
+     * @return string
+     */
+    public function getStatusVerificationColumn($tahap)
+    {
+        $result = 'status_verification';
+        if ($tahap) {
+            $result = "tahap_{$tahap}_verval";
+        }
+        return $result;
+    }
 
     /**
      * Creates data provider instance with search query applied
@@ -26,6 +62,8 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
+        $this->statusVerificationColumn = $this->getStatusVerificationColumn($this->tahap);
+
         $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
 
         // Filtering
@@ -57,6 +95,11 @@ class BeneficiarySearch extends Beneficiary
 
         $query->andFilterWhere(['status' => Arr::get($params, 'status')]);
 
+        // Use different column for each tahap (tahap 1 until tahap 4)
+        if ($this->tahap) {
+            $query->andWhere(['is not', "tahap_{$this->tahap}_verval", null]);
+        }
+
         return $this->getQueryAll($query, $params);
     }
 
@@ -64,9 +107,9 @@ class BeneficiarySearch extends Beneficiary
     {
         // Includes verified data that have been followed up to desa/kel/kec/kab/kota for approval (status_verification >= Beneficiary::STATUS_VERIFIED),
         if (Arr::get($params, 'status_verification') < Beneficiary::STATUS_VERIFIED) {
-            $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
+            $query->andFilterWhere([$this->statusVerificationColumn => Arr::get($params, 'status_verification')]);
         } else {
-            $query->andFilterWhere(['>=', 'status_verification', Arr::get($params, 'status_verification')]);
+            $query->andFilterWhere(['>=', $this->statusVerificationColumn, Arr::get($params, 'status_verification')]);
         }
     }
 
@@ -78,18 +121,25 @@ class BeneficiarySearch extends Beneficiary
 
         // different filter behavior based on `status_verification` filter
         if (!$statusVerificationFilter) {
-            $query->andFilterWhere(['>=', 'status_verification', $statuses['pending']]);
+            $query->andFilterWhere(['>=', $this->statusVerificationColumn, $statuses['pending']]);
         } elseif ($statusVerificationFilter == $statuses['approved']) {
-            $query->andFilterWhere(['>=', 'status_verification', $statusVerificationFilter]);
+            $query->andFilterWhere(['>=', $this->statusVerificationColumn, $statusVerificationFilter]);
         } else {
-            $query->andFilterWhere(['status_verification' => $statusVerificationFilter]);
+            $query->andFilterWhere([$this->statusVerificationColumn => $statusVerificationFilter]);
         }
     }
 
     protected function getQueryAll($query, $params)
     {
+        // change 'status_verification' sort attribute based on tahap
+        $sortAttribute = Arr::get($params, 'sort_by', 'nik');
+        if ($sortAttribute == 'status_verification') {
+            $sortAttribute = $this->statusVerificationColumn;
+        }
+
+
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'nik');
+        $sortBy    = $sortAttribute;
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
@@ -98,7 +148,7 @@ class BeneficiarySearch extends Beneficiary
             $defaultOrder = [ 'rw' => SORT_ASC, 'rt' => SORT_ASC ] + $defaultOrder;
         }
 
-        return new ActiveDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
                 'defaultOrder' => $defaultOrder,
@@ -112,6 +162,10 @@ class BeneficiarySearch extends Beneficiary
                     'income_before',
                     'income_after',
                     'status_verification',
+                    'tahap_1_verval',
+                    'tahap_2_verval',
+                    'tahap_3_verval',
+                    'tahap_4_verval',
                     'total_family_members',
                     'created_at',
                     'updated_at',
@@ -121,5 +175,16 @@ class BeneficiarySearch extends Beneficiary
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        // Modify status_verification value based on tahap
+        if ($this->tahap) {
+            $models = $dataProvider->getModels();
+            foreach ($models as $model) {
+                $model->status_verification = $model[$this->statusVerificationColumn];
+            }
+            $dataProvider->setModels($models);
+        }
+
+        return $dataProvider;
     }
 }
