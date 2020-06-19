@@ -841,6 +841,7 @@ class BeneficiariesController extends ActiveController
             return null;
         }
 
+        unset($data[0]['id']);
         return $data[0];
     }
 
