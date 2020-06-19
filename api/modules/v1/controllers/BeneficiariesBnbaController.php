@@ -112,8 +112,8 @@ class BeneficiariesBnbaController extends ActiveController
             $null_value_pos = array_search('0', $query_params['kode_kec']);
             if ($null_value_pos !== false) {
                 // replace 0 with '' and null
-                unset($query_params['domicile_kec_bps_id'][$null_value_pos]);
-                array_push($query_params['domicile_kec_bps_id'], '', null);
+                unset($query_params['kode_kec'][$null_value_pos]);
+                array_push($query_params['kode_kec'], '', null);
             }
         }
 
