@@ -40,11 +40,11 @@ class BeneficiariesController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval'],
+            'only' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'approval', 'bulk-approval', 'current-tahap'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-kk', 'check-address', 'dashboard-list', 'dashboard-summary'],
+                    'actions' => ['index', 'view', 'create', 'update', 'delete', 'check-nik', 'check-kk', 'check-address', 'dashboard-list', 'dashboard-summary', 'current-tahap'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW', 'trainer'],
                 ],
                 [
@@ -829,6 +829,19 @@ class BeneficiariesController extends ActiveController
         $params = $this->getApprovalParams();
 
         return $this->processBulkApproval($params);
+    }
+
+    public function actionCurrentTahap()
+    {
+        $data = (new \yii\db\Query())
+        ->from('beneficiaries_current_tahap')
+        ->all();
+
+        if (count($data) <= 0) {
+            return null;
+        }
+
+        return $data[0];
     }
 
      /**
