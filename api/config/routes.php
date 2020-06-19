@@ -429,6 +429,8 @@ return [
             'OPTIONS bulk-approval' => 'options',
             'GET approval-dashboard' => 'approval-dashboard',
             'OPTIONS approval-dashboard' => 'options',
+            'GET current-tahap' => 'current-tahap',
+            'OPTIONS current-tahap' => 'options',
         ]
     ],
     [

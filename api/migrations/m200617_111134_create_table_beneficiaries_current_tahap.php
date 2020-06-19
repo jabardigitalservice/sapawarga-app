@@ -24,19 +24,4 @@ class m200617_111134_create_table_beneficiaries_current_tahap extends CustomMigr
     {
         $this->dropTable('beneficiaries_current_tahap');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m200617_111134_create_table_beneficiaries_current_tahap cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }
