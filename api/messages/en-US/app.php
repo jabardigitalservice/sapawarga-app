@@ -39,6 +39,15 @@ return [
     'error.validation.rangedatefill' => 'The range date has been used',
     'error.validation.enddate_less_than_today' => 'End date cannot less than today',
 
+    'error.nik.invalid' => 'Invalid NIK.',
+    'error.nik.notfound' => 'NIK is not registered in Disdukcapil.',
+    'error.nik.taken' => 'NIK {value} has already been registered on the verification list.',
+    'error.nik.limit' => 'Please wait before check NIK.',
+
+    'error.kk.taken' => 'KK number {value} has already been registered on the verification list.',
+
+    'error.address.duplicate' => 'Name and address have already been registered.',
+
     'error.scheduled_datetime.before_now' => 'Scheduled time already passed.',
 
     'error.image.invalid_format' => 'The file "{file}" is not an image.',
@@ -68,4 +77,32 @@ return [
     'status.unpublished' => 'Unpublished',
     'status.approval-pending' => 'Sent',
     'status.approval-rejected' => 'Rejected',
+
+    'status.beneficiary.pending' => 'Pending',
+    'status.beneficiary.reject' => 'Rejected',
+    'status.beneficiary.verified' => 'Verified',
+    'status.beneficiary.rejected_kel' => 'Rejected by Desa/Kel',
+    'status.beneficiary.approved_kel' => 'Approved by Desa/Kel',
+    'status.beneficiary.pending_kec' => 'Pending Approval from Kec',
+    'status.beneficiary.rejected_kec' => 'Rejected by Kec',
+    'status.beneficiary.approved_kec' => 'Approved by Kec',
+    'status.beneficiary.pending_kabkota' => 'Pending Approval from Kab/Kota',
+    'status.beneficiary.rejected_kabkota' => 'Rejected by Kab/Kota',
+    'status.beneficiary.approved_kabkota' => 'Approved by Kab/Kota',
+
+    'type.beneficiaries.pkh' => 'PKH',
+    'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',
+    'type.beneficiaries.bnpt_perluasan' => 'KARTU SEMBAKO PERLUASAN',
+    'type.beneficiaries.bansos_tunai' => 'BANSOS TUNAI KEMENSOS',
+    'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS SEMBAKO PRESIDEN',
+    'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
+    'type.beneficiaries.dana_desa' => 'DANA DESA',
+    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN / KOTA',
+
+    'source.beneficiaries.kemensos' => 'Kementerian Sosial',
+    'source.beneficiaries.apbdpemprovjabar' => 'APBD Pemdaprov Jabar',
+    'source.beneficiaries.apbdkotajabar' => 'APBD Kota / Kab Jabar',
+    'source.beneficiaries.kemendes' => 'Kementerian Desa, PDT dan Transmigrasi',
+
+    'beneficiaries.incomplete_address' => 'Incomplete Address',
 ];

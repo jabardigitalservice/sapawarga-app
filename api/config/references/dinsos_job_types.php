@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'job_field' => [
+        ['id' => 1, 'title' => 'Pertanian tanaman padi dan palawija', 'seq' => 1],
+        ['id' => 2, 'title' => 'Hortikultura (Budidaya tanaman kebun)', 'seq' => 1],
+        ['id' => 3, 'title' => 'Perkebunan', 'seq' => 1],
+        ['id' => 4, 'title' => 'Perikanan tangkap', 'seq' => 1],
+        ['id' => 5, 'title' => 'Perikanan budidaya', 'seq' => 1],
+        ['id' => 6, 'title' => 'Peternakan', 'seq' => 1],
+        ['id' => 7, 'title' => 'Kehutanan dan pertanian lainnya', 'seq' => 1],
+        ['id' => 8, 'title' => 'Pertambangan/penggalian', 'seq' => 1],
+        ['id' => 9, 'title' => 'Industri pengolahan', 'seq' => 1],
+        ['id' => 10, 'title' => 'Listrik dan gas', 'seq' => 1],
+        ['id' => 11, 'title' => 'Bangunan/konstruksi', 'seq' => 1],
+        ['id' => 12, 'title' => 'Perdagangan', 'seq' => 1],
+        ['id' => 13, 'title' => 'Hotel dan rumah makan', 'seq' => 1],
+        ['id' => 14, 'title' => 'Transportasi dan pergudangan', 'seq' => 1],
+        ['id' => 15, 'title' => 'Informasi dan komunikasi', 'seq' => 1],
+        ['id' => 16, 'title' => 'Keuangan dan asuransi', 'seq' => 1],
+        ['id' => 17, 'title' => 'Jasa pendidikan', 'seq' => 1],
+        ['id' => 18, 'title' => 'Jasa kesehatan', 'seq' => 1],
+        ['id' => 19, 'title' => 'Jasa kemasyarakatan, pemerintahan dan perorangan (office boy, jasa parkir, asisten rumah tangga, administrasi, dll.)', 'seq' => 1],
+        ['id' => 20, 'title' => 'Pemulung', 'seq' => 1],
+        ['id' => 21, 'title' => 'Lainnya', 'seq' => 99],
+    ],
+    'job_status' => [
+        ['id' => 1, 'title' => 'Berusaha sendiri', 'seq' => 1],
+        ['id' => 2, 'title' => 'Berusaha dibantu buruh tidak tetap/tidak dibayar', 'seq' => 1],
+        ['id' => 3, 'title' => 'Berusaha dibantu buruh tetap/dibayar', 'seq' => 1],
+        ['id' => 4, 'title' => 'Buruh/karyawan/pegawai swasta', 'seq' => 1],
+        ['id' => 5, 'title' => 'PNS/TNI/Polri/BUMN/BUMD/anggota legislatif', 'seq' => 1],
+        ['id' => 6, 'title' => 'Pekerja bebas pertanian', 'seq' => 1],
+        ['id' => 7, 'title' => 'Pekerja bebas non pertanian', 'seq' => 1],
+        ['id' => 8, 'title' => 'Pekerja keluarga/tidak dibayar', 'seq' => 1],
+    ],
+];

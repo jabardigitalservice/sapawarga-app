@@ -6,7 +6,8 @@ metadata:
   labels:
     app: sapawarga-api
 spec:
-  replicas: 2
+  # temporary during a covid-19 #
+  replicas: %REPLICAS%
   template:
     metadata:
       labels:
@@ -18,12 +19,18 @@ spec:
           ports:
             - containerPort: 80
           readinessProbe:
-            httpGet:
-              path: /ping
+            tcpSocket:
               port: 80
-          volumeMounts:
-          - name: api-persistent-storage
-            mountPath: /srv/web/storage
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          # volumeMounts:
+          # - name: api-persistent-storage
+          #   mountPath: /srv/web/storage
           env:
             - name: APP_STORAGE_LOCAL_URL
               valueFrom:
@@ -35,26 +42,62 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: APP_VERSION
+
+            # mysql host master
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MYSQL_HOST
+
+            - name: MYSQL_HOST_SLAVE_1
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_HOST_SLAVE_1
+
+            - name: MYSQL_HOST_SLAVE_2
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_HOST_SLAVE_2
+
+            - name: MYSQL_HOST_SLAVE_3
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_HOST_SLAVE_3
+            
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: MYSQL_USER
+
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: MYSQL_PASSWORD
+
+            - name: MYSQL_USER_SLAVE
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_USER_SLAVE
+
+            - name: MYSQL_PASSWORD_SLAVE
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_PASSWORD_SLAVE
+
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MYSQL_DATABASE
+
             - name: FCM_KEY
               valueFrom:
                 secretKeyRef:
@@ -90,7 +133,7 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: APP_STORAGE_S3_KEY
-            
+
             - name: APP_STORAGE_S3_SECRET
               valueFrom:
                 secretKeyRef:
@@ -138,12 +181,24 @@ spec:
                   name: sapawarga-backend-config-env
                   key: FRONTEND_URL
 
+            - name: KEPENDUDUKAN_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: KEPENDUDUKAN_API_BASE_URL
+
+            - name: KEPENDUDUKAN_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: KEPENDUDUKAN_API_KEY
+
             - name: MAILER_TRANSPORT_FILE
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_TRANSPORT_FILE
-                  
+
             - name: MAILER_HOST
               valueFrom:
                 configMapKeyRef:
@@ -155,7 +210,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_PORT
-            
+
             - name: MAILER_FROM_EMAIL
               valueFrom:
                 configMapKeyRef:
@@ -167,7 +222,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_FROM_NAME
-       
+
             - name: APP_STORAGE_S3_BUCKET
               valueFrom:
                 configMapKeyRef:
@@ -191,17 +246,27 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: APP_STORAGE_S3_BUCKET_REGION
-                  
-      initContainers:
-      - name: volume-permission-fix
-        image: busybox
-        command: ["/bin/chmod","-R","777", "/data"]
-        volumeMounts:
-        - name: api-persistent-storage
-          mountPath: /data
+
+      # initContainers:
+      # - name: volume-permission-fix
+      #   image: busybox
+      #   command: ["/bin/chmod","-R","777", "/data"]
+      #   volumeMounts:
+      #   - name: api-persistent-storage
+      #     mountPath: /data
       imagePullSecrets:
         - name: regcred
-      volumes:
-      - name: api-persistent-storage
-        persistentVolumeClaim:
-          claimName: api-pv-claim
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sapawarga-api
+            topologyKey: "kubernetes.io/hostname"
+      # volumes:
+      # - name: api-persistent-storage
+      #   persistentVolumeClaim:
+      #     claimName: api-pv-claim

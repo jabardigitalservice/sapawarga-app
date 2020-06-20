@@ -2,7 +2,7 @@ stages:
   - versioning
   - code_quality
   - build
-  - test
+  # - test
   - deploy_staging
   - deploy_prod
 
@@ -22,18 +22,16 @@ versioning:
       - version
 
 code_quality:
-  image: docker:19.03.5
+  image: docker:stable
   stage: code_quality
   only:
-    - branches
+    - merge_requests
+    - develop
+    - master
   services:
-    - docker:19.03.5-dind
+    - docker:stable-dind
   variables:
     DOCKER_DRIVER: overlay2
-  dependencies:
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
   script:
     - docker run
         --env SOURCE_CODE=$PWD
@@ -50,11 +48,11 @@ code_quality:
 
 build_image:
   stage: build
-  image: docker:19.03.5
+  image: docker/compose:latest
   only:
     - branches
   services:
-    - docker:19.03.5-dind
+    - docker:stable-dind
   variables:
     DOCKER_DRIVER: overlay2
   dependencies:
@@ -62,64 +60,59 @@ build_image:
   before_script:
     - export VERSION=$(cat ./version)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-    - pip install docker-compose
   script:
     - cp .env-template .env
-    - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
-    - cat .env
     - docker-compose build
     - docker images
     - docker-compose push
 
-test_api:
-  stage: test
-  image: docker:19.03.5
-  only:
-    - branches
-  services:
-    - docker:19.03.5-dind
-  variables:
-    GIT_COMMIT_SHA: $CI_COMMIT_SHA
-    GIT_BRANCH: $CI_COMMIT_REF_NAME
-  dependencies:
-    - versioning
-  before_script:
-    - apk add git
-    - export VERSION=$(cat ./version)
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-    - apk add --update curl && rm -rf /var/cache/apk/*
-    - pip install docker-compose
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-    - chmod +x ./cc-test-reporter
-    - ./cc-test-reporter before-build
-  script:
-    - cp .env-template .env
-    - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
-    - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
-    - sed -i "s/%MYSQL_HOST%/database/g" .env
-    - sed -i "s/%MYSQL_PORT%/3306/g" .env
-    - sed -i "s/%MYSQL_DATABASE%/sapawarga_test/g" .env
-    - sed -i "s/%MYSQL_USER%/sapawarga/g" .env
-    - sed -i "s/%MYSQL_PASSWORD%/secret/g" .env
-    - sed -i "s/%MYSQL_ROOT_PASSWORD%/secret/g" .env
-    - sed -i "s/%ERROR_REPORT%/false/g" .env
-    - cat .env
-    - docker-compose pull
-    - docker images
-    - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
-    - sleep 60
-    - docker ps
-    - docker-compose exec -T api composer sniff
-    - docker-compose exec -T api php yii seeder
-    - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
-    - mv ./api/tests/_output/coverage.xml ./clover.xml
-    - sed -i "s|/srv|$(pwd)/api|g" clover.xml
-    - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
+# test_api:
+#   stage: test
+#   image: docker/compose:latest
+#   rules:
+#     - changes:
+#       - "**/*.{php,sql,yml}"
+#   services:
+#     - docker:stable-dind
+#   variables:
+#     GIT_COMMIT_SHA: $CI_COMMIT_SHA
+#     GIT_BRANCH: $CI_COMMIT_REF_NAME
+#   dependencies:
+#     - versioning
+#   before_script:
+#     - apk add git
+#     - export VERSION=$(cat ./version)
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#     - apk add --update curl && rm -rf /var/cache/apk/*
+#     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+#     - chmod +x ./cc-test-reporter
+#     - ./cc-test-reporter before-build
+#   script:
+#     - cp .env-template .env
+#     - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
+#     - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
+#     - sed -i "s/%MYSQL_HOST%/database/g" .env
+#     - sed -i "s/%MYSQL_PORT%/3306/g" .env
+#     - sed -i "s/%MYSQL_DATABASE%/sapawarga_test/g" .env
+#     - sed -i "s/%MYSQL_USER%/sapawarga/g" .env
+#     - sed -i "s/%MYSQL_PASSWORD%/secret/g" .env
+#     - sed -i "s/%MYSQL_ROOT_PASSWORD%/secret/g" .env
+#     - sed -i "s/%ERROR_REPORT%/false/g" .env
+#     - cat .env
+#     - docker-compose pull
+#     - docker images
+#     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
+#     - sleep 60
+#     - docker ps
+#     - docker-compose exec -T api composer sniff
+#     - docker-compose exec -T api php yii seeder
+#     - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
+#     - mv ./api/tests/_output/coverage.xml ./clover.xml
+#     - sed -i "s|/srv|$(pwd)/api|g" clover.xml
+#     - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 deploy_staging_aws:
-  image: docker:19.03.5
+  image: docker:stable
   stage: deploy_staging
   only:
     - develop
@@ -168,6 +161,13 @@ deploy_staging_eks:
     - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
 
+    # mysql replica staging #
+    - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_2%/${MYSQL_HOST_SLAVE_2}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_3%/${MYSQL_HOST_SLAVE_3}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER_SLAVE%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD_SLAVE%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+
     # Push Notif Staging #
     - sed -i "s/%FCM_KEY%/${FCM_KEY_STAGING}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
@@ -176,6 +176,10 @@ deploy_staging_eks:
     - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_STAGING}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
+
+    # External API STAGING
+    - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
 
     # Mailer STAGING #
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
@@ -197,6 +201,7 @@ deploy_staging_eks:
 
      # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
      # version queue jobs import #
@@ -261,6 +266,19 @@ deploy_prod_eks:
     - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
+
+
+    # mysql replica production #
+    - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_2%/${MYSQL_HOST_SLAVE_2}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_3%/${MYSQL_HOST_SLAVE_3}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER_SLAVE%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD_SLAVE%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+    
+    # External API PRODUCTION
+    - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
     # Mailer PRODUCTION
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
@@ -279,6 +297,7 @@ deploy_prod_eks:
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
     # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
     # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
     # version queue jobs import #

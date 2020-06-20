@@ -39,6 +39,15 @@ return [
     'error.validation.rangedatefill' => 'Rentang waktu tersebut telah digunakan',
     'error.validation.enddate_less_than_today' => 'Tanggal berakhir tidak boleh kurang dari hari ini',
 
+    'error.nik.invalid' => 'Format NIK tidak valid.',
+    'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
+    'error.nik.taken' => 'Warga dengan NIK {value} sudah terdaftar pada list verifikasi.',
+    'error.nik.limit' => 'Tunggu beberapa saat untuk bisa Cek NIK kembali.',
+
+    'error.kk.taken' => 'Warga dengan Nomor KK {value} sudah terdaftar pada list verifikasi.',
+
+    'error.address.duplicate' => 'Nama dan alamat telah terdaftar.',
+
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 
     'error.image.invalid_format' => 'File "{file}" bukan berupa gambar',
@@ -68,4 +77,32 @@ return [
     'status.unpublished' => 'Tidak Dipublikasikan',
     'status.approval-pending'  => 'Terkirim',
     'status.approval-rejected' => 'Ditolak',
+
+    'status.beneficiary.pending' => 'Belum Terverifikasi',
+    'status.beneficiary.reject' => 'Ditolak',
+    'status.beneficiary.verified' => 'Terverifikasi',
+    'status.beneficiary.rejected_kel' => 'Ditolak Desa/Kel',
+    'status.beneficiary.approved_kel' => 'Disetujui Desa/Kel',
+    'status.beneficiary.pending_kec' => 'Belum Disetujui Kec',
+    'status.beneficiary.rejected_kec' => 'Ditolak Kec',
+    'status.beneficiary.approved_kec' => 'Disetujui Kec',
+    'status.beneficiary.pending_kabkota' => 'Belum Disetujui Kab/Kota',
+    'status.beneficiary.rejected_kabkota' => 'Ditolak Kab/Kota',
+    'status.beneficiary.approved_kabkota' => 'Disetujui Kab/Kota',
+
+    'type.beneficiaries.pkh' => 'PKH',
+    'type.beneficiaries.bnpt' => 'KARTU SEMBAKO',
+    'type.beneficiaries.bnpt_perluasan' => 'KARTU SEMBAKO PERLUASAN',
+    'type.beneficiaries.bansos_tunai' => 'BANSOS TUNAI KEMENSOS',
+    'type.beneficiaries.bansos_presiden_sembako' => 'BANSOS SEMBAKO PRESIDEN',
+    'type.beneficiaries.bansos_provinsi' => 'BANSOS PROVINSI',
+    'type.beneficiaries.dana_desa' => 'DANA DESA',
+    'type.beneficiaries.bansos_kabkota' => 'BANSOS KABUPATEN / KOTA',
+
+    'source.beneficiaries.kemensos' => 'Kementerian Sosial',
+    'source.beneficiaries.apbdpemprovjabar' => 'APBD Pemdaprov Jabar',
+    'source.beneficiaries.apbdkotajabar' => 'APBD Kota / Kab Jabar',
+    'source.beneficiaries.kemendes' => 'Kementerian Desa, PDT dan Transmigrasi',
+
+    'beneficiaries.incomplete_address' => 'Alamat Tidak Lengkap',
 ];

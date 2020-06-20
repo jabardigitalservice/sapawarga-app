@@ -5,6 +5,7 @@ use yii\web\GroupUrlRule;
 
 return [
     'ping' => 'site/ping',
+    'storage/version.json' => 'site/storage',
     'v1/cron/broadcasts' => 'v1/broadcast-cron',
     [
         'class' => 'yii\rest\UrlRule',
@@ -399,6 +400,149 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+            '{nik}' => '<nik:\w+>',
+            '{kk}' => '<kk:\w+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET check-nik' => 'check-nik',
+            'OPTIONS check-nik' => 'options',
+            'GET check-kk' => 'check-kk',
+            'OPTIONS check-kk' => 'options',
+            'GET check-address' => 'check-address',
+            'OPTIONS check-address' => 'options',
+            'GET dashboard-list' => 'dashboard-list',
+            'OPTIONS dashboard-list' => 'options',
+            'GET dashboard-summary' => 'dashboard-summary',
+            'OPTIONS dashboard-summary' => 'options',
+            'GET bnba-tahap-satu-list' => 'bnba-tahap-satu-list',
+            'OPTIONS bnba-tahap-satu-list' => 'options',
+            'GET approval' => 'approval-list',
+            'OPTIONS approval' => 'options',
+            'POST approval/{id}' => 'approval',
+            'OPTIONS approval/{id}' => 'options',
+            'POST bulk-approval' => 'bulk-approval',
+            'OPTIONS bulk-approval' => 'options',
+            'GET approval-dashboard' => 'approval-dashboard',
+            'OPTIONS approval-dashboard' => 'options',
+            'GET current-tahap' => 'current-tahap',
+            'OPTIONS current-tahap' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-bnba-tahap-satu',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+            '{nik}' => '<nik:\w+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-verval-upload',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'POST upload' => 'upload',
+            'OPTIONS upload' => 'options',
+        ]
+    ],
+    'GET v1/beneficiaries/download' => 'v1/beneficiaries-download/download',
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-bnba',
+        'pluralize' => false,
+        'extraPatterns' => [
+            'GET download' => 'download',
+            'GET monitoring' => 'monitoring',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-complain',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+        ]
+    ],
+    'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',
+    'GET v1/beneficiaries/allocation/<id:\d+>' => 'v1/beneficiaries-allocation/view',
+    'GET v1/bansos/upload' => 'v1/bansos-upload/index',
+    'POST v1/bansos/upload' => 'v1/bansos-upload/upload',
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/dinsos-job-type',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+    ],
+
+    //  For Public Route
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-bnba',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
+            'GET statistics-by-type' => 'statistics-by-type',
+            'OPTIONS statistics-by-type' => 'options',
+            'GET statistics-by-area' => 'statistics-by-area',
+            'OPTIONS statistics-by-area' => 'options',
+            'GET statistics-update' => 'statistics-update',
+            'OPTIONS statistics-update' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/beneficiaries-complain',
+        'pluralize' => false,
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/pub/area',
+        'pluralize' => true,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options'
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/otp',
         'pluralize' => false,
         'extraPatterns' => [
@@ -409,5 +553,5 @@ return [
             'POST verify' => 'verify',
             'OPTIONS verify' => 'options',
         ]
-    ],
+    ]
 ];
