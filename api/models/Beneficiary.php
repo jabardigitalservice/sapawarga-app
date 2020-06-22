@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\BeneficiaryHelper;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
@@ -11,7 +12,6 @@ use yii\base\DynamicModel;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -394,6 +394,17 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         $nikModel->addRule('nik', NikValidator::class);
 
         return (int)$nikModel->validate();
+    }
+
+    /** @inheritdoc */
+    public function beforeSave($insert)
+    {
+        // TODO modify both status_verification and current tahap
+        $currentTahap = BeneficiaryHelper::getCurrentTahap();
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($currentTahap['current_tahap_verval']);
+        $this["{$statusVerificationColumn}"] = $this->status_verification;
+
+        return parent::beforeSave($insert);
     }
 
     /**
