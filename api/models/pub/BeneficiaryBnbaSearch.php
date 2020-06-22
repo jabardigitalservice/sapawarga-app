@@ -39,7 +39,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['lapangan_usaha' => Arr::get($params, 'lapangan_usaha')]);
         $query->andFilterWhere(['id_tipe_bansos' => Arr::get($params, 'id_tipe_bansos')]);
-        $query->andFilterWhere(['tahap' => Arr::get($params, 'tahap_bantuan')]);
+        $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
 
         return $this->getQueryAll($query, $params);
     }
