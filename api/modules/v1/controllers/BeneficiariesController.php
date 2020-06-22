@@ -37,6 +37,9 @@ class BeneficiariesController extends ActiveController
 
     protected function behaviorAccess($behaviors)
     {
+        // add optional authentication for public endpoints
+        $behaviors['authenticator']['optional'] = ['current-tahap'];
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -51,6 +54,11 @@ class BeneficiariesController extends ActiveController
                     'allow' => true,
                     'actions' => ['approval', 'bulk-approval', 'dashboard-approval'],
                     'roles' => ['admin', 'staffKabkota', 'staffKec', 'staffKel'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['current-tahap'],
+                    'roles' => ['?'],
                 ],
             ],
         ];
