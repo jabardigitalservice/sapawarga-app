@@ -2,7 +2,6 @@
 
 namespace app\modules\v1\controllers;
 
-use app\components\ModelHelper;
 use app\filters\auth\HttpBearerAuth;
 use app\models\User;
 use app\models\UserMessage;
@@ -186,7 +185,6 @@ class UserMessageController extends ActiveController
         UserMessage::updateAll(
             [
                 'status' => UserMessage::STATUS_DELETED,
-                'updated_by' => ModelHelper::getLoggedInUserId(),
                 'updated_at' => time(),
             ],
             ['in', 'id', $deletedIds]
