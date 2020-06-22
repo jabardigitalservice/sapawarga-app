@@ -3,6 +3,7 @@
 namespace app\modules\v1\controllers;
 
 use app\components\BeneficiaryHelper;
+use app\components\ModelHelper;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\beneficiary\BeneficiaryApproval;
@@ -899,9 +900,17 @@ class BeneficiariesController extends ActiveController
         );
 
         if ($newStatusVerification && $ids) {
+            $currentTahap = BeneficiaryHelper::getCurrentTahap();
+            $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($currentTahap['current_tahap_verval']);
+
             // bulk action
             Beneficiary::updateAll(
-                ['status_verification' => $newStatusVerification],
+                [
+                    'status_verification' => $newStatusVerification,
+                    "{$statusVerificationColumn}" => $newStatusVerification,
+                    'updated_by' => ModelHelper::getLoggedInUserId(),
+                    'updated_at' => time(),
+                ],
                 [   'and',
                     ['=', 'status', Beneficiary::STATUS_ACTIVE],
                     ['in', 'id', $ids],

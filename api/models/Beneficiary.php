@@ -399,7 +399,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     /** @inheritdoc */
     public function beforeSave($insert)
     {
-        // TODO modify both status_verification and current tahap
         $currentTahap = BeneficiaryHelper::getCurrentTahap();
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($currentTahap['current_tahap_verval']);
         $this["{$statusVerificationColumn}"] = $this->status_verification;
