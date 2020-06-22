@@ -79,16 +79,21 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
+        if (isset($params['tahap_bantuan'])) {
+            $query_params['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
+        } else {
+            $data = (new \yii\db\Query())
+            ->from('beneficiaries_current_tahap')
+            ->all();
+
+            if (count($data)) {
+                $query_params['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
+            }
+        }
         if ($user->can('staffKabkota')) {
             $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $query_params['kode_kab'] = $parent_area->code_bps;
-            if (isset($params['kode_kec'])) {
-                $query_params['kode_kec'] = explode(',', $params['kode_kec']);
-            }
         } elseif ($user->can('staffProv') || $user->can('admin')) {
-            if (isset($params['kode_kec'])) {
-                $query_params['kode_kec'] = explode(',', $params['kode_kec']);
-            }
             if (isset($params['kode_kab'])) {
                 $query_params['kode_kab'] = explode(',', $params['kode_kab']);
             }
@@ -107,16 +112,6 @@ class BeneficiariesBnbaController extends ActiveController
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
-        // handler utk row dengan kolom kode_kec kosong
-        if (isset($query_params['kode_kec'])) {
-            $null_value_pos = array_search('0', $query_params['kode_kec']);
-            if ($null_value_pos !== false) {
-                // replace 0 with '' and null
-                unset($query_params['kode_kec'][$null_value_pos]);
-                array_push($query_params['kode_kec'], '', null);
-            }
-        }
-
         // export bnba
         $id = Yii::$app->queue->push(new ExportBnbaJob([
             'params' => $query_params,
@@ -132,6 +127,19 @@ class BeneficiariesBnbaController extends ActiveController
 
         $params = Yii::$app->request->getQueryParams();
 
+        $tahap_bantuan = '';
+        if (isset($params['tahap_bantuan'])) {
+            $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $params['tahap_bantuan']);
+        } else {
+            $data = (new \yii\db\Query())
+            ->from('beneficiaries_current_tahap')
+            ->all();
+
+            if (count($data)) {
+                $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $data[0]['current_tahap_bnba']);
+            }
+        }
+
         $last_updated_subquery = <<<SQL
             (SELECT MAX(updated_at)
             FROM bansos_bnba_upload_histories
@@ -144,8 +152,8 @@ SQL;
             'id',
             'name',
             'code_bps',
-            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50'),
-            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10'),
+            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50' . $tahap_bantuan),
+            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10' . $tahap_bantuan),
           ])
           ->from('areas')
           ->where(['areas.depth' => 2 ])

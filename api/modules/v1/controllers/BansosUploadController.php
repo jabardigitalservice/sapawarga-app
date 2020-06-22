@@ -147,6 +147,15 @@ class BansosUploadController extends ActiveController implements ActiveStatus
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
+        // get current tahapan
+        $current_tahap = (new \yii\db\Query())
+        ->from('beneficiaries_current_tahap')
+        ->all();
+
+        if (count($current_tahap) <= 0) {
+            throw new \yii\base\InvalidValueException;
+        }
+
         $record = [
             'user_id'           => $user->id,
             'bansos_type'       => $type,
@@ -159,6 +168,7 @@ class BansosUploadController extends ActiveController implements ActiveStatus
             'updated_at'        => time(),
             'created_by'        => $user->id,
             'updated_by'        => $user->id,
+            'tahap_bantuan'     => $current_tahap[0]['current_tahap_bnba'],
         ];
 
         Yii::$app->db->createCommand()->insert('bansos_bnba_upload_histories', $record)->execute();
