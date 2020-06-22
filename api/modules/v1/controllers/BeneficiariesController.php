@@ -2,6 +2,7 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\BeneficiaryHelper;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\beneficiary\BeneficiaryApproval;
@@ -841,16 +842,7 @@ class BeneficiariesController extends ActiveController
 
     public function actionCurrentTahap()
     {
-        $data = (new \yii\db\Query())
-        ->from('beneficiaries_current_tahap')
-        ->all();
-
-        if (count($data) <= 0) {
-            return null;
-        }
-
-        unset($data[0]['id']);
-        return $data[0];
+        return BeneficiaryHelper::getCurrentTahap();
     }
 
      /**
