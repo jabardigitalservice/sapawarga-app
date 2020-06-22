@@ -2,6 +2,7 @@
 
 namespace app\models\pub;
 
+use app\components\BeneficiaryHelper;
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
@@ -24,22 +25,6 @@ class BeneficiarySearch extends Beneficiary
     }
 
     /**
-     * Determines column to be used as status_verification, depending on $tahap paramter value
-     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
-     *
-     * @param integer $tahap
-     * @return string
-     */
-    public function getStatusVerificationColumn($tahap)
-    {
-        $result = 'status_verification';
-        if ($tahap) {
-            $result = "tahap_{$tahap}_verval";
-        }
-        return $result;
-    }
-
-    /**
      * Creates data provider instance with search query applied
      *
      * @param array $params
@@ -48,7 +33,7 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
-        $this->statusVerificationColumn = $this->getStatusVerificationColumn($this->tahap);
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
 
@@ -79,7 +64,7 @@ class BeneficiarySearch extends Beneficiary
     {
         $conditional = '';
         $paramsSql = [':status' => Beneficiary::STATUS_ACTIVE];
-        $this->statusVerificationColumn = $this->getStatusVerificationColumn($this->tahap);
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         // Filtering
         if (Arr::get($params, 'domicile_kabkota_bps_id')) {

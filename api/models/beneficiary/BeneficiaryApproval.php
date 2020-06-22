@@ -3,7 +3,7 @@
 namespace app\models\beneficiary;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use app\components\BeneficiaryHelper;
 use app\models\Area;
 use app\models\Beneficiary;
 
@@ -71,7 +71,7 @@ class BeneficiaryApproval extends Beneficiary
     public function getDashboardApproval($params)
     {
         // get column name for status_verification
-        $this->statusVerificationColumn = $this->getStatusVerificationColumn($this->tahap);
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         // get params, converting area_id to BPS code
         $type = Arr::get($params, 'type');
@@ -113,21 +113,5 @@ class BeneficiaryApproval extends Beneficiary
         $model->pending = intval($counts[0]['pending']);
         $model->total = $model->approved + $model->rejected + $model->pending;
         return $model;
-    }
-
-    /**
-     * Determines column to be used as status_verification, depending on $tahap paramter value
-     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
-     *
-     * @param integer $tahap
-     * @return string
-     */
-    public function getStatusVerificationColumn($tahap)
-    {
-        $result = 'status_verification';
-        if ($tahap) {
-            $result = "tahap_{$tahap}_verval";
-        }
-        return $result;
     }
 }

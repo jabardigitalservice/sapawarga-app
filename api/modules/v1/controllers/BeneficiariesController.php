@@ -355,7 +355,7 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $statusVerificationColumn = $this->getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
         $transformCount = function ($lists, $statusVerificationColumn) {
             $status_maps = [
@@ -497,7 +497,7 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $statusVerificationColumn = $this->getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
         $transformCount = function ($lists) use ($statusVerificationColumn) {
             $status_maps = [
@@ -922,21 +922,5 @@ class BeneficiariesController extends ActiveController
         $response->setStatusCode(200);
 
         return 'ok';
-    }
-
-    /**
-     * Determines column to be used as status_verification, depending on $tahap paramter value
-     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
-     *
-     * @param integer $tahap
-     * @return string
-     */
-    public function getStatusVerificationColumn($tahap)
-    {
-        $result = 'status_verification';
-        if ($tahap) {
-            $result = "tahap_{$tahap}_verval";
-        }
-        return $result;
     }
 }
