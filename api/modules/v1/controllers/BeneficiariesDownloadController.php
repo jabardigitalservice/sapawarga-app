@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers;
 
 use app\models\Area;
 use app\models\Beneficiary;
+use app\models\BansosBeneficiariesDownloadHistory;
 use Yii;
 use yii\db\Query;
 use yii\data\ArrayDataProvider;
@@ -100,12 +101,48 @@ class BeneficiariesDownloadController extends ActiveController
             }
         }
 
+        $job_history = new BansosBeneficiariesDownloadHistory;
+        $job_history->user_id = $user->id;
+        $job_history->params = $query_params;
+        $job_history->row_count = $job_history->countAffectedRows();
+        $job_history->save();
+
         // export bnba
         $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
             'params' => $query_params,
             'user_id' => $user->id,
+            'history_id' => $job_history->id,
         ]));
 
-        return [ 'job_id' => $id ];
+        return [ 
+          'history_id' => $job_history->id,
+        ];
+    }
+
+    public function actionDownloadStatus($history_id=null)
+    {
+        if ($history_id != null) {
+            $result = BansosBeneficiariesDownloadHistory::findOne($history_id);
+            if (empty($result)) {
+                throw new NotFoundHttpException();
+            } else {
+                return ArrayHelper::toArray($result, [
+                  'app\models\BansosBeneficiariesDownloadHistory' => array_keys($result->fields()) + [
+                      'aggregate' => function($job_history) {
+                          return $job_history->getAggregateRowProgress();
+                      },
+                      'waiting_jobs' => function($job_history) {
+                          return $job_history->countJobInLine();
+                      },
+                  ],
+                ]);
+            }
+        } else {
+            $user = Yii::$app->user;
+
+            return BansosBeneficiariesDownloadHistory::find()->where([
+                'user_id' => $user->id, 
+            ])->all();
+        }
     }
 }
