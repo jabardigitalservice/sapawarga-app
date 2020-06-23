@@ -41,7 +41,7 @@ class BeneficiariesBnbaController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['download', 'summary'],
+            'only' => ['index', 'view', 'download', 'summary'],
             'rules' => [
                 [
                     'allow' => true,
@@ -50,7 +50,7 @@ class BeneficiariesBnbaController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['download', 'download-status', 'summary'],
+                    'actions' => ['index', 'view', 'download', 'download-status', 'summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
                 ],
             ],
@@ -65,9 +65,10 @@ class BeneficiariesBnbaController extends ActiveController
 
         // Override Actions
         unset($actions['create']);
-        unset($actions['view']);
         unset($actions['update']);
         unset($actions['delete']);
+
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
 
         return $actions;
     }
@@ -107,7 +108,6 @@ class BeneficiariesBnbaController extends ActiveController
         foreach ($beneficiaryTypes as $key => $val) {
             foreach ($search as $value) {
                 $data[$val] = ($key == $value['id_tipe_bansos']) ? intval($value['total']) : 0;
-
             }
         }
 
@@ -273,5 +273,30 @@ SQL;
         ]);
 
         return $provider;
+    }
+
+    public function prepareDataProvider()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $user = Yii::$app->user;
+        $authUserModel = $user->identity;
+
+        $search = new BeneficiaryBnbaTahapSatuSearch();
+        $search->userRole = $authUserModel->role;
+
+        if ($user->can('staffKabkota')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
+        } elseif ($user->can('staffKec')) {
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['kode_kec'] = $area->code_bps;
+        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
+            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+            $params['kode_kel'] = $area->code_bps;
+            $params['rw'] = $authUserModel->rw;
+        }
+
+        return $search->search($params);
     }
 }
