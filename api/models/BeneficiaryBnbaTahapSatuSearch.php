@@ -29,14 +29,14 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['no_kk' => Arr::get($params, 'no_kk')]);
-        $query->andFilterWhere(['rw' => ltrim(Arr::get($params, 'rw'), '0')]);
-        $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
-        $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
 
+        $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kode_kab')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kode_kec')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kode_kel')]);
-        $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
+        $query->andFilterWhere(['rw' => ltrim(Arr::get($params, 'rw'), '0')]);
+        $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
 
         return $this->getQueryAll($query, $params);
     }
