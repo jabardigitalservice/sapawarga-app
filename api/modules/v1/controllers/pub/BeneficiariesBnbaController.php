@@ -95,6 +95,7 @@ class BeneficiariesBnbaController extends ActiveController
         if (empty($type)) {
             $search = (new \yii\db\Query())
                     ->from('beneficiaries_bnba_statistic_type')
+                    ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
             $search = new BeneficiaryBnbaSearch();
@@ -177,7 +178,7 @@ class BeneficiariesBnbaController extends ActiveController
         if ($params['area_type'] == 'kode_kab') {
             $search = (new \yii\db\Query())
                     ->from('beneficiaries_bnba_statistic_area')
-                    ->where(['=', 'tahap_bantuan', $tahap])
+                    ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
             $search = new BeneficiaryBnbaSearch();

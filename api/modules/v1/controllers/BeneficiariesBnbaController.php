@@ -171,7 +171,7 @@ class BeneficiariesBnbaController extends ActiveController
         $job_history->job_id = $id;
         $job_history->save();
 
-        return [ 
+        return [
           'history_id' => $job_history->id,
         ];
     }
@@ -198,7 +198,7 @@ class BeneficiariesBnbaController extends ActiveController
             $user = Yii::$app->user;
 
             return BansosBnbaDownloadHistory::find()->where([
-                'user_id' => $user->id, 
+                'user_id' => $user->id,
             ])->all();
         }
     }
@@ -206,7 +206,6 @@ class BeneficiariesBnbaController extends ActiveController
     public function actionMonitoring()
     {
         $user = Yii::$app->user;
-
         $params = Yii::$app->request->getQueryParams();
 
         $tahap_bantuan = '';
@@ -228,7 +227,7 @@ class BeneficiariesBnbaController extends ActiveController
             WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps
               %s
             )
-        SQL;
+SQL;
         $query = (new Query())
           ->select([
             'id',
