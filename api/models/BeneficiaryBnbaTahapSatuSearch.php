@@ -11,8 +11,6 @@ use yii\data\ActiveDataProvider;
  */
 class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
 {
-    const SCENARIO_LIST_USER = 'list-user';
-
     public $userRole;
 
     /**
@@ -40,16 +38,27 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kode_kel')]);
         $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
 
-        if ($this->scenario === self::SCENARIO_LIST_USER) {
-            return $this->getQueryListUser($query, $params);
-        }
-
         return $this->getQueryAll($query, $params);
     }
 
-    protected function getQueryListUser($query, $params)
+    public function getSummaryByType($params)
     {
-        return $this->getQueryAll($query, $params);
+        $query = (new \yii\db\Query())
+            ->select(['id_tipe_bansos', 'COUNT(id) AS total'])
+            ->from('beneficiaries_bnba_tahap_1')
+            ->andWhere(['or',
+                ['is_deleted' => null],
+                ['is_deleted' => 0]
+            ])
+            ->groupBy(['id_tipe_bansos']);
+
+        // Filtering Area
+        $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
+        $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
+
+        return $query->createCommand()->queryAll();
     }
 
     protected function getQueryAll($query, $params)
