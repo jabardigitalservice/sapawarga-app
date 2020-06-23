@@ -3,6 +3,7 @@
 namespace app\modules\v1\controllers;
 
 use app\models\Area;
+use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
 use app\validator\NikRateLimitValidator;
@@ -15,7 +16,7 @@ use yii\data\ArrayDataProvider;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
 use yii\web\HttpException;
-use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
@@ -44,14 +45,14 @@ class BeneficiariesBnbaController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['download', 'summary'],
-                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
+                    'actions' => ['monitoring'],
+                    'roles' => ['admin', 'staffProv'],
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['monitoring'],
-                    'roles' => ['admin', 'staffProv'],
-                ]
+                    'actions' => ['download', 'download-status', 'summary'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
+                ],
             ],
         ];
 
@@ -154,13 +155,52 @@ class BeneficiariesBnbaController extends ActiveController
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
+        $job_history = new BansosBnbaDownloadHistory;
+        $job_history->user_id = $user->id;
+        $job_history->params = $query_params;
+        $job_history->row_count = $job_history->countAffectedRows();
+        $job_history->save();
+
         // export bnba
         $id = Yii::$app->queue->push(new ExportBnbaJob([
             'params' => $query_params,
             'user_id' => $user->id,
+            'history_id' => $job_history->id,
         ]));
 
-        return [ 'job_id' => $id ];
+        $job_history->job_id = $id;
+        $job_history->save();
+
+        return [ 
+          'history_id' => $job_history->id,
+        ];
+    }
+
+    public function actionDownloadStatus($history_id=null)
+    {
+        if ($history_id != null) {
+            $result = BansosBnbaDownloadHistory::findOne($history_id);
+            if (empty($result)) {
+                throw new NotFoundHttpException();
+            } else {
+                return ArrayHelper::toArray($result, [
+                  'app\models\BansosBnbaDownloadHistory' => array_keys($result->fields()) + [
+                      'aggregate' => function($job_history) {
+                          return $job_history->getAggregateRowProgress();
+                      },
+                      'waiting_jobs' => function($job_history) {
+                          return $job_history->countJobInLine();
+                      },
+                  ],
+                ]);
+            }
+        } else {
+            $user = Yii::$app->user;
+
+            return BansosBnbaDownloadHistory::find()->where([
+                'user_id' => $user->id, 
+            ])->all();
+        }
     }
 
     public function actionMonitoring()

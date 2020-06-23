@@ -457,6 +457,8 @@ return [
         ]
     ],
     'GET v1/beneficiaries/download' => 'v1/beneficiaries-download/download',
+    'GET v1/beneficiaries/download-status' => 'v1/beneficiaries-download/download-status',
+    'GET v1/beneficiaries/download-status/<history_id:\d+>' => 'v1/beneficiaries-download/download-status',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba',
@@ -469,6 +471,8 @@ return [
             'OPTIONS summary' => 'options',
             'GET download' => 'download',
             'GET monitoring' => 'monitoring',
+            'GET download-status' => 'download-status',
+            'GET download-status/<history_id:\d+>' => 'download-status',
         ]
     ],
     [
