@@ -22,6 +22,8 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
     public function execute($queue)
     {
+        \Yii::$app->language = 'id-ID';
+
         $job_history = BansosBnbaDownloadHistory::findOne($this->history_id);
         $job_history->start_at = time();
         $job_history->save();
@@ -71,8 +73,11 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
             'penghasilan_setelah_covid',
             'keterangan',
         ];
+        $column_headers = array_merge($columns, ['Pintu Bantuan']);
+        $column_values = array_merge($columns, ['bansostype']);
+
         /** Shortcut: add a row from an array of values */
-        $rowFromValues = WriterEntityFactory::createRowFromArray($columns);
+        $rowFromValues = WriterEntityFactory::createRowFromArray($column_headers);
         $writer->addRow($rowFromValues);
 
         // create unbuffered database connection to avoid MySQL batching limitation
@@ -90,7 +95,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         foreach ($query->batch($batch_size, $unbuffered_db) as $list_bnba)
         {
             $data = ArrayHelper::toArray($list_bnba, [
-                'app\models\BeneficiaryBnbaTahapSatu' => $columns,
+                'app\models\BeneficiaryBnbaTahapSatu' => $column_values,
             ]);
 
             foreach ($data as $row) {
