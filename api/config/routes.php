@@ -433,18 +433,6 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
-        'controller' => 'v1/beneficiaries-bnba-tahap-satu',
-        'pluralize' => false,
-        'tokens' => [
-            '{id}' => '<id:\d+>',
-            '{nik}' => '<nik:\w+>',
-        ],
-        'extraPatterns' => [
-            'OPTIONS {id}' => 'options',
-        ]
-    ],
-    [
-        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-verval-upload',
         'pluralize' => false,
         'tokens' => [
