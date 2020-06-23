@@ -441,8 +441,6 @@ return [
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET summary' => 'summary',
-            'OPTIONS summary' => 'options',
         ]
     ],
     [
@@ -463,7 +461,12 @@ return [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba',
         'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
         'extraPatterns' => [
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
             'GET download' => 'download',
             'GET monitoring' => 'monitoring',
         ]

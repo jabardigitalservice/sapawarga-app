@@ -40,11 +40,11 @@ class BeneficiariesBnbaController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['download'],
+            'only' => ['download', 'summary'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['download'],
+                    'actions' => ['download', 'summary'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
                 ],
                 [
@@ -69,6 +69,48 @@ class BeneficiariesBnbaController extends ActiveController
         unset($actions['delete']);
 
         return $actions;
+    }
+
+    public function actionSummary()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $kodeKab = Arr::get($params, 'kode_kab');
+        $tahap = Arr::get($params, 'tahap');
+
+        // $type is empty means API call from homepage
+        if (empty($kodeKab)) {
+            $search =  (new \yii\db\Query())
+                ->select(['id_tipe_bansos', 'SUM(total) AS total'])
+                ->from('beneficiaries_bnba_statistic_type')
+                ->where(['tahap_bantuan' => $tahap])
+                ->groupBy(['id_tipe_bansos'])
+                ->all();
+        } else {
+            $search = new BeneficiaryBnbaTahapSatuSearch();
+            $search = $search->getSummaryByType($params);
+        }
+
+        // Reformat result
+        $beneficiaryTypes = [
+            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
+            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
+            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
+            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
+            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
+            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
+            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
+            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
+        ];
+
+        $data = [];
+        foreach ($beneficiaryTypes as $key => $val) {
+            foreach ($search as $value) {
+                $data[$val] = ($key == $value['id_tipe_bansos']) ? intval($value['total']) : 0;
+
+            }
+        }
+
+        return $data;
     }
 
     public function actionDownload()
@@ -143,10 +185,10 @@ class BeneficiariesBnbaController extends ActiveController
         $last_updated_subquery = <<<SQL
             (SELECT MAX(updated_at)
             FROM bansos_bnba_upload_histories
-            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps  
+            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps
               %s
             )
-SQL;
+        SQL;
         $query = (new Query())
           ->select([
             'id',
@@ -156,8 +198,7 @@ SQL;
             'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10' . $tahap_bantuan),
           ])
           ->from('areas')
-          ->where(['areas.depth' => 2 ])
-          ;
+          ->where(['areas.depth' => 2 ]);
 
         if (isset($params['kode_kab'])) {
             $query = $query->andWhere([ 'areas.code_bps' => explode(',', $params['kode_kab']) ]);
