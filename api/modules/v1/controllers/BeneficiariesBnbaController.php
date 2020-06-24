@@ -282,8 +282,12 @@ SQL;
     public function prepareDataProvider()
     {
         $params = Yii::$app->request->getQueryParams();
-
         $params = $this->getAreaByUser($params);
+
+        $user = Yii::$app->user;
+        $authUserModel = $user->identity;
+        $search = new BeneficiaryBnbaTahapSatuSearch();
+        $search->userRole = $authUserModel->role;
 
         return $search->search($params);
     }
