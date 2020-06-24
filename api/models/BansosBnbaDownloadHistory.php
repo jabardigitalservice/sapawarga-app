@@ -33,7 +33,7 @@ class BansosBnbaDownloadHistory extends ActiveRecord
 
     /** Count number of other queue job waiting in line before this job
      *
-     * @return int Number of waiting jobs 
+     * @return int Number of waiting jobs
      */
     public function countJobInLine()
     {
@@ -45,11 +45,11 @@ class BansosBnbaDownloadHistory extends ActiveRecord
             ->count();
     }
 
-    /** Get the aggregate in-progress row count accross all jobs in queue line 
+    /** Get the aggregate in-progress row count accross all jobs in queue line
      *
      * @return Dict of int 'row_count' & 'row_processed'
      */
-    public function getAggregateRowProgress($tag=null)
+    public function getAggregateRowProgress($tag = null)
     {
         $histories = self::find()
             ->where(['<','id',$this->id])
@@ -65,8 +65,9 @@ class BansosBnbaDownloadHistory extends ActiveRecord
         foreach ($histories as $history) {
             $total_row_count += $history->row_count;
             $total_row_processed += $history->row_processed;
-            if (!empty($history->start_at)) 
+            if (!empty($history->start_at)) {
                 $start_time = $history->start_at;
+            }
         }
 
         return compact(
@@ -79,7 +80,7 @@ class BansosBnbaDownloadHistory extends ActiveRecord
 
     /** Count affected rows in this queue job
      *
-     * @return int Number of affected rows 
+     * @return int Number of affected rows
      */
     public function countAffectedRows()
     {
@@ -87,5 +88,4 @@ class BansosBnbaDownloadHistory extends ActiveRecord
             ->where($this->params)
             ->count();
     }
-
 }
