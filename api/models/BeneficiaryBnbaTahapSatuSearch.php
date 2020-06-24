@@ -52,9 +52,9 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         // Filtering Area
         $query->andWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
         $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
-        $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
-        $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
-        $query->andFilterWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kode_kab')]);
+        $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kode_kec')]);
+        $query->andFilterWhere(['=', 'kode_kel', Arr::get($params, 'kode_kel')]);
 
         return $query->createCommand()->queryAll();
     }

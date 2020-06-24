@@ -76,6 +76,8 @@ class BeneficiariesBnbaController extends ActiveController
     public function actionSummary()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = $this->getAreaByUser($params);
+
         $kodeKab = Arr::get($params, 'kode_kab');
         $tahap = Arr::get($params, 'tahap');
 
@@ -105,7 +107,9 @@ class BeneficiariesBnbaController extends ActiveController
         ];
 
         $data = [];
+
         foreach ($beneficiaryTypes as $key => $val) {
+            $data[$val] = 0;
             foreach ($search as $value) {
                 $data[$val] = ($key == $value['id_tipe_bansos']) ? intval($value['total']) : 0;
             }
@@ -279,6 +283,13 @@ SQL;
     {
         $params = Yii::$app->request->getQueryParams();
 
+        $params = $this->getAreaByUser($params);
+
+        return $search->search($params);
+    }
+
+    public function getAreaByUser($params)
+    {
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
@@ -289,14 +300,21 @@ SQL;
             $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $params['kode_kab'] = $area->code_bps;
         } elseif ($user->can('staffKec')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
             $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
             $params['kode_kec'] = $area->code_bps;
         } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['kode_kec'] = $area->code_bps;
             $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
             $params['kode_kel'] = $area->code_bps;
             $params['rw'] = $authUserModel->rw;
         }
 
-        return $search->search($params);
+        return $params;
     }
+
 }
