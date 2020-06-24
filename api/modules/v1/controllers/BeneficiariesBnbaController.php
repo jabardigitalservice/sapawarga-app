@@ -176,7 +176,7 @@ class BeneficiariesBnbaController extends ActiveController
         ];
     }
 
-    public function actionDownloadStatus($history_id=null)
+    public function actionDownloadStatus($history_id = null)
     {
         if ($history_id != null) {
             $result = BansosBnbaDownloadHistory::findOne($history_id);
@@ -185,10 +185,10 @@ class BeneficiariesBnbaController extends ActiveController
             } else {
                 return ArrayHelper::toArray($result, [
                   'app\models\BansosBnbaDownloadHistory' => array_keys($result->fields()) + [
-                      'aggregate' => function($job_history) {
+                      'aggregate' => function ($job_history) {
                           return $job_history->getAggregateRowProgress();
                       },
-                      'waiting_jobs' => function($job_history) {
+                      'waiting_jobs' => function ($job_history) {
                           return $job_history->countJobInLine();
                       },
                   ],

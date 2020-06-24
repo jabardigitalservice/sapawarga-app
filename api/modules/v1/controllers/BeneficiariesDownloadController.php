@@ -114,12 +114,12 @@ class BeneficiariesDownloadController extends ActiveController
             'history_id' => $job_history->id,
         ]));
 
-        return [ 
+        return [
           'history_id' => $job_history->id,
         ];
     }
 
-    public function actionDownloadStatus($history_id=null)
+    public function actionDownloadStatus($history_id = null)
     {
         if ($history_id != null) {
             $result = BansosBeneficiariesDownloadHistory::findOne($history_id);
@@ -128,10 +128,10 @@ class BeneficiariesDownloadController extends ActiveController
             } else {
                 return ArrayHelper::toArray($result, [
                   'app\models\BansosBeneficiariesDownloadHistory' => array_keys($result->fields()) + [
-                      'aggregate' => function($job_history) {
+                      'aggregate' => function ($job_history) {
                           return $job_history->getAggregateRowProgress();
                       },
-                      'waiting_jobs' => function($job_history) {
+                      'waiting_jobs' => function ($job_history) {
                           return $job_history->countJobInLine();
                       },
                   ],
@@ -141,7 +141,7 @@ class BeneficiariesDownloadController extends ActiveController
             $user = Yii::$app->user;
 
             return BansosBeneficiariesDownloadHistory::find()->where([
-                'user_id' => $user->id, 
+                'user_id' => $user->id,
             ])->all();
         }
     }
