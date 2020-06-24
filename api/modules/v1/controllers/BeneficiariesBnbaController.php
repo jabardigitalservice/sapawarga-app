@@ -51,7 +51,7 @@ class BeneficiariesBnbaController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'download', 'download-status', 'summary'],
-                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel'],
                 ],
             ],
         ];
