@@ -2,6 +2,8 @@
 
 namespace app\modules\v1\controllers;
 
+use app\components\BeneficiaryHelper;
+use app\components\ModelHelper;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\beneficiary\BeneficiaryApproval;
@@ -37,6 +39,9 @@ class BeneficiariesController extends ActiveController
 
     protected function behaviorAccess($behaviors)
     {
+        // add optional authentication for public endpoints
+        $behaviors['authenticator']['optional'] = ['current-tahap'];
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -51,6 +56,11 @@ class BeneficiariesController extends ActiveController
                     'allow' => true,
                     'actions' => ['approval', 'bulk-approval', 'dashboard-approval'],
                     'roles' => ['admin', 'staffKabkota', 'staffKec', 'staffKel'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['current-tahap'],
+                    'roles' => ['?'],
                 ],
             ],
         ];
@@ -345,7 +355,7 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $statusVerificationColumn = $this->getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
         $transformCount = function ($lists, $statusVerificationColumn) {
             $status_maps = [
@@ -487,7 +497,7 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $statusVerificationColumn = $this->getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
         $transformCount = function ($lists) use ($statusVerificationColumn) {
             $status_maps = [
@@ -833,16 +843,7 @@ class BeneficiariesController extends ActiveController
 
     public function actionCurrentTahap()
     {
-        $data = (new \yii\db\Query())
-        ->from('beneficiaries_current_tahap')
-        ->all();
-
-        if (count($data) <= 0) {
-            return null;
-        }
-
-        unset($data[0]['id']);
-        return $data[0];
+        return BeneficiaryHelper::getCurrentTahap();
     }
 
      /**
@@ -899,9 +900,17 @@ class BeneficiariesController extends ActiveController
         );
 
         if ($newStatusVerification && $ids) {
+            $currentTahap = BeneficiaryHelper::getCurrentTahap();
+            $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($currentTahap['current_tahap_verval']);
+
             // bulk action
             Beneficiary::updateAll(
-                ['status_verification' => $newStatusVerification],
+                [
+                    'status_verification' => $newStatusVerification,
+                    "{$statusVerificationColumn}" => $newStatusVerification,
+                    'updated_by' => ModelHelper::getLoggedInUserId(),
+                    'updated_at' => time(),
+                ],
                 [   'and',
                     ['=', 'status', Beneficiary::STATUS_ACTIVE],
                     ['in', 'id', $ids],
@@ -913,21 +922,5 @@ class BeneficiariesController extends ActiveController
         $response->setStatusCode(200);
 
         return 'ok';
-    }
-
-    /**
-     * Determines column to be used as status_verification, depending on $tahap paramter value
-     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
-     *
-     * @param integer $tahap
-     * @return string
-     */
-    public function getStatusVerificationColumn($tahap)
-    {
-        $result = 'status_verification';
-        if ($tahap) {
-            $result = "tahap_{$tahap}_verval";
-        }
-        return $result;
     }
 }

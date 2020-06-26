@@ -419,8 +419,6 @@ return [
             'OPTIONS dashboard-list' => 'options',
             'GET dashboard-summary' => 'dashboard-summary',
             'OPTIONS dashboard-summary' => 'options',
-            'GET bnba-tahap-satu-list' => 'bnba-tahap-satu-list',
-            'OPTIONS bnba-tahap-satu-list' => 'options',
             'GET approval' => 'approval-list',
             'OPTIONS approval' => 'options',
             'POST approval/{id}' => 'approval',
@@ -431,20 +429,6 @@ return [
             'OPTIONS approval-dashboard' => 'options',
             'GET current-tahap' => 'current-tahap',
             'OPTIONS current-tahap' => 'options',
-        ]
-    ],
-    [
-        'class' => 'yii\rest\UrlRule',
-        'controller' => 'v1/beneficiaries-bnba-tahap-satu',
-        'pluralize' => false,
-        'tokens' => [
-            '{id}' => '<id:\d+>',
-            '{nik}' => '<nik:\w+>',
-        ],
-        'extraPatterns' => [
-            'OPTIONS {id}' => 'options',
-            'GET summary' => 'summary',
-            'OPTIONS summary' => 'options',
         ]
     ],
     [
@@ -461,13 +445,22 @@ return [
         ]
     ],
     'GET v1/beneficiaries/download' => 'v1/beneficiaries-download/download',
+    'GET v1/beneficiaries/download-status' => 'v1/beneficiaries-download/download-status',
+    'GET v1/beneficiaries/download-status/<history_id:\d+>' => 'v1/beneficiaries-download/download-status',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba',
         'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
         'extraPatterns' => [
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
             'GET download' => 'download',
             'GET monitoring' => 'monitoring',
+            'GET download-status' => 'download-status',
+            'GET download-status/<history_id:\d+>' => 'download-status',
         ]
     ],
     [

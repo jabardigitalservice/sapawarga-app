@@ -183,7 +183,10 @@ class UserMessageController extends ActiveController
 
         // bulk soft-delete
         UserMessage::updateAll(
-            ['status' => UserMessage::STATUS_DELETED],
+            [
+                'status' => UserMessage::STATUS_DELETED,
+                'updated_at' => time(),
+            ],
             ['in', 'id', $deletedIds]
         );
 

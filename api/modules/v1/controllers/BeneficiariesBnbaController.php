@@ -3,6 +3,7 @@
 namespace app\modules\v1\controllers;
 
 use app\models\Area;
+use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
 use app\validator\NikRateLimitValidator;
@@ -15,7 +16,7 @@ use yii\data\ArrayDataProvider;
 use yii\base\DynamicModel;
 use yii\filters\AccessControl;
 use yii\web\HttpException;
-use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
@@ -40,18 +41,18 @@ class BeneficiariesBnbaController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['download'],
+            'only' => ['index', 'view', 'download', 'summary'],
             'rules' => [
-                [
-                    'allow' => true,
-                    'actions' => ['download'],
-                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
-                ],
                 [
                     'allow' => true,
                     'actions' => ['monitoring'],
                     'roles' => ['admin', 'staffProv'],
-                ]
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['index', 'view', 'download', 'download-status', 'summary'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel'],
+                ],
             ],
         ];
 
@@ -64,11 +65,57 @@ class BeneficiariesBnbaController extends ActiveController
 
         // Override Actions
         unset($actions['create']);
-        unset($actions['view']);
         unset($actions['update']);
         unset($actions['delete']);
 
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+
         return $actions;
+    }
+
+    public function actionSummary()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $params = $this->getAreaByUser($params);
+
+        $kodeKab = Arr::get($params, 'kode_kab');
+        $tahap = Arr::get($params, 'tahap');
+
+        // $type is empty means API call from homepage
+        if (empty($kodeKab)) {
+            $search =  (new \yii\db\Query())
+                ->select(['id_tipe_bansos', 'SUM(total) AS total'])
+                ->from('beneficiaries_bnba_statistic_type')
+                ->where(['tahap_bantuan' => $tahap])
+                ->groupBy(['id_tipe_bansos'])
+                ->all();
+        } else {
+            $search = new BeneficiaryBnbaTahapSatuSearch();
+            $search = $search->getSummaryByType($params);
+        }
+
+        // Reformat result
+        $beneficiaryTypes = [
+            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
+            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
+            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
+            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
+            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
+            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
+            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
+            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
+        ];
+
+        $data = [];
+
+        foreach ($beneficiaryTypes as $key => $val) {
+            $data[$val] = 0;
+            foreach ($search as $value) {
+                $data[$val] = ($key == $value['id_tipe_bansos']) ? intval($value['total']) : 0;
+            }
+        }
+
+        return $data;
     }
 
     public function actionDownload()
@@ -79,16 +126,21 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
+        if (isset($params['tahap_bantuan'])) {
+            $query_params['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
+        } else {
+            $data = (new \yii\db\Query())
+            ->from('beneficiaries_current_tahap')
+            ->all();
+
+            if (count($data)) {
+                $query_params['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
+            }
+        }
         if ($user->can('staffKabkota')) {
             $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $query_params['kode_kab'] = $parent_area->code_bps;
-            if (isset($params['kode_kec'])) {
-                $query_params['kode_kec'] = explode(',', $params['kode_kec']);
-            }
         } elseif ($user->can('staffProv') || $user->can('admin')) {
-            if (isset($params['kode_kec'])) {
-                $query_params['kode_kec'] = explode(',', $params['kode_kec']);
-            }
             if (isset($params['kode_kab'])) {
                 $query_params['kode_kab'] = explode(',', $params['kode_kab']);
             }
@@ -107,35 +159,76 @@ class BeneficiariesBnbaController extends ActiveController
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
-        // handler utk row dengan kolom kode_kec kosong
-        if (isset($query_params['kode_kec'])) {
-            $null_value_pos = array_search('0', $query_params['kode_kec']);
-            if ($null_value_pos !== false) {
-                // replace 0 with '' and null
-                unset($query_params['kode_kec'][$null_value_pos]);
-                array_push($query_params['kode_kec'], '', null);
-            }
-        }
+        $job_history = new BansosBnbaDownloadHistory;
+        $job_history->user_id = $user->id;
+        $job_history->params = $query_params;
+        $job_history->row_count = $job_history->countAffectedRows();
+        $job_history->save();
 
         // export bnba
         $id = Yii::$app->queue->push(new ExportBnbaJob([
             'params' => $query_params,
             'user_id' => $user->id,
+            'history_id' => $job_history->id,
         ]));
 
-        return [ 'job_id' => $id ];
+        $job_history->job_id = $id;
+        $job_history->save();
+
+        return [
+          'history_id' => $job_history->id,
+        ];
+    }
+
+    public function actionDownloadStatus($history_id = null)
+    {
+        if ($history_id != null) {
+            $result = BansosBnbaDownloadHistory::findOne($history_id);
+            if (empty($result)) {
+                throw new NotFoundHttpException();
+            } else {
+                return ArrayHelper::toArray($result, [
+                  'app\models\BansosBnbaDownloadHistory' => array_keys($result->fields()) + [
+                      'aggregate' => function ($job_history) {
+                          return $job_history->getAggregateRowProgress();
+                      },
+                      'waiting_jobs' => function ($job_history) {
+                          return $job_history->countJobInLine();
+                      },
+                  ],
+                ]);
+            }
+        } else {
+            $user = Yii::$app->user;
+
+            return BansosBnbaDownloadHistory::find()->where([
+                'user_id' => $user->id,
+            ])->all();
+        }
     }
 
     public function actionMonitoring()
     {
         $user = Yii::$app->user;
-
         $params = Yii::$app->request->getQueryParams();
+
+        $tahap_bantuan = '';
+        if (isset($params['tahap_bantuan'])) {
+            $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $params['tahap_bantuan']);
+        } else {
+            $data = (new \yii\db\Query())
+            ->from('beneficiaries_current_tahap')
+            ->all();
+
+            if (count($data)) {
+                $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $data[0]['current_tahap_bnba']);
+            }
+        }
 
         $last_updated_subquery = <<<SQL
             (SELECT MAX(updated_at)
             FROM bansos_bnba_upload_histories
-            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps  
+            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps
               %s
             )
 SQL;
@@ -144,12 +237,11 @@ SQL;
             'id',
             'name',
             'code_bps',
-            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50'),
-            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10'),
+            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50' . $tahap_bantuan),
+            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10' . $tahap_bantuan),
           ])
           ->from('areas')
-          ->where(['areas.depth' => 2 ])
-          ;
+          ->where(['areas.depth' => 2 ]);
 
         if (isset($params['kode_kab'])) {
             $query = $query->andWhere([ 'areas.code_bps' => explode(',', $params['kode_kab']) ]);
@@ -186,4 +278,47 @@ SQL;
 
         return $provider;
     }
+
+    public function prepareDataProvider()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $params = $this->getAreaByUser($params);
+
+        $user = Yii::$app->user;
+        $authUserModel = $user->identity;
+        $search = new BeneficiaryBnbaTahapSatuSearch();
+        $search->userRole = $authUserModel->role;
+
+        return $search->search($params);
+    }
+
+    public function getAreaByUser($params)
+    {
+        $user = Yii::$app->user;
+        $authUserModel = $user->identity;
+
+        $search = new BeneficiaryBnbaTahapSatuSearch();
+        $search->userRole = $authUserModel->role;
+
+        if ($user->can('staffKabkota')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
+        } elseif ($user->can('staffKec')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['kode_kec'] = $area->code_bps;
+        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['kode_kab'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['kode_kec'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+            $params['kode_kel'] = $area->code_bps;
+            $params['rw'] = $authUserModel->rw;
+        }
+
+        return $params;
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\BeneficiaryHelper;
 use app\components\ModelHelper;
 use app\models\beneficiary\BeneficiaryApproval;
 use Illuminate\Support\Arr;
@@ -38,22 +39,6 @@ class BeneficiarySearch extends Beneficiary
     }
 
     /**
-     * Determines column to be used as status_verification, depending on $tahap paramter value
-     * Possible values: status_verification, tahap_1_verval, tahap_2_verval, tahap_3_verval, tahap_4_verval
-     *
-     * @param integer $tahap
-     * @return string
-     */
-    public function getStatusVerificationColumn($tahap)
-    {
-        $result = 'status_verification';
-        if ($tahap) {
-            $result = "tahap_{$tahap}_verval";
-        }
-        return $result;
-    }
-
-    /**
      * Creates data provider instance with search query applied
      *
      * @param array $params
@@ -62,7 +47,7 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
-        $this->statusVerificationColumn = $this->getStatusVerificationColumn($this->tahap);
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
 

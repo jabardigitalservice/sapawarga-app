@@ -139,6 +139,7 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
             'is_pikobar',
             'is_super_clean',
             'is_data_sisa',
+            'tahap_bantuan',
         ];
 
         return $fields;
