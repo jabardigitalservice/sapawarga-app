@@ -18,6 +18,7 @@ use app\models\Beneficiary;
  * @property int $done_at
  * @property string $final_url
  * @property json $params
+ * @property json $errors Encountered error logs
  */
 class BansosBeneficiariesDownloadHistory extends ActiveRecord
 {
@@ -29,6 +30,27 @@ class BansosBeneficiariesDownloadHistory extends ActiveRecord
     public static function tableName()
     {
         return 'bansos_verval_download_histories';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['aggregate'] = function ($model) {
+            return $model->getAggregateRowProgress();
+        };
+        $fields['waiting_jobs'] = function ($model) {
+            return $model->countJobInLine();
+        };
+        unset($fields['errors']);
+        $fields['error'] = function ($model) {
+            return !empty($model->errors) && $model->errors != null;
+        };
+
+        return $fields;
     }
 
     /** Count number of other queue job waiting in line before this job

@@ -7,26 +7,28 @@ use yii\base\BaseObject;
 use yii\queue\RetryableJobInterface;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\User;
-use app\models\BansosBnbaDownloadHistory;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 use League\Flysystem\AdapterInterface;
+use Jdsteam\Sapawarga\Jobs\Concerns\HasJobHistory;
 
 class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 {
+    use HasJobHistory;
+
     public $params;
-    public $user_id;
-    public $history_id;
+    public $userId;
 
     public function execute($queue)
     {
         \Yii::$app->language = 'id-ID';
 
-        $job_history = BansosBnbaDownloadHistory::findOne($this->history_id);
-        $job_history->start_at = time();
-        $job_history->save();
+        $this->jobHistoryClassName = 'app\models\BansosBnbaDownloadHistory';
+        $jobHistory = $this->jobHistory;
+        $jobHistory->start_at = time();
+        $jobHistory->save();
 
         // size of query batch size used during database retrieval
         $batch_size = 1000;
@@ -46,10 +48,10 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         
         // Initial varieble location, filename, path
         $now_date = date('Y-m-d-H-i-s');
-        $file_name = "export-bnba-tahap-1-$now_date.xlsx";
-        $file_path_temp = Yii::getAlias('@app/web') . '/storage/' . $file_name;
+        $fileName = "export-bnba-tahap-1-$now_date.xlsx";
+        $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
 
-        $writer->openToFile($file_path_temp); // write data to a file or to a PHP stream
+        $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
 
         $columns = [
             'id',
@@ -106,28 +108,28 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
             $num_processed += count($data);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
 
-            $job_history->row_processed = $num_processed;
-            $job_history->save();
+            $jobHistory->row_processed = $num_processed;
+            $jobHistory->save();
         }
 
         $writer->close();
         $unbuffered_db->close();
 
-        $job_history->row_processed = $job_history->row_count;
-        $job_history->done_at = time();
-        $job_history->save();
+        $jobHistory->row_processed = $jobHistory->row_count;
+        $jobHistory->done_at = time();
+        $jobHistory->save();
 
         echo "Finished generating export file" . PHP_EOL;
 
         // upload to S3 & send notification email
-        $relative_path = "export-bnba-list/$file_name";
+        $relativePath = "export-bnba-list/$fileName";
         Yii::$app->queue->priority(10)->push(new UploadS3Job([
-            'job_history_class_name' => 'app\models\BansosBnbaDownloadHistory',
-            'relative_path' => $relative_path,
-            'file_path_temp' => $file_path_temp,
-            'user_id' => $this->user_id,
-            'history_id' => $this->history_id,
-            'email_notif_param' => [
+            'jobHistoryClassName' => 'app\models\BansosBnbaDownloadHistory',
+            'relativePath' => $relativePath,
+            'filePathTemp' => $filePathTemp,
+            'userId' => $this->userId,
+            'historyId' => $this->historyId,
+            'emailNotifParam' => [
                 'template' => ['html' => 'email-result-export-list-bnba'],
                 'subject' => 'Notifikasi dari Sapawarga: Hasil export daftar BNBA sudah bisa diunduh!',
             ],
@@ -135,21 +137,21 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
     }
 
-    /* Time To Reserve property. 
-     * ref: https://github.com/yiisoft/yii2-queue/blob/master/docs/guide/retryable.md#retry-options 
-     * @return int Seconds
+    /**
+     * {@inheritdoc}
      */
     public function getTtr()
     {
         return 60 * 60;
     }
 
-    /** wether current job is still retryable
-     * ref: https://github.com/yiisoft/yii2-queue/blob/master/docs/guide/retryable.md#retry-options
-     * @return boolean
+    /**
+     * {@inheritdoc}
      */
     public function canRetry($attempt, $error)
     {
+        $this->addErrorLog($attempt, $error);
+
         return ($attempt < 3);
     }
 }
