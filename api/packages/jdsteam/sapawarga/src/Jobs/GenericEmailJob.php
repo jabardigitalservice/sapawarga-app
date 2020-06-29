@@ -6,10 +6,22 @@ use app\models\User;
 use Yii;
 use yii\base\BaseObject;
 use yii\queue\RetryableJobInterface;
+use Jdsteam\Sapawarga\Jobs\Concerns\HasJobHistory;
 
-// Queue job to send email in an async way
+/**
+ * Queue job upload file to S3 storageQueue job to send email in an async way.
+ *
+ * @property string $destination
+ * @property string $template
+ * @property string $content
+ * @property string $subject 
+ * @property string $jobHistoryClassName  class name for job history log 
+ * @property string $historyId            id for the ascociated job history log
+ */
 class GenericEmailJob extends BaseObject implements RetryableJobInterface
 {
+    use HasJobHistory;
+
     public $destination;
     public $template;
     public $content;
@@ -32,13 +44,21 @@ class GenericEmailJob extends BaseObject implements RetryableJobInterface
         return $email;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getTtr()
     {
         return 15 * 60;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function canRetry($attempt, $error)
     {
+        $this->addErrorLog($attempt, $error);
+
         return ($attempt < 3);
     }
 }

@@ -11,6 +11,7 @@ use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
 use Jdsteam\Sapawarga\Jobs\ExportBeneficiariesJob;
+use Illuminate\Support\Arr;
 
 /**
  * BeneficiariesBnbaTahapSatuController implements the CRUD actions for BeneficiaryBnbaTahapSatu model.
@@ -110,12 +111,12 @@ class BeneficiariesDownloadController extends ActiveController
         // export bnba
         $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
             'params' => $query_params,
-            'user_id' => $user->id,
-            'history_id' => $job_history->id,
+            'userId' => $user->id,
+            'historyId' => $job_history->id,
         ]));
 
         return [
-          'history_id' => $job_history->id,
+          'historyId' => $job_history->id,
         ];
     }
 
@@ -126,23 +127,29 @@ class BeneficiariesDownloadController extends ActiveController
             if (empty($result)) {
                 throw new NotFoundHttpException();
             } else {
-                return ArrayHelper::toArray($result, [
-                  'app\models\BansosBeneficiariesDownloadHistory' => array_keys($result->fields()) + [
-                      'aggregate' => function ($job_history) {
-                          return $job_history->getAggregateRowProgress();
-                      },
-                      'waiting_jobs' => function ($job_history) {
-                          return $job_history->countJobInLine();
-                      },
-                  ],
-                ]);
+                return $result;
             }
         } else {
             $user = Yii::$app->user;
+            $params = Yii::$app->request->getQueryParams();
 
-            return BansosBeneficiariesDownloadHistory::find()->where([
+            $query = BansosBeneficiariesDownloadHistory::find()->where([
                 'user_id' => $user->id,
-            ])->all();
+            ]);
+
+            $sort_order = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
+            return new \yii\data\ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => Arr::get($params, 'limit', 10),
+                ],
+                'sort' => [
+                    'defaultOrder' => [
+                        'id' => $sort_order,
+                    ]
+                ],
+            ]);
         }
     }
+
 }
