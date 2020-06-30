@@ -325,5 +325,4 @@ SQL;
 
         return $params;
     }
-
 }

@@ -25,13 +25,18 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         $query = BeneficiaryBnbaTahapSatu::find();
 
         // Filtering
-        $query->andWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
+        $query->andFilterWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['no_kk' => Arr::get($params, 'no_kk')]);
 
-        $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        }
+
         $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kode_kab')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kode_kec')]);
@@ -50,7 +55,12 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
             ->groupBy(['id_tipe_bansos']);
 
         // Filtering Area
-        $query->andWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
+        $query->andFilterWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        }
         $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
         $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kode_kab')]);
         $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kode_kec')]);
