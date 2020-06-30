@@ -89,7 +89,6 @@ class BeneficiariesBnbaController extends ActiveController
                 ->where(['tahap_bantuan' => $tahap])
                 ->groupBy(['id_tipe_bansos'])
                 ->all();
-
         } else {
             $search = new BeneficiaryBnbaTahapSatuSearch();
             $search = $search->getSummaryByType($params);
