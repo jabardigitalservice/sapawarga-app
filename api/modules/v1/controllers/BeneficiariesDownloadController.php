@@ -37,7 +37,7 @@ class BeneficiariesDownloadController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['download'],
-                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel'],
                 ],
             ],
         ];
@@ -95,6 +95,9 @@ class BeneficiariesDownloadController extends ActiveController
         } elseif ($user->can('staffKec')) {
             $parent_area = Area::findOne($authUserModel->kec_id);
             $query_params['domicile_kec_bps_id'] = $parent_area->code_bps;
+        } elseif ($user->can('staffKel')) {
+            $parent_area = Area::findOne($authUserModel->kel_id);
+            $query_params['domicile_kel_bps_id'] = $parent_area->code_bps;
         }
 
         // handler utk row dengan kolom kode_kec kosong
