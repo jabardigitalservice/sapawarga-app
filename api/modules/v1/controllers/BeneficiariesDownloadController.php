@@ -137,7 +137,7 @@ class BeneficiariesDownloadController extends ActiveController
                 'user_id' => $user->id,
             ]);
 
-            $sort_order = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
+            $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
             return new \yii\data\ActiveDataProvider([
                 'query' => $query,
                 'pagination' => [
@@ -145,7 +145,7 @@ class BeneficiariesDownloadController extends ActiveController
                 ],
                 'sort' => [
                     'defaultOrder' => [
-                        'id' => $sort_order,
+                        'id' => $sortOrder,
                     ]
                 ],
             ]);
