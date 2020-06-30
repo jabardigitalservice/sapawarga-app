@@ -61,70 +61,70 @@ class BeneficiariesDownloadController extends ActiveController
     public function actionDownload()
     {
         $params = Yii::$app->request->getQueryParams();
-        $query_params = [];
+        $queryParams = [];
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
         // common parameter filtering
         if (isset($params['kode_kel'])) {
-            $query_params['domicile_kel_bps_id'] = explode(',', $params['kode_kel']);
+            $queryParams['domicile_kel_bps_id'] = explode(',', $params['kode_kel']);
         }
         if (isset($params['kode_kec'])) {
-            $query_params['domicile_kec_bps_id'] = explode(',', $params['kode_kec']);
+            $queryParams['domicile_kec_bps_id'] = explode(',', $params['kode_kec']);
         }
         if (isset($params['kode_kab'])) {
-            $query_params['domicile_kabkota_bps_id'] = explode(',', $params['kode_kab']);
+            $queryParams['domicile_kabkota_bps_id'] = explode(',', $params['kode_kab']);
         }
         if (isset($params['bansos_type'])) {
-            $bansos_type = explode(',', $params['bansos_type']);
-            $is_dtks = [];
-            if (in_array('dtks', $bansos_type)) {
-                $is_dtks[] = 1;
+            $bansosType = explode(',', $params['bansos_type']);
+            $isDtks = [];
+            if (in_array('dtks', $bansosType)) {
+                $isDtks[] = 1;
             }
-            if (in_array('non-dtks', $bansos_type)) {
-                array_push($is_dtks, 0, null);
+            if (in_array('non-dtks', $bansosType)) {
+                array_push($isDtks, 0, null);
             }
-            $query_params['is_dtks'] = $is_dtks;
+            $queryParams['is_dtks'] = $isDtks;
         }
 
         // user specific filtering overwriting
         if ($user->can('staffKabkota')) {
-            $parent_area = Area::findOne($authUserModel->kabkota_id);
-            $query_params['domicile_kabkota_bps_id'] = $parent_area->code_bps;
+            $parentArea = Area::findOne($authUserModel->kabkota_id);
+            $queryParams['domicile_kabkota_bps_id'] = $parentArea->code_bps;
         } elseif ($user->can('staffKec')) {
-            $parent_area = Area::findOne($authUserModel->kec_id);
-            $query_params['domicile_kec_bps_id'] = $parent_area->code_bps;
+            $parentArea = Area::findOne($authUserModel->kec_id);
+            $queryParams['domicile_kec_bps_id'] = $parentArea->code_bps;
         } elseif ($user->can('staffKel')) {
-            $parent_area = Area::findOne($authUserModel->kel_id);
-            $query_params['domicile_kel_bps_id'] = $parent_area->code_bps;
+            $parentArea = Area::findOne($authUserModel->kel_id);
+            $queryParams['domicile_kel_bps_id'] = $parentArea->code_bps;
         }
 
         // handler utk row dengan kolom kode_kec kosong
-        if (isset($query_params['domicile_kec_bps_id'])) {
-            $null_value_pos = array_search('0', $query_params['domicile_kec_bps_id']);
-            if ($null_value_pos !== false) {
+        if (isset($queryParams['domicile_kec_bps_id'])) {
+            $nullValuePos = array_search('0', $queryParams['domicile_kec_bps_id']);
+            if ($nullValuePos !== false) {
                 // replace 0 with '' and null
-                unset($query_params['domicile_kec_bps_id'][$null_value_pos]);
-                array_push($query_params['domicile_kec_bps_id'], '', null);
+                unset($queryParams['domicile_kec_bps_id'][$nullValuePos]);
+                array_push($queryParams['domicile_kec_bps_id'], '', null);
             }
         }
 
-        $job_history = new BansosBeneficiariesDownloadHistory;
-        $job_history->user_id = $user->id;
-        $job_history->params = $query_params;
-        $job_history->row_count = $job_history->countAffectedRows();
-        $job_history->save();
+        $jobHistory = new BansosBeneficiariesDownloadHistory;
+        $jobHistory->user_id = $user->id;
+        $jobHistory->params = $queryParams;
+        $jobHistory->row_count = $jobHistory->countAffectedRows();
+        $jobHistory->save();
 
         // export bnba
         $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
-            'params' => $query_params,
+            'params' => $queryParams,
             'userId' => $user->id,
-            'historyId' => $job_history->id,
+            'historyId' => $jobHistory->id,
         ]));
 
         return [
-          'historyId' => $job_history->id,
+          'historyId' => $jobHistory->id,
         ];
     }
 
@@ -145,7 +145,7 @@ class BeneficiariesDownloadController extends ActiveController
                 'user_id' => $user->id,
             ]);
 
-            $sort_order = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
+            $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
             return new \yii\data\ActiveDataProvider([
                 'query' => $query,
                 'pagination' => [
@@ -153,7 +153,7 @@ class BeneficiariesDownloadController extends ActiveController
                 ],
                 'sort' => [
                     'defaultOrder' => [
-                        'id' => $sort_order,
+                        'id' => $sortOrder,
                     ]
                 ],
             ]);
