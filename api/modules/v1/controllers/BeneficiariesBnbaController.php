@@ -89,6 +89,7 @@ class BeneficiariesBnbaController extends ActiveController
                 ->where(['tahap_bantuan' => $tahap])
                 ->groupBy(['id_tipe_bansos'])
                 ->all();
+
         } else {
             $search = new BeneficiaryBnbaTahapSatuSearch();
             $search = $search->getSummaryByType($params);
@@ -111,7 +112,9 @@ class BeneficiariesBnbaController extends ActiveController
         foreach ($beneficiaryTypes as $key => $val) {
             $data[$val] = 0;
             foreach ($search as $value) {
-                $data[$val] = ($key == $value['id_tipe_bansos']) ? intval($value['total']) : 0;
+                if ($key == $value['id_tipe_bansos']) {
+                    $data[$val] = intval($value['total']);
+                }
             }
         }
 
