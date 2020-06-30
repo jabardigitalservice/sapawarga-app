@@ -66,30 +66,35 @@ class BeneficiariesDownloadController extends ActiveController
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
+        // common parameter filtering
+        if (isset($params['kode_kel'])) {
+            $query_params['domicile_kel_bps_id'] = explode(',', $params['kode_kel']);
+        }
+        if (isset($params['kode_kec'])) {
+            $query_params['domicile_kec_bps_id'] = explode(',', $params['kode_kec']);
+        }
+        if (isset($params['kode_kab'])) {
+            $query_params['domicile_kabkota_bps_id'] = explode(',', $params['kode_kab']);
+        }
+        if (isset($params['bansos_type'])) {
+            $bansos_type = explode(',', $params['bansos_type']);
+            $is_dtks = [];
+            if (in_array('dtks', $bansos_type)) {
+                $is_dtks[] = 1;
+            }
+            if (in_array('non-dtks', $bansos_type)) {
+                array_push($is_dtks, 0, null);
+            }
+            $query_params['is_dtks'] = $is_dtks;
+        }
+
+        // user specific filtering overwriting
         if ($user->can('staffKabkota')) {
-            $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $parent_area = Area::findOne($authUserModel->kabkota_id);
             $query_params['domicile_kabkota_bps_id'] = $parent_area->code_bps;
-            if (isset($params['kode_kec'])) {
-                $query_params['domicile_kec_bps_id'] = explode(',', $params['kode_kec']);
-            }
-        } elseif ($user->can('staffProv') || $user->can('admin')) {
-            if (isset($params['kode_kec'])) {
-                $query_params['domicile_kec_bps_id'] = explode(',', $params['kode_kec']);
-            }
-            if (isset($params['kode_kab'])) {
-                $query_params['domicile_kabkota_bps_id'] = explode(',', $params['kode_kab']);
-            }
-            if (isset($params['bansos_type'])) {
-                $bansos_type = explode(',', $params['bansos_type']);
-                $is_dtks = [];
-                if (in_array('dtks', $bansos_type)) {
-                    $is_dtks[] = 1;
-                }
-                if (in_array('non-dtks', $bansos_type)) {
-                    array_push($is_dtks, 0, null);
-                }
-                $query_params['is_dtks'] = $is_dtks;
-            }
+        } elseif ($user->can('staffKec')) {
+            $parent_area = Area::findOne($authUserModel->kec_id);
+            $query_params['domicile_kec_bps_id'] = $parent_area->code_bps;
         }
 
         // handler utk row dengan kolom kode_kec kosong
