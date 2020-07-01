@@ -64,7 +64,6 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
           ->leftJoin('areas a2', 'beneficiaries.domicile_kec_bps_id = a2.code_bps')
           ->leftJoin('areas a3', 'beneficiaries.domicile_kel_bps_id = a3.code_bps')
           ->where($this->params)
-          ->andWhere(['not', ['status_verification' => 2]])
           ;
 
         $row_numbers = $query->count();
