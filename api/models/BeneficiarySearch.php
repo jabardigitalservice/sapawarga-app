@@ -14,6 +14,7 @@ use yii\data\ActiveDataProvider;
 class BeneficiarySearch extends Beneficiary
 {
     const SCENARIO_LIST_USER = 'list-user';
+    const SCENARIO_LIST_STAFF = 'list-staff';
     const SCENARIO_LIST_APPROVAL = 'list-approval';
 
     public $userRole;
@@ -25,6 +26,7 @@ class BeneficiarySearch extends Beneficiary
         $scenarios = parent::scenarios();
         $attributes = ['tahap'];
 
+        $scenarios[self::SCENARIO_LIST_STAFF] = $attributes;
         $scenarios[self::SCENARIO_LIST_USER] = $attributes;
         $scenarios[self::SCENARIO_LIST_APPROVAL] = $attributes;
         return $scenarios;
@@ -72,7 +74,7 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
 
         // Handle status_verification filtering based on scenario
-        if ($this->scenario === self::SCENARIO_LIST_USER) {
+        if ($this->scenario === self::SCENARIO_LIST_STAFF || $this->scenario === self::SCENARIO_LIST_USER) {
             $this->getQueryListUser($query, $params);
         } elseif ($this->scenario === self::SCENARIO_LIST_APPROVAL) {
             $this->getQueryListApproval($query, $params);
@@ -83,6 +85,10 @@ class BeneficiarySearch extends Beneficiary
         // Use different column for each tahap (tahap 1 until tahap 4)
         if ($this->tahap) {
             $query->andWhere(['is not', "tahap_{$this->tahap}_verval", null]);
+            if ($this->scenario === self::SCENARIO_LIST_USER) {
+                // If role is RW/trainer, exclude pending data when listing verval data
+                $query->andWhere(['>', "tahap_{$this->tahap}_verval", Beneficiary::STATUS_PENDING]);
+            }
         }
 
         return $this->getQueryAll($query, $params);
