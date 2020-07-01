@@ -68,7 +68,7 @@ class CategorySearch extends Category
 
         // Special case. For 'notification' Category type, only returns 'Update Aplikasi' and 'Lainnya' category name
         if (Arr::get($params, 'type') == Notification::CATEGORY_TYPE) {
-            $query->andFilterWhere(['in', 'name', [Notification::CATEGORY_LABEL_UPDATE, Category::DEFAULT_CATEGORY_NAME]]);
+            $query->andFilterWhere(['name' => Notification::CATEGORY_LABEL_UPDATE]);
         }
 
         if (Arr::get($params, 'type')) {
