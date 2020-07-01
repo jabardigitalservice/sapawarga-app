@@ -66,6 +66,11 @@ class CategorySearch extends Category
             $query->andFilterWhere(['not in', 'type', Category::EXCLUDED_TYPES]);
         }
 
+        // Special case. For 'notification' Category type, only returns 'Update Aplikasi' and 'Lainnya' category name
+        if (Arr::get($params, 'type') == Notification::CATEGORY_TYPE) {
+            $query->andFilterWhere(['name' => Notification::CATEGORY_LABEL_UPDATE]);
+        }
+
         if (Arr::get($params, 'type')) {
             $this->moveDefaultCategory($dataProvider);
         }
