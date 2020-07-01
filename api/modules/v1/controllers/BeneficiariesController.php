@@ -168,7 +168,13 @@ class BeneficiariesController extends ActiveController
         $search = new BeneficiarySearch();
         $search->userRole = $authUserModel->role;
         $search->tahap = Arr::get($params, 'tahap');
-        $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
+
+        //assign search scenario based on role
+        if ($user->can('staffRW') || $user->can('trainer')) {
+            $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
+        } else {
+            $search->scenario = BeneficiarySearch::SCENARIO_LIST_STAFF;
+        }
 
         if ($user->can('staffKabkota')) {
             $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();

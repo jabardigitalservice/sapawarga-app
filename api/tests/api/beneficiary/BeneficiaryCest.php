@@ -225,7 +225,7 @@ class BeneficiaryCest
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
         $I->assertEquals(1, $data[0][0]['id']);
-        $I->assertEquals(2, $data[0][2]['id']);
+        $I->assertEquals(2, $data[0][1]['id']);
     }
 
     /**
