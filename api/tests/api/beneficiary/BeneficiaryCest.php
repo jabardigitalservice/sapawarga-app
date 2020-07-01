@@ -215,6 +215,22 @@ class BeneficiaryCest
     /**
      * @before loadDataByTahap
      */
+    public function getRWListFilterByTahap(ApiTester $I)
+    {
+        $I->amStaff('staffrw');
+
+        $I->sendGET($this->endpointBeneficiaries . '?tahap=1');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
+        $I->assertEquals(1, $data[0][0]['id']);
+        $I->assertEquals(2, $data[0][2]['id']);
+    }
+
+    /**
+     * @before loadDataByTahap
+     */
     public function getStaffKelListFilterByTahap(ApiTester $I)
     {
         $I->amStaff('staffkel');
