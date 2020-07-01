@@ -95,6 +95,42 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 2,
             'nik' => '3200000000000002',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'domicile_rt' => '1',
+            'domicile_address' => 'Address',
+            'status_verification' => Beneficiary::STATUS_PENDING,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => Beneficiary::STATUS_PENDING,
+            'tahap_2_verval' => Beneficiary::STATUS_PENDING,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 3,
+            'nik' => '3200000000000003',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
+            'domicile_kel_bps_id' => $this->kelBandung,
+            'domicile_rw' => '1',
+            'domicile_rt' => '1',
+            'domicile_address' => 'Address',
+            'status_verification' => Beneficiary::STATUS_REJECT,
+            'status' => Beneficiary::STATUS_ACTIVE,
+            'name' => 'Name',
+            'created_at' => 0,
+            'updated_at' => 0,
+            'tahap_1_verval' => Beneficiary::STATUS_REJECT,
+            'tahap_2_verval' => Beneficiary::STATUS_REJECT,
+        ]);
+
+        $I->haveInDatabase('beneficiaries', [
+            'id' => 4,
+            'nik' => '3200000000000004',
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
@@ -107,8 +143,8 @@ class BeneficiaryCest
         ]);
 
         $I->haveInDatabase('beneficiaries', [
-            'id' => 3,
-            'nik' => '3200000000000003',
+            'id' => 5,
+            'nik' => '3200000000000005',
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
@@ -181,22 +217,22 @@ class BeneficiaryCest
      */
     public function getStaffKelListFilterByTahap(ApiTester $I)
     {
-        $I->amStaff('staffrw');
+        $I->amStaff('staffkel');
 
         $I->sendGET($this->endpointBeneficiaries . '?tahap=1');
         $I->canSeeResponseCodeIs(200);
-        $I->seeHttpHeader('X-Pagination-Total-Count', 1);
-
-        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
-        $I->assertEquals(1, $data[0][0]['id']);
-
-        $I->sendGET($this->endpointBeneficiaries . '?tahap=2');
-        $I->canSeeResponseCodeIs(200);
-        $I->seeHttpHeader('X-Pagination-Total-Count', 2);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 3);
 
         $data = $I->grabDataFromResponseByJsonPath('$.data.items');
         $I->assertEquals(1, $data[0][0]['id']);
         $I->assertEquals(2, $data[0][1]['id']);
+        $I->assertEquals(3, $data[0][2]['id']);
+
+        $I->sendGET($this->endpointBeneficiaries . '?tahap=2');
+        $I->canSeeResponseCodeIs(200);
+        $I->seeHttpHeader('X-Pagination-Total-Count', 4);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data.items');
     }
 
     /**
