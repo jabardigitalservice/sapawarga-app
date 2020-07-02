@@ -56,6 +56,11 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             ->groupBy(['id_tipe_bansos', 'is_dtks']);
 
         // Filtering Area
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        }
         $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
         $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
@@ -82,6 +87,11 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             ->groupBy([$params['area_type']]);
 
         // Filtering Area
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        }
         $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
         $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);

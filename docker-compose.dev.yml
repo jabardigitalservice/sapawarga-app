@@ -50,6 +50,19 @@ services:
     volumes:
       - vol_mysql_data:/var/lib/mysql
 
+  app_bansos_excel:
+    image:  registry.gitlab.com/jdsteam/sapa-warga/sapawarga-process-bansos-excel:no-cmd
+    depends_on:
+      - api
+    env_file:
+      - .env-dev
+    networks:
+      - internal
+    ports:
+      - 8003:8000
+    restart: on-failure
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"] 
+
   memcached:
     image: memcached:latest
     networks:

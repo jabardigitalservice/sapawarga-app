@@ -111,7 +111,9 @@ class BeneficiariesBnbaController extends ActiveController
         foreach ($beneficiaryTypes as $key => $val) {
             $data[$val] = 0;
             foreach ($search as $value) {
-                $data[$val] = ($key == $value['id_tipe_bansos']) ? intval($value['total']) : 0;
+                if ($key == $value['id_tipe_bansos']) {
+                    $data[$val] = intval($value['total']);
+                }
             }
         }
 
@@ -168,8 +170,8 @@ class BeneficiariesBnbaController extends ActiveController
         // export bnba
         $id = Yii::$app->queue->push(new ExportBnbaJob([
             'params' => $query_params,
-            'user_id' => $user->id,
-            'history_id' => $job_history->id,
+            'userId' => $user->id,
+            'historyId' => $job_history->id,
         ]));
 
         $job_history->job_id = $id;
@@ -187,23 +189,28 @@ class BeneficiariesBnbaController extends ActiveController
             if (empty($result)) {
                 throw new NotFoundHttpException();
             } else {
-                return ArrayHelper::toArray($result, [
-                  'app\models\BansosBnbaDownloadHistory' => array_keys($result->fields()) + [
-                      'aggregate' => function ($job_history) {
-                          return $job_history->getAggregateRowProgress();
-                      },
-                      'waiting_jobs' => function ($job_history) {
-                          return $job_history->countJobInLine();
-                      },
-                  ],
-                ]);
+                return $result;
             }
         } else {
             $user = Yii::$app->user;
+            $params = Yii::$app->request->getQueryParams();
 
-            return BansosBnbaDownloadHistory::find()->where([
+            $query = BansosBnbaDownloadHistory::find()->where([
                 'user_id' => $user->id,
-            ])->all();
+            ]);
+
+            $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
+            return new \yii\data\ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => Arr::get($params, 'limit', 10),
+                ],
+                'sort' => [
+                    'defaultOrder' => [
+                        'id' => $sortOrder,
+                    ]
+                ],
+            ]);
         }
     }
 
@@ -320,5 +327,4 @@ SQL;
 
         return $params;
     }
-
 }
