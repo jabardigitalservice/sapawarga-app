@@ -67,7 +67,14 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MYSQL_HOST_SLAVE_3
-            
+
+            - name: MYSQL_HOST_DTKS
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_HOST_DTKS
+
+            # mysql credentials
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
@@ -92,12 +99,32 @@ spec:
                   name: sapawarga-backend-secret
                   key: MYSQL_PASSWORD_SLAVE
 
+            - name: MYSQL_USER_DTKS
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_USER_DTKS
+
+            - name: MYSQL_PASSWORD_DTKS
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MYSQL_PASSWORD_DTKS
+
+            # mysql database name
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MYSQL_DATABASE
 
+            - name: MYSQL_DATABASE_DTKS
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MYSQL_DATABASE_DTKS
+
+            # others
             - name: FCM_KEY
               valueFrom:
                 secretKeyRef:
@@ -193,6 +220,13 @@ spec:
                   name: sapawarga-backend-config-env
                   key: KEPENDUDUKAN_API_KEY
 
+            - name: BANSOS_PROCESS_EXCEL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: BANSOS_PROCESS_EXCEL_URL
+
+            # mailer
             - name: MAILER_TRANSPORT_FILE
               valueFrom:
                 configMapKeyRef:
@@ -223,6 +257,7 @@ spec:
                   name: sapawarga-backend-config-env
                   key: MAILER_FROM_NAME
 
+            # storage
             - name: APP_STORAGE_S3_BUCKET
               valueFrom:
                 configMapKeyRef:
@@ -246,6 +281,18 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: APP_STORAGE_S3_BUCKET_REGION
+
+            - name: S3_FOLDER_INVALID
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: S3_FOLDER_INVALID
+
+            - name: S3_FOLDER_INVALID_VERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: S3_FOLDER_INVALID_VERVAL
 
       # initContainers:
       # - name: volume-permission-fix
