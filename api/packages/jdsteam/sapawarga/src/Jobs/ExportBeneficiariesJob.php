@@ -55,6 +55,15 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
             'penghasilan_sebelum_covid19' => 'beneficiaries.income_before',
             'penghasilan_setelah_covid' => 'beneficiaries.income_after',
             'keterangan' => 'beneficiaries.notes',
+            'status_verifikasi' => 'beneficiaries.status_verification',
+        ];
+        $columnHeaders = array_keys($columns);
+        $columnHeaders[count($columnHeaders)-1] = 'Status Verifikasi';
+
+        $statusVerifikasiMapping = [
+            Beneficiary::STATUS_PENDING   => 'Belum Terverifikasi',
+            Beneficiary::STATUS_REJECT    => 'Ditolak',
+            Beneficiary::STATUS_VERIFIED  => 'Terverifikasi',
         ];
 
         $query = (new Query())
@@ -82,7 +91,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
         /** Shortcut: add a row from an array of values */
-        $rowFromValues = WriterEntityFactory::createRowFromArray(array_keys($columns));
+        $rowFromValues = WriterEntityFactory::createRowFromArray($columnHeaders);
         $writer->addRow($rowFromValues);
 
         // create unbuffered database connection to avoid MySQL batching limitation
@@ -97,18 +106,20 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         $unbefferedDb->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $num_processed = 0;
-        foreach ($query->batch($batch_size, $unbefferedDb) as $list_bnba)
+        foreach ($query->batch($batch_size, $unbefferedDb) as $listBnba)
         {
-            $data = ArrayHelper::toArray($list_bnba, [
-                'app\models\BeneficiaryBnbaTahapSatu' => $columns,
-            ]);
+            $listBnba = array_map(function ($item) use ($statusVerifikasiMapping) {
+                $item['keterangan'] = null;
+                $item['status_verifikasi'] = $statusVerifikasiMapping[$item['status_verifikasi']];
+                return $item;
+            }, $listBnba);
 
-            foreach ($data as $row) {
+            foreach ($listBnba as $row) {
                 $rowFromValues = WriterEntityFactory::createRowFromArray($row);
                 $writer->addRow($rowFromValues);
             }
 
-            $num_processed += count($data);
+            $num_processed += count($listBnba);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
 
             $jobHistory->row_processed = $num_processed;
