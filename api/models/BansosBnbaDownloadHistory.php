@@ -100,14 +100,26 @@ class BansosBnbaDownloadHistory extends ActiveRecord
         );
     }
 
+    /** Get query builder instance for curent job parameters
+     *
+     * @return yii\db\Query
+     */
+    public function getQuery()
+    {
+        return BeneficiaryBnbaTahapSatu::find()
+            ->where($this->params)
+            ->andWhere(['or',
+                ['is_deleted' => null],
+                ['is_deleted' => 0]
+            ]);
+    }
+
     /** Count affected rows in this queue job
      *
      * @return int Number of affected rows
      */
     public function countAffectedRows()
     {
-        return BeneficiaryBnbaTahapSatu::find()
-            ->where($this->params)
-            ->count();
+        return $this->getQuery()->count();
     }
 }
