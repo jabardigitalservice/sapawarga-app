@@ -12,6 +12,8 @@ use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * BansosUploadController implements the CRUD actions for Banner model.
@@ -147,6 +149,34 @@ class BansosUploadController extends ActiveController implements ActiveStatus
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
+        // trigger process-excel API
+        $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
+
+        $client = new Client([
+            'timeout'  => 0.00000000000001,
+        ]);
+
+        try {
+            $response = $client->post($url, [
+                'json' => [
+                    'bucket_name' => $filesystem->bucket, 
+                    'path_file_s3' => $relativePath, 
+                    'file_name' => explode('/', $relativePath)[1], 
+                    's3_records' => 'dummy',
+                ],
+            ]);
+        } catch (RequestException $e) {           
+        }
+
+        // get current tahapan
+        $current_tahap = (new \yii\db\Query())
+        ->from('beneficiaries_current_tahap')
+        ->all();
+
+        if (count($current_tahap) <= 0) {
+            throw new \yii\base\InvalidValueException;
+        }
+
         $record = [
             'user_id'           => $user->id,
             'bansos_type'       => $type,
@@ -159,6 +189,7 @@ class BansosUploadController extends ActiveController implements ActiveStatus
             'updated_at'        => time(),
             'created_by'        => $user->id,
             'updated_by'        => $user->id,
+            'tahap_bantuan'     => $current_tahap[0]['current_tahap_bnba'],
         ];
 
         Yii::$app->db->createCommand()->insert('bansos_bnba_upload_histories', $record)->execute();

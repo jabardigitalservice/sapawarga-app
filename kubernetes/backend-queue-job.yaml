@@ -59,6 +59,94 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: CACHE_PORT
+
+            - name: APP_STORAGE_S3_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: APP_STORAGE_S3_KEY
+
+            - name: APP_STORAGE_S3_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: APP_STORAGE_S3_SECRET
+
+
+            - name: APP_STORAGE_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_S3_BUCKET
+
+            - name: APP_STORAGE_FS
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_FS
+
+            - name: APP_STORAGE_PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_PUBLIC_URL
+
+            - name: APP_STORAGE_S3_BUCKET_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: APP_STORAGE_S3_BUCKET_REGION
+
+            - name: MAILER_TRANSPORT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_TRANSPORT_FILE
+
+            - name: MAILER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_HOST
+
+            - name: MAILER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_PORT
+
+            - name: MAILER_FROM_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_FROM_EMAIL
+
+            - name: MAILER_FROM_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: MAILER_FROM_NAME
+                  
+            - name: MAILER_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_USER
+
+            - name: MAILER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_PASSWORD
+
+            - name: MAILER_ENCRYPTION
+              valueFrom:
+                secretKeyRef:
+                  name: sapawarga-backend-secret
+                  key: MAILER_ENCRYPTION
+            
+
+            
       imagePullSecrets:
         - name: regcred
       restartPolicy: OnFailure

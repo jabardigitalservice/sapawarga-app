@@ -41,8 +41,12 @@ return [
 
     'error.nik.invalid' => 'Format NIK tidak valid.',
     'error.nik.notfound' => 'NIK tidak terdaftar di Disdukcapil.',
-    'error.nik.taken' => 'NIK sudah terdaftar.',
+    'error.nik.taken' => 'Warga dengan NIK {value} sudah terdaftar pada list verifikasi.',
     'error.nik.limit' => 'Tunggu beberapa saat untuk bisa Cek NIK kembali.',
+
+    'error.kk.taken' => 'Warga dengan Nomor KK {value} sudah terdaftar pada list verifikasi.',
+
+    'error.address.duplicate' => 'Nama dan alamat telah terdaftar.',
 
     'error.scheduled_datetime.must_after_now' => 'Jadwal yang dipilih telah lewat.',
 

@@ -405,19 +405,20 @@ return [
         'tokens' => [
             '{id}' => '<id:\d+>',
             '{nik}' => '<nik:\w+>',
+            '{kk}' => '<kk:\w+>',
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET nik/{nik}' => 'nik',
-            'OPTIONS nik/{nik}' => 'options',
-            'GET check-exist-nik/{id}' => 'check-exist-nik',
-            'OPTIONS check-exist-nik/{id}' => 'options',
+            'GET check-nik' => 'check-nik',
+            'OPTIONS check-nik' => 'options',
+            'GET check-kk' => 'check-kk',
+            'OPTIONS check-kk' => 'options',
+            'GET check-address' => 'check-address',
+            'OPTIONS check-address' => 'options',
             'GET dashboard-list' => 'dashboard-list',
             'OPTIONS dashboard-list' => 'options',
             'GET dashboard-summary' => 'dashboard-summary',
             'OPTIONS dashboard-summary' => 'options',
-            'GET bnba-tahap-satu-list' => 'bnba-tahap-satu-list',
-            'OPTIONS bnba-tahap-satu-list' => 'options',
             'GET approval' => 'approval-list',
             'OPTIONS approval' => 'options',
             'POST approval/{id}' => 'approval',
@@ -426,28 +427,51 @@ return [
             'OPTIONS bulk-approval' => 'options',
             'GET approval-dashboard' => 'approval-dashboard',
             'OPTIONS approval-dashboard' => 'options',
+            'GET current-tahap' => 'current-tahap',
+            'OPTIONS current-tahap' => 'options',
         ]
     ],
     [
         'class' => 'yii\rest\UrlRule',
-        'controller' => 'v1/beneficiaries-bnba-tahap-satu',
+        'controller' => 'v1/beneficiaries-verval-upload',
         'pluralize' => false,
         'tokens' => [
             '{id}' => '<id:\d+>',
-            '{nik}' => '<nik:\w+>',
         ],
         'extraPatterns' => [
             'OPTIONS {id}' => 'options',
-            'GET summary' => 'summary',
-            'OPTIONS summary' => 'options',
+            'POST upload' => 'upload',
+            'OPTIONS upload' => 'options',
         ]
     ],
+    'GET v1/beneficiaries/download' => 'v1/beneficiaries-download/download',
+    'GET v1/beneficiaries/download-status' => 'v1/beneficiaries-download/download-status',
+    'GET v1/beneficiaries/download-status/<history_id:\d+>' => 'v1/beneficiaries-download/download-status',
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba',
         'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
         'extraPatterns' => [
+            'GET summary' => 'summary',
+            'OPTIONS summary' => 'options',
             'GET download' => 'download',
+            'GET monitoring' => 'monitoring',
+            'GET download-status' => 'download-status',
+            'GET download-status/<history_id:\d+>' => 'download-status',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-complain',
+        'pluralize' => false,
+        'tokens' => [
+            '{id}' => '<id:\d+>',
+        ],
+        'extraPatterns' => [
+            'OPTIONS {id}' => 'options',
         ]
     ],
     'GET v1/beneficiaries/allocation' => 'v1/beneficiaries-allocation',

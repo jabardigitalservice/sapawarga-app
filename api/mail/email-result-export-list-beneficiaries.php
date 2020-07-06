@@ -13,7 +13,7 @@
             <div style="text-align: left; word-wrap: break-word;">
                 <br/>Admin yang baik,
                 <br />
-                <br/>Terima kasih telah menggunakan SAPAWARGA. Proses export daftar BNBA yang Anda minta telah selesai. Silakan mengunduh file tersebut dengan klik pranala berikut:
+                <br/>Terima kasih telah menggunakan SAPAWARGA. Proses export Daftar Calon Penerima Bantuan yang Anda minta telah selesai. Silakan mengunduh file tersebut dengan klik pranala berikut:
                 <br />
                 <br /><a href="<?=Html::encode($final_url);?>" target="_blank"><?=Html::encode($final_url);?></a>
 

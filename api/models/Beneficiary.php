@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\BeneficiaryHelper;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
@@ -11,7 +12,6 @@ use yii\base\DynamicModel;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -24,8 +24,8 @@ use Illuminate\Support\Collection;
  * @property string $domicile_kabkota_bps_id
  * @property string $domicile_kec_bps_id
  * @property string $domicile_kel_bps_id
- * @property string $domicile_rw
  * @property string $domicile_rt
+ * @property string $domicile_rw
  * @property string $domicile_address
  * @property string $phone
  * @property int $total_family_members
@@ -90,6 +90,11 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         self::STATUS_APPROVED_KABKOTA => 'status.beneficiary.approved_kabkota',
     ];
 
+    // Constants for Scenario names
+    const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+    const SCENARIO_VALIDATE_KK = 'validate-kk';
+    const SCENARIO_VALIDATE_NIK = 'validate-nik';
+
     /**
      * {@inheritdoc}
      */
@@ -123,11 +128,46 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     /**
      * {@inheritdoc}
      */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $attributeNik = ['id', 'nik'];
+        $attributeKk = ['id', 'no_kk'];
+        $attributesAddress = [
+            'id',
+            'name',
+            'domicile_kabkota_bps_id',
+            'domicile_kec_bps_id',
+            'domicile_kel_bps_id',
+            'domicile_rt',
+            'domicile_rw',
+            'domicile_address',
+        ];
+
+        $scenarios[self::SCENARIO_VALIDATE_ADDRESS] = $attributesAddress;
+        $scenarios[self::SCENARIO_VALIDATE_NIK] = $attributeNik;
+        $scenarios[self::SCENARIO_VALIDATE_KK] = $attributeKk;
+        return $scenarios;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function rules()
     {
-        return [
+        $rules = [
             [
-                ['name', 'status_verification', 'status'],
+                [
+                    'name',
+                    'domicile_kabkota_bps_id',
+                    'domicile_kec_bps_id',
+                    'domicile_kel_bps_id',
+                    'domicile_rt',
+                    'domicile_rw',
+                    'domicile_address',
+                    'status_verification',
+                    'status',
+                ],
                 'required',
             ],
 
@@ -140,11 +180,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 ],
                 'trim'
             ],
+            ['name', 'string', 'length' => [2, 100]],
             [
                 [
                     'nik', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
-                    'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id', 'domicile_address'
+                    'domicile_province_bps_id'
                 ],
                 'default', 'value' => null
             ],
@@ -176,6 +217,60 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 self::STATUS_APPROVED_KABKOTA,
             ]],
             ['status', 'in', 'range' => [-1, 0, 10]],
+        ];
+
+        return array_merge(
+            $rules,
+            $this->rulesNik(),
+            $this->rulesKk(),
+            $this->rulesAddress()
+        );
+    }
+
+    protected function rulesNik()
+    {
+        return [
+            [ 'nik', 'required', 'on' => self::SCENARIO_VALIDATE_NIK ],
+            [
+                'nik', 'unique',
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.nik.taken'),
+                'on' => self::SCENARIO_VALIDATE_NIK
+            ],
+        ];
+    }
+
+    protected function rulesKk()
+    {
+        return [
+            [ 'no_kk', 'required', 'on' => self::SCENARIO_VALIDATE_KK ],
+            [
+                'no_kk', 'unique',
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.kk.taken'),
+                'on' => self::SCENARIO_VALIDATE_KK
+            ],
+        ];
+    }
+
+    protected function rulesAddress()
+    {
+        return [
+            [
+                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
+                'filter' => function ($query) {
+                    $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
+                          ->andFilterWhere(['!=', 'id', $this->id]);
+                },
+                'message' => Yii::t('app', 'error.address.duplicate'),
+                'on' => self::SCENARIO_VALIDATE_ADDRESS
+            ]
         ];
     }
 
@@ -301,6 +396,16 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
         return (int)$nikModel->validate();
     }
 
+    /** @inheritdoc */
+    public function beforeSave($insert)
+    {
+        $currentTahap = BeneficiaryHelper::getCurrentTahap();
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($currentTahap['current_tahap_verval']);
+        $this["{$statusVerificationColumn}"] = $this->status_verification;
+
+        return parent::beforeSave($insert);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -310,12 +415,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'nik' => 'NIK',
             'no_kk' => 'No KK',
             'name' => 'Nama Lengkap',
-            'kabkota_bps_id' => 'Kota',
-            'kec_bps_id' => 'Kecamatan',
-            'kel_bps_id' => 'Kelurahan / Desa',
-            'rt' => 'RT',
-            'rw' => 'RW',
-            'address' => 'Alamat',
+            'domicile_kabkota_bps_id' => 'Kabupaten/Kota',
+            'domicile_kec_bps_id' => 'Kecamatan',
+            'domicile_kel_bps_id' => 'Desa/Kelurahan',
+            'domicile_rt' => 'RT',
+            'domicile_rw' => 'RW',
+            'domicile_address' => 'Alamat',
             'phone' => 'Telepon',
             'total_family_members' => 'Total',
             'job_type_id' => 'Lapangan Usaha',

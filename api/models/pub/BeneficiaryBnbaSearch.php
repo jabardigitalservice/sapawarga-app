@@ -24,6 +24,9 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         $query = BeneficiaryBnba::find()->andWhere(['or', ['is_deleted' => null], ['is_deleted' => 0]]);
 
         // Filtering
+        $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
+        $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
+        $query->andFilterWhere(['id_tipe_bansos' => Arr::get($params, 'id_tipe_bansos')]);
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kec_bps_id')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kel_bps_id')]);
@@ -36,9 +39,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
 
         $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
-        $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['lapangan_usaha' => Arr::get($params, 'lapangan_usaha')]);
-        $query->andFilterWhere(['id_tipe_bansos' => Arr::get($params, 'id_tipe_bansos')]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -55,17 +56,15 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             ->groupBy(['id_tipe_bansos', 'is_dtks']);
 
         // Filtering Area
-        if (! empty(Arr::get($params, 'kabkota_bps_id'))) {
-            $query->andWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
         }
-
-        if (! empty(Arr::get($params, 'kec_bps_id'))) {
-            $query->andWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
-        }
-
-        if (! empty(Arr::get($params, 'kel_bps_id'))) {
-            $query->andWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
-        }
+        $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
+        $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
 
         if (Arr::get($params, 'rw') == 'Tidak') {
             $query->andWhere(['rw' => null]);
@@ -88,21 +87,16 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             ->groupBy([$params['area_type']]);
 
         // Filtering Area
-        if (! empty(Arr::get($params, 'kabkota_bps_id'))) {
-            $query->andWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
         }
-
-        if (! empty(Arr::get($params, 'kec_bps_id'))) {
-            $query->andWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
-        }
-
-        if (! empty(Arr::get($params, 'kel_bps_id'))) {
-            $query->andWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
-        }
-
-        if (! empty(Arr::get($params, 'rw'))) {
-            $query->andWhere(['=', 'rw', Arr::get($params, 'rw')]);
-        }
+        $query->andFilterWhere(['=', 'tahap_bantuan', Arr::get($params, 'tahap')]);
+        $query->andFilterWhere(['=', 'kode_kab', Arr::get($params, 'kabkota_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kec', Arr::get($params, 'kec_bps_id')]);
+        $query->andFilterWhere(['=', 'kode_kel', Arr::get($params, 'kel_bps_id')]);
+        $query->andFilterWhere(['=', 'rw', Arr::get($params, 'rw')]);
 
         return $query->createCommand()->queryAll();
     }
@@ -110,23 +104,9 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
     protected function getQueryAll($query, $params)
     {
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'nik');
-        $sortOrder = Arr::get($params, 'sort_order', 'ascending');
-        $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
         return new ActiveDataProvider([
             'query'      => $query,
-            // 'sort'       => [
-            //     'defaultOrder' => [$sortBy => $sortOrder],
-            //     'attributes' => [
-            //         'nama_krt',
-            //         'nik',
-            //         'lapangan_usaha',
-            //         'rt',
-            //         'id_tipe_bansos',
-            //         'rw',
-            //     ],
-            // ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],

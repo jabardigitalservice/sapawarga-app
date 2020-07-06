@@ -108,6 +108,7 @@ class BeneficiaryBnba extends ActiveRecord
             'alamat' => 'addressMasking',
             'id_tipe_bansos',
             'id_tipe_bansos_name' => 'bansosType',
+            'tahap_bantuan',
         ];
 
         return $fields;

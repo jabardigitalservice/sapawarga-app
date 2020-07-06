@@ -2,6 +2,7 @@
 
 namespace app\models\pub;
 
+use app\components\BeneficiaryHelper;
 use app\components\ModelHelper;
 use Illuminate\Support\Arr;
 use yii\data\ActiveDataProvider;
@@ -12,6 +13,17 @@ use yii\data\SqlDataProvider;
  */
 class BeneficiarySearch extends Beneficiary
 {
+    public $tahap;
+    public $statusVerificationColumn = 'status_verification';
+
+    public function rules()
+    {
+        return [
+            ['tahap', 'integer'],
+            ['tahap', 'in', 'range' => [1, 2, 3, 4]],
+        ];
+    }
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -21,6 +33,8 @@ class BeneficiarySearch extends Beneficiary
      */
     public function search($params)
     {
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
+
         $query = Beneficiary::find()->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
 
         // Filtering
@@ -34,7 +48,7 @@ class BeneficiarySearch extends Beneficiary
         $query->andFilterWhere(['domicile_rw' => ltrim(Arr::get($params, 'domicile_rw'), '0')]);
         $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like')]);
         $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
-        $query->andFilterWhere(['status_verification' => Arr::get($params, 'status_verification')]);
+        $query->andFilterWhere([$this->statusVerificationColumn => Arr::get($params, 'status_verification')]);
 
         return $this->getQueryAll($query, $params);
     }
@@ -50,6 +64,7 @@ class BeneficiarySearch extends Beneficiary
     {
         $conditional = '';
         $paramsSql = [':status' => Beneficiary::STATUS_ACTIVE];
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         // Filtering
         if (Arr::get($params, 'domicile_kabkota_bps_id')) {
@@ -72,9 +87,9 @@ class BeneficiarySearch extends Beneficiary
         $paramsSql[':status_reject'] = Beneficiary::STATUS_REJECT;
         $paramsSql[':status_verified'] = Beneficiary::STATUS_VERIFIED;
 
-        $sql = "SELECT SUM(status_verification = :status_pending) AS 'PENDING',
-            SUM(status_verification = :status_reject) AS 'REJECT',
-            SUM(status_verification >= :status_verified) AS 'APPROVED'
+        $sql = "SELECT SUM({$this->statusVerificationColumn} = :status_pending) AS 'PENDING',
+            SUM({$this->statusVerificationColumn} = :status_reject) AS 'REJECT',
+            SUM({$this->statusVerificationColumn} >= :status_verified) AS 'APPROVED'
             FROM beneficiaries WHERE status = :status $conditional";
 
         $provider =  new SqlDataProvider([
@@ -94,12 +109,18 @@ class BeneficiarySearch extends Beneficiary
 
     protected function getQueryAll($query, $params)
     {
+        // change 'status_verification' sort attribute based on tahap
+        $sortAttribute = Arr::get($params, 'sort_by', 'nik');
+        if ($sortAttribute == 'status_verification') {
+            $sortAttribute = $this->statusVerificationColumn;
+        }
+
         $pageLimit = Arr::get($params, 'limit');
-        $sortBy    = Arr::get($params, 'sort_by', 'nik');
+        $sortBy    = $sortAttribute;
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
         $sortOrder = ModelHelper::getSortOrder($sortOrder);
 
-        return new ActiveDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
                 'defaultOrder' => [$sortBy => $sortOrder],
@@ -109,11 +130,26 @@ class BeneficiarySearch extends Beneficiary
                     'rt',
                     'rw',
                     'status_verification',
+                    'tahap_1_verval',
+                    'tahap_2_verval',
+                    'tahap_3_verval',
+                    'tahap_4_verval',
                 ],
             ],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
         ]);
+
+        // Modify status_verification value based on tahap
+        if ($this->tahap) {
+            $models = $dataProvider->getModels();
+            foreach ($models as $model) {
+                $model->status_verification = $model[$this->statusVerificationColumn];
+            }
+            $dataProvider->setModels($models);
+        }
+
+        return $dataProvider;
     }
 }

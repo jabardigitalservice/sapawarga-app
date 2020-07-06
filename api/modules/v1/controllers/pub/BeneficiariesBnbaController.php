@@ -88,10 +88,14 @@ class BeneficiariesBnbaController extends ActiveController
     public function actionStatisticsByType()
     {
         $params = Yii::$app->request->getQueryParams();
+        $type = Arr::get($params, 'type');
+        $tahap = Arr::get($params, 'tahap');
 
-        if (empty($params)) {
+        // $type is empty means API call from homepage
+        if (empty($type)) {
             $search = (new \yii\db\Query())
                     ->from('beneficiaries_bnba_statistic_type')
+                    ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
             $search = new BeneficiaryBnbaSearch();
@@ -134,7 +138,7 @@ class BeneficiariesBnbaController extends ActiveController
     protected function setSourceBeneficiaries($key)
     {
         $sourceBeneficiaries = '';
-        if (in_array($key, [1, 2, 3, 4, 5])) {
+        if ($key < 6) {
             $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.kemensos');
         } elseif ($key == 6) {
             $sourceBeneficiaries = Yii::t('app', 'source.beneficiaries.apbdpemprovjabar');
@@ -153,8 +157,9 @@ class BeneficiariesBnbaController extends ActiveController
      */
     public function actionStatisticsByArea()
     {
-        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'] . '/logo/';
         $params = Yii::$app->request->getQueryParams();
+        $tahap = Arr::get($params, 'tahap');
         $data = [];
 
         $params['area_type'] = 'kode_kab';
@@ -170,10 +175,10 @@ class BeneficiariesBnbaController extends ActiveController
             $codeBps = null;
         }
 
-
         if ($params['area_type'] == 'kode_kab') {
             $search = (new \yii\db\Query())
                     ->from('beneficiaries_bnba_statistic_area')
+                    ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
             $search = new BeneficiaryBnbaSearch();
@@ -211,80 +216,9 @@ class BeneficiariesBnbaController extends ActiveController
             ];
 
             if ($params['area_type'] == 'kode_kab') {
-                $data[$key]['image'] = $area['code_bps'] . '.svg';
+                $data[$key]['image'] = $publicBaseUrl . $area['code_bps'] . '.png';
             }
         }
-
-        return $data;
-    }
-
-    /**
-     * @return mixed|\app\models\pub\Beneficieries
-     * @throws \yii\web\NotFoundHttpException
-     */
-    public function actionStatisticsUpdate()
-    {
-        $params = Yii::$app->request->getQueryParams();
-
-        if (empty($params)) {
-            throw new NotFoundHttpException('Object not found');
-        }
-
-        // Update statistic calculation by Area kabkota
-        $searchType = new BeneficiaryBnbaSearch();
-        $statisticByType = $searchType->getStatisticsByType($params);
-
-        $rowsType = [];
-        foreach ($statisticByType as $key => $val) {
-            $rowsType[] = [
-                'id_tipe_bansos' => $val['id_tipe_bansos'],
-                'is_dtks' => $val['is_dtks'],
-                'total' => $val['total'],
-            ];
-        }
-
-        if (count($rowsType) > 0) {
-            Yii::$app->db->createCommand()->truncateTable('beneficiaries_bnba_statistic_type')->execute();
-            Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_type', [
-                'id_tipe_bansos',
-                'is_dtks',
-                'total'
-            ], $rowsType)->execute();
-        }
-
-        // Update statistic calculation by Area kabkota
-        $searchArea = new BeneficiaryBnbaSearch();
-        $params['area_type'] = 'kode_kab';
-        $statisticByArea = $searchArea->getStatisticsByArea($params);
-
-        $rowsArea = [];
-        foreach ($statisticByArea as $key => $val) {
-            $rowsArea[] = [
-                'kode_kab' => $val['kode_kab'],
-                'total' => $val['total'],
-            ];
-        }
-
-        if (count($rowsArea) > 0) {
-            Yii::$app->db->createCommand()->truncateTable('beneficiaries_bnba_statistic_area')->execute();
-            Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_area', [
-                'kode_kab',
-                'total'
-            ], $rowsArea)->execute();
-        }
-
-        $rowsType = (new Query())
-            ->from('beneficiaries_bnba_statistic_type')
-            ->select('id_tipe_bansos, is_dtks, total')
-            ->all();
-
-        $rowsArea = (new Query())
-            ->from('beneficiaries_bnba_statistic_area')
-            ->select('kode_kab, total')
-            ->all();
-
-        $data['statistics_by_type'] = $rowsType;
-        $data['statistics_by_area'] = $rowsArea;
 
         return $data;
     }
@@ -296,5 +230,84 @@ class BeneficiariesBnbaController extends ActiveController
         $search = new BeneficiaryBnbaSearch();
 
         return $search->search($params);
+    }
+
+    /**
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionStatisticsUpdate()
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $tahap = Arr::get($params, 'tahap');
+
+        if (empty($tahap)) {
+            throw new NotFoundHttpException('Object not found');
+        }
+
+        $updateStatisticsByType = $this->updateStatisticsByType($params);
+        $updateStatisticsByArea = $this->updateStatisticsByArea($params);
+
+        $data['statistics_by_type'] = $updateStatisticsByType;
+        $data['statistics_by_area'] = $updateStatisticsByArea;
+
+        return $data;
+    }
+
+    private function updateStatisticsByType($params)
+    {
+        $searchType = new BeneficiaryBnbaSearch();
+        $statisticByType = $searchType->getStatisticsByType($params);
+        $tahap = Arr::get($params, 'tahap');
+
+        $rowsType = [];
+        foreach ($statisticByType as $key => $val) {
+            $rowsType[] = [
+                'id_tipe_bansos' => $val['id_tipe_bansos'],
+                'is_dtks' => $val['is_dtks'],
+                'total' => $val['total'],
+                'tahap_bantuan' => $tahap,
+            ];
+        }
+
+        if (count($rowsType) > 0) {
+            Yii::$app->db->createCommand()->delete('beneficiaries_bnba_statistic_type', ['tahap_bantuan' => $tahap])->execute();
+            Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_type', [
+                'id_tipe_bansos',
+                'is_dtks',
+                'total',
+                'tahap_bantuan',
+            ], $rowsType)->execute();
+        }
+
+        return $rowsType;
+    }
+
+    private function updateStatisticsByArea($params)
+    {
+        $searchArea = new BeneficiaryBnbaSearch();
+        $params['area_type'] = 'kode_kab';
+        $statisticByArea = $searchArea->getStatisticsByArea($params);
+
+        $tahap = Arr::get($params, 'tahap');
+        $rowsArea = [];
+        foreach ($statisticByArea as $key => $val) {
+            $rowsArea[] = [
+                'kode_kab' => $val['kode_kab'],
+                'total' => $val['total'],
+                'tahap_bantuan' => $tahap,
+            ];
+        }
+
+        if (count($rowsArea) > 0) {
+            Yii::$app->db->createCommand()->delete('beneficiaries_bnba_statistic_area', ['tahap_bantuan' => $tahap])->execute();
+            Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_area', [
+                'kode_kab',
+                'total',
+                'tahap_bantuan',
+            ], $rowsArea)->execute();
+        }
+
+        return $rowsArea;
     }
 }

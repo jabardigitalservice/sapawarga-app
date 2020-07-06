@@ -3,7 +3,7 @@
 namespace app\models\beneficiary;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use app\components\BeneficiaryHelper;
 use app\models\Area;
 use app\models\Beneficiary;
 
@@ -41,10 +41,14 @@ class BeneficiaryApproval extends Beneficiary
         ],
     ];
 
+    // Attributes returned as response
     public $approved;
     public $rejected;
     public $pending;
     public $total;
+
+    public $tahap;
+    public $statusVerificationColumn = 'status_verification';
 
     public function fields()
     {
@@ -66,6 +70,9 @@ class BeneficiaryApproval extends Beneficiary
      */
     public function getDashboardApproval($params)
     {
+        // get column name for status_verification
+        $this->statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
+
         // get params, converting area_id to BPS code
         $type = Arr::get($params, 'type');
         $area_id = Arr::get($params, 'area_id');
@@ -80,9 +87,9 @@ class BeneficiaryApproval extends Beneficiary
         $statusPending = self::APPROVAL_MAP[$type]['pending'];
 
         $counts = Beneficiary::find()->select([
-            "SUM(status_verification >= ${statusApproved}) as 'approved'",
-            "SUM(status_verification = ${statusRejected}) as 'rejected'",
-            "SUM(status_verification = ${statusPending}) as 'pending'",
+            "SUM($this->statusVerificationColumn >= ${statusApproved}) as 'approved'",
+            "SUM($this->statusVerificationColumn = ${statusRejected}) as 'rejected'",
+            "SUM($this->statusVerificationColumn = ${statusPending}) as 'pending'",
         ]);
         if ($area_id) {
             switch ($type) {

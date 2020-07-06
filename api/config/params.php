@@ -19,6 +19,7 @@ return [
     'paginationParams' => $paginationParams,
     'upload_max_size' => 1024 * 1024 * 10,
     'storagePublicBaseUrl' => getenv('APP_STORAGE_PUBLIC_URL'),
+    'bansosProcessExcelUrl' => getenv('BANSOS_PROCESS_EXCEL_URL'),
     'hashidSaltSecret' => 'JDSSaltSecret',
     'hashidLengthPad' => 5,
     'userImportMaximumRows' => 5000,
