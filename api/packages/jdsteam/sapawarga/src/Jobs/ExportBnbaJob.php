@@ -35,7 +35,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         echo "Params: ";
         print_r($this->params);
 
-        $query = BeneficiaryBnbaTahapSatu::find()->where($this->params);
+        $query = $jobHistory->getQuery();
 
         $row_numbers = $query->count();
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
