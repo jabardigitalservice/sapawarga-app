@@ -84,7 +84,6 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         return new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
-                'defaultOrder' => $defaultOrder,
                 'attributes' => [
                     'nama_krt',
                     'nik',
