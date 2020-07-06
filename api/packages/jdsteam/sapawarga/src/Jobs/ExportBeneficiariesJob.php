@@ -60,11 +60,11 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         $columnHeaders = array_keys($columns);
         $columnHeaders[count($columnHeaders)-1] = 'Status Verifikasi';
 
-        $statusVerifikasiMapping = [
-            Beneficiary::STATUS_PENDING   => 'Belum Terverifikasi',
-            Beneficiary::STATUS_REJECT    => 'Ditolak',
-            Beneficiary::STATUS_VERIFIED  => 'Terverifikasi',
-        ];
+        Yii::$app->language = 'id-ID';
+        function getStatusLabel($status) {
+            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
+            return Yii::t('app', $localizationKey);
+        }
 
         $query = (new Query())
           ->select($columns)
@@ -110,7 +110,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         {
             $listBnba = array_map(function ($item) use ($statusVerifikasiMapping) {
                 $item['keterangan'] = null;
-                $item['status_verifikasi'] = $statusVerifikasiMapping[$item['status_verifikasi']];
+                $item['status_verifikasi'] = getStatusLabel($item['status_verifikasi']);
                 return $item;
             }, $listBnba);
 
