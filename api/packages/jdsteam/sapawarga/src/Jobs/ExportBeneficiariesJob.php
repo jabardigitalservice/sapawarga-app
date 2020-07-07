@@ -108,7 +108,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         $num_processed = 0;
         foreach ($query->batch($batch_size, $unbefferedDb) as $listBnba)
         {
-            $listBnba = array_map(function ($item) use ($statusVerifikasiMapping) {
+            $listBnba = array_map(function ($item) {
                 $item['keterangan'] = null;
                 $item['status_verifikasi'] = getStatusLabel($item['status_verifikasi']);
                 return $item;
