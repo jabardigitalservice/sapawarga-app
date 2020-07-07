@@ -133,6 +133,25 @@ class BeneficiariesVervalUploadController extends ActiveController
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
+        // trigger process-excel API
+        $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
+
+        $client = new Client([
+            'timeout'  => 0.00000000000001,
+        ]);
+
+        try {
+            $response = $client->post($url, [
+                'json' => [
+                    'bucket_name' => $filesystem->bucket,
+                    'path_file_s3' => $relativePath,
+                    'file_name' => explode('/', $relativePath)[1],
+                    's3_records' => 'dummy',
+                ],
+            ]);
+        } catch (RequestException $e) {
+        }
+
         $record = [
             'user_id'           => $user->id,
             'verval_type'       => $vervalType,
