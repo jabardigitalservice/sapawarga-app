@@ -152,12 +152,11 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         // trigger process-excel API
         $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
 
-        // temporarily disable try-catch timeout functionanilite to debug error on staging
         $client = new Client([
-            //'timeout'  => 0.00000000000001,
+            'timeout'  => 0.00000000000001,
         ]);
 
-        //try {
+        try {
             $response = $client->post($url, [
                 'json' => [
                     'bucket_name' => $filesystem->bucket,
@@ -166,8 +165,8 @@ class BansosUploadController extends ActiveController implements ActiveStatus
                     's3_records' => 'dummy',
                 ],
             ]);
-        //} catch (RequestException $e) {
-        //}
+        } catch (RequestException $e) {
+        }
 
         // get current tahapan
         $current_tahap = (new \yii\db\Query())
