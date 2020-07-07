@@ -169,7 +169,6 @@ class BeneficiariesBnbaController extends ActiveController
 
         // export bnba
         $id = Yii::$app->queue->push(new ExportBnbaJob([
-            'params' => $query_params,
             'userId' => $user->id,
             'historyId' => $job_history->id,
         ]));
