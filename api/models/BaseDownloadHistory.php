@@ -51,13 +51,7 @@ class BaseDownloadHistory extends ActiveRecord
      */
     public function countJobInLine()
     {
-        return self::find()
-            ->where(['<','id',$this->id])
-            ->andWhere([
-               'done_at' => null,
-               'error'   => null,
-            ])
-            ->count();
+        return $this->getWaitingListQuery()->count();
     }
 
     /** Get the aggregate in-progress row count accross all jobs in queue line
@@ -66,17 +60,10 @@ class BaseDownloadHistory extends ActiveRecord
      */
     public function getAggregateRowProgress($tag = null)
     {
-        $histories = self::find()
-            ->where(['<','id',$this->id])
-            ->andWhere([
-               'done_at' => null,
-               'error'   => null,
-            ])
-            ->orWhere(['id' => $this->id]) // make sure current job always selected
-            ->all();
+        $histories = $this->getWaitingListQuery()->all();
         
-        $total_row_count = 0;
-        $total_row_processed = 0;
+        $total_row_count = $this->row_count;
+        $total_row_processed = $this->row_processed;
         $start_time = $current_time = time();
         foreach ($histories as $history) {
             $total_row_count += $history->row_count;
@@ -102,6 +89,21 @@ class BaseDownloadHistory extends ActiveRecord
     {
         return $this->getQuery()->count();
     }
+
+    /** Get query builder instance for all waiting jobs
+     *
+     * @return yii\db\Query
+     */
+    public function getWaitingListQuery()
+    {
+        return self::find()
+            ->where(['<','id',$this->id])
+            ->andWhere([
+               'done_at' => null,
+               'errors'  => null,
+            ]);
+    }
+
 
     /** Get query builder instance for curent job parameters
      *
