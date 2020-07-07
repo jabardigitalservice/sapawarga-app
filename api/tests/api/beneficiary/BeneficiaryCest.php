@@ -15,6 +15,8 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 1,
             'nik' => '3200000000000003',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
@@ -27,6 +29,8 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 2,
             'nik' => '3200000000000002',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '2',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
@@ -39,6 +43,8 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 3,
             'nik' => '3200000000000001',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
@@ -51,6 +57,8 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 4,
             'nik' => '3200000000000004',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_REJECTED_KEL,
@@ -131,6 +139,8 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 4,
             'nik' => '3200000000000004',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
@@ -145,6 +155,8 @@ class BeneficiaryCest
         $I->haveInDatabase('beneficiaries', [
             'id' => 5,
             'nik' => '3200000000000005',
+            'domicile_kabkota_bps_id' => $this->kabkotaBandung,
+            'domicile_kec_bps_id' => $this->kecBandung,
             'domicile_kel_bps_id' => $this->kelBandung,
             'domicile_rw' => '1',
             'status_verification' => Beneficiary::STATUS_VERIFIED,
