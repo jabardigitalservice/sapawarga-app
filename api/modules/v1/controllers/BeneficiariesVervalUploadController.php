@@ -13,6 +13,8 @@ use yii\filters\AccessControl;
 use yii\web\HttpException;
 use Illuminate\Support\Arr;
 use yii\web\UploadedFile;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * BeneficiariesVervalUpload implements manual upload for verval.
