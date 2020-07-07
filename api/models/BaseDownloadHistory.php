@@ -55,6 +55,7 @@ class BaseDownloadHistory extends ActiveRecord
             ->where(['<','id',$this->id])
             ->andWhere([
                'done_at' => null,
+               'error'   => null,
             ])
             ->count();
     }
