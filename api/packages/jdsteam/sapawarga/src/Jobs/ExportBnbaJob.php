@@ -18,7 +18,6 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 {
     use HasJobHistory;
 
-    public $params;
     public $userId;
 
     public function execute($queue)
@@ -33,7 +32,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         // size of query batch size used during database retrieval
         $batch_size = 1000;
         echo "Params: ";
-        print_r($this->params);
+        print_r($jobHistory->params);
 
         $query = $jobHistory->getQuery();
 

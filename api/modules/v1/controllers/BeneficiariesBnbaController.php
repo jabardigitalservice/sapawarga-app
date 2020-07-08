@@ -51,7 +51,7 @@ class BeneficiariesBnbaController extends ActiveController
                 [
                     'allow' => true,
                     'actions' => ['index', 'view', 'download', 'download-status', 'summary'],
-                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW'],
                 ],
             ],
         ];
@@ -169,7 +169,6 @@ class BeneficiariesBnbaController extends ActiveController
 
         // export bnba
         $id = Yii::$app->queue->push(new ExportBnbaJob([
-            'params' => $query_params,
             'userId' => $user->id,
             'historyId' => $job_history->id,
         ]));

@@ -13,6 +13,8 @@ use yii\filters\AccessControl;
 use yii\web\HttpException;
 use Illuminate\Support\Arr;
 use yii\web\UploadedFile;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * BeneficiariesVervalUpload implements manual upload for verval.
@@ -132,6 +134,25 @@ class BeneficiariesVervalUploadController extends ActiveController
         $relativePath = "bansos-verval/{$code}_{$vervalType}_{$date}.{$ext}";
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
+
+        // trigger process-excel API
+        $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
+
+        $client = new Client([
+            'timeout'  => 0.00000000000001,
+        ]);
+
+        try {
+            $response = $client->post($url, [
+                'json' => [
+                    'bucket_name' => $filesystem->bucket,
+                    'path_file_s3' => $relativePath,
+                    'file_name' => explode('/', $relativePath)[1],
+                    's3_records' => 'dummy',
+                ],
+            ]);
+        } catch (RequestException $e) {
+        }
 
         $record = [
             'user_id'           => $user->id,
