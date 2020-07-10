@@ -659,7 +659,7 @@ class BeneficiariesController extends ActiveController
                 $counts_baru = $counts_baru->groupBy('domicile_rw');
                 $counts_baru->transform($transformCount);
                 foreach ($counts as $rw => $count) {
-                    if (!empty($rw)) {
+                    if ($rw !== null && $rw !== '') {
                         $areas->push([
                             'name' => 'RW ' . $rw,
                             'code_bps' => $code_bps,
@@ -706,7 +706,7 @@ class BeneficiariesController extends ActiveController
                 $counts_baru = $counts_baru->groupBy('domicile_rt');
                 $counts_baru->transform($transformCount);
                 foreach ($counts as $rt => $count) {
-                    if (!empty($rt)) {
+                    if ($rt !== null && $rt !== '') {
                         $areas->push([
                             'name' => 'RT ' . $rt,
                             'code_bps' => $code_bps,
