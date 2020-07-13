@@ -218,65 +218,64 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
-        $tahap_bantuan = '';
+        $tahapBantuan = null;
         if (isset($params['tahap_bantuan'])) {
-            $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $params['tahap_bantuan']);
+            $tahapBantuan = $params['tahap_bantuan'];
         } else {
             $data = (new \yii\db\Query())
             ->from('beneficiaries_current_tahap')
             ->all();
 
             if (count($data)) {
-                $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $data[0]['current_tahap_bnba']);
+                $tahapBantuan = $data[0]['current_tahap_bnba'];
             }
         }
 
-        $last_updated_subquery = <<<SQL
-            (SELECT MAX(updated_at)
-            FROM bansos_bnba_upload_histories
-            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps
-              %s
-            )
+        $rawQuery = <<<SQL
+            SELECT
+              areas.name,
+              kode_kab as code_bps,
+              is_dtks_final as type,
+              last_updated as last_update
+            FROM
+              (SELECT
+                  kode_kab,
+                  MAX(updated_time) as last_updated,
+                  CASE is_dtks
+                      WHEN 1 THEN 'dtks'
+                      ELSE 'non-dtks' # null dan nilai lainnya
+                  END is_dtks_final
+              FROM beneficiaries_bnba_tahap_1
+              WHERE
+                (is_deleted <> 1 OR is_deleted IS NULL)
+                AND tahap_bantuan = :tahap_bantuan
+              GROUP BY is_dtks_final, kode_kab
+              ) as monitoring_list
+            LEFT JOIN areas ON areas.code_bps = kode_kab
+            ;
 SQL;
-        $query = (new Query())
-          ->select([
-            'id',
-            'name',
-            'code_bps',
-            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50' . $tahap_bantuan),
-            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10' . $tahap_bantuan),
-          ])
-          ->from('areas')
-          ->where(['areas.depth' => 2 ]);
+        $query = Yii::$app->db
+          ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan ]);
+
+        $rows = $query->queryAll();
+        $finalRows = $rows;
 
         if (isset($params['kode_kab'])) {
-            $query = $query->andWhere([ 'areas.code_bps' => explode(',', $params['kode_kab']) ]);
+            $codeBps = explode(',', $params['kode_kab']);
+            $finalRows = array_filter($finalRows, function($item) use ($codeBps) {
+                return in_array($item['code_bps'], $codeBps);
+            });
         }
         if (isset($params['bansos_type']) && !empty($params['bansos_type'])) {
-            $params['bansos_type'] = explode(',', $params['bansos_type']);
-        } else {
-            $params['bansos_type'] = ['dtks','non-dtks'];
-        }
-
-        $final_rows = [];
-        $rows = $query->all();
-        foreach ($rows as $row) {
-            foreach ($params['bansos_type'] as $type) {
-                if ($row[$type . '_last_update'] != null) {
-                    $final_rows[] = [
-                        'id' => $row['id'],
-                        'name' => $row['name'],
-                        'code_bps' => $row['code_bps'],
-                        'type' => $type,
-                        'last_update' => $row[$type . '_last_update'],
-                    ];
-                }
-            }
+            $bansos_type = explode(',', $params['bansos_type']);
+            $finalRows = array_filter($finalRows, function($item) use ($bansos_type) {
+                return in_array($item['type'], $bansos_type);
+            });
         }
 
         $pageLimit = Arr::get($params, 'limit', 10);
         $provider = new ArrayDataProvider([
-            'allModels' => $final_rows,
+            'allModels' => $finalRows,
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
