@@ -25,7 +25,7 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         $query = BeneficiaryBnbaTahapSatu::find();
 
         // Filtering
-        $query->andFilterWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
+        $query->where(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
@@ -55,7 +55,7 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
             ->groupBy(['id_tipe_bansos']);
 
         // Filtering Area
-        $query->andFilterWhere(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
+        $query->where(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
         if (empty(Arr::get($params, 'id_tipe_bansos'))) {
             $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
         } else {
@@ -84,7 +84,6 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         return new ActiveDataProvider([
             'query'      => $query,
             'sort'       => [
-                'defaultOrder' => $defaultOrder,
                 'attributes' => [
                     'nama_krt',
                     'nik',

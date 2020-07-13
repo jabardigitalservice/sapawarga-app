@@ -159,13 +159,13 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         try {
             $response = $client->post($url, [
                 'json' => [
-                    'bucket_name' => $filesystem->bucket, 
-                    'path_file_s3' => $relativePath, 
-                    'file_name' => explode('/', $relativePath)[1], 
+                    'bucket_name' => $filesystem->bucket,
+                    'path_file_s3' => $relativePath,
+                    'file_name' => explode('/', $relativePath)[1],
                     's3_records' => 'dummy',
                 ],
             ]);
-        } catch (RequestException $e) {           
+        } catch (RequestException $e) {
         }
 
         // get current tahapan

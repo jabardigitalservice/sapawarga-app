@@ -161,6 +161,7 @@ class BeneficiariesController extends ActiveController
     public function prepareDataProvider()
     {
         $params = Yii::$app->request->getQueryParams();
+        $params = array_merge($params, $this->getAreaByUser());
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
@@ -174,18 +175,6 @@ class BeneficiariesController extends ActiveController
             $search->scenario = BeneficiarySearch::SCENARIO_LIST_USER;
         } else {
             $search->scenario = BeneficiarySearch::SCENARIO_LIST_STAFF;
-        }
-
-        if ($user->can('staffKabkota')) {
-            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
-            $params['domicile_kabkota_bps_id'] = $area->code_bps;
-        } elseif ($user->can('staffKec')) {
-            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
-            $params['domicile_kec_bps_id'] = $area->code_bps;
-        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
-            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
-            $params['domicile_kel_bps_id'] = $area->code_bps;
-            $params['domicile_rw'] = $authUserModel->rw;
         }
 
         $result = $search->validate();
@@ -670,11 +659,13 @@ class BeneficiariesController extends ActiveController
                 $counts_baru = $counts_baru->groupBy('domicile_rw');
                 $counts_baru->transform($transformCount);
                 foreach ($counts as $rw => $count) {
-                    $areas->push([
-                        'name' => 'RW ' . $rw,
-                        'code_bps' => $code_bps,
-                        'rw' => $rw,
-                    ]);
+                    if ($rw !== null && $rw !== '') {
+                        $areas->push([
+                            'name' => 'RW ' . $rw,
+                            'code_bps' => $code_bps,
+                            'rw' => $rw,
+                        ]);
+                    }
                 }
                 $areas->push([
                     'name' => '- LOKASI RW BELUM TERDATA',
@@ -715,12 +706,14 @@ class BeneficiariesController extends ActiveController
                 $counts_baru = $counts_baru->groupBy('domicile_rt');
                 $counts_baru->transform($transformCount);
                 foreach ($counts as $rt => $count) {
-                    $areas->push([
-                        'name' => 'RT ' . $rt,
-                        'code_bps' => $code_bps,
-                        'rw' => $rw,
-                        'rt' => $rt,
-                    ]);
+                    if ($rt !== null && $rt !== '') {
+                        $areas->push([
+                            'name' => 'RT ' . $rt,
+                            'code_bps' => $code_bps,
+                            'rw' => $rw,
+                            'rt' => $rt,
+                        ]);
+                    }
                 }
                 $areas->push([
                     'name' => '- LOKASI RT BELUM TERDATA',
@@ -737,6 +730,33 @@ class BeneficiariesController extends ActiveController
         }
 
         return $areas;
+    }
+
+    public function getAreaByUser()
+    {
+        $user = Yii::$app->user;
+        $authUserModel = $user->identity;
+        $params = [];
+
+        if ($user->can('staffKabkota')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['domicile_kabkota_bps_id'] = $area->code_bps;
+        } elseif ($user->can('staffKec')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['domicile_kabkota_bps_id'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['domicile_kec_bps_id'] = $area->code_bps;
+        } elseif ($user->can('staffKel') || $user->can('staffRW') || $user->can('trainer')) {
+            $area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $params['domicile_kabkota_bps_id'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $params['domicile_kec_bps_id'] = $area->code_bps;
+            $area = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+            $params['domicile_kel_bps_id'] = $area->code_bps;
+            $params['domicile_rw'] = $authUserModel->rw;
+        }
+
+        return $params;
     }
 
     /* APPROVAL */

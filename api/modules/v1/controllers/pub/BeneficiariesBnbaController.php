@@ -89,7 +89,7 @@ class BeneficiariesBnbaController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $type = Arr::get($params, 'type');
-        $tahap = Arr::get($params, 'tahap');
+        $tahap = Arr::get($params, 'tahap', 1);
 
         // $type is empty means API call from homepage
         if (empty($type)) {
@@ -159,7 +159,7 @@ class BeneficiariesBnbaController extends ActiveController
     {
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'] . '/logo/';
         $params = Yii::$app->request->getQueryParams();
-        $tahap = Arr::get($params, 'tahap');
+        $tahap = Arr::get($params, 'tahap', 1);
         $data = [];
 
         $params['area_type'] = 'kode_kab';

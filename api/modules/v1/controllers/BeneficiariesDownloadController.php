@@ -62,11 +62,40 @@ class BeneficiariesDownloadController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $queryParams = [];
+        $finalParams = [ 'and' ];
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
+        // special filtering parametes for tahap bantuan
+        $colFormat = 'tahap_%d_verval';
+        $values = [];
+        if (isset($params['tahap_bantuan'])) {
+            foreach (explode(',', $params['tahap_bantuan']) as $tahap) {
+                $colName = sprintf($colFormat, $tahap);
+                $values[$colName] = null;
+            }
+        } else {
+            $data = (new \yii\db\Query())
+            ->from('beneficiaries_current_tahap')
+            ->all();
+
+            if (count($data)) {
+                $colName = sprintf($colFormat, $data[0]['current_tahap_verval']);
+                $values[$colName] = null;
+            }
+        }
+        $finalParams[] = ['not', $values];
+
         // common parameter filtering
+        if (isset($params['status_verifikasi'])) {
+            $inputValues = explode(',', $params['status_verifikasi']);
+            $values = array_map(function ($val) {
+                $val = strtoupper($val);
+                return constant("app\models\Beneficiary::STATUS_$val");
+            }, $inputValues);
+            $queryParams['status_verification'] = $values;
+        }
         if (isset($params['kode_kel'])) {
             $queryParams['domicile_kel_bps_id'] = explode(',', $params['kode_kel']);
         }
@@ -101,7 +130,7 @@ class BeneficiariesDownloadController extends ActiveController
         }
 
         // handler utk row dengan kolom kode_kec kosong
-        if (isset($queryParams['domicile_kec_bps_id']) && is_array($queryParams['domicile_kec_bps_id']) ) {
+        if (isset($queryParams['domicile_kec_bps_id']) && is_array($queryParams['domicile_kec_bps_id'])) {
             $nullValuePos = array_search('0', $queryParams['domicile_kec_bps_id']);
             if ($nullValuePos !== false) {
                 // replace 0 with '' and null
@@ -110,15 +139,19 @@ class BeneficiariesDownloadController extends ActiveController
             }
         }
 
+        // generate final query parameters
+        foreach ($queryParams as $col => $val) {
+            $finalParams[] = [ $col => $val ];
+        }
+
         $jobHistory = new BansosBeneficiariesDownloadHistory;
         $jobHistory->user_id = $user->id;
-        $jobHistory->params = $queryParams;
+        $jobHistory->params = $finalParams;
         $jobHistory->row_count = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
         // export bnba
         $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
-            'params' => $queryParams,
             'userId' => $user->id,
             'historyId' => $jobHistory->id,
         ]));

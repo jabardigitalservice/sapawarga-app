@@ -26,7 +26,12 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         // Filtering
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
-        $query->andFilterWhere(['id_tipe_bansos' => Arr::get($params, 'id_tipe_bansos')]);
+        if (empty(Arr::get($params, 'id_tipe_bansos'))) {
+            $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
+        } else {
+            $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
+        }
+
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kabkota_bps_id')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kec_bps_id')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kel_bps_id')]);
