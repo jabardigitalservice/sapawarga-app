@@ -75,6 +75,7 @@ services:
     
   memcached:
     image: memcached:latest
+    restart: on-failure
     networks:
       - internal
 
