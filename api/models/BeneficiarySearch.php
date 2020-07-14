@@ -128,7 +128,6 @@ class BeneficiarySearch extends Beneficiary
             $sortAttribute = $this->statusVerificationColumn;
         }
 
-
         $pageLimit = Arr::get($params, 'limit');
         $sortBy    = $sortAttribute;
         $sortOrder = Arr::get($params, 'sort_order', 'ascending');
