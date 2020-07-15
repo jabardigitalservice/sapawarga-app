@@ -185,9 +185,10 @@ class BeneficiariesBnbaController extends ActiveController
             $search = $search->getStatisticsByArea($params);
         }
 
+        // Reformat for RW area
         if ($codeBps == null) {
             foreach ($search as $key => $val) {
-                $areaName = $val[$params['area_type']] != null ? 'RW ' . $val[$params['area_type']] : Yii::t('app', 'beneficiaries.incomplete_address');
+                $areaName = $val['area'] != null ? 'RW ' . $val['area'] : Yii::t('app', 'beneficiaries.incomplete_address');
                 $data[$key] = [
                     'name' => $areaName,
                     'total' => $val['total']
