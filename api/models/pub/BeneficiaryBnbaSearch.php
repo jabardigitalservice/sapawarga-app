@@ -83,15 +83,16 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
     public function getStatisticsByArea($params)
     {
         $areaType = $params['area_type'];
+        $groupBy = ($areaType == 'RW') ? 'area' : $areaType;
 
         $query = (new \yii\db\Query())
-            ->select("`$areaType` * 1 AS $areaType, COUNT(id) AS total")
+            ->select("`$areaType` * 1 AS $groupBy, COUNT(id) AS total")
             ->from('beneficiaries_bnba_tahap_1')
             ->andWhere(['or',
                 ['is_deleted' => null],
                 ['is_deleted' => 0]
             ])
-            ->groupBy("$areaType");
+            ->groupBy("$groupBy");
 
         // Filtering Area
         if (empty(Arr::get($params, 'id_tipe_bansos'))) {
