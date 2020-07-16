@@ -139,10 +139,10 @@ class BeneficiariesVervalUploadController extends ActiveController
         $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
 
         $client = new Client([
-            //'timeout'  => 0.00000000000001,
+            'timeout'  => 0.1,
         ]);
 
-        //try {
+        try {
             $response = $client->post($url, [
                 'json' => [
                     'bucket_name' => $filesystem->bucket,
@@ -151,8 +151,8 @@ class BeneficiariesVervalUploadController extends ActiveController
                     's3_records' => 'dummy',
                 ],
             ]);
-        //} catch (RequestException $e) {
-        //}
+        } catch (RequestException $e) {
+        }
 
         $record = [
             'user_id'           => $user->id,
