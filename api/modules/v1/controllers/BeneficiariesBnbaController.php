@@ -258,7 +258,10 @@ SQL;
           ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan ]);
 
         $rows = $query->queryAll();
-        $finalRows = $rows;
+        $finalRows = array_map(function($item) {
+            $item['last_update'] = strtotime($item['last_update']);
+            return $item;
+        }, $rows);
 
         if (isset($params['kode_kab'])) {
             $codeBps = explode(',', $params['kode_kab']);
