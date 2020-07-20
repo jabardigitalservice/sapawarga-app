@@ -135,6 +135,23 @@ class BeneficiariesVervalUploadController extends ActiveController
 
         $filesystem->write($relativePath, file_get_contents($file->tempName));
 
+        $record = [
+            'user_id'           => $user->id,
+            'verval_type'       => $vervalType,
+            'kabkota_code'      => $kabkota->code_bps,
+            'kec_code'          => $kecId ? $kec->code_bps : null,
+            'kel_code'          => $kelId ? $kel->code_bps : null,
+            'original_filename' => $file->name,
+            'file_path'         => $relativePath,
+            'status'            => 0,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+            'created_by'        => $user->id,
+            'updated_by'        => $user->id,
+        ];
+
+        Yii::$app->db->createCommand()->insert('bansos_verval_upload_histories', $record)->execute();
+
         // trigger process-excel API
         $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
 
@@ -153,23 +170,6 @@ class BeneficiariesVervalUploadController extends ActiveController
             ]);
         } catch (RequestException $e) {
         }
-
-        $record = [
-            'user_id'           => $user->id,
-            'verval_type'       => $vervalType,
-            'kabkota_code'      => $kabkota->code_bps,
-            'kec_code'          => $kecId ? $kec->code_bps : null,
-            'kel_code'          => $kelId ? $kel->code_bps : null,
-            'original_filename' => $file->name,
-            'file_path'         => $relativePath,
-            'status'            => 0,
-            'created_at'        => time(),
-            'updated_at'        => time(),
-            'created_by'        => $user->id,
-            'updated_by'        => $user->id,
-        ];
-
-        Yii::$app->db->createCommand()->insert('bansos_verval_upload_histories', $record)->execute();
 
         return ['file_path' => $this->getFileUrl($relativePath)];
     }
@@ -198,4 +198,5 @@ class BeneficiariesVervalUploadController extends ActiveController
         }
         return basename($relativePath);
     }
+
 }
