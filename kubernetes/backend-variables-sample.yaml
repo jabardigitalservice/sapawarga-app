@@ -18,7 +18,7 @@ data:
 
   # Redis
   REDIS_HOST: %REDIS_HOST%
-  REDIS_PORT: %REDIS_PORT%
+  REDIS_PORT: "6379"
   REDIS_DB: "0"
 
   # mysql dtks
