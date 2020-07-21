@@ -18,6 +18,9 @@ use app\modules\v1\controllers\ActiveController as ActiveController;
  */
 class BeneficiariesBnbaController extends ActiveController
 {
+    const REDIS_KEY_BNBA_TYPE = 'bnba-statisticsbytype-';
+    const REDIS_KEY_BNBA_AREA = 'bnba-statisticsbyarea-';
+
     public $modelClass = BeneficiaryBnba::class;
 
     public function behaviors()
@@ -98,8 +101,14 @@ class BeneficiariesBnbaController extends ActiveController
                     ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
-            $search = new BeneficiaryBnbaSearch();
-            $search = $search->getStatisticsByType($params);
+            $cache = Yii::$app->cache;
+            $key = self::REDIS_KEY_BNBA_TYPE . implode($params);
+            $search = $cache->get($key);
+            if (! $search) {
+                $search = new BeneficiaryBnbaSearch();
+                $search = $search->getStatisticsByType($params);
+                $cache->set($key, $search);
+            }
         }
 
         // Reformat result
@@ -181,8 +190,14 @@ class BeneficiariesBnbaController extends ActiveController
                     ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
-            $search = new BeneficiaryBnbaSearch();
-            $search = $search->getStatisticsByArea($params);
+            $cache = Yii::$app->cache;
+            $key = self::REDIS_KEY_BNBA_AREA . implode($params);
+            $search = $cache->get($key);
+            if (! $search) {
+                $search = new BeneficiaryBnbaSearch();
+                $search = $search->getStatisticsByArea($params);
+                $cache->set($key, $search);
+            }
         }
 
         // Reformat for RW area
