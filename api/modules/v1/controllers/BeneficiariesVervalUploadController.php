@@ -156,7 +156,7 @@ class BeneficiariesVervalUploadController extends ActiveController
         $url = Yii::$app->params['bansosProcessExcelUrl'] . '/process-excel/';
 
         $client = new Client([
-            'timeout'  => 0.00000000000001,
+            'timeout'  => 0.1,
         ]);
 
         try {
