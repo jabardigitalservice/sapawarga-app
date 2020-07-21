@@ -41,7 +41,8 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => include __DIR__ . '/components/mailer.php',
-        'log' => include __DIR__ . '/components/log.php',
+        // temp disable Sentry
+        // 'log' => include __DIR__ . '/components/log.php',
         'monolog' => include __DIR__ . '/components/monolog.php',
         'queue' => include __DIR__ . '/components/queue.db.php',
         'queueImport' => include __DIR__ . '/components/queue-import.db.php',
