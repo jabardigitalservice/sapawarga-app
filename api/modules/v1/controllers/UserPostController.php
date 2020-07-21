@@ -157,14 +157,15 @@ class UserPostController extends ActiveController
     public function actionMe()
     {
         $userId = Yii::$app->user->getId();
-        $user = User::findIdentity($userId);
 
         $search = new UserPostSearch();
         $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
         $search->created_by = $userId;
 
         $params = Yii::$app->request->getQueryParams();
-        return $search->search($params, true);
+        // return $search->search($params, true);
+        // Temporary use for production performance purposes
+        return $search->searchEmpty($params);
     }
 
     /**
