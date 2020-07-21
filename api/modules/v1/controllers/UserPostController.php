@@ -86,14 +86,14 @@ class UserPostController extends ActiveController
         $this->checkAccess('create', $model);
 
         // For old version still can upload one image
-        if (! empty($params['image_path']) && empty($params['images'])) {
+        if (!empty($params['image_path']) && empty($params['images'])) {
             $imagePath = [['path' => $params['image_path']]];
             $model->images = $imagePath;
         }
 
         // For new version can post and view from the old version
         // Get the first image on multiple image
-        if (empty($params['image_path']) && ! empty($params['images'])) {
+        if (empty($params['image_path']) && !empty($params['images'])) {
             $images = $params['images'][0]['path'];
             $model->image_path = $images;
         }
@@ -190,6 +190,8 @@ class UserPostController extends ActiveController
             $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
         }
 
-        return $search->search($params);
+        // return $search->search($params);
+        // Temporary use for production performance purposes
+        return $search->searchEmpty($params);
     }
 }
