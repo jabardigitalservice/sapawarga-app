@@ -43,7 +43,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         }
 
         $query = $jobHistory->getQuery();
-        $row_numbers = $query->count();
+        $row_numbers = $jobHistory->row_count;
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
         echo "Starting generating BNBA list export\n" ;
