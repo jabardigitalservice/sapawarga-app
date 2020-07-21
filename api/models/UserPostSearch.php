@@ -51,7 +51,7 @@ class UserPostSearch extends UserPost
         ]);
 
         // Query for my post or public post
-        if (! empty($this->created_by)) {
+        if (!empty($this->created_by)) {
             $query->andWhere(['created_by' => $this->created_by]);
             $query->andWhere(['<>', 'user_posts.status', UserPost::STATUS_DELETED]);
         } else {
@@ -86,5 +86,31 @@ class UserPostSearch extends UserPost
                 'pageSize' => $pageLimit,
             ],
         ]);
+    }
+
+    /**
+     * Creates data provider instance with empty search result
+     * Temporary use for production performance purposes
+     *
+     * @param array $params
+     *
+     * @return ActiveDataProvider
+     */
+    public function searchEmpty($params)
+    {
+        return [
+            'items' => [],
+            '_links' => [
+                'self' => [
+                    'href' => null,
+                ],
+            ],
+            '_meta' => [
+                'totalCount' => 0,
+                'pageCount' => 0,
+                'currentPage' => 1,
+                'perPage' => 20
+            ]
+        ];
     }
 }
