@@ -60,4 +60,14 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
           ->where($this->params)
           ;
     }
+
+    /*
+     * {@inheritdoc}
+     */
+    public function countAffectedRows()
+    {
+        return Beneficiary::find()
+          ->where($this->params)
+          ->count();
+    }
 }
