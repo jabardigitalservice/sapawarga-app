@@ -8,10 +8,7 @@ use app\models\BansosVervalUploadHistory;
 use app\models\BansosVervalUploadHistorySearch;
 use Yii;
 use yii\base\DynamicModel;
-use yii\db\Query;
 use yii\filters\AccessControl;
-use yii\web\HttpException;
-use Illuminate\Support\Arr;
 use yii\web\UploadedFile;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -198,5 +195,4 @@ class BeneficiariesVervalUploadController extends ActiveController
         }
         return basename($relativePath);
     }
-
 }

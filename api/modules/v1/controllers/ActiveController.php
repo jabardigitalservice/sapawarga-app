@@ -46,12 +46,6 @@ class ActiveController extends BaseActiveController
             ],
         ];
 
-        // Disable temporary, for performance checking
-        // Record last activity for all controllers derived from ActiveController
-        // $behaviors['recordLastActivity'] = [
-        //     'class' => RecordLastActivity::class,
-        // ];
-
         return $behaviors;
     }
 
