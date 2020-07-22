@@ -6,19 +6,11 @@ use app\models\Area;
 use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
-use app\validator\NikRateLimitValidator;
-use app\validator\NikValidator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\db\Query;
 use yii\data\ArrayDataProvider;
-use yii\base\DynamicModel;
 use yii\filters\AccessControl;
-use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
-use yii\helpers\ArrayHelper;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
 
@@ -132,8 +124,8 @@ class BeneficiariesBnbaController extends ActiveController
             $query_params['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
         } else {
             $data = (new \yii\db\Query())
-            ->from('beneficiaries_current_tahap')
-            ->all();
+                ->from('beneficiaries_current_tahap')
+                ->all();
 
             if (count($data)) {
                 $query_params['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
@@ -177,7 +169,7 @@ class BeneficiariesBnbaController extends ActiveController
         $job_history->save();
 
         return [
-          'history_id' => $job_history->id,
+            'history_id' => $job_history->id,
         ];
     }
 
@@ -223,8 +215,8 @@ class BeneficiariesBnbaController extends ActiveController
             $tahapBantuan = $params['tahap_bantuan'];
         } else {
             $data = (new \yii\db\Query())
-            ->from('beneficiaries_current_tahap')
-            ->all();
+                ->from('beneficiaries_current_tahap')
+                ->all();
 
             if (count($data)) {
                 $tahapBantuan = $data[0]['current_tahap_bnba'];
@@ -255,23 +247,23 @@ class BeneficiariesBnbaController extends ActiveController
             ;
 SQL;
         $query = Yii::$app->db
-          ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan ]);
+            ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan]);
 
         $rows = $query->queryAll();
-        $finalRows = array_map(function($item) {
+        $finalRows = array_map(function ($item) {
             $item['last_update'] = strtotime($item['last_update']);
             return $item;
         }, $rows);
 
         if (isset($params['kode_kab'])) {
             $codeBps = explode(',', $params['kode_kab']);
-            $finalRows = array_filter($finalRows, function($item) use ($codeBps) {
+            $finalRows = array_filter($finalRows, function ($item) use ($codeBps) {
                 return in_array($item['code_bps'], $codeBps);
             });
         }
         if (isset($params['bansos_type']) && !empty($params['bansos_type'])) {
             $bansos_type = explode(',', $params['bansos_type']);
-            $finalRows = array_filter($finalRows, function($item) use ($bansos_type) {
+            $finalRows = array_filter($finalRows, function ($item) use ($bansos_type) {
                 return in_array($item['type'], $bansos_type);
             });
         }

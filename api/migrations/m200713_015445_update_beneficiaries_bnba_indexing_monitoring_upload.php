@@ -25,5 +25,4 @@ class m200713_015445_update_beneficiaries_bnba_indexing_monitoring_upload extend
     {
         $this->dropIndex('idx-monitoring-upload-bnba', 'beneficiaries_bnba_tahap_1');
     }
-
 }
