@@ -21,28 +21,25 @@ COPY image-files/ /
 
 RUN chmod 700 \
         /usr/local/bin/docker-entrypoint.sh \
-        /usr/local/bin/composer
-
-# Install composer
-RUN cd ~
-RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
-RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-RUN composer global require --optimize-autoloader \
+        /usr/local/bin/composer && \
+    cd ~ && \ 
+    curl -sS https://getcomposer.org/installer -o composer-setup.php && \
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+    composer global require --optimize-autoloader \
         "fxp/composer-asset-plugin:${VERSION_COMPOSER_ASSET_PLUGIN}" \
-        "hirak/prestissimo:${VERSION_PRESTISSIMO_PLUGIN}"
-RUN composer global dumpautoload --optimize
-RUN composer clear-cache
-
-# Install nginx
-RUN apk --update add nginx
+        "hirak/prestissimo:${VERSION_PRESTISSIMO_PLUGIN}" && \
+    composer global dumpautoload --optimize && \
+    composer clear-cache && \
+    apk --update add nginx
 
 WORKDIR /srv
 
 COPY . /srv/
-RUN chown -R www-data:www-data /srv/ \
-    && chmod 777 -R /srv/runtime
 
-RUN /usr/local/bin/composer install --prefer-dist
+RUN chown -R www-data:www-data /srv/ && \
+    chmod 777 -R /srv/runtime && \ 
+    /usr/local/bin/composer install --prefer-dist --optimize-autoloader && \
+    composer clearcache
 
 EXPOSE 80
 
