@@ -187,7 +187,7 @@ deploy_staging_eks:
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
 
     # Sentry STAGING
-    - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_STAGING}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
 
@@ -280,7 +280,7 @@ deploy_prod_eks:
     - sed -i "s/%FCM_KEY%/${FCM_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%dockerconfigjson%/${dockerconfigjson}/g" kubernetes/backend-variables.yaml
 
-    - sed -i "s/%ERROR_ENVIRONMENT_DSN_PRODUCTION%/${ERROR_ENVIRONMENT_DSN_PRODUCTION}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
 
