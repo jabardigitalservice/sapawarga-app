@@ -36,6 +36,19 @@ class SentryTarget extends Target
     public $environment;
 
     /**
+     * {@inheritdoc}
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+
+        $releaseVersion = getenv('APP_VERSION');
+        $releaseString  = "sapawarga-api@{$releaseVersion}";
+
+        Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment, 'release' => $releaseString]);
+    }
+
+    /**
      * Exports log [[messages]] to a specific destination.
      * Child classes must implement this method.
      */
@@ -54,18 +67,15 @@ class SentryTarget extends Target
     {
         list($text, $level, $category, $timestamp, $traces) = $message;
 
-        if ($text instanceof NotFoundHttpException ||
+        if (
+            $text instanceof NotFoundHttpException ||
             $text instanceof UnauthorizedHttpException ||
-            $text instanceof ForbiddenHttpException) {
+            $text instanceof ForbiddenHttpException
+        ) {
             return false;
         }
 
         if ($text instanceof \Throwable || $text instanceof \Exception) {
-            $releaseVersion = getenv('APP_VERSION');
-            $releaseString  = "sapawarga-api@{$releaseVersion}";
-
-            Sentry\init(['dsn' => $this->dsn, 'environment' => $this->environment, 'release' => $releaseString]);
-
             Sentry\configureScope(function (Sentry\State\Scope $scope) {
                 if (isset(Yii::$app->user) === false) {
                     return false;
