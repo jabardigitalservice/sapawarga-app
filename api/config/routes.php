@@ -457,6 +457,8 @@ return [
         'extraPatterns' => [
             'GET summary' => 'summary',
             'OPTIONS summary' => 'options',
+            'POST upload' => 'upload',
+            'GET upload-histories' => 'upload-histories',
             'GET download' => 'download',
             'GET monitoring' => 'monitoring',
             'GET download-status' => 'download-status',
