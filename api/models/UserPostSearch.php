@@ -87,30 +87,4 @@ class UserPostSearch extends UserPost
             ],
         ]);
     }
-
-    /**
-     * Creates data provider instance with empty search result
-     * Temporary use for production performance purposes
-     *
-     * @param array $params
-     *
-     * @return ActiveDataProvider
-     */
-    public function searchEmpty($params)
-    {
-        return [
-            'items' => [],
-            '_links' => [
-                'self' => [
-                    'href' => null,
-                ],
-            ],
-            '_meta' => [
-                'totalCount' => 0,
-                'pageCount' => 0,
-                'currentPage' => 1,
-                'perPage' => 20
-            ]
-        ];
-    }
 }
