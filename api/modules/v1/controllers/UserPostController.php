@@ -163,9 +163,7 @@ class UserPostController extends ActiveController
         $search->created_by = $userId;
 
         $params = Yii::$app->request->getQueryParams();
-        // return $search->search($params, true);
-        // Temporary use for production performance purposes
-        return $search->searchEmpty($params);
+        return $search->search($params, true);
     }
 
     /**
@@ -191,8 +189,6 @@ class UserPostController extends ActiveController
             $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
         }
 
-        // return $search->search($params);
-        // Temporary use for production performance purposes
-        return $search->searchEmpty($params);
+        return $search->search($params);
     }
 }
