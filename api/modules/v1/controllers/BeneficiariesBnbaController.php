@@ -3,14 +3,18 @@
 namespace app\modules\v1\controllers;
 
 use app\models\Area;
+use app\models\BansosBnbaUploadHistory;
 use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
 use Yii;
 use yii\db\Query;
+use yii\base\DynamicModel;
 use yii\data\ArrayDataProvider;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
 
@@ -42,7 +46,7 @@ class BeneficiariesBnbaController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'download', 'download-status', 'summary'],
+                    'actions' => ['index', 'view', 'download', 'download-status', 'summary', 'upload', 'upload-histories'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW'],
                 ],
             ],
@@ -110,6 +114,72 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         return $data;
+    }
+
+    public function actionUpload()
+    {
+        $user       = Yii::$app->user;
+        $filesystem = Yii::$app->fs;
+        $kabkotaId  = $user->identity->kabkota_id;
+        $file = UploadedFile::getInstanceByName('file');
+
+        $model = new DynamicModel(['file' => $file]);
+
+        $model->addRule('file', 'required');
+        $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
+
+        if ($model->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        $kabkota   = Area::findOne(['id' => $kabkotaId]);
+        $code      = $kabkota->code_bps;
+        $ext          = $file->getExtension();
+        $date         = date('Ymd_His');
+        $relativePath = "bansos-bnba-noimport/{$code}_{$date}.{$ext}";
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        $filesystem->write($relativePath, file_get_contents($file->tempName));
+
+        $publicUrl = "{$publicBaseUrl}/{$relativePath}";
+
+        $historyData = [
+            'user_id' => $user->id,
+            'kabkota_name' => $kabkota->name,
+            'original_filename' => $file->name,
+            'final_url' => $publicUrl,
+            'timestamp' => time(),
+            'status' => 1,
+        ];
+
+        $history = new BansosBnbaUploadHistory();
+        $history->attributes = $historyData;
+        $history->save();
+
+        return $historyData;
+    }
+
+    public function actionUploadHistories() {
+        $params = Yii::$app->request->getQueryParams();
+
+        $query = BansosBnbaUploadHistory::find();
+
+        $provider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => Arr::get($params, 'limit', 10),
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'timestamp' => SORT_DESC,
+                ]
+            ],
+        ]);
+
+        return $provider;
     }
 
     public function actionDownload()

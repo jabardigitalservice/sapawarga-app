@@ -5,10 +5,8 @@ namespace app\modules\v1\controllers;
 use app\components\LogHelper;
 use app\models\UserPost;
 use app\models\UserPostSearch;
-use app\models\User;
 use app\models\Like;
 use yii\filters\AccessControl;
-use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
@@ -163,9 +161,7 @@ class UserPostController extends ActiveController
         $search->created_by = $userId;
 
         $params = Yii::$app->request->getQueryParams();
-        // return $search->search($params, true);
-        // Temporary use for production performance purposes
-        return $search->searchEmpty($params);
+        return $search->search($params, true);
     }
 
     /**
@@ -191,8 +187,6 @@ class UserPostController extends ActiveController
             $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
         }
 
-        // return $search->search($params);
-        // Temporary use for production performance purposes
-        return $search->searchEmpty($params);
+        return $search->search($params);
     }
 }
