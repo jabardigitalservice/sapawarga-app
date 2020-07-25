@@ -20,12 +20,17 @@ $config = [
             ],
         ],
         'cache' => [
-            'class' => 'yii\redis\Cache',
-            'redis' => [
-                'hostname' => getenv('REDIS_HOST'),
-                'port' => getenv('REDIS_PORT'),
-                'database' => getenv('REDIS_DB'),
-            ]
+            'class' => 'yii\caching\MemCache',
+            'useMemcached' => getenv('CACHE_USE_MEMCACHED'),
+            'username' => getenv('CACHE_USERNAME'),
+            'password' => getenv('CACHE_PASSWORD'),
+            'servers' => [
+                [
+                    'host' => getenv('CACHE_SERVERS'),
+                    'port' => getenv('CACHE_PORT'),
+                    'weight' => getenv('CACHE_WEIGHT'),
+                ],
+            ],
         ],
         'user' => [
             'identityClass' => 'app\models\User',
