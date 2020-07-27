@@ -2,17 +2,28 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Json;
 use app\models\BeneficiaryBnbaTahapSatu;
+use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
+use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
 
 /**
  * This is the model class for table "bansos_bnba_download_histories".
  *
  * {@inheritdoc}
+ * @property int $export_type
  */
-class BansosBnbaDownloadHistory extends BaseDownloadHistory
-{
+class BansosBnbaDownloadHistory extends BaseDownloadHistory {
+    const TYPE_BNBA_ORIGINAL = 'bnba'; // original ExportBnba job type
+    const TYPE_BNBA_WITH_COMPLAIN = 'bnbawithcomplain'; // export type which include joined data from `beneficiaries_complain` table
+
+    const AVAILABLE_TYPES = [
+      self::TYPE_BNBA_ORIGINAL => 'Original Template',
+      self::TYPE_BNBA_WITH_COMPLAIN => 'Template With Complain Notes',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -33,5 +44,28 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory
                 ['is_deleted' => null],
                 ['is_deleted' => 0]
             ]);
+    }
+
+    /** Start Export Bnba Job according to type
+     *
+     * @return None
+     */
+    public function startJob() {
+        switch ($this->export_type) {
+            case self::TYPE_BNBA_WITH_COMPLAIN :
+                $job_id = Yii::$app->queue->push(new ExportBnbaWithComplainJob([
+                    'userId' => $this->user_id,
+                    'historyId' => $this->id,
+                ]));
+                break;
+            default:
+                $job_id = Yii::$app->queue->push(new ExportBnbaJob([
+                    'userId' => $this->user_id,
+                    'historyId' => $this->id,
+                ]));
+        }
+
+        $this->job_id = $job_id;
+        $this->save();
     }
 }

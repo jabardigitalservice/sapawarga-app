@@ -14,7 +14,7 @@ use Box\Spout\Common\Entity\Row;
 use League\Flysystem\AdapterInterface;
 use Jdsteam\Sapawarga\Jobs\Concerns\HasJobHistory;
 
-class ExportBnbaJob extends BaseObject implements RetryableJobInterface
+class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterface
 {
     use HasJobHistory;
 
@@ -39,7 +39,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         $row_numbers = $query->count();
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
-        echo "Starting generating BNBA list export\n" ;
+        echo "Starting generating BNBA list with complain columns export\n" ;
 
         /* Generate export file using box/spout library.
          * ref: https://opensource.box.com/spout/getting-started/#writer */
