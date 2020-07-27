@@ -1,20 +1,16 @@
+FROM php:7.1.9-fpm-alpine
+
 # Install system packages & PHP extensions required for Yii 2.0 Framework
 # virtual pkg names and ENV $PHPIZE_DEPS are definied in base image
 # C* and LDFlAGS are also definied in base image, so we use these for our custom pecl builds
 # we install (newer) imagick from edge repo due to SEGFAULT bugs
 # hopefully this won't break other things...
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
-    apk add --no-cache --virtual .imagemagick-edge \
-            --repository http://dl-3.alpinelinux.org/alpine/v3.6/main/ \
-            --allow-untrusted \
-        imagemagick \
-        imagemagick-dev && \
     apk add --update --virtual .pecl-build-deps \
         icu-dev \
         curl-dev \
         freetype-dev \
         pcre-dev \
-        postgresql-dev \
         libtool \
         libmcrypt-dev \
         libjpeg-turbo-dev \
@@ -38,21 +34,15 @@ RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
         libmcrypt \
         libintl \
         libjpeg-turbo \
-        imagemagick \
         libpng \
         libltdl \
         libxml2 \
         mysql-client \
-        nodejs \
-        postgresql-client \
         libmemcached-dev && \
     export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS" && \
     pecl install \
         apcu \
-        imagick-3.4.3 \
-        xdebug \
         memcached && \
-    docker-php-ext-enable imagick && \
     docker-php-ext-enable apcu && \
     docker-php-ext-enable memcached && \
     docker-php-ext-configure gd \
@@ -73,8 +63,7 @@ RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
         intl \
         mbstring \
         opcache \
-        pdo_mysql \
-        pdo_pgsql && \
+        pdo_mysql && \
     apk del \
         .pecl-build-deps .phpize-deps
 

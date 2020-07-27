@@ -28,12 +28,13 @@
     "sngrl/php-firebase-cloud-messaging": "dev-master",
     "yiisoft/yii2-queue": "^2.3",
     "hashids/hashids": "^3.0",
-    "sentry/sentry": "2.1.1",
+    "sentry/sentry": "2.4.1",
     "vlucas/phpdotenv": "^3.5",
     "creocoder/yii2-flysystem": "^0.9.3",
     "league/flysystem-aws-s3-v3": "^1.0",
     "box/spout": "^3.1",
-    "monolog/monolog": "^1.25"
+    "monolog/monolog": "^1.25",
+    "yiisoft/yii2-redis": "^2.0"
   },
   "require-dev": {
     "codeception/codeception": "^2.5.5",

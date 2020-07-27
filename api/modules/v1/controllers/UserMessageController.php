@@ -8,6 +8,7 @@ use app\models\UserMessage;
 use app\models\UserMessageSearch;
 use Hashids\Hashids;
 use Illuminate\Support\Arr;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\auth\CompositeAuth;
@@ -40,6 +41,10 @@ class UserMessageController extends ActiveController
                 'delete' => ['delete'],
                 'bulk-delete' => ['post'],
             ],
+        ];
+
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
         ];
 
         return $this->behaviorCors($behaviors);

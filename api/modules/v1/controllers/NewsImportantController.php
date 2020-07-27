@@ -7,6 +7,7 @@ use app\models\NewsImportant;
 use app\models\NewsImportantSearch;
 use app\models\NewsImportantAttachment;
 use app\modules\v1\repositories\LikeRepository;
+use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
@@ -24,6 +25,10 @@ class NewsImportantController extends ActiveController
         $behaviors = parent::behaviors();
 
         array_push($behaviors['verbs']['actions'], ['likes' => ['post']]);
+
+        $behaviors['recordLastActivity'] = [
+            'class' => RecordLastActivity::class,
+        ];
 
         return $this->behaviorCors($behaviors);
     }
@@ -260,7 +265,7 @@ class NewsImportantController extends ActiveController
      */
     private function saveAttachment($newsImportantId, $val)
     {
-        if (! empty($val['file_path'])) {
+        if (!empty($val['file_path'])) {
             $model = new NewsImportantAttachment();
             $model->news_important_id = $newsImportantId;
             $model->file_path = $val['file_path'];
@@ -275,10 +280,10 @@ class NewsImportantController extends ActiveController
     private function prepareDeleteAttachment($newsImportantId)
     {
         $newsImportant = NewsImportantAttachment::find()
-                            ->where(['news_important_id' => $newsImportantId])
-                            ->all();
+            ->where(['news_important_id' => $newsImportantId])
+            ->all();
 
-        if (! empty($newsImportant)) {
+        if (!empty($newsImportant)) {
             foreach ($newsImportant as $val) {
                 $this->deleteAttachment($val->id, $val->file_path);
             }

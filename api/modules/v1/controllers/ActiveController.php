@@ -46,11 +46,6 @@ class ActiveController extends BaseActiveController
             ],
         ];
 
-        // Record last activity for all controllers derived from ActiveController
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
-        ];
-
         return $behaviors;
     }
 

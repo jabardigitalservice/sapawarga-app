@@ -3,22 +3,18 @@
 namespace app\modules\v1\controllers;
 
 use app\models\Area;
+use app\models\BansosBnbaUploadHistory;
 use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
-use app\validator\NikRateLimitValidator;
-use app\validator\NikValidator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Yii;
 use yii\db\Query;
-use yii\data\ArrayDataProvider;
 use yii\base\DynamicModel;
+use yii\data\ArrayDataProvider;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
-use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
-use yii\helpers\ArrayHelper;
-use Illuminate\Support\Collection;
+use yii\web\UploadedFile;
 use Illuminate\Support\Arr;
 use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
 
@@ -50,7 +46,7 @@ class BeneficiariesBnbaController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'download', 'download-status', 'summary'],
+                    'actions' => ['index', 'view', 'download', 'download-status', 'summary', 'upload', 'upload-histories'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW'],
                 ],
             ],
@@ -120,6 +116,72 @@ class BeneficiariesBnbaController extends ActiveController
         return $data;
     }
 
+    public function actionUpload()
+    {
+        $user       = Yii::$app->user;
+        $filesystem = Yii::$app->fs;
+        $kabkotaId  = $user->identity->kabkota_id;
+        $file = UploadedFile::getInstanceByName('file');
+
+        $model = new DynamicModel(['file' => $file]);
+
+        $model->addRule('file', 'required');
+        $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
+
+        if ($model->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+
+        $kabkota   = Area::findOne(['id' => $kabkotaId]);
+        $code      = $kabkota->code_bps;
+        $ext          = $file->getExtension();
+        $date         = date('Ymd_His');
+        $relativePath = "bansos-bnba-noimport/{$code}_{$date}.{$ext}";
+        $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
+
+        $filesystem->write($relativePath, file_get_contents($file->tempName));
+
+        $publicUrl = "{$publicBaseUrl}/{$relativePath}";
+
+        $historyData = [
+            'user_id' => $user->id,
+            'kabkota_name' => $kabkota->name,
+            'original_filename' => $file->name,
+            'final_url' => $publicUrl,
+            'timestamp' => time(),
+            'status' => 1,
+        ];
+
+        $history = new BansosBnbaUploadHistory();
+        $history->attributes = $historyData;
+        $history->save();
+
+        return $historyData;
+    }
+
+    public function actionUploadHistories() {
+        $params = Yii::$app->request->getQueryParams();
+
+        $query = BansosBnbaUploadHistory::find();
+
+        $provider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => Arr::get($params, 'limit', 10),
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'timestamp' => SORT_DESC,
+                ]
+            ],
+        ]);
+
+        return $provider;
+    }
+
     public function actionDownload()
     {
         $params = Yii::$app->request->getQueryParams();
@@ -132,8 +194,8 @@ class BeneficiariesBnbaController extends ActiveController
             $query_params['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
         } else {
             $data = (new \yii\db\Query())
-            ->from('beneficiaries_current_tahap')
-            ->all();
+                ->from('beneficiaries_current_tahap')
+                ->all();
 
             if (count($data)) {
                 $query_params['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
@@ -177,7 +239,7 @@ class BeneficiariesBnbaController extends ActiveController
         $job_history->save();
 
         return [
-          'history_id' => $job_history->id,
+            'history_id' => $job_history->id,
         ];
     }
 
@@ -218,65 +280,67 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
-        $tahap_bantuan = '';
+        $tahapBantuan = null;
         if (isset($params['tahap_bantuan'])) {
-            $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $params['tahap_bantuan']);
+            $tahapBantuan = $params['tahap_bantuan'];
         } else {
             $data = (new \yii\db\Query())
-            ->from('beneficiaries_current_tahap')
-            ->all();
+                ->from('beneficiaries_current_tahap')
+                ->all();
 
             if (count($data)) {
-                $tahap_bantuan = sprintf(' AND tahap_bantuan = %d', $data[0]['current_tahap_bnba']);
+                $tahapBantuan = $data[0]['current_tahap_bnba'];
             }
         }
 
-        $last_updated_subquery = <<<SQL
-            (SELECT MAX(updated_at)
-            FROM bansos_bnba_upload_histories
-            WHERE bansos_bnba_upload_histories.kabkota_code = areas.code_bps
-              %s
-            )
+        $rawQuery = <<<SQL
+            SELECT
+              areas.name,
+              kode_kab as code_bps,
+              is_dtks_final as type,
+              last_updated as last_update
+            FROM
+              (SELECT
+                  kode_kab,
+                  MAX(updated_time) as last_updated,
+                  CASE is_dtks
+                      WHEN 1 THEN 'dtks'
+                      ELSE 'non-dtks' # null dan nilai lainnya
+                  END is_dtks_final
+              FROM beneficiaries_bnba_tahap_1
+              WHERE
+                (is_deleted <> 1 OR is_deleted IS NULL)
+                AND tahap_bantuan = :tahap_bantuan
+              GROUP BY is_dtks_final, kode_kab
+              ) as monitoring_list
+            LEFT JOIN areas ON areas.code_bps = kode_kab
+            ;
 SQL;
-        $query = (new Query())
-          ->select([
-            'id',
-            'name',
-            'code_bps',
-            'dtks_last_update'      => sprintf($last_updated_subquery, 'AND bansos_type > 50' . $tahap_bantuan),
-            'non-dtks_last_update'  => sprintf($last_updated_subquery, 'AND bansos_type < 10' . $tahap_bantuan),
-          ])
-          ->from('areas')
-          ->where(['areas.depth' => 2 ]);
+        $query = Yii::$app->db
+            ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan]);
+
+        $rows = $query->queryAll();
+        $finalRows = array_map(function ($item) {
+            $item['last_update'] = strtotime($item['last_update']);
+            return $item;
+        }, $rows);
 
         if (isset($params['kode_kab'])) {
-            $query = $query->andWhere([ 'areas.code_bps' => explode(',', $params['kode_kab']) ]);
+            $codeBps = explode(',', $params['kode_kab']);
+            $finalRows = array_filter($finalRows, function ($item) use ($codeBps) {
+                return in_array($item['code_bps'], $codeBps);
+            });
         }
         if (isset($params['bansos_type']) && !empty($params['bansos_type'])) {
-            $params['bansos_type'] = explode(',', $params['bansos_type']);
-        } else {
-            $params['bansos_type'] = ['dtks','non-dtks'];
-        }
-
-        $final_rows = [];
-        $rows = $query->all();
-        foreach ($rows as $row) {
-            foreach ($params['bansos_type'] as $type) {
-                if ($row[$type . '_last_update'] != null) {
-                    $final_rows[] = [
-                        'id' => $row['id'],
-                        'name' => $row['name'],
-                        'code_bps' => $row['code_bps'],
-                        'type' => $type,
-                        'last_update' => $row[$type . '_last_update'],
-                    ];
-                }
-            }
+            $bansos_type = explode(',', $params['bansos_type']);
+            $finalRows = array_filter($finalRows, function ($item) use ($bansos_type) {
+                return in_array($item['type'], $bansos_type);
+            });
         }
 
         $pageLimit = Arr::get($params, 'limit', 10);
         $provider = new ArrayDataProvider([
-            'allModels' => $final_rows,
+            'allModels' => $finalRows,
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],

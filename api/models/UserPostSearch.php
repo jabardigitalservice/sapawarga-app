@@ -51,7 +51,7 @@ class UserPostSearch extends UserPost
         ]);
 
         // Query for my post or public post
-        if (! empty($this->created_by)) {
+        if (!empty($this->created_by)) {
             $query->andWhere(['created_by' => $this->created_by]);
             $query->andWhere(['<>', 'user_posts.status', UserPost::STATUS_DELETED]);
         } else {

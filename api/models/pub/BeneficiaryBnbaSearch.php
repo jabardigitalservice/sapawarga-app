@@ -39,7 +39,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         if (Arr::get($params, 'rw') == 'Tidak') {
             $query->andWhere(['rw' => null]);
         } else {
-            $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
+            $query->andFilterWhere(['`rw` * 1' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
         }
 
         $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
@@ -74,7 +74,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
         if (Arr::get($params, 'rw') == 'Tidak') {
             $query->andWhere(['rw' => null]);
         } else {
-            $query->andFilterWhere(['rw' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
+            $query->andFilterWhere(['`rw` * 1' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
         }
 
         return $query->createCommand()->queryAll();
@@ -82,14 +82,17 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
 
     public function getStatisticsByArea($params)
     {
+        $areaType = $params['area_type'];
+        $groupBy = ($areaType == 'RW') ? 'area' : $areaType;
+
         $query = (new \yii\db\Query())
-            ->select([$params['area_type'],'COUNT(id) AS total'])
+            ->select("`$areaType` * 1 AS $groupBy, COUNT(id) AS total")
             ->from('beneficiaries_bnba_tahap_1')
             ->andWhere(['or',
                 ['is_deleted' => null],
                 ['is_deleted' => 0]
             ])
-            ->groupBy([$params['area_type']]);
+            ->groupBy("$groupBy");
 
         // Filtering Area
         if (empty(Arr::get($params, 'id_tipe_bansos'))) {

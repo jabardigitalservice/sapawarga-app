@@ -10,6 +10,7 @@ services:
       - internal
     depends_on:
       - database
+      - redis
     env_file:
       - .env-dev
     volumes:
@@ -28,6 +29,7 @@ services:
     depends_on:
       - database
       - api
+      - redis
     env_file:
       - .env-dev
     volumes:
@@ -61,10 +63,19 @@ services:
     ports:
       - 8003:8000
     restart: on-failure
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"] 
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+  redis:
+    image: redis:6.0.5-alpine 
+    restart: on-failure
+    networks:
+      - internal 
+    ports:
+      - 6379:6379
+    
   memcached:
     image: memcached:latest
+    restart: on-failure
     networks:
       - internal
 

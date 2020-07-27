@@ -5,10 +5,8 @@ namespace app\modules\v1\controllers;
 use app\components\LogHelper;
 use app\models\UserPost;
 use app\models\UserPostSearch;
-use app\models\User;
 use app\models\Like;
 use yii\filters\AccessControl;
-use Illuminate\Support\Arr;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
@@ -86,14 +84,14 @@ class UserPostController extends ActiveController
         $this->checkAccess('create', $model);
 
         // For old version still can upload one image
-        if (! empty($params['image_path']) && empty($params['images'])) {
+        if (!empty($params['image_path']) && empty($params['images'])) {
             $imagePath = [['path' => $params['image_path']]];
             $model->images = $imagePath;
         }
 
         // For new version can post and view from the old version
         // Get the first image on multiple image
-        if (empty($params['image_path']) && ! empty($params['images'])) {
+        if (empty($params['image_path']) && !empty($params['images'])) {
             $images = $params['images'][0]['path'];
             $model->image_path = $images;
         }
@@ -157,7 +155,6 @@ class UserPostController extends ActiveController
     public function actionMe()
     {
         $userId = Yii::$app->user->getId();
-        $user = User::findIdentity($userId);
 
         $search = new UserPostSearch();
         $search->scenario = UserPostSearch::SCENARIO_LIST_USER;
