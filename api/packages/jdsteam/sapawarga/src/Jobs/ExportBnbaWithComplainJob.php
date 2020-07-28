@@ -30,7 +30,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         $jobHistory->save();
 
         // size of query batch size used during database retrieval
-        $batch_size = 1000;
+        $batchSize = 1000;
         echo "Params: ";
         print_r($jobHistory->params);
 
@@ -48,8 +48,8 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
             ->groupBy(['bnba.id'])
             ;
 
-        $row_numbers = $jobHistory->row_count;
-        echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
+        $rowNumbers = $jobHistory->row_count;
+        echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
 
         echo "Starting generating BNBA list with complain columns export\n" ;
 
@@ -94,27 +94,27 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         // create unbuffered database connection to avoid MySQL batching limitation
         // ref: https://www.yiiframework.com/doc/guide/2.0/en/db-query-builder#batch-query-mysql
-        $unbuffered_db = new \yii\db\Connection([
+        $unbufferedDb = new \yii\db\Connection([
             'dsn' => Yii::$app->db->dsn,
             'username' => Yii::$app->db->username,
             'password' => Yii::$app->db->password,
             'charset' => Yii::$app->db->charset,
         ]);
-        $unbuffered_db->open();
-        $unbuffered_db->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        $unbufferedDb->open();
+        $unbufferedDb->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
-        $num_processed = 0;
-        $dummy_bnba_model = new BeneficiaryBnbaTahapSatu();
-        foreach ($joinedQuery->batch($batch_size, $unbuffered_db) as $list_bnba)
+        $numProcessed = 0;
+        $dummyBnbaModel = new BeneficiaryBnbaTahapSatu();
+        foreach ($joinedQuery->batch($batchSize, $unbufferedDb) as $listBnba)
         {
-            foreach ($list_bnba as $row) {
+            foreach ($listBnba as $row) {
                 $result = [];
-                $dummy_bnba_model->id_tipe_bansos = $row['id_tipe_bansos'];
+                $dummyBnbaModel->id_tipe_bansos = $row['id_tipe_bansos'];
 
                 foreach ($columns as $key) {
                     $result[$key] = $row[$key];
                 }
-                $result['bansostype'] = $dummy_bnba_model->bansostype;
+                $result['bansostype'] = $dummyBnbaModel->bansostype;
                 $result['sapawarga_rw'] = $row['sapawarga_rw'];
                 $result['solidaritas'] = $row['solidaritas'];
                 $result['layak_bantuan'] = 'Ya';
@@ -123,15 +123,15 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
                 $writer->addRow($rowFromValues);
             }
 
-            $num_processed += count($list_bnba);
-            echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
+            $numProcessed += count($listBnba);
+            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
 
-            $jobHistory->row_processed = $num_processed;
+            $jobHistory->row_processed = $numProcessed;
             $jobHistory->save();
         }
 
         $writer->close();
-        $unbuffered_db->close();
+        $unbufferedDb->close();
 
         $jobHistory->row_processed = $jobHistory->row_count;
         $jobHistory->done_at = time();
