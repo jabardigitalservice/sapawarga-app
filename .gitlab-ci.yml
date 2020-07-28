@@ -163,6 +163,9 @@ deploy_staging_eks:
 
     # Redis Staging #
     - sed -i "s/%REDIS_HOST%/${REDIS_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+
 
     # mysql replica staging #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
@@ -284,6 +287,10 @@ deploy_prod_eks:
 
      # Redis Production #
     - sed -i "s/%REDIS_HOST%/${REDIS_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+
+    
 
     # mysql replica production #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
