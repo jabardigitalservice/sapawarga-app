@@ -25,7 +25,11 @@ $config = [
                 'hostname' => getenv('REDIS_HOST'),
                 'port' => getenv('REDIS_PORT'),
                 'database' => getenv('REDIS_DB'),
-            ]
+            ],
+            'enableReplicas' => true,
+            'replicas' => [
+                ['hostname' => getenv('REDIS_HOST_SLAVE_1')],
+            ],
         ],
         'user' => [
             'identityClass' => 'app\models\User',
