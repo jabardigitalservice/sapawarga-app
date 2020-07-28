@@ -30,14 +30,14 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         $jobHistory->save();
 
         // size of query batch size used during database retrieval
-        $batch_size = 1000;
+        $batchSize = 1000;
         echo "Params: ";
         print_r($jobHistory->params);
 
         $query = $jobHistory->getQuery();
 
-        $row_numbers = $query->count();
-        echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
+        $rowNumbers = $jobHistory->row_count;
+        echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
 
         echo "Starting generating BNBA list export\n" ;
 
@@ -46,8 +46,8 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         $writer = WriterEntityFactory::createXLSXWriter();
 
         // Initial varieble location, filename, path
-        $now_date = date('Y-m-d-H-i-s');
-        $fileName = "export-bnba-$now_date.xlsx";
+        $nowDate = date('Y-m-d-H-i-s');
+        $fileName = "export-bnba-$nowDate.xlsx";
         $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
@@ -74,29 +74,29 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
             'penghasilan_setelah_covid',
             'keterangan',
         ];
-        $column_headers = array_merge($columns, ['Pintu Bantuan']);
-        $column_values = array_merge($columns, ['bansostype']);
+        $columnHeaders = array_merge($columns, ['Pintu Bantuan']);
+        $columnValues = array_merge($columns, ['bansostype']);
 
         /** Shortcut: add a row from an array of values */
-        $rowFromValues = WriterEntityFactory::createRowFromArray($column_headers);
+        $rowFromValues = WriterEntityFactory::createRowFromArray($columnHeaders);
         $writer->addRow($rowFromValues);
 
         // create unbuffered database connection to avoid MySQL batching limitation
         // ref: https://www.yiiframework.com/doc/guide/2.0/en/db-query-builder#batch-query-mysql
-        $unbuffered_db = new \yii\db\Connection([
+        $unbufferedDb = new \yii\db\Connection([
             'dsn' => Yii::$app->db->dsn,
             'username' => Yii::$app->db->username,
             'password' => Yii::$app->db->password,
             'charset' => Yii::$app->db->charset,
         ]);
-        $unbuffered_db->open();
-        $unbuffered_db->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        $unbufferedDb->open();
+        $unbufferedDb->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
-        $num_processed = 0;
-        foreach ($query->batch($batch_size, $unbuffered_db) as $list_bnba)
+        $numProcessed = 0;
+        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba)
         {
-            $data = ArrayHelper::toArray($list_bnba, [
-                'app\models\BeneficiaryBnbaTahapSatu' => $column_values,
+            $data = ArrayHelper::toArray($listBnba, [
+                'app\models\BeneficiaryBnbaTahapSatu' => $columnValues,
             ]);
 
             foreach ($data as $row) {
@@ -104,15 +104,15 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
                 $writer->addRow($rowFromValues);
             }
 
-            $num_processed += count($data);
-            echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
+            $numProcessed += count($data);
+            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
 
-            $jobHistory->row_processed = $num_processed;
+            $jobHistory->row_processed = $numProcessed;
             $jobHistory->save();
         }
 
         $writer->close();
-        $unbuffered_db->close();
+        $unbufferedDb->close();
 
         $jobHistory->row_processed = $jobHistory->row_count;
         $jobHistory->done_at = time();
