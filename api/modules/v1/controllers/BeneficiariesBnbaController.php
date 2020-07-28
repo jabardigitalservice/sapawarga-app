@@ -254,8 +254,13 @@ class BeneficiariesBnbaController extends ActiveController
             $user = Yii::$app->user;
             $params = Yii::$app->request->getQueryParams();
 
+            $exportType = (isset($params['export_type']) && array_key_exists($params['export_type'], BansosBnbaDownloadHistory::AVAILABLE_TYPES)) ?
+              $params['export_type'] :
+              BansosBnbaDownloadHistory::TYPE_BNBA_ORIGINAL;
+
             $query = BansosBnbaDownloadHistory::find()->where([
                 'user_id' => $user->id,
+                'export_type' => $exportType,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
