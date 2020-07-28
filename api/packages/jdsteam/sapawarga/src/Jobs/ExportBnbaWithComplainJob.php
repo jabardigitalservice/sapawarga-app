@@ -35,27 +35,17 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         print_r($jobHistory->params);
 
         // #### QUERY CONSTRUCTION
-        // current query strategy is still ineffective because it called 2
-        // identical subqueries. future improvement should consider removal of
-        // duplicate subqueries, improving performance, as well increasing
-        // readibility of the query.
+        $subquery = $jobHistory->getQuery();
 
-        $mainSubquery = $jobHistory->getQuery();
-
-        $secodarySubquery = (new \yii\db\Query())
+        $joinedQuery = (new \yii\db\Query())
             ->select([
-                'bnba.id',
+                'bnba.*',
                 'sapawarga_rw' => "GROUP_CONCAT(DISTINCT (IF(bnba_com.nik='1' ,bnba_com.notes_reason,NULL)))",
                 'solidaritas' => "GROUP_CONCAT(DISTINCT IF(bnba_com.nik<>'1' ,bnba_com.notes_reason,NULL))",
             ])
-            ->from(['bnba' => $mainSubquery])
+            ->from(['bnba' => $subquery])
             ->leftJoin(['bnba_com' => 'beneficiaries_complain'], 'bnba_com.beneficiaries_id = bnba.id')
-            ;
-
-        $joinedQuery = (new \yii\db\Query())
-            ->select(['bnba_core.id AS bnba_id','bnba_core.*', 'bnba_com_concat.*'])
-            ->from(['bnba_core' => $mainSubquery])
-            ->leftJoin(['bnba_com_concat' => $secodarySubquery], 'bnba_com_concat.id = bnba_core.id')
+            ->groupBy(['bnba.id'])
             ;
 
         $row_numbers = $jobHistory->row_count;
@@ -75,6 +65,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
 
         $columns = [
+            'id',
             'kode_kab',
             'kode_kec',
             'kode_kel',
@@ -116,11 +107,10 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         $dummy_bnba_model = new BeneficiaryBnbaTahapSatu();
         foreach ($joinedQuery->batch($batch_size, $unbuffered_db) as $list_bnba)
         {
-            $data = array_map(function($row) use ($columns, $dummy_bnba_model) {
+            foreach ($list_bnba as $row) {
                 $result = [];
                 $dummy_bnba_model->id_tipe_bansos = $row['id_tipe_bansos'];
 
-                $result['id'] = $row['bnba_id'];
                 foreach ($columns as $key) {
                     $result[$key] = $row[$key];
                 }
@@ -128,15 +118,12 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
                 $result['sapawarga_rw'] = $row['sapawarga_rw'];
                 $result['solidaritas'] = $row['solidaritas'];
                 $result['layak_bantuan'] = 'Ya';
-                return $result;
-            }, $list_bnba);
 
-            foreach ($data as $row) {
-                $rowFromValues = WriterEntityFactory::createRowFromArray($row);
+                $rowFromValues = WriterEntityFactory::createRowFromArray($result);
                 $writer->addRow($rowFromValues);
             }
 
-            $num_processed += count($data);
+            $num_processed += count($list_bnba);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
 
             $jobHistory->row_processed = $num_processed;
