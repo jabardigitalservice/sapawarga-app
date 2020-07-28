@@ -47,7 +47,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         // Initial varieble location, filename, path
         $now_date = date('Y-m-d-H-i-s');
-        $fileName = "export-bnba-tahap-1-$now_date.xlsx";
+        $fileName = "export-bnba-$now_date.xlsx";
         $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream

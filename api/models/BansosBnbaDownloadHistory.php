@@ -38,12 +38,21 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
      */
     public function getQuery()
     {
-        return BeneficiaryBnbaTahapSatu::find()
-            ->where($this->params)
+        $queryParams = $this->params;
+
+        // special filter for export with complain,
+        if ($this->export_type == self::TYPE_BNBA_WITH_COMPLAIN) {
+            $queryParams['id_tipe_bansos'] = 6; // pintu banprov non-dtks
+            $queryParams['is_dtks'] = [0, null];
+        }
+
+        $query = BeneficiaryBnbaTahapSatu::find()
+            ->where($queryParams)
             ->andWhere(['or',
                 ['is_deleted' => null],
                 ['is_deleted' => 0]
             ]);
+        return $query;
     }
 
     /** Start Export Bnba Job according to type

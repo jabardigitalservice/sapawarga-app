@@ -34,9 +34,31 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         echo "Params: ";
         print_r($jobHistory->params);
 
-        $query = $jobHistory->getQuery();
+        // #### QUERY CONSTRUCTION
+        // current query strategy is still ineffective because it called 2
+        // identical subqueries. future improvement should consider removal of
+        // duplicate subqueries, improving performance, as well increasing
+        // readibility of the query.
 
-        $row_numbers = $query->count();
+        $mainSubquery = $jobHistory->getQuery();
+
+        $secodarySubquery = (new \yii\db\Query())
+            ->select([
+                'bnba.id',
+                'sapawarga_rw' => "GROUP_CONCAT(DISTINCT (IF(bnba_com.nik='1' ,bnba_com.notes_reason,NULL)))",
+                'solidaritas' => "GROUP_CONCAT(DISTINCT IF(bnba_com.nik<>'1' ,bnba_com.notes_reason,NULL))",
+            ])
+            ->from(['bnba' => $mainSubquery])
+            ->leftJoin(['bnba_com' => 'beneficiaries_complain'], 'bnba_com.beneficiaries_id = bnba.id')
+            ;
+
+        $joinedQuery = (new \yii\db\Query())
+            ->select(['bnba_core.id AS bnba_id','bnba_core.*', 'bnba_com_concat.*'])
+            ->from(['bnba_core' => $mainSubquery])
+            ->leftJoin(['bnba_com_concat' => $secodarySubquery], 'bnba_com_concat.id = bnba_core.id')
+            ;
+
+        $row_numbers = $jobHistory->row_count;
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
         echo "Starting generating BNBA list with complain columns export\n" ;
@@ -47,13 +69,12 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         // Initial varieble location, filename, path
         $now_date = date('Y-m-d-H-i-s');
-        $fileName = "export-bnba-tahap-1-$now_date.xlsx";
+        $fileName = "export-bnba-with-complain-$now_date.xlsx";
         $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
 
         $columns = [
-            'id',
             'kode_kab',
             'kode_kec',
             'kode_kel',
@@ -74,8 +95,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
             'penghasilan_setelah_covid',
             'keterangan',
         ];
-        $column_headers = array_merge($columns, ['Pintu Bantuan']);
-        $column_values = array_merge($columns, ['bansostype']);
+        $column_headers = array_merge($columns, ['Pintu Bantuan', 'Aduan RW', 'Aduan Solidaritas', 'Layak Dapat Bantuan']);
 
         /** Shortcut: add a row from an array of values */
         $rowFromValues = WriterEntityFactory::createRowFromArray($column_headers);
@@ -93,11 +113,23 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         $unbuffered_db->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $num_processed = 0;
-        foreach ($query->batch($batch_size, $unbuffered_db) as $list_bnba)
+        $dummy_bnba_model = new BeneficiaryBnbaTahapSatu();
+        foreach ($joinedQuery->batch($batch_size, $unbuffered_db) as $list_bnba)
         {
-            $data = ArrayHelper::toArray($list_bnba, [
-                'app\models\BeneficiaryBnbaTahapSatu' => $column_values,
-            ]);
+            $data = array_map(function($row) use ($columns, $dummy_bnba_model) {
+                $result = [];
+                $dummy_bnba_model->id_tipe_bansos = $row['id_tipe_bansos'];
+
+                $result['id'] = $row['bnba_id'];
+                foreach ($columns as $key) {
+                    $result[$key] = $row[$key];
+                }
+                $result['bansostype'] = $dummy_bnba_model->bansostype;
+                $result['sapawarga_rw'] = $row['sapawarga_rw'];
+                $result['solidaritas'] = $row['solidaritas'];
+                $result['layak_bantuan'] = 'Ya';
+                return $result;
+            }, $list_bnba);
 
             foreach ($data as $row) {
                 $rowFromValues = WriterEntityFactory::createRowFromArray($row);
