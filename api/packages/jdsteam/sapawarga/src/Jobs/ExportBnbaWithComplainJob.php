@@ -14,7 +14,7 @@ use Box\Spout\Common\Entity\Row;
 use League\Flysystem\AdapterInterface;
 use Jdsteam\Sapawarga\Jobs\Concerns\HasJobHistory;
 
-class ExportBnbaJob extends BaseObject implements RetryableJobInterface
+class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterface
 {
     use HasJobHistory;
 
@@ -34,12 +34,24 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         echo "Params: ";
         print_r($jobHistory->params);
 
-        $query = $jobHistory->getQuery();
+        // #### QUERY CONSTRUCTION
+        $subquery = $jobHistory->getQuery();
 
-        $row_numbers = $query->count();
+        $joinedQuery = (new \yii\db\Query())
+            ->select([
+                'bnba.*',
+                'sapawarga_rw' => "GROUP_CONCAT(DISTINCT (IF(bnba_com.nik='1' ,bnba_com.notes_reason,NULL)))",
+                'solidaritas' => "GROUP_CONCAT(DISTINCT IF(bnba_com.nik<>'1' ,bnba_com.notes_reason,NULL))",
+            ])
+            ->from(['bnba' => $subquery])
+            ->leftJoin(['bnba_com' => 'beneficiaries_complain'], 'bnba_com.beneficiaries_id = bnba.id')
+            ->groupBy(['bnba.id'])
+            ;
+
+        $row_numbers = $jobHistory->row_count;
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
-        echo "Starting generating BNBA list export\n" ;
+        echo "Starting generating BNBA list with complain columns export\n" ;
 
         /* Generate export file using box/spout library.
          * ref: https://opensource.box.com/spout/getting-started/#writer */
@@ -47,7 +59,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         // Initial varieble location, filename, path
         $now_date = date('Y-m-d-H-i-s');
-        $fileName = "export-bnba-$now_date.xlsx";
+        $fileName = "export-bnba-with-complain-$now_date.xlsx";
         $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
@@ -74,8 +86,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
             'penghasilan_setelah_covid',
             'keterangan',
         ];
-        $column_headers = array_merge($columns, ['Pintu Bantuan']);
-        $column_values = array_merge($columns, ['bansostype']);
+        $column_headers = array_merge($columns, ['Pintu Bantuan', 'Aduan RW', 'Aduan Solidaritas', 'Layak Dapat Bantuan']);
 
         /** Shortcut: add a row from an array of values */
         $rowFromValues = WriterEntityFactory::createRowFromArray($column_headers);
@@ -93,18 +104,26 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         $unbuffered_db->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $num_processed = 0;
-        foreach ($query->batch($batch_size, $unbuffered_db) as $list_bnba)
+        $dummy_bnba_model = new BeneficiaryBnbaTahapSatu();
+        foreach ($joinedQuery->batch($batch_size, $unbuffered_db) as $list_bnba)
         {
-            $data = ArrayHelper::toArray($list_bnba, [
-                'app\models\BeneficiaryBnbaTahapSatu' => $column_values,
-            ]);
+            foreach ($list_bnba as $row) {
+                $result = [];
+                $dummy_bnba_model->id_tipe_bansos = $row['id_tipe_bansos'];
 
-            foreach ($data as $row) {
-                $rowFromValues = WriterEntityFactory::createRowFromArray($row);
+                foreach ($columns as $key) {
+                    $result[$key] = $row[$key];
+                }
+                $result['bansostype'] = $dummy_bnba_model->bansostype;
+                $result['sapawarga_rw'] = $row['sapawarga_rw'];
+                $result['solidaritas'] = $row['solidaritas'];
+                $result['layak_bantuan'] = 'Ya';
+
+                $rowFromValues = WriterEntityFactory::createRowFromArray($result);
                 $writer->addRow($rowFromValues);
             }
 
-            $num_processed += count($data);
+            $num_processed += count($list_bnba);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
 
             $jobHistory->row_processed = $num_processed;

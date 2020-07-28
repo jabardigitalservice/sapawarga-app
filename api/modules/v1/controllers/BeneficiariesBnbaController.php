@@ -16,7 +16,6 @@ use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
 
 /**
  * BeneficiariesBnbaTahapSatuController implements the CRUD actions for BeneficiaryBnbaTahapSatu model.
@@ -190,6 +189,10 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
+        $export_type = (isset($params['export_type']) && array_key_exists($params['export_type'], BansosBnbaDownloadHistory::AVAILABLE_TYPES)) ?
+          $params['export_type'] :
+          BansosBnbaDownloadHistory::TYPE_BNBA_ORIGINAL;
+
         if (isset($params['tahap_bantuan'])) {
             $query_params['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
         } else {
@@ -225,18 +228,13 @@ class BeneficiariesBnbaController extends ActiveController
 
         $job_history = new BansosBnbaDownloadHistory;
         $job_history->user_id = $user->id;
+        $job_history->export_type = $export_type;
         $job_history->params = $query_params;
         $job_history->row_count = $job_history->countAffectedRows();
         $job_history->save();
 
         // export bnba
-        $id = Yii::$app->queue->push(new ExportBnbaJob([
-            'userId' => $user->id,
-            'historyId' => $job_history->id,
-        ]));
-
-        $job_history->job_id = $id;
-        $job_history->save();
+        $job_history->startJob();
 
         return [
             'history_id' => $job_history->id,
