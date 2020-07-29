@@ -16,6 +16,8 @@ use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use Illuminate\Support\Arr;
+use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
  * BeneficiariesBnbaTahapSatuController implements the CRUD actions for BeneficiaryBnbaTahapSatu model.
@@ -121,19 +123,38 @@ class BeneficiariesBnbaController extends ActiveController
         $filesystem = Yii::$app->fs;
         $kabkotaId  = $user->identity->kabkota_id;
         $file = UploadedFile::getInstanceByName('file');
+        $uploadStatus = BansosBnbaUploadHistory::STATUS_SUCCESS;
 
+        // VALIDATIONS
         $model = new DynamicModel(['file' => $file]);
 
         $model->addRule('file', 'required');
         $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
+        $model->addRule('file',  function ($attribute, $params, $validator) use ($model) {
+            // validate file's header row
+            $reader = ReaderEntityFactory::createXLSXReader();
+            $reader->open($model->$attribute->tempName);
 
+            foreach ($reader->getSheetIterator() as $sheet) {
+                // only read data from first sheet
+                foreach ($sheet->getRowIterator() as $row) {
+                    // read header row
+                    $row_array = $row->toArray();
+                    if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders() ) {
+                        $model->addError($attribute, "The file columns doesn't match requirement");
+                    }
+                    break;
+                }
+                break; // no need to read more sheets
+            }
+
+            $reader->close();
+        });
         if ($model->validate() === false) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(422);
-
-            return $model->getErrors();
+            $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
         }
 
+        // upload and store file
         $kabkota   = Area::findOne(['id' => $kabkotaId]);
         $code      = $kabkota->code_bps;
         $ext          = $file->getExtension();
@@ -151,7 +172,7 @@ class BeneficiariesBnbaController extends ActiveController
             'original_filename' => $file->name,
             'final_url' => $publicUrl,
             'timestamp' => time(),
-            'status' => 1,
+            'status' => $uploadStatus,
         ];
 
         $history = new BansosBnbaUploadHistory();

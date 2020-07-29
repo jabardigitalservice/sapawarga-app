@@ -19,6 +19,41 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
     use HasJobHistory;
 
     public $userId;
+    static function getColumns()
+    {
+        return [
+            'id',
+            'kode_kab',
+            'kode_kec',
+            'kode_kel',
+            'nama_kab',
+            'nama_kec',
+            'nama_kel',
+            'rt',
+            'rw',
+            'alamat',
+            'nama_krt',
+            'nik',
+            'no_kk',
+            'jumlah_art_tanggungan',
+            'nomor_hp',
+            'lapangan_usaha',
+            'status_kedudukan',
+            'penghasilan_sebelum_covid19',
+            'penghasilan_setelah_covid',
+            'keterangan',
+        ];
+    }
+
+    static function getColumnHeaders()
+    {
+        return array_merge(self::getColumns(), [
+            'Pintu Bantuan',
+            'Aduan RW',
+            'Aduan Solidaritas',
+            'Layak Dapat Bantuan',
+        ]);
+    }
 
     public function execute($queue)
     {
@@ -64,32 +99,8 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
 
-        $columns = [
-            'id',
-            'kode_kab',
-            'kode_kec',
-            'kode_kel',
-            'nama_kab',
-            'nama_kec',
-            'nama_kel',
-            'rt',
-            'rw',
-            'alamat',
-            'nama_krt',
-            'nik',
-            'no_kk',
-            'jumlah_art_tanggungan',
-            'nomor_hp',
-            'lapangan_usaha',
-            'status_kedudukan',
-            'penghasilan_sebelum_covid19',
-            'penghasilan_setelah_covid',
-            'keterangan',
-        ];
-        $column_headers = array_merge($columns, ['Pintu Bantuan', 'Aduan RW', 'Aduan Solidaritas', 'Layak Dapat Bantuan']);
-
         /** Shortcut: add a row from an array of values */
-        $rowFromValues = WriterEntityFactory::createRowFromArray($column_headers);
+        $rowFromValues = WriterEntityFactory::createRowFromArray(self::getColumnHeaders());
         $writer->addRow($rowFromValues);
 
         // create unbuffered database connection to avoid MySQL batching limitation
@@ -111,7 +122,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
                 $result = [];
                 $dummyBnbaModel->id_tipe_bansos = $row['id_tipe_bansos'];
 
-                foreach ($columns as $key) {
+                foreach (self::getColumns() as $key) {
                     $result[$key] = $row[$key];
                 }
                 $result['bansostype'] = $dummyBnbaModel->bansostype;
