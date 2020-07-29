@@ -130,29 +130,30 @@ class BeneficiariesBnbaController extends ActiveController
 
         $model->addRule('file', 'required');
         $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
-        $model->addRule('file',  function ($attribute, $params, $validator) use ($model) {
-            // validate file's header row
-            $reader = ReaderEntityFactory::createXLSXReader();
-            $reader->open($model->$attribute->tempName);
-
-            foreach ($reader->getSheetIterator() as $sheet) {
-                // only read data from first sheet
-                foreach ($sheet->getRowIterator() as $row) {
-                    // read header row
-                    $row_array = $row->toArray();
-                    if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders() ) {
-                        $model->addError($attribute, "The file columns doesn't match requirement");
-                    }
-                    break;
-                }
-                break; // no need to read more sheets
-            }
-
-            $reader->close();
-        });
         if ($model->validate() === false) {
-            $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+            return $model->getErrors();
         }
+
+        // validate file's header row
+        $reader = ReaderEntityFactory::createXLSXReader();
+        $reader->open($file->tempName);
+
+        foreach ($reader->getSheetIterator() as $sheet) {
+            // only read data from first sheet
+            foreach ($sheet->getRowIterator() as $row) {
+                // read header row
+                $row_array = $row->toArray();
+                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders() ) {
+                    $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
+                }
+                break;
+            }
+            break; // no need to read more sheets
+        }
+
+        $reader->close();
 
         // upload and store file
         $kabkota   = Area::findOne(['id' => $kabkotaId]);
