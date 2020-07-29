@@ -312,6 +312,12 @@ spec:
                   name: sapawarga-backend-config-env
                   key: REDIS_DB
 
+            - name: REDIS_HOST_SLAVE_1
+              valueFrom:
+                configMapKeyRef:
+                  name: sapawarga-backend-config-env
+                  key: REDIS_HOST_SLAVE_1
+
       # initContainers:
       # - name: volume-permission-fix
       #   image: busybox
