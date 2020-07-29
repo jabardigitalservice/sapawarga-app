@@ -162,9 +162,11 @@ class BeneficiariesBnbaController extends ActiveController
     }
 
     public function actionUploadHistories() {
+        $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
-        $query = BansosBnbaUploadHistory::find();
+        $query = BansosBnbaUploadHistory::find()
+          ->where([ 'user_id' => $user->id ]);
 
         $provider = new ActiveDataProvider([
             'query' => $query,
