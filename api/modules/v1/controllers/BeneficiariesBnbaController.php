@@ -254,6 +254,7 @@ class BeneficiariesBnbaController extends ActiveController
         $jobHistory->user_id = $user->id;
         $jobHistory->export_type = $exportType;
         $jobHistory->params = $queryParams;
+        $jobHistory->created_at = time();
         $jobHistory->row_count = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
