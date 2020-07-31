@@ -147,6 +147,7 @@ class BeneficiariesDownloadController extends ActiveController
         $jobHistory = new BansosBeneficiariesDownloadHistory;
         $jobHistory->user_id = $user->id;
         $jobHistory->params = $finalParams;
+        $jobHistory->created_at = time();
         $jobHistory->row_count = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
