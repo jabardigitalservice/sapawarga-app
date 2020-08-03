@@ -286,7 +286,7 @@ class BeneficiariesBnbaController extends ActiveController
 
             $query = BansosBnbaDownloadHistory::find()->where([
                 'user_id' => $user->id,
-                'export_type' => $exportType,
+                'job_type' => $exportType,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
