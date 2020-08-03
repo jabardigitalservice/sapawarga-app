@@ -10,7 +10,6 @@ use yii\db\Query;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
-use Jdsteam\Sapawarga\Jobs\ExportBeneficiariesJob;
 use Illuminate\Support\Arr;
 
 /**
@@ -146,16 +145,14 @@ class BeneficiariesDownloadController extends ActiveController
 
         $jobHistory = new BansosBeneficiariesDownloadHistory;
         $jobHistory->user_id = $user->id;
-        $jobHistory->params = $finalParams;
+        $jobHistory->job_type = BansosBeneficiariesDownloadHistory::TYPE_VERVAL;
+        $jobHistory->params = $queryParams;
         $jobHistory->created_at = time();
-        $jobHistory->row_count = $jobHistory->countAffectedRows();
+        $jobHistory->total_row = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
         // export bnba
-        $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
-            'userId' => $user->id,
-            'historyId' => $jobHistory->id,
-        ]));
+        $jobHistory->startJob();
 
         return [
           'historyId' => $jobHistory->id,
