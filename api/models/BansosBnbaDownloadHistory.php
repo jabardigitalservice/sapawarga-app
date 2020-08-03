@@ -71,4 +71,5 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
         $this->logs = $logs;
         $this->save();
     }
+
 }
