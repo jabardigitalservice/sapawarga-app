@@ -133,10 +133,10 @@ class m200803_114800_create_table_queue_details extends Migration
         if (!empty($row['done_at'])) {
             if (empty($row['errors']) && !empty($row['final_url']) ) {
                 $status = 10; // sukses
-                $notes = 'sukses';
+                $notes = 'Success';
             } else {
                 $status = 20; // ada error
-                $notes = 'terjadi masalah';
+                $notes = 'Error';
             }
         }
 
