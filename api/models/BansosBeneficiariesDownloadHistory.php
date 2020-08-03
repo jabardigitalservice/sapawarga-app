@@ -37,14 +37,6 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
         'status_verifikasi' => 'beneficiaries.status_verification',
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'bansos_verval_download_histories';
-    }
-
     /** Count affected rows in this queue job
      *
      * @return int Number of affected rows

@@ -252,10 +252,10 @@ class BeneficiariesBnbaController extends ActiveController
 
         $jobHistory = new BansosBnbaDownloadHistory;
         $jobHistory->user_id = $user->id;
-        $jobHistory->export_type = $exportType;
+        $jobHistory->job_type = $exportType;
         $jobHistory->params = $queryParams;
         $jobHistory->created_at = time();
-        $jobHistory->row_count = $jobHistory->countAffectedRows();
+        $jobHistory->total_row = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
         // export bnba
