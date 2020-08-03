@@ -145,7 +145,7 @@ class BeneficiariesBnbaController extends ActiveController
             foreach ($sheet->getRowIterator() as $row) {
                 // read header row
                 $row_array = $row->toArray();
-                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders() ) {
+                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders()) {
                     $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
                 }
                 break;
@@ -183,7 +183,8 @@ class BeneficiariesBnbaController extends ActiveController
         return $historyData;
     }
 
-    public function actionUploadHistories() {
+    public function actionUploadHistories()
+    {
         $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 

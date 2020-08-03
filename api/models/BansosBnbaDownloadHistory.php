@@ -15,7 +15,8 @@ use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
  * {@inheritdoc}
  * @property int $export_type
  */
-class BansosBnbaDownloadHistory extends BaseDownloadHistory {
+class BansosBnbaDownloadHistory extends BaseDownloadHistory
+{
     const TYPE_BNBA_ORIGINAL = 'bnba'; // original ExportBnba job type
     const TYPE_BNBA_WITH_COMPLAIN = 'bnbawithcomplain'; // export type which include joined data from `beneficiaries_complain` table
 
@@ -51,7 +52,8 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
      *
      * @return None
      */
-    public function startJob() {
+    public function startJob()
+    {
         switch ($this->job_type) {
             case self::TYPE_BNBA_WITH_COMPLAIN :
                 $job_id = Yii::$app->queue->push(new ExportBnbaWithComplainJob([
@@ -71,5 +73,4 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
         $this->logs = $logs;
         $this->save();
     }
-
 }

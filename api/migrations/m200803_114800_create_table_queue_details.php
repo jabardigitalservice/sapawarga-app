@@ -30,10 +30,10 @@ class m200803_114800_create_table_queue_details extends Migration
         ]);
 
         // migrate data from old bansos download histories tables
-        foreach((new yii\db\Query)->from('bansos_verval_download_histories')->each() as $row) {
+        foreach ((new yii\db\Query)->from('bansos_verval_download_histories')->each() as $row) {
             $this->insertQueueDetail($row);
         }
-        foreach((new yii\db\Query)->from('bansos_bnba_download_histories')->each() as $row) {
+        foreach ((new yii\db\Query)->from('bansos_bnba_download_histories')->each() as $row) {
             $this->insertQueueDetail($row);
         }
 
@@ -77,7 +77,7 @@ class m200803_114800_create_table_queue_details extends Migration
         ]);
 
         // re-insert both table with data from queue_details
-        foreach((new yii\db\Query)->from('queue_details')->each() as $row) {
+        foreach ((new yii\db\Query)->from('queue_details')->each() as $row) {
             $results = json_decode($row['results'], true);
             $logs = json_decode($row['logs'], true);
             $params = json_decode($row['params'], true);
@@ -102,7 +102,6 @@ class m200803_114800_create_table_queue_details extends Migration
                     'export_type' => $row['job_type'],
                 ]));
             }
-
         }
 
         $this->dropTable('queue_details');
@@ -131,7 +130,7 @@ class m200803_114800_create_table_queue_details extends Migration
         $results = [ 'final_url' => $row['final_url'] ];
 
         if (!empty($row['done_at'])) {
-            if (empty($row['errors']) && !empty($row['final_url']) ) {
+            if (empty($row['errors']) && !empty($row['final_url'])) {
                 $status = 10; // sukses
                 $notes = 'Success';
             } else {

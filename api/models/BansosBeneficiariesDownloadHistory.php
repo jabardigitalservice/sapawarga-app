@@ -71,7 +71,8 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
      *
      * @return None
      */
-    public function startJob() {
+    public function startJob()
+    {
         $job_id = Yii::$app->queue->push(new ExportBeneficiariesJob([
             'userId' => $this->user_id,
             'historyId' => $this->id,
@@ -82,5 +83,4 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
         $this->logs = $logs;
         $this->save();
     }
-
 }

@@ -164,5 +164,4 @@ class BaseDownloadHistory extends ActiveRecord
         $this->logs = $logs;
         $this->save();
     }
-
 }
