@@ -42,7 +42,7 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
 
         // special filter for export with complain,
         if ($this->export_type == self::TYPE_BNBA_WITH_COMPLAIN) {
-            $queryParams['id_tipe_bansos'] = 6; // pintu banprov non-dtks
+            $queryParams['id_tipe_bansos'] = [6, 16]; // pintu banprov non-dtks
             $queryParams['is_dtks'] = [0, null];
         }
 
