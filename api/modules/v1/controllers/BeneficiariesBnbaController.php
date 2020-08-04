@@ -187,8 +187,20 @@ class BeneficiariesBnbaController extends ActiveController
         $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
-        $query = BansosBnbaUploadHistory::find()
-          ->where([ 'user_id' => $user->id ]);
+        $query = BansosBnbaUploadHistory::find();
+        $tableName = BansosBnbaUploadHistory::tableName();
+
+        if ($user->can('staffProv')) {
+            $query = $query
+                      ->select([
+                          "{{{$tableName}}}.*", // select all columns
+                          'MAX([[timestamp]]) AS last_update', // get last update
+                      ])
+                      ->groupBy('kabkota_name')
+                      ;
+        } else {
+            $query = $query->where([ 'user_id' => $user->id ]);
+        }
 
         $provider = new ActiveDataProvider([
             'query' => $query,
