@@ -174,6 +174,7 @@ class BeneficiariesDownloadController extends ActiveController
 
             $query = BansosBeneficiariesDownloadHistory::find()->where([
                 'user_id' => $user->id,
+                'job_type' => BansosBeneficiariesDownloadHistory::TYPE_VERVAL,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
