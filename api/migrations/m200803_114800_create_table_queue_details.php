@@ -91,8 +91,8 @@ class m200803_114800_create_table_queue_details extends Migration
                 'created_at' => $row['created_at'],
                 'start_at' => $row['start_at'],
                 'done_at' => $row['done_at'],
-                'errors' => $logs['errors'],
-                'job_id' => $logs['job_id'],
+                'errors' => (isset($logs['errors'])) ? $logs['errors'] : null,
+                'job_id' => (isset($logs['job_id'])) ? $logs['job_id'] : null,
             ];
 
             if ($row['job_type'] == 'verval') {
