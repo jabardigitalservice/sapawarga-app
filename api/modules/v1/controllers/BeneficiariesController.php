@@ -916,8 +916,7 @@ class BeneficiariesController extends ActiveController
             throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
         };
 
-        if (
-            $action !== Beneficiary::ACTION_APPROVE &&
+        if ($action !== Beneficiary::ACTION_APPROVE &&
             $action !== Beneficiary::ACTION_REJECT
         ) {
             throw new BadRequestHttpException('Bad Request: Invalid Action');
