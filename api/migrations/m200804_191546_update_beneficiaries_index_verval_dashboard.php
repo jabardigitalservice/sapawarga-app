@@ -18,7 +18,7 @@ class m200804_191546_update extends CustomMigration
         $this->dropIndex('idx-beneficiaries-dashboard-tahap-4-provinsi', 'beneficiaries');
 
         $this->createIndex(
-            'idx-beneficiaries-dashboard-tahap-all-provinsi',
+            'idx-beneficiaries-dashboard-tahap-all',
             'beneficiaries',
             [
                 'status',
@@ -32,7 +32,7 @@ class m200804_191546_update extends CustomMigration
         );
 
         $this->createIndex(
-            'idx-beneficiaries-dashboard-tahap-1-provinsi',
+            'idx-beneficiaries-dashboard-tahap-1',
             'beneficiaries',
             [
                 'status',
@@ -46,7 +46,7 @@ class m200804_191546_update extends CustomMigration
         );
 
         $this->createIndex(
-            'idx-beneficiaries-dashboard-tahap-2-provinsi',
+            'idx-beneficiaries-dashboard-tahap-2',
             'beneficiaries',
             [
                 'status',
@@ -60,7 +60,7 @@ class m200804_191546_update extends CustomMigration
         );
 
         $this->createIndex(
-            'idx-beneficiaries-dashboard-tahap-3-provinsi',
+            'idx-beneficiaries-dashboard-tahap-3',
             'beneficiaries',
             [
                 'status',
@@ -74,7 +74,7 @@ class m200804_191546_update extends CustomMigration
         );
 
         $this->createIndex(
-            'idx-beneficiaries-dashboard-tahap-4-provinsi',
+            'idx-beneficiaries-dashboard-tahap-4',
             'beneficiaries',
             [
                 'status',
@@ -93,23 +93,40 @@ class m200804_191546_update extends CustomMigration
      */
     public function safeDown()
     {
-        echo "m200804_191546_update cannot be reverted.\n";
+        $this->dropIndex('idx-beneficiaries-dashboard-tahap-4', 'beneficiaries');
+        $this->dropIndex('idx-beneficiaries-dashboard-tahap-3', 'beneficiaries');
+        $this->dropIndex('idx-beneficiaries-dashboard-tahap-2', 'beneficiaries');
+        $this->dropIndex('idx-beneficiaries-dashboard-tahap-1', 'beneficiaries');
+        $this->dropIndex('idx-beneficiaries-dashboard-tahap-all', 'beneficiaries');
 
-        return false;
+        $this->createIndex(
+            'idx-beneficiaries-dashboard-tahap-all-provinsi',
+            'beneficiaries',
+            ['domicile_kabkota_bps_id', 'status_verification', 'created_by']
+        );
+
+        $this->createIndex(
+            'idx-beneficiaries-dashboard-tahap-1-provinsi',
+            'beneficiaries',
+            ['domicile_kabkota_bps_id', 'tahap_1_verval', 'created_by']
+        );
+
+        $this->createIndex(
+            'idx-beneficiaries-dashboard-tahap-2-provinsi',
+            'beneficiaries',
+            ['domicile_kabkota_bps_id', 'tahap_2_verval', 'created_by']
+        );
+
+        $this->createIndex(
+            'idx-beneficiaries-dashboard-tahap-3-provinsi',
+            'beneficiaries',
+            ['domicile_kabkota_bps_id', 'tahap_3_verval', 'created_by']
+        );
+
+        $this->createIndex(
+            'idx-beneficiaries-dashboard-tahap-4-provinsi',
+            'beneficiaries',
+            ['domicile_kabkota_bps_id', 'tahap_4_verval', 'created_by']
+        );
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m200804_191546_update cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }
