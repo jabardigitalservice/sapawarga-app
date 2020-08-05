@@ -192,13 +192,19 @@ class BeneficiariesBnbaController extends ActiveController
         $tableName = BansosBnbaUploadHistory::tableName();
 
         if ($user->can('staffProv')) {
-            $query = $query
+            $subquery = (new \yii\db\Query())
                       ->select([
-                          "{{{$tableName}}}.*", // select all columns
+                          'kabkota_name as kabkota',
                           'MAX([[timestamp]]) AS last_update', // get last update
                       ])
+                      ->from("{{{$tableName}}}")
                       ->groupBy('kabkota_name')
                       ;
+            $query = $query
+              ->rightJoin([ 'r' => $subquery ],
+                "{{{$tableName}}}.kabkota_name = r.kabkota ".
+                "AND {{{$tableName}}}.`timestamp` = r.last_update")
+              ;
         } else {
             $query = $query->where([ 'user_id' => $user->id ]);
         }
