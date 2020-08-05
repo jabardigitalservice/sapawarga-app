@@ -26,8 +26,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         $this->jobHistoryClassName = 'app\models\BansosBnbaDownloadHistory';
         $jobHistory = $this->jobHistory;
-        $jobHistory->start_at = time();
-        $jobHistory->save();
+        $jobHistory->setStart();
 
         // size of query batch size used during database retrieval
         $batchSize = 1000;
@@ -36,7 +35,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         $query = $jobHistory->getQuery();
 
-        $rowNumbers = $jobHistory->row_count;
+        $rowNumbers = $jobHistory->total_row;
         echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
 
         echo "Starting generating BNBA list export\n" ;
@@ -107,16 +106,14 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
             $numProcessed += count($data);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
 
-            $jobHistory->row_processed = $numProcessed;
+            $jobHistory->processed_row = $numProcessed;
             $jobHistory->save();
         }
 
         $writer->close();
         $unbufferedDb->close();
 
-        $jobHistory->row_processed = $jobHistory->row_count;
-        $jobHistory->done_at = time();
-        $jobHistory->save();
+        $jobHistory->setFinish();
 
         echo "Finished generating export file" . PHP_EOL;
 

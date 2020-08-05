@@ -12,8 +12,8 @@ class m200730_075954_add_column_created_at_to_job_histories extends CustomMigrat
      */
     public function safeUp()
     {
-         $this->addColumn('bansos_bnba_download_histories', 'created_at', $this->integer()->defaultValue(null) );
-         $this->addColumn('bansos_verval_download_histories', 'created_at', $this->integer()->defaultValue(null) );
+         $this->addColumn('bansos_bnba_download_histories', 'created_at', $this->integer()->defaultValue(null));
+         $this->addColumn('bansos_verval_download_histories', 'created_at', $this->integer()->defaultValue(null));
 
          // migrate column values
          $query = <<<SQL
@@ -24,8 +24,8 @@ class m200730_075954_add_column_created_at_to_job_histories extends CustomMigrat
             END
             ;
 SQL;
-         $this->execute(sprintf($query, 'bansos_verval_download_histories' ));
-         $this->execute(sprintf($query, 'bansos_bnba_download_histories' ));
+         $this->execute(sprintf($query, 'bansos_verval_download_histories'));
+         $this->execute(sprintf($query, 'bansos_bnba_download_histories'));
     }
 
     /**

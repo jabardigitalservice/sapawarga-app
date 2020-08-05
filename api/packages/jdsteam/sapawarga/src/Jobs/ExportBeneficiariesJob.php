@@ -24,8 +24,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
     {
         $this->jobHistoryClassName = 'app\models\BansosBeneficiariesDownloadHistory';
         $jobHistory = $this->jobHistory;
-        $jobHistory->start_at = time();
-        $jobHistory->save();
+        $jobHistory->setStart();
 
         // size of query batch size used during database retrieval
         $batch_size = 1000;
@@ -43,7 +42,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         }
 
         $query = $jobHistory->getQuery();
-        $row_numbers = $jobHistory->row_count;
+        $row_numbers = $jobHistory->total_row;
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
         echo "Starting generating BNBA list export\n" ;
@@ -51,7 +50,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         /* Generate export file using box/spout library.
          * ref: https://opensource.box.com/spout/getting-started/#writer */
         $writer = WriterEntityFactory::createXLSXWriter();
-        
+
         // Initial varieble location, filename, path
         $now_date = date('Y-m-d-H-i-s');
         $fileName = "export-calon-penerima-bantuan-$now_date.xlsx";
@@ -90,16 +89,14 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
             $num_processed += count($listBnba);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
 
-            $jobHistory->row_processed = $num_processed;
+            $jobHistory->processed_row = $num_processed;
             $jobHistory->save();
         }
 
         $writer->close();
         $unbefferedDb->close();
 
-        $jobHistory->row_processed = $jobHistory->row_count;
-        $jobHistory->done_at = time();
-        $jobHistory->save();
+        $jobHistory->setFinish();
 
         echo "Finished generating export file" . PHP_EOL;
 

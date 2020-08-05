@@ -22,7 +22,20 @@ use app\models\BeneficiaryBnbaTahapSatu;
  */
 class BaseDownloadHistory extends ActiveRecord
 {
+    const STATUS_START = 1;
+    const STATUS_SUCCESS = 10;
+    const STATUS_ERROR = 20;
+    const STATUS_VALIDATION_ERROR = 21;
+
     private $_job_details;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function tableName()
+    {
+        return 'queue_details';
+    }
 
     /**
      * {@inheritdoc}
@@ -39,7 +52,18 @@ class BaseDownloadHistory extends ActiveRecord
         };
         unset($fields['errors']);
         $fields['error'] = function ($model) {
-            return !empty($model->errors) && $model->errors != null;
+            return isset($model->logs->errors) && !empty($model->logs->errors) && $model->logs->errors != null;
+        };
+
+        // old fields to maintain backward compatibility with old API
+        $fields['final_url'] = function ($model) {
+            return $model->results['final_url'];
+        };
+        $fields['row_processed'] = function ($model) {
+            return $model->processed_row;
+        };
+        $fields['row_count'] = function ($model) {
+            return $model->total_row;
         };
 
         return $fields;
@@ -61,13 +85,13 @@ class BaseDownloadHistory extends ActiveRecord
     public function getAggregateRowProgress($tag = null)
     {
         $histories = $this->getWaitingListQuery()->all();
-        
-        $total_row_count = $this->row_count;
-        $total_row_processed = $this->row_processed;
+
+        $total_row_count = $this->total_row;
+        $total_row_processed = $this->processed_row;
         $start_time = $current_time = time();
         foreach ($histories as $history) {
-            $total_row_count += $history->row_count;
-            $total_row_processed += $history->row_processed;
+            $total_row_count += $history->total_row;
+            $total_row_processed += $history->processed_row;
             if (!empty($history->start_at)) {
                 $start_time = $history->start_at;
             }
@@ -98,10 +122,7 @@ class BaseDownloadHistory extends ActiveRecord
     {
         return self::find()
             ->where(['<','id',$this->id])
-            ->andWhere([
-               'done_at' => null,
-               'errors'  => null,
-            ]);
+            ->andWhere([ 'not', [ 'status' => [ self::STATUS_START, null ] ] ]);
     }
 
 
@@ -112,5 +133,46 @@ class BaseDownloadHistory extends ActiveRecord
     public function getQuery()
     {
         throw new \Exception('getQuery method must be overwritten by child of BaseDownloadHistory class');
+    }
+
+    /**
+     * set jobHistory status to started
+     */
+    public function setStart()
+    {
+        $this->status = self::STATUS_START;
+        $this->notes = 'Export process started';
+        $this->start_at = time();
+        $this->save();
+    }
+
+    /**
+     * set jobHistory status to finished
+     */
+    public function setFinish()
+    {
+        $this->done_at = time();
+        $this->processed_row = $this->total_row;
+        $this->status = self::STATUS_SUCCESS;
+        $this->notes = 'Success';
+        $this->save();
+    }
+
+    /**
+     * insert new error log to job history error field
+     */
+    public function setError($error_detail)
+    {
+        $this->done_at = time();
+        $this->status = self::STATUS_ERROR;
+        $this->notes = 'Error';
+
+        $logs = ($this->logs) ?: [];
+        if (!isset($logs['errors'])) {
+            $logs['errors'] = [];
+        }
+        $logs['errors'][] = $error_detail;
+        $this->logs = $logs;
+        $this->save();
     }
 }
