@@ -2,9 +2,11 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Json;
 use yii\db\Query;
+use Jdsteam\Sapawarga\Jobs\ExportBeneficiariesJob;
 
 /**
  * This is the model class for table "bansos_bnba_download_histories".
@@ -13,6 +15,8 @@ use yii\db\Query;
  */
 class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
 {
+    const TYPE_VERVAL = 'verval'; // original ExportBnba job type
+
     public $columns = [
         'id' => 'beneficiaries.id',
         'kode_kab' => 'beneficiaries.domicile_kabkota_bps_id',
@@ -36,14 +40,6 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
         'keterangan' => 'beneficiaries.notes',
         'status_verifikasi' => 'beneficiaries.status_verification',
     ];
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'bansos_verval_download_histories';
-    }
 
     /** Count affected rows in this queue job
      *
@@ -69,5 +65,22 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
         return Beneficiary::find()
           ->where($this->params)
           ->count();
+    }
+
+    /** Start Export Verval Job according to type
+     *
+     * @return None
+     */
+    public function startJob()
+    {
+        $job_id = Yii::$app->queue->push(new ExportBeneficiariesJob([
+            'userId' => $this->user_id,
+            'historyId' => $this->id,
+        ]));
+
+        $logs = ($this->logs) ?: [];
+        $logs['job_id'] = $job_id;
+        $this->logs = $logs;
+        $this->save();
     }
 }

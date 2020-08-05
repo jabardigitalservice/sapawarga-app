@@ -145,7 +145,7 @@ class BeneficiariesBnbaController extends ActiveController
             foreach ($sheet->getRowIterator() as $row) {
                 // read header row
                 $row_array = $row->toArray();
-                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders() ) {
+                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders()) {
                     $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
                 }
                 break;
@@ -183,7 +183,8 @@ class BeneficiariesBnbaController extends ActiveController
         return $historyData;
     }
 
-    public function actionUploadHistories() {
+    public function actionUploadHistories()
+    {
         $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
@@ -200,6 +201,10 @@ class BeneficiariesBnbaController extends ActiveController
                       ;
         } else {
             $query = $query->where([ 'user_id' => $user->id ]);
+        }
+
+        if (isset($params['kabkota_name'])) {
+            $query = $query->where([ 'kabkota_name' => $params['kabkota_name'] ]);
         }
 
         $provider = new ActiveDataProvider([
@@ -264,10 +269,10 @@ class BeneficiariesBnbaController extends ActiveController
 
         $jobHistory = new BansosBnbaDownloadHistory;
         $jobHistory->user_id = $user->id;
-        $jobHistory->export_type = $exportType;
+        $jobHistory->job_type = $exportType;
         $jobHistory->params = $queryParams;
         $jobHistory->created_at = time();
-        $jobHistory->row_count = $jobHistory->countAffectedRows();
+        $jobHistory->total_row = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
         // export bnba
@@ -297,7 +302,7 @@ class BeneficiariesBnbaController extends ActiveController
 
             $query = BansosBnbaDownloadHistory::find()->where([
                 'user_id' => $user->id,
-                'export_type' => $exportType,
+                'job_type' => $exportType,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;

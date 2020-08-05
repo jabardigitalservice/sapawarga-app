@@ -39,5 +39,4 @@ class BansosBnbaUploadHistory extends ActiveRecord
             ], 'safe'],
         ];
     }
-
 }
