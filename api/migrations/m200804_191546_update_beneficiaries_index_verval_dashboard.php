@@ -4,7 +4,7 @@ use app\components\CustomMigration;
 
 /**
  * Class m200804_191546_update */
-class m200804_191546_update extends CustomMigration
+class m200804_191546_update_beneficiaries_index_verval_dashboard extends CustomMigration
 {
     /**
      * {@inheritdoc}
