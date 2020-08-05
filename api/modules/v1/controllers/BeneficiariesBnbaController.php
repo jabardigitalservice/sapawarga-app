@@ -202,6 +202,10 @@ class BeneficiariesBnbaController extends ActiveController
             $query = $query->where([ 'user_id' => $user->id ]);
         }
 
+        if (isset($params['kabkota_name'])) {
+            $query = $query->where([ 'kabkota_name' => $params['kabkota_name'] ]);
+        }
+
         $provider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
