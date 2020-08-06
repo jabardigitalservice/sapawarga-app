@@ -64,7 +64,8 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
     public function countAffectedRows()
     {
         return Beneficiary::find()
-          ->where($this->params)
+          ->where(['status' => Beneficiary::STATUS_ACTIVE])
+          ->andWhere($this->params)
           ->count();
     }
 
