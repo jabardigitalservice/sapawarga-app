@@ -73,11 +73,12 @@ class BeneficiaryDashboardCest
         ]);
     }
 
-     /**
-     * @before loadData
-     */
-    public function getStaffKelDashboardSummary(ApiTester $I)
+    /**
+    * @before loadData
+    */
+    public function getDashboardSummary(ApiTester $I)
     {
+        // staffKel
         $I->amStaff('staffkel');
 
         $I->sendGET("{$this->endpointDashboardSummary}?type=kel&code_bps={$this->kelBandung}&tahap=1");
@@ -87,5 +88,45 @@ class BeneficiaryDashboardCest
         $I->assertEquals(1, $data[0]['approved']);
         $I->assertEquals(1, $data[0]['rejected']);
         $I->assertEquals(2, $data[0]['total']);
+
+        // staffProv
+        $I->amStaff('staffprov');
+
+        $I->sendGET("{$this->endpointDashboardSummary}?type=provinsi&tahap=1");
+        $I->canSeeResponseCodeIs(200);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+        $I->assertEquals(2, $data[0]['approved']);
+        $I->assertEquals(1, $data[0]['rejected']);
+        $I->assertEquals(3, $data[0]['total']);
     }
+
+    /**
+    * @before loadData
+    */
+    public function getDashboardList(ApiTester $I)
+    {
+        // staffKel. tahap 1
+        $I->amStaff('staffkel');
+
+        $I->sendGET("{$this->endpointDashboardList}?type=kel&code_bps={$this->kelBandung}&tahap=1");
+        $I->canSeeResponseCodeIs(200);
+
+        $data = $I->grabDataFromResponseByJsonPath('$.data');
+        $I->assertEquals(1, $data[0][0]['rw']);
+        $I->assertEquals(1, $data[0][0]['data']['total']);
+        $I->assertEquals(2, $data[0][1]['rw']);
+        $I->assertEquals(1, $data[0][1]['data']['total']);
+
+        // staffProv, tahap 2
+        $I->amStaff('staffprov');
+
+        $I->sendGET("{$this->endpointDashboardList}?type=provinsi&tahap=2");
+        $I->canSeeResponseCodeIs(200);
+
+        $data = $I->grabDataFromResponseByJsonPath("$.data[?(@.code_bps == {$this->kabkotaBandung})]");
+
+        $I->assertEquals(1, $data[0]['data']['total']);
+    }
+
 }
