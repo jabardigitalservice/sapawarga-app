@@ -377,17 +377,19 @@ class BeneficiariesController extends ActiveController
         switch ($type) {
             case 'provinsi':
                 $counts = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -396,19 +398,21 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'kabkota':
                 $counts = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kabkota_bps_id', $code_bps])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', $code_bps])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kabkota_bps_id', $code_bps])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', $code_bps])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -417,19 +421,23 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'kec':
                 $counts = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kec_bps_id', $code_bps])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', $code_bps])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kec_bps_id', $code_bps])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', $code_bps])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -438,19 +446,25 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'kel':
                 $counts = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -459,21 +473,27 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'rw':
                 $counts = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->andWhere(['=','domicile_rw', $rw])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andwhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
+                    ->andWhere(['=', 'domicile_rw', $rw])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
                 $counts = new Collection($counts);
                 $counts = $transformCount($counts, $statusVerificationColumn);
                 $counts_baru = (new \yii\db\Query())
-                    ->select([$statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->andWhere(['=','domicile_rw', $rw])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
+                    ->andWhere(['=', 'domicile_rw', $rw])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy([$statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -522,7 +542,7 @@ class BeneficiariesController extends ActiveController
                 $areas = (new \yii\db\Query())
                     ->select(['code_bps', 'name'])
                     ->from('areas')
-                    ->where(['=','code_bps_parent', '32'])
+                    ->where(['=', 'code_bps_parent', '32'])
                     ->createCommand()
                     ->queryAll();
                 $areas = new Collection($areas);
@@ -531,8 +551,9 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                 ]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_kabkota_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_kabkota_bps_id', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
                     ->groupBy(['domicile_kabkota_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -540,9 +561,10 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_kabkota_bps_id');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_kabkota_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_kabkota_bps_id', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy(['domicile_kabkota_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -559,7 +581,7 @@ class BeneficiariesController extends ActiveController
                 $areas = (new \yii\db\Query())
                     ->select(['code_bps', 'name'])
                     ->from('areas')
-                    ->where(['=','code_bps_parent', $code_bps])
+                    ->where(['=', 'code_bps_parent', $code_bps])
                     ->createCommand()
                     ->queryAll();
                 $areas = new Collection($areas);
@@ -568,9 +590,10 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                 ]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_kec_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_kec_bps_id', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kabkota_bps_id', $code_bps])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', $code_bps])
                     ->groupBy(['domicile_kec_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -578,10 +601,11 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_kec_bps_id');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_kec_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_kec_bps_id', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kabkota_bps_id', $code_bps])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', $code_bps])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy(['domicile_kec_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -598,7 +622,7 @@ class BeneficiariesController extends ActiveController
                 $areas = (new \yii\db\Query())
                     ->select(['code_bps', 'name'])
                     ->from('areas')
-                    ->where(['=','code_bps_parent', $code_bps])
+                    ->where(['=', 'code_bps_parent', $code_bps])
                     ->createCommand()
                     ->queryAll();
                 $areas = new Collection($areas);
@@ -607,9 +631,11 @@ class BeneficiariesController extends ActiveController
                     'code_bps' => '',
                 ]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_kel_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_kel_bps_id', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kec_bps_id', $code_bps])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', $code_bps])
                     ->groupBy(['domicile_kel_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -617,10 +643,12 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_kel_bps_id');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_kel_bps_id', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_kel_bps_id', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kec_bps_id', $code_bps])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', $code_bps])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy(['domicile_kel_bps_id', $statusVerificationColumn])
                     ->createCommand()
                     ->queryAll();
@@ -636,9 +664,12 @@ class BeneficiariesController extends ActiveController
             case 'kel':
                 $areas = new Collection([]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_rw', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_rw', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
                     ->groupBy(['domicile_rw', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rw as unsigned) asc')
                     ->createCommand()
@@ -647,10 +678,13 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_rw');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_rw', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_rw', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy(['domicile_rw', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rw as unsigned) asc')
                     ->createCommand()
@@ -681,10 +715,13 @@ class BeneficiariesController extends ActiveController
             case 'rw':
                 $areas = new Collection([]);
                 $counts = (new \yii\db\Query())
-                    ->select(['domicile_rt', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_rt', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->andWhere(['=','domicile_rw', $rw])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
+                    ->andWhere(['=', 'domicile_rw', $rw])
                     ->groupBy(['domicile_rt', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rt as unsigned) asc')
                     ->createCommand()
@@ -693,11 +730,14 @@ class BeneficiariesController extends ActiveController
                 $counts = $counts->groupBy('domicile_rt');
                 $counts->transform($transformCount);
                 $counts_baru = (new \yii\db\Query())
-                    ->select(['domicile_rt', $statusVerificationColumn,'COUNT(*) AS jumlah'])
+                    ->select(['domicile_rt', $statusVerificationColumn, 'COUNT(*) AS jumlah'])
                     ->from('beneficiaries')
-                    ->where(['=','domicile_kel_bps_id', $code_bps])
-                    ->andWhere(['=','domicile_rw', $rw])
-                    ->andWhere(['<>','created_by', 2])
+                    ->where(['=', 'status', Beneficiary::STATUS_ACTIVE])
+                    ->andWhere(['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)])
+                    ->andWhere(['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)])
+                    ->andWhere(['=', 'domicile_kel_bps_id', $code_bps])
+                    ->andWhere(['=', 'domicile_rw', $rw])
+                    ->andWhere(['<>', 'created_by', 2])
                     ->groupBy(['domicile_rt', $statusVerificationColumn])
                     ->orderBy('cast(domicile_rt as unsigned) asc')
                     ->createCommand()
@@ -862,7 +902,7 @@ class BeneficiariesController extends ActiveController
         return BeneficiaryHelper::getCurrentTahap();
     }
 
-     /**
+    /**
      * Get status_verification value based on type and action
      * @param string $type Area type (provinsi | kabkota | kec | kel | rw)
      * @param string $action Approval action (APPROVE | REJECT)
@@ -877,7 +917,8 @@ class BeneficiariesController extends ActiveController
         };
 
         if ($action !== Beneficiary::ACTION_APPROVE &&
-            $action !== Beneficiary::ACTION_REJECT) {
+            $action !== Beneficiary::ACTION_REJECT
+        ) {
             throw new BadRequestHttpException('Bad Request: Invalid Action');
         }
 
@@ -927,7 +968,8 @@ class BeneficiariesController extends ActiveController
                     'updated_by' => ModelHelper::getLoggedInUserId(),
                     'updated_at' => time(),
                 ],
-                [   'and',
+                [
+                    'and',
                     ['=', 'status', Beneficiary::STATUS_ACTIVE],
                     ['in', 'id', $ids],
                 ]

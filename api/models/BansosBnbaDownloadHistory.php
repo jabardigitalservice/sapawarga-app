@@ -15,7 +15,8 @@ use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
  * {@inheritdoc}
  * @property int $export_type
  */
-class BansosBnbaDownloadHistory extends BaseDownloadHistory {
+class BansosBnbaDownloadHistory extends BaseDownloadHistory
+{
     const TYPE_BNBA_ORIGINAL = 'bnba'; // original ExportBnba job type
     const TYPE_BNBA_WITH_COMPLAIN = 'bnbawithcomplain'; // export type which include joined data from `beneficiaries_complain` table
 
@@ -23,14 +24,6 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
       self::TYPE_BNBA_ORIGINAL => 'Original Template',
       self::TYPE_BNBA_WITH_COMPLAIN => 'Template With Complain Notes',
     ];
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'bansos_bnba_download_histories';
-    }
 
     /** Get query builder instance for curent job parameters
      *
@@ -41,8 +34,8 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
         $queryParams = $this->params;
 
         // special filter for export with complain,
-        if ($this->export_type == self::TYPE_BNBA_WITH_COMPLAIN) {
-            $queryParams['id_tipe_bansos'] = 6; // pintu banprov non-dtks
+        if ($this->job_type == self::TYPE_BNBA_WITH_COMPLAIN) {
+            $queryParams['id_tipe_bansos'] = [6, 16]; // pintu banprov non-dtks
             $queryParams['is_dtks'] = [0, null];
         }
 
@@ -59,8 +52,9 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
      *
      * @return None
      */
-    public function startJob() {
-        switch ($this->export_type) {
+    public function startJob()
+    {
+        switch ($this->job_type) {
             case self::TYPE_BNBA_WITH_COMPLAIN :
                 $job_id = Yii::$app->queue->push(new ExportBnbaWithComplainJob([
                     'userId' => $this->user_id,
@@ -74,7 +68,9 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory {
                 ]));
         }
 
-        $this->job_id = $job_id;
+        $logs = ($this->logs) ?: [];
+        $logs['job_id'] = $job_id;
+        $this->logs = $logs;
         $this->save();
     }
 }
