@@ -201,9 +201,11 @@ class BeneficiariesBnbaController extends ActiveController
                       ->groupBy('kabkota_name')
                       ;
             $query = $query
-              ->rightJoin([ 'r' => $subquery ],
-                "{{{$tableName}}}.kabkota_name = r.kabkota ".
-                "AND {{{$tableName}}}.`timestamp` = r.last_update")
+              ->rightJoin(
+                  [ 'r' => $subquery ],
+                  "{{{$tableName}}}.kabkota_name = r.kabkota " .
+                  "AND {{{$tableName}}}.`timestamp` = r.last_update"
+              )
               ;
         } else {
             $query = $query->where([ 'user_id' => $user->id ]);
