@@ -19,18 +19,18 @@ $config = [
                 'application/json' => 'yii\web\JsonParser',
             ],
         ],
-        // 'cache' => [
-        //     'class' => 'yii\redis\Cache',
-        //     'redis' => [
-        //         'hostname' => getenv('REDIS_HOST'),
-        //         'port' => getenv('REDIS_PORT'),
-        //         'database' => getenv('REDIS_DB'),
-        //     ],
-        //     'enableReplicas' => true,
-        //     'replicas' => [
-        //         ['hostname' => getenv('REDIS_HOST_SLAVE_1')],
-        //     ],
-        // ],
+        'cache' => [
+            'class' => 'yii\redis\Cache',
+            'redis' => [
+                'hostname' => getenv('REDIS_HOST'),
+                'port' => getenv('REDIS_PORT'),
+                'database' => getenv('REDIS_DB'),
+            ],
+            'enableReplicas' => true,
+            'replicas' => [
+                ['hostname' => getenv('REDIS_HOST_SLAVE_1')],
+            ],
+        ],
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,

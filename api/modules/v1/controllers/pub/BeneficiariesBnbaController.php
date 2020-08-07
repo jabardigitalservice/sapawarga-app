@@ -101,14 +101,14 @@ class BeneficiariesBnbaController extends ActiveController
                     ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
-            // $cache = Yii::$app->cache;
-            // $key = self::REDIS_KEY_BNBA_TYPE . implode($params);
-            // $search = $cache->get($key);
-            // if (! $search) {
+            $cache = Yii::$app->cache;
+            $key = self::REDIS_KEY_BNBA_TYPE . implode($params);
+            $search = $cache->get($key);
+            if (! $search) {
                 $search = new BeneficiaryBnbaSearch();
                 $search = $search->getStatisticsByType($params);
-            //     $cache->set($key, $search);
-            // }
+                $cache->set($key, $search);
+            }
         }
 
         // Reformat result
@@ -190,14 +190,14 @@ class BeneficiariesBnbaController extends ActiveController
                     ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
-            // $cache = Yii::$app->cache;
-            // $key = self::REDIS_KEY_BNBA_AREA . implode($params);
-            // $search = $cache->get($key);
-            // if (! $search) {
+            $cache = Yii::$app->cache;
+            $key = self::REDIS_KEY_BNBA_AREA . implode($params);
+            $search = $cache->get($key);
+            if (! $search) {
                 $search = new BeneficiaryBnbaSearch();
                 $search = $search->getStatisticsByArea($params);
-            //     $cache->set($key, $search);
-            // }
+                $cache->set($key, $search);
+            }
         }
 
         // Reformat for RW area
