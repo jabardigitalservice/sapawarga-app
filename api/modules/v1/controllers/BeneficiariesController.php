@@ -514,6 +514,15 @@ class BeneficiariesController extends ActiveController
         $rw = Arr::get($params, 'rw');
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
+        $getChildAreas = function ($parentCodeBps) {
+            return (new \yii\db\Query())
+                ->select(['code_bps', 'name'])
+                ->from('areas')
+                ->where(['=', 'code_bps_parent', $parentCodeBps])
+                ->createCommand()
+                ->queryAll();
+        };
+
         $transformCount = function ($lists) use ($statusVerificationColumn) {
             $status_maps = [
                 '1' => 'pending',
@@ -539,12 +548,7 @@ class BeneficiariesController extends ActiveController
 
         switch ($type) {
             case 'provinsi':
-                $areas = (new \yii\db\Query())
-                    ->select(['code_bps', 'name'])
-                    ->from('areas')
-                    ->where(['=', 'code_bps_parent', '32'])
-                    ->createCommand()
-                    ->queryAll();
+                $areas = $getChildAreas('32');
                 $areas = new Collection($areas);
                 $areas->push([
                     'name' => '- LOKASI KOTA/KAB BELUM TERDATA',
@@ -578,12 +582,7 @@ class BeneficiariesController extends ActiveController
                 });
                 break;
             case 'kabkota':
-                $areas = (new \yii\db\Query())
-                    ->select(['code_bps', 'name'])
-                    ->from('areas')
-                    ->where(['=', 'code_bps_parent', $code_bps])
-                    ->createCommand()
-                    ->queryAll();
+                $areas = $getChildAreas($code_bps);
                 $areas = new Collection($areas);
                 $areas->push([
                     'name' => '- LOKASI KEC BELUM TERDATA',
@@ -619,12 +618,7 @@ class BeneficiariesController extends ActiveController
                 });
                 break;
             case 'kec':
-                $areas = (new \yii\db\Query())
-                    ->select(['code_bps', 'name'])
-                    ->from('areas')
-                    ->where(['=', 'code_bps_parent', $code_bps])
-                    ->createCommand()
-                    ->queryAll();
+                $areas = $getChildAreas($code_bps);
                 $areas = new Collection($areas);
                 $areas->push([
                     'name' => '- LOKASI KEL BELUM TERDATA',
