@@ -122,7 +122,7 @@ class BaseDownloadHistory extends ActiveRecord
     {
         return self::find()
             ->where(['<','id',$this->id])
-            ->andWhere([ 'not', [ 'status' => [ self::STATUS_START, null ] ] ]);
+            ->andWhere([ 'status' => [ self::STATUS_START, null ] ]);
     }
 
 
