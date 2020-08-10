@@ -52,7 +52,7 @@ class BaseDownloadHistory extends ActiveRecord
         };
         unset($fields['errors']);
         $fields['error'] = function ($model) {
-            return isset($model->logs->errors) && !empty($model->logs->errors) && $model->logs->errors != null;
+            return isset($model->logs['errors']) && !empty($model->logs['errors']) && $model->logs['errors'] != null;
         };
 
         // old fields to maintain backward compatibility with old API
