@@ -53,7 +53,7 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
           ->leftJoin('areas a', 'beneficiaries.domicile_kabkota_bps_id = a.code_bps')
           ->leftJoin('areas a2', 'beneficiaries.domicile_kec_bps_id = a2.code_bps')
           ->leftJoin('areas a3', 'beneficiaries.domicile_kel_bps_id = a3.code_bps')
-          ->where(['status' => Beneficiary::STATUS_ACTIVE])
+          ->where(['beneficiaries.status' => Beneficiary::STATUS_ACTIVE])
           ->andWhere($this->params)
           ;
     }

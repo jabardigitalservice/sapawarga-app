@@ -84,7 +84,6 @@ class BaseDownloadHistory extends ActiveRecord
      */
     public function getAggregateRowProgress($tag = null)
     {
-        //return  $this->getWaitingListQuery()->createCommand()->getRawSql();
         $histories = $this->getWaitingListQuery()->all();
 
         $total_row_count = $this->total_row;
