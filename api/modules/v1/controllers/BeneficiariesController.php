@@ -538,7 +538,7 @@ class BeneficiariesController extends ActiveController
             // group by Collection keys
             $counts = new Collection($counts);
             $counts = $counts->groupBy($areaColumn);
-            $counts = $transformCount($counts);
+            $counts->transform($transformCount);
 
             return $counts;
         };
