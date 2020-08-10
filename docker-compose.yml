@@ -16,6 +16,13 @@ services:
       - vol_storage:/srv/web/storage
     ports:
       - 81:80
+    deploy:
+       resources:
+         limits:
+           cpus: '0.25'
+           memory: 1024M
+    restart: on-failure
+
 
   redis:
     image: redis:6.0.5-alpine 
@@ -24,8 +31,12 @@ services:
       - jds-dev-network
     ports:
       - 6379:6379
-
-
+    deploy:
+       resources:
+         limits:
+           cpus: '0.1'
+           memory: 128M
+    
   database:
     build:
       context: ./database
@@ -38,11 +49,21 @@ services:
       - .env
     volumes:
       - vol_mysql_data:/var/lib/mysql
+    deploy:
+       resources:
+         limits:
+           cpus: '0.25'
+           memory: 256M
 
   memcached:
     image: memcached:latest
     networks:
       -  jds-dev-network
+    deploy:
+       resources:
+         limits:
+           cpus: '0.1'
+           memory: 64M
 
 networks:
   jds-dev-network:
