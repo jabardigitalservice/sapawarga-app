@@ -343,6 +343,49 @@ class BeneficiariesController extends ActiveController
         return 'ok';
     }
 
+    /* VERVAL DASHBOARD */
+
+    function getQuery($conditionals) {
+        $params = Yii::$app->request->getQueryParams();
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+
+        $query = (new \yii\db\Query())
+            ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
+            ->from('beneficiaries')
+            ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+        foreach ($conditionals as $conditional) {
+            $query = $query->andWhere($conditional);
+        }
+        $query = $query->groupBy([$statusVerificationColumn])
+            ->createCommand()
+            ->queryAll();
+
+        return $query;
+    }
+
+    function transformCount($lists, $statusVerificationColumn) {
+        $status_maps = [
+            '1' => 'pending',
+            '2' => 'rejected',
+            '3' => 'approved',
+            '4' => 'rejected_kel',
+            '5' => 'approved_kel',
+            '6' => 'rejected_kec',
+            '7' => 'approved_kec',
+            '8' => 'rejected_kabkota',
+            '9' => 'approved_kabkota',
+        ];
+        $data = [];
+        $jml = Arr::pluck($lists, 'jumlah', $statusVerificationColumn);
+        $total = 0;
+        foreach ($status_maps as $key => $map) {
+            $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
+            $total += $data[$map];
+        }
+        $data['total'] = $total;
+        return $data;
+    }
+
     public function actionDashboardSummary()
     {
         $params = Yii::$app->request->getQueryParams();
@@ -352,106 +395,68 @@ class BeneficiariesController extends ActiveController
         $rw = Arr::get($params, 'rw');
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
-        $transformCount = function ($lists, $statusVerificationColumn) {
-            $status_maps = [
-                '1' => 'pending',
-                '2' => 'rejected',
-                '3' => 'approved',
-                '4' => 'rejected_kel',
-                '5' => 'approved_kel',
-                '6' => 'rejected_kec',
-                '7' => 'approved_kec',
-                '8' => 'rejected_kabkota',
-                '9' => 'approved_kabkota',
-            ];
-            $data = [];
-            $jml = Arr::pluck($lists, 'jumlah', $statusVerificationColumn);
-            $total = 0;
-            foreach ($status_maps as $key => $map) {
-                $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
-                $total += $data[$map];
-            }
-            $data['total'] = $total;
-            return $data;
-        };
-
-        $getQuery = function ($conditionals) use ($statusVerificationColumn) {
-            $query = (new \yii\db\Query())
-                ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
-                ->from('beneficiaries')
-                ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
-            foreach ($conditionals as $conditional) {
-                $query = $query->andWhere($conditional);
-            }
-            $query = $query->groupBy([$statusVerificationColumn])
-                ->createCommand()
-                ->queryAll();
-
-                return $query;
-        };
-
         switch ($type) {
             case 'provinsi':
-                $counts = $getQuery([]);
+                $counts = $this->getQuery([]);
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $getQuery([['<>', 'created_by', 2]]);
+                $counts = $this->transformCount($counts, $statusVerificationColumn);
+                $counts_baru = $this->getQuery([['<>', 'created_by', 2]]);
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
+                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kabkota':
-                $counts = $getQuery([['=', 'domicile_kabkota_bps_id', $code_bps]]);
+                $counts = $this->getQuery([['=', 'domicile_kabkota_bps_id', $code_bps]]);
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $getQuery([
+                $counts = $this->transformCount($counts, $statusVerificationColumn);
+                $counts_baru = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', $code_bps],
                     ['<>', 'created_by', 2],
                 ]);
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
+                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kec':
-                $counts = $getQuery([
+                $counts = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', $code_bps],
                 ]);
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $getQuery([
+                $counts = $this->transformCount($counts, $statusVerificationColumn);
+                $counts_baru = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', $code_bps],
                     ['<>', 'created_by', 2],
                 ]);
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
+                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kel':
-                $counts = $getQuery([
+                $counts = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                 ]);
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $getQuery([
+                $counts = $this->transformCount($counts, $statusVerificationColumn);
+                $counts_baru = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                     ['<>', 'created_by', 2],
                 ]);
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
+                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'rw':
-                $counts = $getQuery([
+                $counts = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                     ['=', 'domicile_rw', $rw],
                 ]);
                 $counts = new Collection($counts);
-                $counts = $transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $getQuery([
+                $counts = $this->transformCount($counts, $statusVerificationColumn);
+                $counts_baru = $this->getQuery([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
@@ -459,7 +464,7 @@ class BeneficiariesController extends ActiveController
                     ['<>', 'created_by', 2],
                 ]);
                 $counts_baru = new Collection($counts_baru);
-                $counts_baru = $transformCount($counts_baru, $statusVerificationColumn);
+                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
         }
         $counts['baru'] = $counts_baru;
