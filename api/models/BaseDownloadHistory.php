@@ -52,7 +52,7 @@ class BaseDownloadHistory extends ActiveRecord
         };
         unset($fields['errors']);
         $fields['error'] = function ($model) {
-            return isset($model->logs->errors) && !empty($model->logs->errors) && $model->logs->errors != null;
+            return isset($model->logs['errors']) && !empty($model->logs['errors']) && $model->logs['errors'] != null;
         };
 
         // old fields to maintain backward compatibility with old API
@@ -84,6 +84,7 @@ class BaseDownloadHistory extends ActiveRecord
      */
     public function getAggregateRowProgress($tag = null)
     {
+        //return  $this->getWaitingListQuery()->createCommand()->getRawSql();
         $histories = $this->getWaitingListQuery()->all();
 
         $total_row_count = $this->total_row;
