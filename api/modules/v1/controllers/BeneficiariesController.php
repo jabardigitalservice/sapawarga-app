@@ -345,7 +345,8 @@ class BeneficiariesController extends ActiveController
 
     /* VERVAL DASHBOARD */
 
-    function getQuery($conditionals) {
+    protected function getQuery($conditionals)
+    {
         $params = Yii::$app->request->getQueryParams();
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
@@ -363,7 +364,8 @@ class BeneficiariesController extends ActiveController
         return $query;
     }
 
-    function transformCount($lists, $statusVerificationColumn) {
+    protected function transformCount($lists, $statusVerificationColumn)
+    {
         $status_maps = [
             '1' => 'pending',
             '2' => 'rejected',
@@ -386,6 +388,18 @@ class BeneficiariesController extends ActiveController
         return $data;
     }
 
+    protected function getDashboardSummaryData($conditionals)
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+
+        $counts = $this->getQuery($conditionals);
+        $counts = new Collection($counts);
+        $counts = $this->transformCount($counts, $statusVerificationColumn);
+
+        return $counts;
+    }
+
     public function actionDashboardSummary()
     {
         $params = Yii::$app->request->getQueryParams();
@@ -397,74 +411,54 @@ class BeneficiariesController extends ActiveController
 
         switch ($type) {
             case 'provinsi':
-                $counts = $this->getQuery([]);
-                $counts = new Collection($counts);
-                $counts = $this->transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $this->getQuery([['<>', 'created_by', 2]]);
-                $counts_baru = new Collection($counts_baru);
-                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
+                $counts = $this->getDashboardSummaryData([]);
+                $counts_baru = $this->getDashboardSummaryData([['<>', 'created_by', 2]]);
                 break;
             case 'kabkota':
-                $counts = $this->getQuery([['=', 'domicile_kabkota_bps_id', $code_bps]]);
-                $counts = new Collection($counts);
-                $counts = $this->transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $this->getQuery([
+                $counts = $this->getDashboardSummaryData([['=', 'domicile_kabkota_bps_id', $code_bps]]);
+                $counts_baru = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', $code_bps],
                     ['<>', 'created_by', 2],
                 ]);
-                $counts_baru = new Collection($counts_baru);
-                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kec':
-                $counts = $this->getQuery([
+                $counts = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', $code_bps],
                 ]);
-                $counts = new Collection($counts);
-                $counts = $this->transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $this->getQuery([
+                $counts_baru = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', $code_bps],
                     ['<>', 'created_by', 2],
                 ]);
-                $counts_baru = new Collection($counts_baru);
-                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'kel':
-                $counts = $this->getQuery([
+                $counts = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                 ]);
-                $counts = new Collection($counts);
-                $counts = $this->transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $this->getQuery([
+                $counts_baru = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                     ['<>', 'created_by', 2],
                 ]);
-                $counts_baru = new Collection($counts_baru);
-                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
             case 'rw':
-                $counts = $this->getQuery([
+                $counts = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                     ['=', 'domicile_rw', $rw],
                 ]);
-                $counts = new Collection($counts);
-                $counts = $this->transformCount($counts, $statusVerificationColumn);
-                $counts_baru = $this->getQuery([
+                $counts_baru = $this->getDashboardSummaryData([
                     ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $code_bps],
                     ['=', 'domicile_rw', $rw],
                     ['<>', 'created_by', 2],
                 ]);
-                $counts_baru = new Collection($counts_baru);
-                $counts_baru = $this->transformCount($counts_baru, $statusVerificationColumn);
                 break;
         }
         $counts['baru'] = $counts_baru;
