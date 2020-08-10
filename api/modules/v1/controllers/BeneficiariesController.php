@@ -503,9 +503,6 @@ class BeneficiariesController extends ActiveController
             }
             // execute query
             $query = $query->createCommand()->queryAll();
-            // group by Collection keys
-            $query = new Collection($query);
-            $query = $query->groupBy($areaColumn);
 
             return $query;
         };
@@ -542,6 +539,8 @@ class BeneficiariesController extends ActiveController
             $counts = new Collection($counts);
             $counts = $counts->groupBy($areaColumn);
             $counts = $transformCount($counts);
+
+            return $counts;
         };
 
         switch ($type) {
@@ -552,10 +551,8 @@ class BeneficiariesController extends ActiveController
                     'name' => '- LOKASI KOTA/KAB BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $getQuery('domicile_kabkota_bps_id', [], null);
-                $counts->transform($transformCount);
-                $counts_baru = $getQuery('domicile_kabkota_bps_id', [['<>', 'created_by', 2]], null);
-                $counts_baru->transform($transformCount);
+                $counts = $getDashboardListData('domicile_kabkota_bps_id', [], null);
+                $counts_baru = $getDashboardListData('domicile_kabkota_bps_id', [['<>', 'created_by', 2]], null);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -569,9 +566,8 @@ class BeneficiariesController extends ActiveController
                     'name' => '- LOKASI KEC BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $getQuery('domicile_kec_bps_id', [['=', 'domicile_kabkota_bps_id', $code_bps]], null);
-                $counts->transform($transformCount);
-                $counts_baru = $getQuery(
+                $counts = $getDashboardListData('domicile_kec_bps_id', [['=', 'domicile_kabkota_bps_id', $code_bps]], null);
+                $counts_baru = $getDashboardListData(
                     'domicile_kec_bps_id',
                     [
                         ['=', 'domicile_kabkota_bps_id', $code_bps],
@@ -579,7 +575,6 @@ class BeneficiariesController extends ActiveController
                     ],
                     null
                 );
-                $counts_baru->transform($transformCount);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -593,7 +588,7 @@ class BeneficiariesController extends ActiveController
                     'name' => '- LOKASI KEL BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $getQuery(
+                $counts = $getDashboardListData(
                     'domicile_kel_bps_id',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -601,8 +596,7 @@ class BeneficiariesController extends ActiveController
                     ],
                     null
                 );
-                $counts->transform($transformCount);
-                $counts_baru = $getQuery(
+                $counts_baru = $getDashboardListData(
                     'domicile_kel_bps_id',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -611,7 +605,6 @@ class BeneficiariesController extends ActiveController
                     ],
                     null
                 );
-                $counts_baru->transform($transformCount);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -620,7 +613,7 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'kel':
                 $areas = new Collection([]);
-                $counts = $getQuery(
+                $counts = $getDashboardListData(
                     'domicile_rw',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -629,8 +622,7 @@ class BeneficiariesController extends ActiveController
                     ],
                     'cast(domicile_rw as unsigned) asc'
                 );
-                $counts->transform($transformCount);
-                $counts_baru = $getQuery(
+                $counts_baru = $getDashboardListData(
                     'domicile_rw',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -640,7 +632,6 @@ class BeneficiariesController extends ActiveController
                     ],
                     'cast(domicile_rw as unsigned) asc'
                 );
-                $counts_baru->transform($transformCount);
                 foreach ($counts as $rw => $count) {
                     if ($rw !== null && $rw !== '') {
                         $areas->push([
@@ -663,7 +654,7 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'rw':
                 $areas = new Collection([]);
-                $counts = $getQuery(
+                $counts = $getDashboardListData(
                     'domicile_rt',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -673,8 +664,7 @@ class BeneficiariesController extends ActiveController
                     ],
                     'cast(domicile_rt as unsigned) asc'
                 );
-                $counts->transform($transformCount);
-                $counts_baru = $getQuery(
+                $counts_baru = $getDashboardListData(
                     'domicile_rt',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -685,7 +675,6 @@ class BeneficiariesController extends ActiveController
                     ],
                     'cast(domicile_rt as unsigned) asc'
                 );
-                $counts_baru->transform($transformCount);
                 foreach ($counts as $rt => $count) {
                     if ($rt !== null && $rt !== '') {
                         $areas->push([
