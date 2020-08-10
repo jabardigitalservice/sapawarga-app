@@ -378,7 +378,7 @@ class BeneficiariesController extends ActiveController
             '9' => 'approved_kabkota',
         ];
         $data = [];
-        $jml = Arr::pluck($lists, 'jumlah', $statusVerificationColumn);
+        $jml = $lists->pluck('jumlah', $statusVerificationColumn);
         $total = 0;
         foreach ($status_maps as $key => $map) {
             $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
@@ -510,7 +510,6 @@ class BeneficiariesController extends ActiveController
             return $query;
         };
 
-
         $transformCount = function ($lists) use ($statusVerificationColumn) {
             $status_maps = [
                 '1' => 'pending',
@@ -532,6 +531,17 @@ class BeneficiariesController extends ActiveController
             }
             $data['total'] = $total;
             return $data;
+        };
+
+        $getDashboardListData = function ($areaColumn, $conditionals, $orderBy) use ($getQuery, $transformCount) {
+            $params = Yii::$app->request->getQueryParams();
+            $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+
+            $counts = $getQuery($areaColumn, $conditionals, $orderBy);
+            // group by Collection keys
+            $counts = new Collection($counts);
+            $counts = $counts->groupBy($areaColumn);
+            $counts = $transformCount($counts);
         };
 
         switch ($type) {
