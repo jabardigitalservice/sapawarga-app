@@ -37,7 +37,11 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
         Yii::$app->language = 'id-ID';
         function getStatusLabel($status) {
-            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
+            if (isset(Beneficiary::STATUS_VERIFICATION_LABEL[$status])) {
+                $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
+            } else {
+                $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[Beneficiary::STATUS_PENDING];
+            }
             return Yii::t('app', $localizationKey);
         }
 
