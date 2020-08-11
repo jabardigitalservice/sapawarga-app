@@ -7,6 +7,7 @@ use app\components\ModelHelper;
 use app\models\Area;
 use app\models\Beneficiary;
 use app\models\beneficiary\BeneficiaryApproval;
+use app\models\beneficiary\BeneficiaryDashboard;
 use app\models\BeneficiarySearch;
 use app\models\User;
 use app\validator\NikRateLimitValidator;
@@ -345,25 +346,6 @@ class BeneficiariesController extends ActiveController
 
     /* VERVAL DASHBOARD - SUMMARY */
 
-    protected function getDashboardSummaryQuery($conditionals)
-    {
-        $params = Yii::$app->request->getQueryParams();
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
-
-        $query = (new \yii\db\Query())
-            ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
-            ->from('beneficiaries')
-            ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
-        foreach ($conditionals as $conditional) {
-            $query = $query->andWhere($conditional);
-        }
-        $query = $query->groupBy([$statusVerificationColumn])
-            ->createCommand()
-            ->queryAll();
-
-        return $query;
-    }
-
     protected function transformCount($lists, $statusVerificationColumn)
     {
         $status_maps = [
@@ -388,80 +370,12 @@ class BeneficiariesController extends ActiveController
         return $data;
     }
 
-    protected function getDashboardSummaryData($conditionals)
-    {
-        $params = Yii::$app->request->getQueryParams();
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
-
-        $counts = $this->getDashboardSummaryQuery($conditionals);
-        $counts = new Collection($counts);
-        $counts = $this->transformCount($counts, $statusVerificationColumn);
-
-        return $counts;
-    }
-
     public function actionDashboardSummary()
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $type = Arr::get($params, 'type');
-        $code_bps = Arr::get($params, 'code_bps');
-        $rw = Arr::get($params, 'rw');
-
-        switch ($type) {
-            case 'provinsi':
-                $counts = $this->getDashboardSummaryData([]);
-                $counts_baru = $this->getDashboardSummaryData([['<>', 'created_by', 2]]);
-                break;
-            case 'kabkota':
-                $counts = $this->getDashboardSummaryData([['=', 'domicile_kabkota_bps_id', $code_bps]]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', $code_bps],
-                    ['<>', 'created_by', 2],
-                ]);
-                break;
-            case 'kec':
-                $counts = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', $code_bps],
-                ]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', $code_bps],
-                    ['<>', 'created_by', 2],
-                ]);
-                break;
-            case 'kel':
-                $counts = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                ]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                    ['<>', 'created_by', 2],
-                ]);
-                break;
-            case 'rw':
-                $counts = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                    ['=', 'domicile_rw', $rw],
-                ]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                    ['=', 'domicile_rw', $rw],
-                    ['<>', 'created_by', 2],
-                ]);
-                break;
-        }
-        $counts['baru'] = $counts_baru;
-        return $counts;
+        $model = new BeneficiaryDashboard();
+        return $model->getDashboardSummary($params);
     }
 
     /* VERVAL DASHBOARD - LIST */
