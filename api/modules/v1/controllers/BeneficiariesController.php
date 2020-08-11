@@ -343,9 +343,9 @@ class BeneficiariesController extends ActiveController
         return 'ok';
     }
 
-    /* VERVAL DASHBOARD */
+    /* VERVAL DASHBOARD - SUMMARY */
 
-    protected function getQuery($conditionals)
+    protected function getDashboardSummaryQuery($conditionals)
     {
         $params = Yii::$app->request->getQueryParams();
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
@@ -393,7 +393,7 @@ class BeneficiariesController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
-        $counts = $this->getQuery($conditionals);
+        $counts = $this->getDashboardSummaryQuery($conditionals);
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
 
@@ -465,6 +465,33 @@ class BeneficiariesController extends ActiveController
         return $counts;
     }
 
+    /* VERVAL DASHBOARD - LIST */
+
+    protected function getDashboardListQuery($areaColumn, $conditionals, $orderBy)
+    {
+        $params = Yii::$app->request->getQueryParams();
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+
+        // base query
+        $query = (new \yii\db\Query())
+            ->select([$areaColumn, $statusVerificationColumn, 'COUNT(*) AS jumlah'])
+            ->from('beneficiaries')
+            ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+        // conditionals
+        foreach ($conditionals as $conditional) {
+            $query = $query->andWhere($conditional);
+        }
+        // group and order
+        $query = $query->groupBy([$areaColumn, $statusVerificationColumn]);
+        if ($orderBy) {
+            $query = $query->orderBy($orderBy);
+        }
+        // execute query
+        $query = $query->createCommand()->queryAll();
+
+        return $query;
+    }
+
     public function actionDashboardList()
     {
         $params = Yii::$app->request->getQueryParams();
@@ -481,30 +508,6 @@ class BeneficiariesController extends ActiveController
                 ->where(['=', 'code_bps_parent', $parentCodeBps])
                 ->createCommand()
                 ->queryAll();
-        };
-
-        $getQuery = function ($areaColumn, $conditionals, $orderBy) {
-            $params = Yii::$app->request->getQueryParams();
-            $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
-
-            // base query
-            $query = (new \yii\db\Query())
-                ->select([$areaColumn, $statusVerificationColumn, 'COUNT(*) AS jumlah'])
-                ->from('beneficiaries')
-                ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
-            // conditionals
-            foreach ($conditionals as $conditional) {
-                $query = $query->andWhere($conditional);
-            }
-            // group and order
-            $query = $query->groupBy([$areaColumn, $statusVerificationColumn]);
-            if ($orderBy) {
-                $query = $query->orderBy($orderBy);
-            }
-            // execute query
-            $query = $query->createCommand()->queryAll();
-
-            return $query;
         };
 
         $transformCount = function ($lists) use ($statusVerificationColumn) {
@@ -530,11 +533,11 @@ class BeneficiariesController extends ActiveController
             return $data;
         };
 
-        $getDashboardListData = function ($areaColumn, $conditionals, $orderBy) use ($getQuery, $transformCount) {
+        $getDashboardListData = function ($areaColumn, $conditionals, $orderBy) use ($transformCount) {
             $params = Yii::$app->request->getQueryParams();
             $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
-            $counts = $getQuery($areaColumn, $conditionals, $orderBy);
+            $counts = $this->getDashboardListQuery($areaColumn, $conditionals, $orderBy);
             // group by Collection keys
             $counts = new Collection($counts);
             $counts = $counts->groupBy($areaColumn);
