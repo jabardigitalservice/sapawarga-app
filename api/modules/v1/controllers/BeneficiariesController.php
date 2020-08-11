@@ -492,6 +492,23 @@ class BeneficiariesController extends ActiveController
         return $query;
     }
 
+    protected function getDashboardListData ($areaColumn, $conditionals, $orderBy) {
+        $params = Yii::$app->request->getQueryParams();
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+
+        $transformCount = function ($lists) use ($statusVerificationColumn) {
+            return $this->transformCount($lists, $statusVerificationColumn);
+        };
+
+        $counts = $this->getDashboardListQuery($areaColumn, $conditionals, $orderBy);
+        // group by Collection keys
+        $counts = new Collection($counts);
+        $counts = $counts->groupBy($areaColumn);
+        $counts->transform($transformCount);
+
+        return $counts;
+    }
+
     public function actionDashboardList()
     {
         $params = Yii::$app->request->getQueryParams();
@@ -510,42 +527,6 @@ class BeneficiariesController extends ActiveController
                 ->queryAll();
         };
 
-        $transformCount = function ($lists) use ($statusVerificationColumn) {
-            $status_maps = [
-                '1' => 'pending',
-                '2' => 'rejected',
-                '3' => 'approved',
-                '4' => 'rejected_kel',
-                '5' => 'approved_kel',
-                '6' => 'rejected_kec',
-                '7' => 'approved_kec',
-                '8' => 'rejected_kabkota',
-                '9' => 'approved_kabkota',
-            ];
-            $data = [];
-            $jml = $lists->pluck('jumlah', $statusVerificationColumn);
-            $total = 0;
-            foreach ($status_maps as $key => $map) {
-                $data[$map] = isset($jml[$key]) ? intval($jml[$key]) : 0;
-                $total += $data[$map];
-            }
-            $data['total'] = $total;
-            return $data;
-        };
-
-        $getDashboardListData = function ($areaColumn, $conditionals, $orderBy) use ($transformCount) {
-            $params = Yii::$app->request->getQueryParams();
-            $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
-
-            $counts = $this->getDashboardListQuery($areaColumn, $conditionals, $orderBy);
-            // group by Collection keys
-            $counts = new Collection($counts);
-            $counts = $counts->groupBy($areaColumn);
-            $counts->transform($transformCount);
-
-            return $counts;
-        };
-
         switch ($type) {
             case 'provinsi':
                 $areas = $getChildAreas('32');
@@ -554,8 +535,8 @@ class BeneficiariesController extends ActiveController
                     'name' => '- LOKASI KOTA/KAB BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $getDashboardListData('domicile_kabkota_bps_id', [], null);
-                $counts_baru = $getDashboardListData('domicile_kabkota_bps_id', [['<>', 'created_by', 2]], null);
+                $counts = $this->getDashboardListData('domicile_kabkota_bps_id', [], null);
+                $counts_baru = $this->getDashboardListData('domicile_kabkota_bps_id', [['<>', 'created_by', 2]], null);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -569,8 +550,8 @@ class BeneficiariesController extends ActiveController
                     'name' => '- LOKASI KEC BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $getDashboardListData('domicile_kec_bps_id', [['=', 'domicile_kabkota_bps_id', $code_bps]], null);
-                $counts_baru = $getDashboardListData(
+                $counts = $this->getDashboardListData('domicile_kec_bps_id', [['=', 'domicile_kabkota_bps_id', $code_bps]], null);
+                $counts_baru = $this->getDashboardListData(
                     'domicile_kec_bps_id',
                     [
                         ['=', 'domicile_kabkota_bps_id', $code_bps],
@@ -591,7 +572,7 @@ class BeneficiariesController extends ActiveController
                     'name' => '- LOKASI KEL BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $getDashboardListData(
+                $counts = $this->getDashboardListData(
                     'domicile_kel_bps_id',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -599,7 +580,7 @@ class BeneficiariesController extends ActiveController
                     ],
                     null
                 );
-                $counts_baru = $getDashboardListData(
+                $counts_baru = $this->getDashboardListData(
                     'domicile_kel_bps_id',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -616,7 +597,7 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'kel':
                 $areas = new Collection([]);
-                $counts = $getDashboardListData(
+                $counts = $this->getDashboardListData(
                     'domicile_rw',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -625,7 +606,7 @@ class BeneficiariesController extends ActiveController
                     ],
                     'cast(domicile_rw as unsigned) asc'
                 );
-                $counts_baru = $getDashboardListData(
+                $counts_baru = $this->getDashboardListData(
                     'domicile_rw',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -657,7 +638,7 @@ class BeneficiariesController extends ActiveController
                 break;
             case 'rw':
                 $areas = new Collection([]);
-                $counts = $getDashboardListData(
+                $counts = $this->getDashboardListData(
                     'domicile_rt',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
@@ -667,7 +648,7 @@ class BeneficiariesController extends ActiveController
                     ],
                     'cast(domicile_rt as unsigned) asc'
                 );
-                $counts_baru = $getDashboardListData(
+                $counts_baru = $this->getDashboardListData(
                     'domicile_rt',
                     [
                         ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
