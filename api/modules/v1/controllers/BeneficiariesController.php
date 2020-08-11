@@ -407,7 +407,6 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
         switch ($type) {
             case 'provinsi':
@@ -516,7 +515,6 @@ class BeneficiariesController extends ActiveController
         $type = Arr::get($params, 'type');
         $code_bps = Arr::get($params, 'code_bps');
         $rw = Arr::get($params, 'rw');
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
         $getChildAreas = function ($parentCodeBps) {
             return (new \yii\db\Query())
