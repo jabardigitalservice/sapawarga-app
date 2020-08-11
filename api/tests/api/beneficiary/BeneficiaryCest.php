@@ -266,11 +266,11 @@ class BeneficiaryCest
      */
     public function putStaffKelEdit(ApiTester $I)
     {
-        $I->haveInDatabase('beneficiaries_current_tahap', [
-            'id' => 1,
-            'current_tahap_verval' => 3,
-            'current_tahap_bnba' => 2,
-        ]);
+        // $I->haveInDatabase('beneficiaries_current_tahap', [
+        //     'id' => 1,
+        //     'current_tahap_verval' => 3,
+        //     'current_tahap_bnba' => 2,
+        // ]);
 
         $I->amStaff('staffkel');
 
