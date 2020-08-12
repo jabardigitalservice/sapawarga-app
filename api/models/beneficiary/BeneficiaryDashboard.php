@@ -109,8 +109,7 @@ class BeneficiaryDashboard extends Beneficiary
      */
     protected function getDashboardSummaryQuery($conditionals)
     {
-        $params = Yii::$app->request->getQueryParams();
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $query = (new \yii\db\Query())
             ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
@@ -137,8 +136,7 @@ class BeneficiaryDashboard extends Beneficiary
      */
     protected function getDashboardSummaryData($type, $codeBps, $rw, $isNew)
     {
-        $params = Yii::$app->request->getQueryParams();
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $counts = $this->getDashboardSummaryQuery($this->getConditionals($type, $codeBps, $rw, $isNew));
         $counts = new Collection($counts);
@@ -232,8 +230,7 @@ class BeneficiaryDashboard extends Beneficiary
      */
     protected function getDashboardListQuery($areaColumn, $conditionals, $orderBy)
     {
-        $params = Yii::$app->request->getQueryParams();
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         // base query
         $query = (new \yii\db\Query())
@@ -265,8 +262,7 @@ class BeneficiaryDashboard extends Beneficiary
      * @return array
      */
     protected function getDashboardListData ($areaColumn, $conditionals, $orderBy) {
-        $params = Yii::$app->request->getQueryParams();
-        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
+        $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $transformCount = function ($lists) use ($statusVerificationColumn) {
             return $this->transformCount($lists, $statusVerificationColumn);

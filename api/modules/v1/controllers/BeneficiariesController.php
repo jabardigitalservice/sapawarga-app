@@ -348,6 +348,7 @@ class BeneficiariesController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $model = new BeneficiaryDashboard();
+        $model->tahap = Arr::get($params, 'tahap');
         return $model->getDashboardSummary($params);
     }
 
@@ -355,6 +356,7 @@ class BeneficiariesController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $model = new BeneficiaryDashboard();
+        $model->tahap = Arr::get($params, 'tahap');
         return $model->getDashboardList($params);
     }
 
