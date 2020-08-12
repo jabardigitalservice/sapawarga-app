@@ -27,7 +27,7 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         // Filtering
         $query->where(['or', ['is_deleted' => null], ['is_deleted' => 0] ]);
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt')]);
+        $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt') . '%', false]);
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['no_kk' => Arr::get($params, 'no_kk')]);
 
