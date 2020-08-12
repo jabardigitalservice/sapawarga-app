@@ -216,6 +216,37 @@ class BeneficiaryDashboard extends Beneficiary
     }
 
     /**
+     * Transforms final data from database for Dashboard List
+     *
+     * @param Illuminate\Support\Collection $area final array that needs to be transformed
+     * @param array $counts raw data that will be transformed into $area
+     * @param array $counts_baru raw data that will be transformed into $area
+     *
+     * @return array
+     */
+    protected function transformArea($area, $counts, $counts_baru)
+    {
+        $keyName =  'code_bps';
+        switch($this->type) {
+            case 'provinsi':
+            case 'kabkota':
+            case 'kec':
+                $keyName = 'code_bps';
+                break;
+            case 'kel':
+                $keyName = 'rw';
+                break;
+            case 'rw':
+                $keyName = 'rt';
+                break;
+        }
+
+        $area['data'] = isset($counts[$area[$keyName]]) ? $counts[$area[$keyName]] : (object) [];
+        $area['data_baru'] = isset($counts_baru[$area[$keyName]]) ? $counts_baru[$area[$keyName]] : (object) [];
+        return $area;
+    }
+
+    /**
      * Returns data for Dashboard List.
      *
      * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel | rw)
@@ -227,6 +258,9 @@ class BeneficiaryDashboard extends Beneficiary
      */
     public function getDashboardList()
     {
+        $counts = [];
+        $counts_baru = [];
+
         $getChildAreas = function ($parentCodeBps) {
             return (new \yii\db\Query())
                 ->select(['code_bps', 'name'])
@@ -234,6 +268,10 @@ class BeneficiaryDashboard extends Beneficiary
                 ->where(['=', 'code_bps_parent', $parentCodeBps])
                 ->createCommand()
                 ->queryAll();
+        };
+
+        $transformArea = function($area) use (&$counts, &$counts_baru) {
+            return $this->transformArea($area, $counts, $counts_baru);
         };
 
         switch ($this->type) {
@@ -246,11 +284,7 @@ class BeneficiaryDashboard extends Beneficiary
                 ]);
                 $counts = $this->getDashboardListData('domicile_kabkota_bps_id', false, null);
                 $counts_baru = $this->getDashboardListData('domicile_kabkota_bps_id', true, null);
-                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
-                    $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
-                    $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
-                    return $area;
-                });
+                $areas->transform($transformArea);
                 break;
             case 'kabkota':
                 $areas = $getChildAreas($this->codeBps);
@@ -261,11 +295,7 @@ class BeneficiaryDashboard extends Beneficiary
                 ]);
                 $counts = $this->getDashboardListData('domicile_kec_bps_id', false, null);
                 $counts_baru = $this->getDashboardListData('domicile_kec_bps_id', true, null);
-                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
-                    $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
-                    $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
-                    return $area;
-                });
+                $areas->transform($transformArea);
                 break;
             case 'kec':
                 $areas = $getChildAreas($this->codeBps);
@@ -276,11 +306,7 @@ class BeneficiaryDashboard extends Beneficiary
                 ]);
                 $counts = $this->getDashboardListData('domicile_kel_bps_id', false, null);
                 $counts_baru = $this->getDashboardListData('domicile_kel_bps_id', true, null);
-                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
-                    $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
-                    $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
-                    return $area;
-                });
+                $areas->transform($transformArea);
                 break;
             case 'kel':
                 $areas = new Collection([]);
@@ -300,11 +326,7 @@ class BeneficiaryDashboard extends Beneficiary
                     'code_bps' => '',
                     'rw' => '',
                 ]);
-                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
-                    $area['data'] = isset($counts[$area['rw']]) ? $counts[$area['rw']] : (object) [];
-                    $area['data_baru'] = isset($counts_baru[$area['rw']]) ? $counts_baru[$area['rw']] : (object) [];
-                    return $area;
-                });
+                $areas->transform($transformArea);
                 break;
             case 'rw':
                 $areas = new Collection([]);
@@ -326,11 +348,7 @@ class BeneficiaryDashboard extends Beneficiary
                     'rw' => '',
                     'rt' => '',
                 ]);
-                $areas->transform(function ($area) use (&$counts, &$counts_baru) {
-                    $area['data'] = isset($counts[$area['rt']]) ? $counts[$area['rt']] : (object) [];
-                    $area['data_baru'] = isset($counts_baru[$area['rt']]) ? $counts_baru[$area['rt']] : (object) [];
-                    return $area;
-                });
+                $areas->transform($transformArea);
                 break;
         }
 
