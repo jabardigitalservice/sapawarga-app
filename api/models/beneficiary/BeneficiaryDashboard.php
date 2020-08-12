@@ -145,28 +145,8 @@ class BeneficiaryDashboard extends Beneficiary
      */
     public function getDashboardSummary()
     {
-        switch ($this->type) {
-            case 'provinsi':
-                $counts = $this->getDashboardSummaryData(false);
-                $counts_baru = $this->getDashboardSummaryData(true);
-                break;
-            case 'kabkota':
-                $counts = $this->getDashboardSummaryData(false);
-                $counts_baru = $this->getDashboardSummaryData(true);
-                break;
-            case 'kec':
-                $counts = $this->getDashboardSummaryData(false);
-                $counts_baru = $this->getDashboardSummaryData(true);
-                break;
-            case 'kel':
-                $counts = $this->getDashboardSummaryData(false);
-                $counts_baru = $this->getDashboardSummaryData(true);
-                break;
-            case 'rw':
-                $counts = $this->getDashboardSummaryData(false);
-                $counts_baru = $this->getDashboardSummaryData(true);
-                break;
-        }
+        $counts = $this->getDashboardSummaryData(false);
+        $counts_baru = $this->getDashboardSummaryData(true);
         $counts['baru'] = $counts_baru;
         return $counts;
     }
