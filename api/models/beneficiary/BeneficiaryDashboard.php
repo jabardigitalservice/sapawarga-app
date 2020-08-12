@@ -50,6 +50,54 @@ class BeneficiaryDashboard extends Beneficiary
         return $data;
     }
 
+    /**
+     * Purposes
+     *
+     * @param string $type of dashboard (provinsi | kabkota | kec | kel | rw)
+     * @param string $codeBps BPS code of the data
+     * @param string $rw Only applies to 'rw' type. RW of the data.
+     * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
+     *
+     * @return array
+     */
+    protected function getConditionals($type, $codeBps, $rw, $isNew)
+    {
+        $conditionals = [];
+        switch ($type) {
+            case 'provinsi':
+                // no filter by codeBps
+                break;
+            case 'kabkota':
+                array_push($conditionals,['=', 'domicile_kabkota_bps_id', $codeBps]);
+                break;
+            case 'kec':
+                array_push($conditionals,
+                    ['=', 'domicile_kabkota_bps_id', substr($codeBps, 0, 4)],
+                    ['=', 'domicile_kec_bps_id', $codeBps]
+                );
+                break;
+            case 'kel':
+                array_push($conditionals,
+                    ['=', 'domicile_kabkota_bps_id', substr($codeBps, 0, 4)],
+                    ['=', 'domicile_kec_bps_id', substr($codeBps, 0, 7)],
+                    ['=', 'domicile_kel_bps_id', $codeBps]
+                );
+                break;
+            case 'rw':
+                array_push($conditionals,
+                    ['=', 'domicile_kabkota_bps_id', substr($codeBps, 0, 4)],
+                    ['=', 'domicile_kec_bps_id', substr($codeBps, 0, 7)],
+                    ['=', 'domicile_kel_bps_id', $codeBps],
+                    ['=', 'domicile_rw', $rw]
+                );
+                break;
+        }
+        if ($isNew) {
+            array_push($conditionals, ['<>', 'created_by', 2]);
+        }
+        return $conditionals;
+    }
+
     /* VERVAL DASHBOARD - SUMMARY */
 
     /**
@@ -81,16 +129,18 @@ class BeneficiaryDashboard extends Beneficiary
     /**
      * Returns data for Dashboard Summary.
      *
-     * @param array $conditionals additional 'where' statements to filter data by BPS code
-     *
+     * @param string $type of dashboard (provinsi | kabkota | kec | kel | rw)
+     * @param string $codeBps BPS code of the data
+     * @param string $rw Only applies to 'rw' type. RW of the data.
+     * @param bool $isNew if true, indicates if data is "usulan baru", which was created 'by user' instead of 'by system'
      * @return array
      */
-    protected function getDashboardSummaryData($conditionals)
+    protected function getDashboardSummaryData($type, $codeBps, $rw, $isNew)
     {
         $params = Yii::$app->request->getQueryParams();
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn(Arr::get($params, 'tahap'));
 
-        $counts = $this->getDashboardSummaryQuery($conditionals);
+        $counts = $this->getDashboardSummaryQuery($this->getConditionals($type, $codeBps, $rw, $isNew));
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
 
@@ -100,7 +150,7 @@ class BeneficiaryDashboard extends Beneficiary
     /**
      * Returns data for Dashboard Summary.
      *
-     * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel)
+     * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel | rw)
      * @param array $params['code_bps'] BPS code of the data
      * @param array $params['rw'] RW of the data (optional, applies only to 'rw' type)
      * @param array $params['tahap'] number of tahap (null | 1..4)
@@ -234,7 +284,7 @@ class BeneficiaryDashboard extends Beneficiary
     /**
      * Returns data for Dashboard List.
      *
-     * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel)
+     * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel | rw)
      * @param array $params['code_bps'] BPS code of the data
      * @param array $params['rw'] RW of the data (optional, applies only to 'rw' type)
      * @param array $params['tahap'] number of tahap (null | 1..4)
