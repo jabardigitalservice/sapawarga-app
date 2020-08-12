@@ -190,19 +190,23 @@ class BeneficiaryDashboard extends Beneficiary
      * Returns data for Dashboard List.
      *
      * @param array $areaColumn name of area column used for grouping
-     * @param array $conditionals additional 'where' statements to filter data by BPS code
+     * @param bool $isNew if true, indicates if data is 'usulan baru', which was created 'by user' instead of 'by system'
      * @param array $orderBy only applies to 'kel' and 'rw' types. Sort attribute
      *
      * @return array
      */
-    protected function getDashboardListData ($areaColumn, $conditionals, $orderBy) {
+    protected function getDashboardListData ($areaColumn, $isNew, $orderBy) {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $transformCount = function ($lists) use ($statusVerificationColumn) {
             return $this->transformCount($lists, $statusVerificationColumn);
         };
 
-        $counts = $this->getDashboardListQuery($areaColumn, $conditionals, $orderBy);
+        $counts = $this->getDashboardListQuery(
+            $areaColumn,
+            $this->getConditionals($isNew),
+            $orderBy
+        );
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
@@ -221,12 +225,8 @@ class BeneficiaryDashboard extends Beneficiary
      *
      * @return BeneficiaryDashboard
      */
-    public function getDashboardList($params)
+    public function getDashboardList()
     {
-        $type = Arr::get($params, 'type');
-        $code_bps = Arr::get($params, 'code_bps');
-        $rw = Arr::get($params, 'rw');
-
         $getChildAreas = function ($parentCodeBps) {
             return (new \yii\db\Query())
                 ->select(['code_bps', 'name'])
@@ -236,7 +236,7 @@ class BeneficiaryDashboard extends Beneficiary
                 ->queryAll();
         };
 
-        switch ($type) {
+        switch ($this->type) {
             case 'provinsi':
                 $areas = $getChildAreas('32');
                 $areas = new Collection($areas);
@@ -244,8 +244,8 @@ class BeneficiaryDashboard extends Beneficiary
                     'name' => '- LOKASI KOTA/KAB BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $this->getDashboardListData('domicile_kabkota_bps_id', [], null);
-                $counts_baru = $this->getDashboardListData('domicile_kabkota_bps_id', [['<>', 'created_by', 2]], null);
+                $counts = $this->getDashboardListData('domicile_kabkota_bps_id', false, null);
+                $counts_baru = $this->getDashboardListData('domicile_kabkota_bps_id', true, null);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -253,21 +253,14 @@ class BeneficiaryDashboard extends Beneficiary
                 });
                 break;
             case 'kabkota':
-                $areas = $getChildAreas($code_bps);
+                $areas = $getChildAreas($this->codeBps);
                 $areas = new Collection($areas);
                 $areas->push([
                     'name' => '- LOKASI KEC BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $this->getDashboardListData('domicile_kec_bps_id', [['=', 'domicile_kabkota_bps_id', $code_bps]], null);
-                $counts_baru = $this->getDashboardListData(
-                    'domicile_kec_bps_id',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', $code_bps],
-                        ['<>', 'created_by', 2],
-                    ],
-                    null
-                );
+                $counts = $this->getDashboardListData('domicile_kec_bps_id', false, null);
+                $counts_baru = $this->getDashboardListData('domicile_kec_bps_id', true, null);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -275,29 +268,14 @@ class BeneficiaryDashboard extends Beneficiary
                 });
                 break;
             case 'kec':
-                $areas = $getChildAreas($code_bps);
+                $areas = $getChildAreas($this->codeBps);
                 $areas = new Collection($areas);
                 $areas->push([
                     'name' => '- LOKASI KEL BELUM TERDATA',
                     'code_bps' => '',
                 ]);
-                $counts = $this->getDashboardListData(
-                    'domicile_kel_bps_id',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                        ['=', 'domicile_kec_bps_id', $code_bps],
-                    ],
-                    null
-                );
-                $counts_baru = $this->getDashboardListData(
-                    'domicile_kel_bps_id',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                        ['=', 'domicile_kec_bps_id', $code_bps],
-                        ['<>', 'created_by', 2],
-                    ],
-                    null
-                );
+                $counts = $this->getDashboardListData('domicile_kel_bps_id', false, null);
+                $counts_baru = $this->getDashboardListData('domicile_kel_bps_id', true, null);
                 $areas->transform(function ($area) use (&$counts, &$counts_baru) {
                     $area['data'] = isset($counts[$area['code_bps']]) ? $counts[$area['code_bps']] : (object) [];
                     $area['data_baru'] = isset($counts_baru[$area['code_bps']]) ? $counts_baru[$area['code_bps']] : (object) [];
@@ -306,30 +284,13 @@ class BeneficiaryDashboard extends Beneficiary
                 break;
             case 'kel':
                 $areas = new Collection([]);
-                $counts = $this->getDashboardListData(
-                    'domicile_rw',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                        ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                        ['=', 'domicile_kel_bps_id', $code_bps],
-                    ],
-                    'cast(domicile_rw as unsigned) asc'
-                );
-                $counts_baru = $this->getDashboardListData(
-                    'domicile_rw',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                        ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                        ['=', 'domicile_kel_bps_id', $code_bps],
-                        ['<>', 'created_by', 2],
-                    ],
-                    'cast(domicile_rw as unsigned) asc'
-                );
+                $counts = $this->getDashboardListData('domicile_rw', false, 'cast(domicile_rw as unsigned) asc');
+                $counts_baru = $this->getDashboardListData('domicile_rw', true, 'cast(domicile_rw as unsigned) asc');
                 foreach ($counts as $rw => $count) {
                     if ($rw !== null && $rw !== '') {
                         $areas->push([
                             'name' => 'RW ' . $rw,
-                            'code_bps' => $code_bps,
+                            'code_bps' => $this->codeBps,
                             'rw' => $rw,
                         ]);
                     }
@@ -347,33 +308,14 @@ class BeneficiaryDashboard extends Beneficiary
                 break;
             case 'rw':
                 $areas = new Collection([]);
-                $counts = $this->getDashboardListData(
-                    'domicile_rt',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                        ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                        ['=', 'domicile_kel_bps_id', $code_bps],
-                        ['=', 'domicile_rw', $rw],
-                    ],
-                    'cast(domicile_rt as unsigned) asc'
-                );
-                $counts_baru = $this->getDashboardListData(
-                    'domicile_rt',
-                    [
-                        ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                        ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                        ['=', 'domicile_kel_bps_id', $code_bps],
-                        ['=', 'domicile_rw', $rw],
-                        ['<>', 'created_by', 2],
-                    ],
-                    'cast(domicile_rt as unsigned) asc'
-                );
+                $counts = $this->getDashboardListData('domicile_rt', false, 'cast(domicile_rt as unsigned) asc');
+                $counts_baru = $this->getDashboardListData('domicile_rt', true, 'cast(domicile_rt as unsigned) asc');
                 foreach ($counts as $rt => $count) {
                     if ($rt !== null && $rt !== '') {
                         $areas->push([
                             'name' => 'RT ' . $rt,
-                            'code_bps' => $code_bps,
-                            'rw' => $rw,
+                            'code_bps' => $this->codeBps,
+                            'rw' => $this->rw,
                             'rt' => $rt,
                         ]);
                     }
