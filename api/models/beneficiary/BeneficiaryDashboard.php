@@ -18,6 +18,10 @@ class BeneficiaryDashboard extends Beneficiary
     public $tahap;
     public $statusVerificationColumn = 'status_verification';
 
+    public $type; // type of dashboard (provinsi | kabkota | kec | kel | rw)
+    public $codeBps; // BPS code of the data
+    public $rw; // only applies to 'rw' type. RW of the data.
+
     /**
      * Transforms result from database query into specific data structure, either for Dashboard Sumamary or Dashboard List
      *
@@ -51,44 +55,40 @@ class BeneficiaryDashboard extends Beneficiary
     }
 
     /**
-     * Purposes
-     *
-     * @param string $type of dashboard (provinsi | kabkota | kec | kel | rw)
-     * @param string $codeBps BPS code of the data
-     * @param string $rw Only applies to 'rw' type. RW of the data.
+     * Returns additional 'where' statements to filter data by BPS code
      * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
      *
      * @return array
      */
-    protected function getConditionals($type, $codeBps, $rw, $isNew)
+    protected function getConditionals($isNew)
     {
         $conditionals = [];
-        switch ($type) {
+        switch ($this->type) {
             case 'provinsi':
                 // no filter by codeBps
                 break;
             case 'kabkota':
-                array_push($conditionals,['=', 'domicile_kabkota_bps_id', $codeBps]);
+                array_push($conditionals,['=', 'domicile_kabkota_bps_id', $this->codeBps]);
                 break;
             case 'kec':
                 array_push($conditionals,
-                    ['=', 'domicile_kabkota_bps_id', substr($codeBps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', $codeBps]
+                    ['=', 'domicile_kabkota_bps_id', substr($this->codeBps, 0, 4)],
+                    ['=', 'domicile_kec_bps_id', $this->codeBps]
                 );
                 break;
             case 'kel':
                 array_push($conditionals,
-                    ['=', 'domicile_kabkota_bps_id', substr($codeBps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($codeBps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $codeBps]
+                    ['=', 'domicile_kabkota_bps_id', substr($this->codeBps, 0, 4)],
+                    ['=', 'domicile_kec_bps_id', substr($this->codeBps, 0, 7)],
+                    ['=', 'domicile_kel_bps_id', $this->codeBps]
                 );
                 break;
             case 'rw':
                 array_push($conditionals,
-                    ['=', 'domicile_kabkota_bps_id', substr($codeBps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($codeBps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $codeBps],
-                    ['=', 'domicile_rw', $rw]
+                    ['=', 'domicile_kabkota_bps_id', substr($this->codeBps, 0, 4)],
+                    ['=', 'domicile_kec_bps_id', substr($this->codeBps, 0, 7)],
+                    ['=', 'domicile_kel_bps_id', $this->codeBps],
+                    ['=', 'domicile_rw', $this->rw]
                 );
                 break;
         }
@@ -101,10 +101,8 @@ class BeneficiaryDashboard extends Beneficiary
     /* VERVAL DASHBOARD - SUMMARY */
 
     /**
-     * Returns database query result for Dashboard Summary.
-     *
+     * Returns database query result for Dashboard Summary
      * @param array $conditionals additional 'where' statements to filter data by BPS code
-     *
      * @return array
      */
     protected function getDashboardSummaryQuery($conditionals)
@@ -126,19 +124,15 @@ class BeneficiaryDashboard extends Beneficiary
     }
 
     /**
-     * Returns data for Dashboard Summary.
-     *
-     * @param string $type of dashboard (provinsi | kabkota | kec | kel | rw)
-     * @param string $codeBps BPS code of the data
-     * @param string $rw Only applies to 'rw' type. RW of the data.
-     * @param bool $isNew if true, indicates if data is "usulan baru", which was created 'by user' instead of 'by system'
+     * Returns data for Dashboard Summary
+     * @param bool $isNew if true, indicates if data is 'usulan baru', which was created 'by user' instead of 'by system'
      * @return array
      */
-    protected function getDashboardSummaryData($type, $codeBps, $rw, $isNew)
+    protected function getDashboardSummaryData($isNew)
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $counts = $this->getDashboardSummaryQuery($this->getConditionals($type, $codeBps, $rw, $isNew));
+        $counts = $this->getDashboardSummaryQuery($this->getConditionals($isNew));
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
 
@@ -147,70 +141,30 @@ class BeneficiaryDashboard extends Beneficiary
 
     /**
      * Returns data for Dashboard Summary.
-     *
-     * @param array $params['type'] type of dashboard (provinsi | kabkota | kec | kel | rw)
-     * @param array $params['code_bps'] BPS code of the data
-     * @param array $params['rw'] RW of the data (optional, applies only to 'rw' type)
-     * @param array $params['tahap'] number of tahap (null | 1..4)
-     *
-     * @return BeneficiaryDashboard
+     * @return array
      */
-    public function getDashboardSummary($params)
+    public function getDashboardSummary()
     {
-        $type = Arr::get($params, 'type');
-        $code_bps = Arr::get($params, 'code_bps');
-        $rw = Arr::get($params, 'rw');
-
-        switch ($type) {
+        switch ($this->type) {
             case 'provinsi':
-                $counts = $this->getDashboardSummaryData([]);
-                $counts_baru = $this->getDashboardSummaryData([['<>', 'created_by', 2]]);
+                $counts = $this->getDashboardSummaryData(false);
+                $counts_baru = $this->getDashboardSummaryData(true);
                 break;
             case 'kabkota':
-                $counts = $this->getDashboardSummaryData([['=', 'domicile_kabkota_bps_id', $code_bps]]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', $code_bps],
-                    ['<>', 'created_by', 2],
-                ]);
+                $counts = $this->getDashboardSummaryData(false);
+                $counts_baru = $this->getDashboardSummaryData(true);
                 break;
             case 'kec':
-                $counts = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', $code_bps],
-                ]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', $code_bps],
-                    ['<>', 'created_by', 2],
-                ]);
+                $counts = $this->getDashboardSummaryData(false);
+                $counts_baru = $this->getDashboardSummaryData(true);
                 break;
             case 'kel':
-                $counts = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                ]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                    ['<>', 'created_by', 2],
-                ]);
+                $counts = $this->getDashboardSummaryData(false);
+                $counts_baru = $this->getDashboardSummaryData(true);
                 break;
             case 'rw':
-                $counts = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                    ['=', 'domicile_rw', $rw],
-                ]);
-                $counts_baru = $this->getDashboardSummaryData([
-                    ['=', 'domicile_kabkota_bps_id', substr($code_bps, 0, 4)],
-                    ['=', 'domicile_kec_bps_id', substr($code_bps, 0, 7)],
-                    ['=', 'domicile_kel_bps_id', $code_bps],
-                    ['=', 'domicile_rw', $rw],
-                    ['<>', 'created_by', 2],
-                ]);
+                $counts = $this->getDashboardSummaryData(false);
+                $counts_baru = $this->getDashboardSummaryData(true);
                 break;
         }
         $counts['baru'] = $counts_baru;

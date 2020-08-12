@@ -349,7 +349,11 @@ class BeneficiariesController extends ActiveController
         $params = Yii::$app->request->getQueryParams();
         $model = new BeneficiaryDashboard();
         $model->tahap = Arr::get($params, 'tahap');
-        return $model->getDashboardSummary($params);
+        $model->type = Arr::get($params, 'type');
+        $model->codeBps = Arr::get($params, 'code_bps');
+        $model->rw = Arr::get($params, 'rw');
+
+        return $model->getDashboardSummary();
     }
 
     public function actionDashboardList()
