@@ -108,33 +108,25 @@ class BeneficiaryDashboard extends Beneficiary
 
     /**
      * Returns database query result for Dashboard Summary
-     * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
      * @param array $conditionals additional 'where' statements to filter data by BPS code
      * @return array
      */
-    protected function getDashboardSummaryQuery($isNew, $conditionals)
+    protected function getDashboardSummaryQuery($conditionals)
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $cache = Yii::$app->cache;
-        $key = self::CACHE_KEY_SUMMARY . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
-        $query = $cache->get($key);
-        if (!$query) {
-            // base query
-            $query = (new \yii\db\Query())
-                ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
-                ->from('beneficiaries')
-                ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
-            // add conditional filters
-            foreach ($conditionals as $conditional) {
-                $query = $query->andWhere($conditional);
-            }
-            $query = $query->groupBy([$statusVerificationColumn])
-                ->createCommand()
-                ->queryAll();
-
-            $cache->set($key, $query, Yii::$app->params['cacheDuration']);
+        // base query
+        $query = (new \yii\db\Query())
+            ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
+            ->from('beneficiaries')
+            ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+        // add conditional filters
+        foreach ($conditionals as $conditional) {
+            $query = $query->andWhere($conditional);
         }
+        $query = $query->groupBy([$statusVerificationColumn])
+            ->createCommand()
+            ->queryAll();
 
         return $query;
     }
@@ -148,7 +140,14 @@ class BeneficiaryDashboard extends Beneficiary
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $counts = $this->getDashboardSummaryQuery($isNew, $this->getConditionals($isNew));
+        $cache = Yii::$app->cache;
+        $key = self::CACHE_KEY_SUMMARY . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
+        $counts = $cache->get($key);
+        if (!$counts) {
+            $counts = $this->getDashboardSummaryQuery($this->getConditionals($isNew));
+            $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
+        }
+
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
 
@@ -172,40 +171,32 @@ class BeneficiaryDashboard extends Beneficiary
     /**
      * Returns database query result for Dashboard List.
      *
-     * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
      * @param array $areaColumn name of area column used for grouping
      * @param array $conditionals additional 'where' statements to filter data by BPS code
      * @param array $orderBy only applies to 'kel' and 'rw' types. Sort attribute
      *
      * @return array
      */
-    protected function getDashboardListQuery($isNew, $areaColumn, $conditionals, $orderBy)
+    protected function getDashboardListQuery($areaColumn, $conditionals, $orderBy)
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $cache = Yii::$app->cache;
-        $key = self::CACHE_KEY_LIST . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
-        $query = $cache->get($key);
-        if (!$query) {
-            // base query
-            $query = (new \yii\db\Query())
-                ->select([$areaColumn, $statusVerificationColumn, 'COUNT(*) AS jumlah'])
-                ->from('beneficiaries')
-                ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
-            // conditionals
-            foreach ($conditionals as $conditional) {
-                $query = $query->andWhere($conditional);
-            }
-            // group and order
-            $query = $query->groupBy([$areaColumn, $statusVerificationColumn]);
-            if ($orderBy) {
-                $query = $query->orderBy($orderBy);
-            }
-            // execute query
-            $query = $query->createCommand()->queryAll();
-
-            $cache->set($key, $query, Yii::$app->params['cacheDuration']);
+        // base query
+        $query = (new \yii\db\Query())
+            ->select([$areaColumn, $statusVerificationColumn, 'COUNT(*) AS jumlah'])
+            ->from('beneficiaries')
+            ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+        // conditionals
+        foreach ($conditionals as $conditional) {
+            $query = $query->andWhere($conditional);
         }
+        // group and order
+        $query = $query->groupBy([$areaColumn, $statusVerificationColumn]);
+        if ($orderBy) {
+            $query = $query->orderBy($orderBy);
+        }
+        // execute query
+        $query = $query->createCommand()->queryAll();
 
         return $query;
     }
@@ -227,12 +218,18 @@ class BeneficiaryDashboard extends Beneficiary
             return $this->transformCount($lists, $statusVerificationColumn);
         };
 
-        $counts = $this->getDashboardListQuery(
-            $isNew,
-            $areaColumn,
-            $this->getConditionals($isNew),
-            $orderBy
-        );
+        $cache = Yii::$app->cache;
+        $key = self::CACHE_KEY_LIST . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
+        $counts = $cache->get($key);
+        if (!$counts) {
+            $counts = $this->getDashboardListQuery(
+                $areaColumn,
+                $this->getConditionals($isNew),
+                $orderBy
+            );
+            $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
+        }
+
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
