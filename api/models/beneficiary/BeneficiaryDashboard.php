@@ -68,23 +68,26 @@ class BeneficiaryDashboard extends Beneficiary
                 // no filter by codeBps
                 break;
             case 'kabkota':
-                array_push($conditionals,['=', 'domicile_kabkota_bps_id', $this->codeBps]);
+                array_push($conditionals, ['=', 'domicile_kabkota_bps_id', $this->codeBps]);
                 break;
             case 'kec':
-                array_push($conditionals,
+                array_push(
+                    $conditionals,
                     ['=', 'domicile_kabkota_bps_id', substr($this->codeBps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', $this->codeBps]
                 );
                 break;
             case 'kel':
-                array_push($conditionals,
+                array_push(
+                    $conditionals,
                     ['=', 'domicile_kabkota_bps_id', substr($this->codeBps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($this->codeBps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $this->codeBps]
                 );
                 break;
             case 'rw':
-                array_push($conditionals,
+                array_push(
+                    $conditionals,
                     ['=', 'domicile_kabkota_bps_id', substr($this->codeBps, 0, 4)],
                     ['=', 'domicile_kec_bps_id', substr($this->codeBps, 0, 7)],
                     ['=', 'domicile_kel_bps_id', $this->codeBps],
@@ -125,7 +128,7 @@ class BeneficiaryDashboard extends Beneficiary
 
     /**
      * Returns data for Dashboard Summary
-     * @param bool $isNew if true, indicates if data is 'usulan baru', which was created 'by user' instead of 'by system'
+     * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
      * @return array
      */
     protected function getDashboardSummaryData($isNew)
@@ -190,12 +193,13 @@ class BeneficiaryDashboard extends Beneficiary
      * Returns data for Dashboard List.
      *
      * @param array $areaColumn name of area column used for grouping
-     * @param bool $isNew if true, indicates if data is 'usulan baru', which was created 'by user' instead of 'by system'
+     * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
      * @param array $orderBy only applies to 'kel' and 'rw' types. Sort attribute
      *
      * @return array
      */
-    protected function getDashboardListData ($areaColumn, $isNew, $orderBy) {
+    protected function getDashboardListData($areaColumn, $isNew, $orderBy)
+    {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
         $transformCount = function ($lists) use ($statusVerificationColumn) {
@@ -227,7 +231,7 @@ class BeneficiaryDashboard extends Beneficiary
     protected function transformArea($area, $counts, $countsNew)
     {
         $keyName =  'code_bps';
-        switch($this->type) {
+        switch ($this->type) {
             case 'provinsi':
             case 'kabkota':
             case 'kec':
@@ -270,7 +274,7 @@ class BeneficiaryDashboard extends Beneficiary
                 ->queryAll();
         };
 
-        $transformArea = function($area) use (&$counts, &$countsNew) {
+        $transformArea = function ($area) use (&$counts, &$countsNew) {
             return $this->transformArea($area, $counts, $countsNew);
         };
 
