@@ -23,4 +23,5 @@ return [
     'hashidSaltSecret' => 'JDSSaltSecret',
     'hashidLengthPad' => 5,
     'userImportMaximumRows' => 5000,
+    'cacheDuration' => 3600, //duration in seconds
 ];

@@ -15,6 +15,9 @@ use Yii;
  */
 class BeneficiaryDashboard extends Beneficiary
 {
+    const CACHE_KEY_SUMMARY = 'verval-dashboardsummary-';
+    const CACHE_KEY_LIST = 'verval-dashboardlist-';
+
     public $tahap;
     public $statusVerificationColumn = 'status_verification';
 
@@ -112,10 +115,12 @@ class BeneficiaryDashboard extends Beneficiary
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
+        // base query
         $query = (new \yii\db\Query())
             ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
             ->from('beneficiaries')
             ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+        // add conditional filters
         foreach ($conditionals as $conditional) {
             $query = $query->andWhere($conditional);
         }
@@ -135,7 +140,14 @@ class BeneficiaryDashboard extends Beneficiary
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $counts = $this->getDashboardSummaryQuery($this->getConditionals($isNew));
+        $cache = Yii::$app->cache;
+        $key = self::CACHE_KEY_SUMMARY . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
+        $counts = $cache->get($key);
+        if (!$counts) {
+            $counts = $this->getDashboardSummaryQuery($this->getConditionals($isNew));
+            $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
+        }
+
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
 
@@ -206,11 +218,18 @@ class BeneficiaryDashboard extends Beneficiary
             return $this->transformCount($lists, $statusVerificationColumn);
         };
 
-        $counts = $this->getDashboardListQuery(
-            $areaColumn,
-            $this->getConditionals($isNew),
-            $orderBy
-        );
+        $cache = Yii::$app->cache;
+        $key = self::CACHE_KEY_LIST . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
+        $counts = $cache->get($key);
+        if (!$counts) {
+            $counts = $this->getDashboardListQuery(
+                $areaColumn,
+                $this->getConditionals($isNew),
+                $orderBy
+            );
+            $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
+        }
+
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
