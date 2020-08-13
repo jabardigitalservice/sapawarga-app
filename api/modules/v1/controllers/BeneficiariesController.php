@@ -348,14 +348,24 @@ class BeneficiariesController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $model = new BeneficiaryDashboard();
-        return $model->getDashboardSummary($params);
+        $model->tahap = Arr::get($params, 'tahap');
+        $model->type = Arr::get($params, 'type');
+        $model->codeBps = Arr::get($params, 'code_bps');
+        $model->rw = Arr::get($params, 'rw');
+
+        return $model->getDashboardSummary();
     }
 
     public function actionDashboardList()
     {
         $params = Yii::$app->request->getQueryParams();
         $model = new BeneficiaryDashboard();
-        return $model->getDashboardList($params);
+        $model->tahap = Arr::get($params, 'tahap');
+        $model->type = Arr::get($params, 'type');
+        $model->codeBps = Arr::get($params, 'code_bps');
+        $model->rw = Arr::get($params, 'rw');
+
+        return $model->getDashboardList();
     }
 
     public function getAreaByUser()
