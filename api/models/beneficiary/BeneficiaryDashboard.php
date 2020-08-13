@@ -15,6 +15,8 @@ use Yii;
  */
 class BeneficiaryDashboard extends Beneficiary
 {
+    const CACHE_KEY_SUMMARY = 'verval-dashboardsummary-';
+
     public $tahap;
     public $statusVerificationColumn = 'status_verification';
 
@@ -105,23 +107,31 @@ class BeneficiaryDashboard extends Beneficiary
 
     /**
      * Returns database query result for Dashboard Summary
+     * @param bool $isNew if true, indicates if data is "usulan baru", which was created "by user" instead of "by system"
      * @param array $conditionals additional 'where' statements to filter data by BPS code
      * @return array
      */
-    protected function getDashboardSummaryQuery($conditionals)
+    protected function getDashboardSummaryQuery($isNew, $conditionals)
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $query = (new \yii\db\Query())
-            ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
-            ->from('beneficiaries')
-            ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
-        foreach ($conditionals as $conditional) {
-            $query = $query->andWhere($conditional);
+        $cache = Yii::$app->cache;
+        $key = self::CACHE_KEY_SUMMARY . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
+        $query = $cache->get($key);
+        if (!$query) {
+            $query = (new \yii\db\Query())
+                ->select([$statusVerificationColumn, 'COUNT(*) AS jumlah'])
+                ->from('beneficiaries')
+                ->where(['=', 'status', Beneficiary::STATUS_ACTIVE]);
+            foreach ($conditionals as $conditional) {
+                $query = $query->andWhere($conditional);
+            }
+            $query = $query->groupBy([$statusVerificationColumn])
+                ->createCommand()
+                ->queryAll();
+
+            $cache->set($key, $query, Yii::$app->params['cacheDuration']);
         }
-        $query = $query->groupBy([$statusVerificationColumn])
-            ->createCommand()
-            ->queryAll();
 
         return $query;
     }
@@ -135,7 +145,7 @@ class BeneficiaryDashboard extends Beneficiary
     {
         $statusVerificationColumn = BeneficiaryHelper::getStatusVerificationColumn($this->tahap);
 
-        $counts = $this->getDashboardSummaryQuery($this->getConditionals($isNew));
+        $counts = $this->getDashboardSummaryQuery($isNew, $this->getConditionals($isNew));
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
 
