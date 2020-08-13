@@ -146,8 +146,8 @@ class BeneficiaryDashboard extends Beneficiary
     public function getDashboardSummary()
     {
         $counts = $this->getDashboardSummaryData(false);
-        $counts_baru = $this->getDashboardSummaryData(true);
-        $counts['baru'] = $counts_baru;
+        $countsNew = $this->getDashboardSummaryData(true);
+        $counts['baru'] = $countsNew;
         return $counts;
     }
 
@@ -220,11 +220,11 @@ class BeneficiaryDashboard extends Beneficiary
      *
      * @param Illuminate\Support\Collection $area final array that needs to be transformed
      * @param array $counts raw data that will be transformed into $area
-     * @param array $counts_baru raw data that will be transformed into $area
+     * @param array $countsNew raw data that will be transformed into $area
      *
      * @return array
      */
-    protected function transformArea($area, $counts, $counts_baru)
+    protected function transformArea($area, $counts, $countsNew)
     {
         $keyName =  'code_bps';
         switch($this->type) {
@@ -242,7 +242,7 @@ class BeneficiaryDashboard extends Beneficiary
         }
 
         $area['data'] = isset($counts[$area[$keyName]]) ? $counts[$area[$keyName]] : (object) [];
-        $area['data_baru'] = isset($counts_baru[$area[$keyName]]) ? $counts_baru[$area[$keyName]] : (object) [];
+        $area['data_baru'] = isset($countsNew[$area[$keyName]]) ? $countsNew[$area[$keyName]] : (object) [];
         return $area;
     }
 
@@ -259,7 +259,7 @@ class BeneficiaryDashboard extends Beneficiary
     public function getDashboardList()
     {
         $counts = [];
-        $counts_baru = [];
+        $countsNew = [];
 
         $getChildAreas = function ($parentCodeBps) {
             return (new \yii\db\Query())
@@ -270,8 +270,8 @@ class BeneficiaryDashboard extends Beneficiary
                 ->queryAll();
         };
 
-        $transformArea = function($area) use (&$counts, &$counts_baru) {
-            return $this->transformArea($area, $counts, $counts_baru);
+        $transformArea = function($area) use (&$counts, &$countsNew) {
+            return $this->transformArea($area, $counts, $countsNew);
         };
 
         switch ($this->type) {
@@ -283,7 +283,7 @@ class BeneficiaryDashboard extends Beneficiary
                     'code_bps' => '',
                 ]);
                 $counts = $this->getDashboardListData('domicile_kabkota_bps_id', false, null);
-                $counts_baru = $this->getDashboardListData('domicile_kabkota_bps_id', true, null);
+                $countsNew = $this->getDashboardListData('domicile_kabkota_bps_id', true, null);
                 $areas->transform($transformArea);
                 break;
             case 'kabkota':
@@ -294,7 +294,7 @@ class BeneficiaryDashboard extends Beneficiary
                     'code_bps' => '',
                 ]);
                 $counts = $this->getDashboardListData('domicile_kec_bps_id', false, null);
-                $counts_baru = $this->getDashboardListData('domicile_kec_bps_id', true, null);
+                $countsNew = $this->getDashboardListData('domicile_kec_bps_id', true, null);
                 $areas->transform($transformArea);
                 break;
             case 'kec':
@@ -305,13 +305,13 @@ class BeneficiaryDashboard extends Beneficiary
                     'code_bps' => '',
                 ]);
                 $counts = $this->getDashboardListData('domicile_kel_bps_id', false, null);
-                $counts_baru = $this->getDashboardListData('domicile_kel_bps_id', true, null);
+                $countsNew = $this->getDashboardListData('domicile_kel_bps_id', true, null);
                 $areas->transform($transformArea);
                 break;
             case 'kel':
                 $areas = new Collection([]);
                 $counts = $this->getDashboardListData('domicile_rw', false, 'cast(domicile_rw as unsigned) asc');
-                $counts_baru = $this->getDashboardListData('domicile_rw', true, 'cast(domicile_rw as unsigned) asc');
+                $countsNew = $this->getDashboardListData('domicile_rw', true, 'cast(domicile_rw as unsigned) asc');
                 foreach ($counts as $rw => $count) {
                     if ($rw !== null && $rw !== '') {
                         $areas->push([
@@ -331,7 +331,7 @@ class BeneficiaryDashboard extends Beneficiary
             case 'rw':
                 $areas = new Collection([]);
                 $counts = $this->getDashboardListData('domicile_rt', false, 'cast(domicile_rt as unsigned) asc');
-                $counts_baru = $this->getDashboardListData('domicile_rt', true, 'cast(domicile_rt as unsigned) asc');
+                $countsNew = $this->getDashboardListData('domicile_rt', true, 'cast(domicile_rt as unsigned) asc');
                 foreach ($counts as $rt => $count) {
                     if ($rt !== null && $rt !== '') {
                         $areas->push([
