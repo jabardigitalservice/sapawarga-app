@@ -230,6 +230,18 @@ class BeneficiariesBnbaController extends ActiveController
         return $provider;
     }
 
+    public function actionAnomalyDownload()
+    {
+        $authUserModel  = Yii::$app->user->identity;
+        $publicBaseUrl  = Yii::$app->params['storagePublicBaseUrl'];
+        $kabkota        = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+        $code           = $kabkota->code_bps;
+        $final_url      = "$publicBaseUrl/bnba-anomaly/data-anomaly-$code.pdf";
+        return [
+            'url' => $final_url,
+        ];
+    }
+
     public function actionDownload()
     {
         $params = Yii::$app->request->getQueryParams();
