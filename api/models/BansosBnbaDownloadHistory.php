@@ -41,7 +41,7 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory
         }
 
         $query = BeneficiaryBnbaTahapSatu::find()
-            ->where($queryParams)
+            ->where($queryParams);
         return $query;
     }
 
