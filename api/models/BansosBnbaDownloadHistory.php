@@ -53,13 +53,13 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory
     {
         switch ($this->job_type) {
             case self::TYPE_BNBA_WITH_COMPLAIN :
-                $job_id = Yii::$app->queue->push(new ExportBnbaWithComplainJob([
+                $job_id = Yii::$app->queue->priority(100)->push(new ExportBnbaWithComplainJob([
                     'userId' => $this->user_id,
                     'historyId' => $this->id,
                 ]));
                 break;
             default:
-                $job_id = Yii::$app->queue->push(new ExportBnbaJob([
+                $job_id = Yii::$app->queue->priority(200)->push(new ExportBnbaJob([
                     'userId' => $this->user_id,
                     'historyId' => $this->id,
                 ]));
