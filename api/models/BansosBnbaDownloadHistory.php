@@ -35,7 +35,7 @@ class BansosBnbaDownloadHistory extends BaseDownloadHistory
 
         // WHERE query order is importand in order to gain indexing improvement
         $query = BeneficiaryBnbaTahapSatu::find()
-            ->where([ 'is_deleted' => [0, null] ]);
+            ->where([ 'is_deleted' => 1 ]);
 
         // special filter for export with complain,
         if ($this->job_type == self::TYPE_BNBA_WITH_COMPLAIN) {
