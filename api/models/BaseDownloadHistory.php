@@ -84,16 +84,19 @@ class BaseDownloadHistory extends ActiveRecord
      */
     public function getAggregateRowProgress($tag = null)
     {
-        $histories = $this->getWaitingListQuery()->all();
-
         $total_row_count = $this->total_row;
         $total_row_processed = $this->processed_row;
         $start_time = $current_time = time();
-        foreach ($histories as $history) {
-            $total_row_count += $history->total_row;
-            $total_row_processed += $history->processed_row;
-            if (!empty($history->start_at)) {
-                $start_time = $history->start_at;
+
+        if ($this->done_at == null) {
+            $histories = $this->getWaitingListQuery()->all();
+
+            foreach ($histories as $history) {
+                $total_row_count += $history->total_row;
+                $total_row_processed += $history->processed_row;
+                if (!empty($history->start_at)) {
+                    $start_time = $history->start_at;
+                }
             }
         }
 
