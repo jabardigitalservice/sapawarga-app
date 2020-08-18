@@ -69,18 +69,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         print_r($jobHistory->params);
 
         // #### QUERY CONSTRUCTION
-        $subquery = $jobHistory->getQuery();
-
-        $joinedQuery = (new \yii\db\Query())
-            ->select([
-                'bnba.*',
-                'sapawarga_rw' => "GROUP_CONCAT(DISTINCT (IF(bnba_com.nik='1' ,bnba_com.notes_reason,NULL)))",
-                'solidaritas' => "GROUP_CONCAT(DISTINCT IF(bnba_com.nik<>'1' ,bnba_com.notes_reason,NULL))",
-            ])
-            ->from(['bnba' => $subquery])
-            ->leftJoin(['bnba_com' => 'beneficiaries_complain'], 'bnba_com.beneficiaries_id = bnba.id')
-            ->groupBy(['bnba.id'])
-            ;
+        $query = $jobHistory->getQuery();
 
         $rowNumbers = $jobHistory->total_row;
         echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
@@ -115,7 +104,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $numProcessed = 0;
         $dummyBnbaModel = new BeneficiaryBnbaTahapSatu();
-        foreach ($joinedQuery->batch($batchSize, $unbufferedDb) as $listBnba)
+        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba)
         {
             foreach ($listBnba as $row) {
                 $result = [];
@@ -125,8 +114,8 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
                     $result[$key] = $row[$key];
                 }
                 $result['bansostype'] = $dummyBnbaModel->bansostype;
-                $result['sapawarga_rw'] = $row['sapawarga_rw'];
-                $result['solidaritas'] = $row['solidaritas'];
+                $result['sapawarga_rw'] = '';
+                $result['solidaritas'] = '';
                 $result['layak_bantuan'] = 'Ya';
 
                 $rowFromValues = WriterEntityFactory::createRowFromArray($result);
