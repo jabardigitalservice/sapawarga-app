@@ -10,6 +10,84 @@ use yii\db\Query;
 use yii\console\Controller;
 use yii\console\Exception;
 use yii\queue\ExecEvent;
+use yii\base\Behavior;
+
+/**
+ * Custom behaviour used to override many private method in default Queue
+ * implementations
+ */
+class CustomQueueBehavior extends Behavior
+{
+    /**
+     * Modification of reserve method in yii\queue\driver\db\Queue to enable
+     * executing a specific queue job by queueId parameter
+     *
+     * @param yii\db\Query $query Query Builder object to be run
+     * @return array|false payload
+     * @throws Exception in case it hasn't waited the lock
+     */
+    public function reserveSingle($query)
+    {
+        return $this->owner->db->useMaster(function () use ($query) {
+            if (!$this->owner->mutex->acquire(__CLASS__ . $this->owner->channel, $this->owner->mutexTimeout)) {
+                throw new Exception('Has not waited the lock.');
+            }
+
+            $payload = $query->one($this->owner->db);
+
+            if (!$payload) {
+                throw new Exception("Query return empty");
+            }
+
+            if (is_array($payload)) {
+                if (!empty($payload['reserved_at'])) {
+                    throw new Exception('Queue job '.$payload['id'].' already running');
+                }
+
+                try {
+                    //TODO: check again is this function really could be commented
+                    //$this->owner->moveExpired();
+
+                    // Reserve one message
+                    $payload['reserved_at'] = time();
+                    $payload['attempt'] = (int) $payload['attempt'] + 1;
+                    $this->owner->db->createCommand()->update($this->owner->tableName, [
+                        'reserved_at' => $payload['reserved_at'],
+                        'attempt' => $payload['attempt'],
+                    ], [
+                        'id' => $payload['id'],
+                    ])->execute();
+
+                    // pgsql
+                    if (is_resource($payload['job'])) {
+                        $payload['job'] = stream_get_contents($payload['job']);
+                    }
+                } finally {
+                    $this->owner->mutex->release(__CLASS__ . $this->owner->channel);
+                }
+
+            }
+            return $payload;
+        });
+    }
+
+    /**
+     * Simple wrapper for handleMessage method which is private
+     */
+    public function customHandleMessage($id, $message, $ttr, $attempt)
+    {
+        return $this->owner->handleMessage($id, $message, $ttr, $attempt);
+    }
+
+    /**
+     * Simple wrapper for handleMessage method which is private
+     */
+    public function customRelease($payload)
+    {
+        return $this->owner->release($payload);
+    }
+
+}
 
 class CustomQueueController extends Controller
 {
@@ -53,6 +131,9 @@ class CustomQueueController extends Controller
         }
     }
 
+    /**
+     * get jobType parameter
+     */
     public function getJobType()
     {
         if (!empty($this->job_type)) {
@@ -69,140 +150,29 @@ class CustomQueueController extends Controller
     {
         if (empty($this->_queue)) {
             $this->_queue = Yii::$app->queue;
+            $this->_queue->attachBehaviors([ CustomQueueBehavior::class ]);
         }
 
         return $this->_queue;
     }
 
     /**
-     * This method is originally a private method in yii\queue\Queue. Because
-     * its protected, we cannot access it from outside here. so we need to
-     * re-declare it here
+     * Run a single queue job by $query
      *
-     * @param string $id of a job message
-     * @param string $message
-     * @param int $ttr time to reserve
-     * @param int $attempt number
-     * @return bool
+     * @param yii\db\Query $query Query Builder object to run to get the desired queue job entry
      */
-    protected function handleMessage($id, $message, $ttr, $attempt)
-    {
-        $queue = $this->getQueue();
-        list($job, $error) = $queue->unserializeMessage($message);
-        $event = new ExecEvent([
-            'id' => $id,
-            'job' => $job,
-            'ttr' => $ttr,
-            'attempt' => $attempt,
-            'error' => $error,
-        ]);
-        $queue->trigger($queue::EVENT_BEFORE_EXEC, $event);
-        if ($event->handled) {
-            return true;
-        }
-        if ($event->error) {
-            return $queue->handleError($event);
-        }
-        try {
-            $event->result = $event->job->execute($queue);
-        } catch (\Exception $error) {
-            $event->error = $error;
-            return $queue->handleError($event);
-        } catch (\Throwable $error) {
-            $event->error = $error;
-            return $queue->handleError($event);
-        }
-        $queue->trigger($queue::EVENT_AFTER_EXEC, $event);
-        return true;
-    }
-
-    /**
-     * This method is originally a private method in yii\queue\Queue. Because
-     * its protected, we cannot access it from outside here. so we need to
-     * re-declare it here
-     * @param array $payload
-     */
-    protected function release($payload)
-    {
-        $queue = $this->getQueue();
-        if ($queue->deleteReleased) {
-            $queue->db->createCommand()->delete(
-                $queue->tableName,
-                ['id' => $payload['id']]
-            )->execute();
-        } else {
-            $queue->db->createCommand()->update(
-                $queue->tableName,
-                ['done_at' => time()],
-                ['id' => $payload['id']]
-            )->execute();
-        }
-    }
-
-    /**
-     * Modification of reserve method in yii\queue\driver\db\Queue to enable
-     * executing a specific queue job by queueId parameter
-     *
-     * @param yii\db\Query $query Query Builder object to be run
-     * @return array|false payload
-     * @throws Exception in case it hasn't waited the lock
-     */
-    public function reserveSingle($query)
-    {
-        $queue = $this->getQueue();
-        return $queue->db->useMaster(function () use ($queue, $query) {
-            if (!$queue->mutex->acquire(__CLASS__ . $queue->channel, $queue->mutexTimeout)) {
-                throw new Exception('Has not waited the lock.');
-            }
-
-            $payload = $query->one($queue->db);
-
-            if (!$payload) {
-                throw new Exception("Query return empty");
-            }
-
-            if (is_array($payload)) {
-                if (!empty($payload['reserved_at'])) {
-                    throw new Exception('Queue job '.$payload['id'].' already running');
-                }
-
-                try {
-                    //TODO: check again is this function really could be commented
-                    //$queue->moveExpired();
-
-                    // Reserve one message
-                    $payload['reserved_at'] = time();
-                    $payload['attempt'] = (int) $payload['attempt'] + 1;
-                    $queue->db->createCommand()->update($queue->tableName, [
-                        'reserved_at' => $payload['reserved_at'],
-                        'attempt' => $payload['attempt'],
-                    ], [
-                        'id' => $payload['id'],
-                    ])->execute();
-
-                    // pgsql
-                    if (is_resource($payload['job'])) {
-                        $payload['job'] = stream_get_contents($payload['job']);
-                    }
-                } finally {
-                    $queue->mutex->release(__CLASS__ . $queue->channel);
-                }
-
-            }
-            return $payload;
-        });
-    }
-
     public function runSingle($query)
     {
-        if ($payload = $this->reserveSingle($query)) {
-            if ($this->handleMessage(
+        $queue = $this->getQueue();
+
+        if ($payload = $queue->reserveSingle($query)) {
+            if ($queue->customHandleMessage(
                 $payload['id'],
                 $payload['job'],
                 $payload['ttr'],
                 $payload['attempt']
             )) {
-                $this->release($payload);
+                $queue->customRelease($payload);
             }
         }
     }
