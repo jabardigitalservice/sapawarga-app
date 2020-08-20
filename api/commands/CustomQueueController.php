@@ -22,8 +22,7 @@ use yii\queue\ExecEvent;
 use yii\queue\db\Queue as BaseDbQueue;
 
 /**
- * Custom queue object used to override many private method in default Queue
- * implementations
+ * Custom queue object implementation specific for our use case
  */
 class CustomQueue extends BaseDbQueue
 {
@@ -85,30 +84,35 @@ class CustomQueue extends BaseDbQueue
     }
 
     /**
-     * Simple wrapper for handleMessage method which is private
+     * Run a single queue job by $query. This is a modification from run() method
+     * in yii\queue\db\src\Queue
+     *
+     * @param yii\db\Query $query Query Builder object to run to get the desired queue job entry
      */
-    public function handleMessage($id, $message, $ttr, $attempt)
+    public function runSingle($query)
     {
-        return parent::handleMessage($id, $message, $ttr, $attempt);
-    }
-
-    /**
-     * Simple wrapper for handleMessage method which is private
-     */
-    public function release($payload)
-    {
-        return parent::release($payload);
+        if ($payload = $this->reserveSingle($query)) {
+            if ($this->handleMessage(
+                $payload['id'],
+                $payload['job'],
+                $payload['ttr'],
+                $payload['attempt']
+            )) {
+                $this->release($payload);
+            }
+        }
     }
 
 }
 
 class CustomQueueController extends Controller
 {
-    private $_queue = null;
-
     public $queue_id = null;
     public $queue_details_id = null;
 
+    /**
+     * @inheritdoc
+     */
     public function options($actionsID)
     {
         return [
@@ -117,40 +121,16 @@ class CustomQueueController extends Controller
         ];
     }
 
-    /*
-     * Get queue object used on this application
-     */
-    public function getQueue()
-    {
-        if (empty($this->_queue)) {
-            $queue = Yii::$app->queue;
-
-            // create new CustomQueue from properties of existing Queue
-            $this->_queue = new CustomQueue(get_object_vars($queue));
-        }
-
-        return $this->_queue;
-    }
-
     /**
-     * Run a single queue job by $query
-     *
-     * @param yii\db\Query $query Query Builder object to run to get the desired queue job entry
+     * @inheritdoc
      */
     public function runSingle($query)
     {
-        $queue = $this->getQueue();
+        // create new CustomQueue from properties of existing Queue
+        $queueProps = get_object_vars(Yii::$app->queue);
+        $queue = new CustomQueue($queueProps);
 
-        if ($payload = $queue->reserveSingle($query)) {
-            if ($queue->handleMessage(
-                $payload['id'],
-                $payload['job'],
-                $payload['ttr'],
-                $payload['attempt']
-            )) {
-                $queue->release($payload);
-            }
-        }
+        $queue->runSingle($query);
     }
 
     public function actionRunSingle()
@@ -181,7 +161,8 @@ class CustomQueueController extends Controller
     }
 
     /**
-     * Run job in queue by type
+     * Run job in queue, filtered by job_type
+     *
      * @param string $jobType name of job_type to be filtered
      * @param int $limit number of job to be run. set to 0 for infinitely looping
      * @param int $delay number of seconds between each loop
@@ -201,6 +182,7 @@ class CustomQueueController extends Controller
                 ->orderBy(['queue.priority' => SORT_ASC, 'queue.id' => SORT_ASC])
                 ->limit(1);
 
+        // execution loop
         $step = $limit;
         while ($step || $limit == 0) {
             echo "Searching for queue job with type: $jobType\n";
