@@ -1,7 +1,16 @@
 <?php
 /*
- * Usage: yii custom-queue/run-single --queue_id=1234
+ * Usage:
  *
+ * to run a single job by its queue id or queue_details id , use:
+ *
+ *    yii custom-queue/run-single --queue_id=1234 or --queue_details_id=1234
+ *
+ * to run a single job in queue by job_type, use:
+ *
+ *    yii custom-queue/run-by-type <job_type> <number of job to run (default 1)> <delay in seconds (default=3)>
+ *
+ *    notes: to make the worker run indefinitely, use limit = 0.
  */
 namespace app\commands;
 
@@ -36,11 +45,13 @@ class CustomQueue extends BaseDbQueue
             $payload = $query->one($this->db);
 
             if (!$payload) {
-                throw new Exception("Query return empty");
+                $this->mutex->release(__CLASS__ . $this->channel);
+                throw new Exception("Queue job not found");
             }
 
             if (is_array($payload)) {
                 if (!empty($payload['reserved_at'])) {
+                    $this->mutex->release(__CLASS__ . $this->channel);
                     throw new Exception('Queue job '.$payload['id'].' already running');
                 }
 
@@ -49,6 +60,7 @@ class CustomQueue extends BaseDbQueue
                     //$this->moveExpired();
 
                     // Reserve one message
+                    echo 'Reserving job id '. $payload['id'] . PHP_EOL;
                     $payload['reserved_at'] = time();
                     $payload['attempt'] = (int) $payload['attempt'] + 1;
                     $this->db->createCommand()->update($this->tableName, [
@@ -67,6 +79,7 @@ class CustomQueue extends BaseDbQueue
                 }
 
             }
+
             return $payload;
         });
     }
@@ -95,52 +108,13 @@ class CustomQueueController extends Controller
 
     public $queue_id = null;
     public $queue_details_id = null;
-    public $job_type = null;
 
     public function options($actionsID)
     {
         return [
             'queue_id',
             'queue_details_id',
-            'job_type',
         ];
-    }
-
-    /*
-     * Get queue_id regardles which of queue_id or queue_details_id is supplied
-     * to the command
-     */
-    public function getQueueId()
-    {
-        if (!empty($this->queue_id)) {
-            return $this->queue_id;
-        } elseif (!empty($this->queue_details_id)) {
-            //echo "queue_details_id : {$this->queue_details_id}\n";
-            $queue_details = (new Query())
-                ->from('queue_details')
-                ->where(['id' => $this->queue_details_id ])
-                ->one();
-            if (!$queue_details) {
-                throw new Exception("queue_details_id {$this->queue_details_id} not found");
-            }
-            //echo json_encode( $queue_details);
-            $queue_details_log = json_decode($queue_details['logs'], true);
-            return $queue_details_log['job_id'];
-        } else {
-            throw new Exception('queue_id or queue_details_id is required');
-        }
-    }
-
-    /**
-     * get jobType parameter
-     */
-    public function getJobType()
-    {
-        if (!empty($this->job_type)) {
-            return $this->job_type;
-        } else {
-            throw new Exception('job_type parameter is required');
-        }
     }
 
     /*
@@ -181,7 +155,21 @@ class CustomQueueController extends Controller
 
     public function actionRunSingle()
     {
-        $queueId = $this->getQueueId();
+        if (!empty($this->queue_id)) {
+            $queueId =  $this->queue_id;
+        } elseif (!empty($this->queue_details_id)) {
+            $queue_details = (new Query())
+                ->select(['logs->"$.job_id" as job_id'])
+                ->from('queue_details')
+                ->where(['id' => $this->queue_details_id ])
+                ->one();
+            if (!$queue_details) {
+                throw new Exception("queue_details_id {$this->queue_details_id} not found");
+            }
+            $queueId =  $queue_details['job_id'];
+        } else {
+            throw new Exception('queue_id or queue_details_id is required');
+        }
 
         echo "Searching for QueueID: $queueId\n";
 
@@ -192,24 +180,43 @@ class CustomQueueController extends Controller
         $this->runSingle($query);
     }
 
-    public function actionRunByType()
+    /**
+     * Run job in queue by type
+     * @param string $jobType name of job_type to be filtered
+     * @param int $limit number of job to be run. set to 0 for infinitely looping
+     * @param int $delay number of seconds between each loop
+     */
+    public function actionRunByType($jobType=null, $limit=1, $delay=3)
     {
-        $queue = $this->getQueue();
-        $jobType = $this->getJobType();
-
-        echo "Searching for queue with type: $jobType\n";
+        if (empty($jobType)) {
+            throw new Exception('job_type parameter is required');
+        }
 
         $query = (new Query())
                 ->select(['queue.*'])
                 ->from(['queue', 'queue_details'])
                 ->andWhere(['queue_details.job_type' => $jobType ])
-                ->andWhere(['queue_details.logs.job_id = queue.id' ])
-                ->andWhere(['queue.channel' => $queue->channel, 'queue.reserved_at' => null])
-                ->andWhere('queue.[[pushed_at]] <= :time - [[delay]]', [':time' => time()])
+                ->andWhere(['queue_details.status' => null ])
+                ->andWhere('queue.id = JSON_UNQUOTE(queue_details.logs->"$.job_id")')
                 ->orderBy(['queue.priority' => SORT_ASC, 'queue.id' => SORT_ASC])
                 ->limit(1);
 
-        $this->runSingle($query);
+        $step = $limit;
+        while ($step || $limit == 0) {
+            echo "Searching for queue job with type: $jobType\n";
+
+            try {
+                $this->runSingle($query);
+            } catch(Exception $e) {
+                echo "Error: {$e->getMessage()}\n";
+            }
+
+            $step--;
+
+            if ($step) {
+              sleep($delay);
+            }
+        }
     }
 
 }
