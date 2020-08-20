@@ -10,13 +10,13 @@ use yii\db\Query;
 use yii\console\Controller;
 use yii\console\Exception;
 use yii\queue\ExecEvent;
-use yii\base\Behavior;
+use yii\queue\db\Queue as BaseDbQueue;
 
 /**
- * Custom behaviour used to override many private method in default Queue
+ * Custom queue object used to override many private method in default Queue
  * implementations
  */
-class CustomQueueBehavior extends Behavior
+class CustomQueue extends BaseDbQueue
 {
     /**
      * Modification of reserve method in yii\queue\driver\db\Queue to enable
@@ -28,12 +28,12 @@ class CustomQueueBehavior extends Behavior
      */
     public function reserveSingle($query)
     {
-        return $this->owner->db->useMaster(function () use ($query) {
-            if (!$this->owner->mutex->acquire(__CLASS__ . $this->owner->channel, $this->owner->mutexTimeout)) {
+        return $this->db->useMaster(function () use ($query) {
+            if (!$this->mutex->acquire(__CLASS__ . $this->channel, $this->mutexTimeout)) {
                 throw new Exception('Has not waited the lock.');
             }
 
-            $payload = $query->one($this->owner->db);
+            $payload = $query->one($this->db);
 
             if (!$payload) {
                 throw new Exception("Query return empty");
@@ -46,12 +46,12 @@ class CustomQueueBehavior extends Behavior
 
                 try {
                     //TODO: check again is this function really could be commented
-                    //$this->owner->moveExpired();
+                    //$this->moveExpired();
 
                     // Reserve one message
                     $payload['reserved_at'] = time();
                     $payload['attempt'] = (int) $payload['attempt'] + 1;
-                    $this->owner->db->createCommand()->update($this->owner->tableName, [
+                    $this->db->createCommand()->update($this->tableName, [
                         'reserved_at' => $payload['reserved_at'],
                         'attempt' => $payload['attempt'],
                     ], [
@@ -63,7 +63,7 @@ class CustomQueueBehavior extends Behavior
                         $payload['job'] = stream_get_contents($payload['job']);
                     }
                 } finally {
-                    $this->owner->mutex->release(__CLASS__ . $this->owner->channel);
+                    $this->mutex->release(__CLASS__ . $this->channel);
                 }
 
             }
@@ -74,17 +74,17 @@ class CustomQueueBehavior extends Behavior
     /**
      * Simple wrapper for handleMessage method which is private
      */
-    public function customHandleMessage($id, $message, $ttr, $attempt)
+    public function handleMessage($id, $message, $ttr, $attempt)
     {
-        return $this->owner->handleMessage($id, $message, $ttr, $attempt);
+        return parent::handleMessage($id, $message, $ttr, $attempt);
     }
 
     /**
      * Simple wrapper for handleMessage method which is private
      */
-    public function customRelease($payload)
+    public function release($payload)
     {
-        return $this->owner->release($payload);
+        return parent::release($payload);
     }
 
 }
@@ -149,8 +149,10 @@ class CustomQueueController extends Controller
     public function getQueue()
     {
         if (empty($this->_queue)) {
-            $this->_queue = Yii::$app->queue;
-            $this->_queue->attachBehaviors([ CustomQueueBehavior::class ]);
+            $queue = Yii::$app->queue;
+
+            // create new CustomQueue from properties of existing Queue
+            $this->_queue = new CustomQueue(get_object_vars($queue));
         }
 
         return $this->_queue;
@@ -166,13 +168,13 @@ class CustomQueueController extends Controller
         $queue = $this->getQueue();
 
         if ($payload = $queue->reserveSingle($query)) {
-            if ($queue->customHandleMessage(
+            if ($queue->handleMessage(
                 $payload['id'],
                 $payload['job'],
                 $payload['ttr'],
                 $payload['attempt']
             )) {
-                $queue->customRelease($payload);
+                $queue->release($payload);
             }
         }
     }
@@ -190,8 +192,9 @@ class CustomQueueController extends Controller
         $this->runSingle($query);
     }
 
-    public function actionRunQueueByType()
+    public function actionRunByType()
     {
+        $queue = $this->getQueue();
         $jobType = $this->getJobType();
 
         echo "Searching for queue with type: $jobType\n";
@@ -201,7 +204,7 @@ class CustomQueueController extends Controller
                 ->from(['queue', 'queue_details'])
                 ->andWhere(['queue_details.job_type' => $jobType ])
                 ->andWhere(['queue_details.logs.job_id = queue.id' ])
-                ->andWhere(['queue.channel' => $this->channel, 'queue.reserved_at' => null])
+                ->andWhere(['queue.channel' => $queue->channel, 'queue.reserved_at' => null])
                 ->andWhere('queue.[[pushed_at]] <= :time - [[delay]]', [':time' => time()])
                 ->orderBy(['queue.priority' => SORT_ASC, 'queue.id' => SORT_ASC])
                 ->limit(1);
