@@ -12,7 +12,7 @@ class m200610_082036_update_beneficiaries_modify_tahap_columns extends CustomMig
     public function safeUp()
     {
         // add new columns
-        $this->addColumn('beneficiaries', 'tahap_1_verval', $this->integer()->null()->after('is_tahap_1'));
+        $this->addColumn('beneficiaries', 'tahap_1_verval', $this->integer()->null()->after('updated_at'));
         $this->addColumn('beneficiaries', 'is_tahap_1_penetapan', $this->boolean()->defaultValue(false)->after('tahap_1_verval'));
 
         $this->addColumn('beneficiaries', 'tahap_2_verval', $this->integer()->null()->after('is_tahap_1_penetapan'));
