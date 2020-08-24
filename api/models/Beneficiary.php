@@ -170,12 +170,12 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 ],
                 'required',
             ],
-
             [
                 [
                     'name', 'address', 'phone', 'no_kk', 'notes', 'notes_approved', 'notes_rejected', 'notes_nik_empty', 'image_ktp', 'image_kk', 'rt', 'rw',
                     'kabkota_bps_id', 'kec_bps_id', 'kel_bps_id',
                     'domicile_province_bps_id', 'domicile_kabkota_bps_id', 'domicile_kec_bps_id', 'domicile_kel_bps_id',
+                    'domicile_kabkota_name', 'domicile_kec_name', 'domicile_kel_name',
                     'domicile_rw', 'domicile_rt', 'domicile_address', 'nik'
                 ],
                 'trim'
