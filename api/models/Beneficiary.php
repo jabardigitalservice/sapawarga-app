@@ -196,7 +196,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [
                 [
                     'status_verification', 'status', 'job_type_id', 'job_status_id',
-                    'province_id', 'kabkota_id', 'kec_id', 'kel_id',
                     'income_before', 'income_after',
                     'is_poor_new', 'is_need_help',
                     'total_family_members',
@@ -286,10 +285,6 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'kabkota_bps_id',
             'kec_bps_id',
             'kel_bps_id',
-            'province_id',
-            'kabkota_id',
-            'kec_id',
-            'kel_id',
             'province' => 'ProvBpsField',
             'kabkota' => 'KabkotaBpsField',
             'kecamatan' => 'KecBpsField',
