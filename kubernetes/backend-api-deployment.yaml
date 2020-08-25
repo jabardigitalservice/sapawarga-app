@@ -167,23 +167,6 @@ spec:
                   name: sapawarga-backend-secret
                   key: APP_STORAGE_S3_SECRET
 
-            - name: CACHE_USE_MEMCACHED
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_USE_MEMCACHED
-
-            - name: CACHE_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_SERVERS
-            - name: CACHE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_PORT
-
             - name: ERROR_REPORT
               valueFrom:
                 configMapKeyRef:
@@ -293,7 +276,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: S3_FOLDER_INVALID_VERVAL
-            
+
             - name: REDIS_HOST
               valueFrom:
                 configMapKeyRef:
@@ -305,7 +288,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: REDIS_PORT
-            
+
             - name: REDIS_DB
               valueFrom:
                 configMapKeyRef:
