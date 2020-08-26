@@ -6,7 +6,6 @@ metadata:
   labels:
     app: sapawarga-api
 spec:
-  # temporary during a covid-19 #
   replicas: %REPLICAS%
   template:
     metadata:
@@ -28,9 +27,6 @@ spec:
               port: 80
             initialDelaySeconds: 15
             periodSeconds: 20
-          # volumeMounts:
-          # - name: api-persistent-storage
-          #   mountPath: /srv/web/storage
           env:
             - name: APP_STORAGE_LOCAL_URL
               valueFrom:
@@ -301,13 +297,6 @@ spec:
                   name: sapawarga-backend-config-env
                   key: REDIS_HOST_SLAVE_1
 
-      # initContainers:
-      # - name: volume-permission-fix
-      #   image: busybox
-      #   command: ["/bin/chmod","-R","777", "/data"]
-      #   volumeMounts:
-      #   - name: api-persistent-storage
-      #     mountPath: /data
       imagePullSecrets:
         - name: regcred
       affinity:
@@ -320,7 +309,3 @@ spec:
                 values:
                 - sapawarga-api
             topologyKey: "kubernetes.io/hostname"
-      # volumes:
-      # - name: api-persistent-storage
-      #   persistentVolumeClaim:
-      #     claimName: api-pv-claim
