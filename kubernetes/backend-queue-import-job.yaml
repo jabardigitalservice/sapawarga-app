@@ -44,21 +44,6 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: COOKIE_VALIDATION_KEY
-            - name: CACHE_USE_MEMCACHED
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_USE_MEMCACHED
-            - name: CACHE_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_SERVERS
-            - name: CACHE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_PORT
       imagePullSecrets:
         - name: regcred
       restartPolicy: OnFailure
