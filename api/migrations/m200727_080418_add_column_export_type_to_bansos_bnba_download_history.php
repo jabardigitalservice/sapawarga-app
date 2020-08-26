@@ -21,5 +21,4 @@ class m200727_080418_add_column_export_type_to_bansos_bnba_download_history exte
     {
          $this->dropColumn('bansos_bnba_download_histories', 'export_type');
     }
-
 }

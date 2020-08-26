@@ -29,5 +29,4 @@ class m200724_061305_create_table_bansos_bnba_upload_noimport_histories extends 
     {
         $this->dropTable('bansos_bnba_upload_noimport_histories');
     }
-
 }

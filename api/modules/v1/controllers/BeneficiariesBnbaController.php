@@ -16,6 +16,8 @@ use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use Illuminate\Support\Arr;
+use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
  * BeneficiariesBnbaTahapSatuController implements the CRUD actions for BeneficiaryBnbaTahapSatu model.
@@ -121,19 +123,39 @@ class BeneficiariesBnbaController extends ActiveController
         $filesystem = Yii::$app->fs;
         $kabkotaId  = $user->identity->kabkota_id;
         $file = UploadedFile::getInstanceByName('file');
+        $uploadStatus = BansosBnbaUploadHistory::STATUS_SUCCESS;
 
+        // VALIDATIONS
         $model = new DynamicModel(['file' => $file]);
 
         $model->addRule('file', 'required');
         $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
-
         if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
-
             return $model->getErrors();
         }
 
+        // validate file's header row
+        $reader = ReaderEntityFactory::createXLSXReader();
+        $reader->open($file->tempName);
+
+        foreach ($reader->getSheetIterator() as $sheet) {
+            // only read data from first sheet
+            foreach ($sheet->getRowIterator() as $row) {
+                // read header row
+                $row_array = $row->toArray();
+                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders()) {
+                    $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
+                }
+                break;
+            }
+            break; // no need to read more sheets
+        }
+
+        $reader->close();
+
+        // upload and store file
         $kabkota   = Area::findOne(['id' => $kabkotaId]);
         $code      = $kabkota->code_bps;
         $ext          = $file->getExtension();
@@ -151,7 +173,7 @@ class BeneficiariesBnbaController extends ActiveController
             'original_filename' => $file->name,
             'final_url' => $publicUrl,
             'timestamp' => time(),
-            'status' => 1,
+            'status' => $uploadStatus,
         ];
 
         $history = new BansosBnbaUploadHistory();
@@ -161,10 +183,37 @@ class BeneficiariesBnbaController extends ActiveController
         return $historyData;
     }
 
-    public function actionUploadHistories() {
+    public function actionUploadHistories()
+    {
+        $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
         $query = BansosBnbaUploadHistory::find();
+        $tableName = BansosBnbaUploadHistory::tableName();
+
+        if ($user->can('staffProv')) {
+            $subquery = (new \yii\db\Query())
+                      ->select([
+                          'kabkota_name as kabkota',
+                          'MAX([[timestamp]]) AS last_update', // get last update
+                      ])
+                      ->from("{{{$tableName}}}")
+                      ->groupBy('kabkota_name')
+                      ;
+            $query = $query
+              ->rightJoin(
+                  [ 'r' => $subquery ],
+                  "{{{$tableName}}}.kabkota_name = r.kabkota " .
+                  "AND {{{$tableName}}}.`timestamp` = r.last_update"
+              )
+              ;
+        } else {
+            $query = $query->where([ 'user_id' => $user->id ]);
+        }
+
+        if (isset($params['kabkota_name'])) {
+            $query = $query->where([ 'kabkota_name' => $params['kabkota_name'] ]);
+        }
 
         $provider = new ActiveDataProvider([
             'query' => $query,
@@ -179,6 +228,18 @@ class BeneficiariesBnbaController extends ActiveController
         ]);
 
         return $provider;
+    }
+
+    public function actionAnomalyDownload()
+    {
+        $authUserModel  = Yii::$app->user->identity;
+        $publicBaseUrl  = Yii::$app->params['storagePublicBaseUrl'];
+        $kabkota        = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+        $code           = $kabkota->code_bps;
+        $final_url      = "$publicBaseUrl/bnba-anomaly/data-anomaly-$code.pdf";
+        return [
+            'url' => $final_url,
+        ];
     }
 
     public function actionDownload()
@@ -228,9 +289,10 @@ class BeneficiariesBnbaController extends ActiveController
 
         $jobHistory = new BansosBnbaDownloadHistory;
         $jobHistory->user_id = $user->id;
-        $jobHistory->export_type = $exportType;
+        $jobHistory->job_type = $exportType;
         $jobHistory->params = $queryParams;
-        $jobHistory->row_count = $jobHistory->countAffectedRows();
+        $jobHistory->created_at = time();
+        $jobHistory->total_row = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
         // export bnba
@@ -260,7 +322,7 @@ class BeneficiariesBnbaController extends ActiveController
 
             $query = BansosBnbaDownloadHistory::find()->where([
                 'user_id' => $user->id,
-                'export_type' => $exportType,
+                'job_type' => $exportType,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
