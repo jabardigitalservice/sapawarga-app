@@ -41,6 +41,8 @@ class m200411_065139_create_table_beneficiaries extends CustomMigration
             'updated_by' => $this->integer(),
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
+
+            'is_tahap_1' => $this->integer(),
         ]);
     }
 
