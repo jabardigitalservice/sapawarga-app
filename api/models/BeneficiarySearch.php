@@ -122,8 +122,6 @@ class BeneficiarySearch extends Beneficiary
 
     protected function getQueryAll($query, $params)
     {
-        \yii\helpers\VarDumper::dump($query->createCommand()->getRawSql());
-
         // change 'status_verification' sort attribute based on tahap
         $sortAttribute = Arr::get($params, 'sort_by', 'nik');
         if ($sortAttribute == 'status_verification') {
