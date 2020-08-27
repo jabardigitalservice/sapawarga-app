@@ -27,285 +27,36 @@ spec:
               port: 80
             initialDelaySeconds: 15
             periodSeconds: 20
-          env:
-            - name: APP_STORAGE_LOCAL_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: APP_STORAGE_LOCAL_URL
-            - name: APP_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: APP_VERSION
-
-            # mysql host master
-            - name: MYSQL_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_HOST
-
-            - name: MYSQL_HOST_SLAVE_1
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_HOST_SLAVE_1
-
-            - name: MYSQL_HOST_SLAVE_2
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_HOST_SLAVE_2
-
-            - name: MYSQL_HOST_SLAVE_3
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_HOST_SLAVE_3
-
-            - name: MYSQL_HOST_DTKS
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_HOST_DTKS
-
-            # mysql credentials
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MYSQL_USER
-
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MYSQL_PASSWORD
-
-            - name: MYSQL_USER_SLAVE
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MYSQL_USER_SLAVE
-
-            - name: MYSQL_PASSWORD_SLAVE
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MYSQL_PASSWORD_SLAVE
-
-            - name: MYSQL_USER_DTKS
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MYSQL_USER_DTKS
-
-            - name: MYSQL_PASSWORD_DTKS
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MYSQL_PASSWORD_DTKS
-
-            # mysql database name
-            - name: MYSQL_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_DATABASE
-
-            - name: MYSQL_DATABASE_DTKS
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MYSQL_DATABASE_DTKS
-
-            # others
-            - name: FCM_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: FCM_KEY
-
-            - name: COOKIE_VALIDATION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: COOKIE_VALIDATION_KEY
-
-            - name: MAILER_USER
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MAILER_USER
-
-            - name: MAILER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MAILER_PASSWORD
-
-            - name: MAILER_ENCRYPTION
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: MAILER_ENCRYPTION
-
-            - name: APP_STORAGE_S3_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: APP_STORAGE_S3_KEY
-
-            - name: APP_STORAGE_S3_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: sapawarga-backend-secret
-                  key: APP_STORAGE_S3_SECRET
-
-            - name: ERROR_REPORT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: ERROR_REPORT
-
-            - name: ERROR_ENVIRONMENT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: ERROR_ENVIRONMENT
-
-            - name: SENTRY_DSN
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: SENTRY_DSN
-
-            - name: FRONTEND_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: FRONTEND_URL
-
-            - name: KEPENDUDUKAN_API_BASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: KEPENDUDUKAN_API_BASE_URL
-
-            - name: KEPENDUDUKAN_API_KEY
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: KEPENDUDUKAN_API_KEY
-
-            - name: BANSOS_PROCESS_EXCEL_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: BANSOS_PROCESS_EXCEL_URL
-
-            # mailer
-            - name: MAILER_TRANSPORT_FILE
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MAILER_TRANSPORT_FILE
-
-            - name: MAILER_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MAILER_HOST
-
-            - name: MAILER_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MAILER_PORT
-
-            - name: MAILER_FROM_EMAIL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MAILER_FROM_EMAIL
-
-            - name: MAILER_FROM_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: MAILER_FROM_NAME
-
-            # storage
-            - name: APP_STORAGE_S3_BUCKET
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: APP_STORAGE_S3_BUCKET
-
-            - name: APP_STORAGE_FS
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: APP_STORAGE_FS
-
-            - name: APP_STORAGE_PUBLIC_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: APP_STORAGE_PUBLIC_URL
-
-            - name: APP_STORAGE_S3_BUCKET_REGION
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: APP_STORAGE_S3_BUCKET_REGION
-
-            - name: S3_FOLDER_INVALID
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: S3_FOLDER_INVALID
-
-            - name: S3_FOLDER_INVALID_VERVAL
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: S3_FOLDER_INVALID_VERVAL
-
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: REDIS_HOST
-
-            - name: REDIS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: REDIS_PORT
-
-            - name: REDIS_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: REDIS_DB
-
-            - name: REDIS_HOST_SLAVE_1
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: REDIS_HOST_SLAVE_1
-
+          envFrom:
+            - configMapRef:
+                name: sapawarga-backend-config-env
+            - secretRef:
+                name: sapawarga-backend-secret
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "1024Mi"
+              cpu: "250m"
       imagePullSecrets:
         - name: regcred
       affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
               matchExpressions:
-              - key: app
+              - key: failure-domain.beta.kubernetes.io/zone
                 operator: In
                 values:
-                - sapawarga-api
-            topologyKey: "kubernetes.io/hostname"
+                - ap-southeast-1a
+                - ap-southeast-1b
+                - ap-southeast-1c
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: alpha.eksctl.io/nodegroup-name
+                operator: In
+                values:
+                - node-sapawarga-api-autoscale
