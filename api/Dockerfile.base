@@ -37,14 +37,10 @@ RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
         libpng \
         libltdl \
         libxml2 \
-        mysql-client \
-        libmemcached-dev && \
+        mysql-client && \
     export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS" && \
-    pecl install \
-        apcu \
-        memcached && \
+    pecl install apcu && \
     docker-php-ext-enable apcu && \
-    docker-php-ext-enable memcached && \
     docker-php-ext-configure gd \
         --with-gd \
         --with-freetype-dir=/usr/include/ \
