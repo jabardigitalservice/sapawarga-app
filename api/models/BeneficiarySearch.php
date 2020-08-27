@@ -55,23 +55,23 @@ class BeneficiarySearch extends Beneficiary
 
         // Filtering
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'name', Arr::get($params, 'name')]);
+        $query->andFilterWhere(['like', 'name', Arr::get($params, 'name') . '%', false]);
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
         $query->andFilterWhere(['kabkota_id' => Arr::get($params, 'kabkota_id')]);
         $query->andFilterWhere(['kec_id' => Arr::get($params, 'kec_id')]);
         $query->andFilterWhere(['kel_id' => Arr::get($params, 'kel_id')]);
         $query->andFilterWhere(['rw' => ltrim(Arr::get($params, 'rw'), '0')]);
         $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
-        $query->andFilterWhere(['like', 'rw', Arr::get($params, 'rw_like')]);
-        $query->andFilterWhere(['like', 'rt', Arr::get($params, 'rt_like')]);
+        $query->andFilterWhere(['like', 'rw', Arr::get($params, 'rw_like') . '%', false]);
+        $query->andFilterWhere(['like', 'rt', Arr::get($params, 'rt_like') . '%', false]);
 
         $query->andFilterWhere(['domicile_kabkota_bps_id' => Arr::get($params, 'domicile_kabkota_bps_id')]);
         $query->andFilterWhere(['domicile_kec_bps_id' => Arr::get($params, 'domicile_kec_bps_id')]);
         $query->andFilterWhere(['domicile_kel_bps_id' => Arr::get($params, 'domicile_kel_bps_id')]);
         $query->andFilterWhere(['domicile_rt' => ltrim(Arr::get($params, 'domicile_rt'), '0')]);
         $query->andFilterWhere(['domicile_rw' => ltrim(Arr::get($params, 'domicile_rw'), '0')]);
-        $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like')]);
-        $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like')]);
+        $query->andFilterWhere(['like', 'domicile_rt', Arr::get($params, 'domicile_rt_like') . '%', false]);
+        $query->andFilterWhere(['like', 'domicile_rw', Arr::get($params, 'domicile_rw_like') . '%', false]);
 
         // Handle status_verification filtering based on scenario
         if ($this->scenario === self::SCENARIO_LIST_STAFF || $this->scenario === self::SCENARIO_LIST_USER) {
