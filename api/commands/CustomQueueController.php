@@ -45,13 +45,13 @@ class CustomQueue extends BaseDbQueue
 
             if (!$payload) {
                 $this->mutex->release(__CLASS__ . $this->channel);
-                throw new Exception("Queue job not found");
+                throw new Exception('Queue job not found');
             }
 
             if (is_array($payload)) {
                 if (!empty($payload['reserved_at'])) {
                     $this->mutex->release(__CLASS__ . $this->channel);
-                    throw new Exception('Queue job '.$payload['id'].' already running');
+                    throw new Exception('Queue job ' . $payload['id'] . ' already running');
                 }
 
                 try {
@@ -59,7 +59,7 @@ class CustomQueue extends BaseDbQueue
                     //$this->moveExpired();
 
                     // Reserve one message
-                    echo 'Reserving job id '. $payload['id'] . PHP_EOL;
+                    echo 'Reserving job id ' . $payload['id'] . PHP_EOL;
                     $payload['reserved_at'] = time();
                     $payload['attempt'] = (int) $payload['attempt'] + 1;
                     $this->db->createCommand()->update($this->tableName, [
@@ -76,7 +76,6 @@ class CustomQueue extends BaseDbQueue
                 } finally {
                     $this->mutex->release(__CLASS__ . $this->channel);
                 }
-
             }
 
             return $payload;
@@ -102,7 +101,6 @@ class CustomQueue extends BaseDbQueue
             }
         }
     }
-
 }
 
 class CustomQueueController extends Controller
@@ -167,7 +165,7 @@ class CustomQueueController extends Controller
      * @param int $limit number of job to be run. set to 0 for infinitely looping
      * @param int $delay number of seconds between each loop
      */
-    public function actionRunByType($jobType=null, $limit=1, $delay=3)
+    public function actionRunByType($jobType = null, $limit = 1, $delay = 3)
     {
         if (empty($jobType)) {
             throw new Exception('job_type parameter is required');
@@ -189,16 +187,15 @@ class CustomQueueController extends Controller
 
             try {
                 $this->runSingle($query);
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 echo "Error: {$e->getMessage()}\n";
             }
 
             $step--;
 
             if ($step) {
-              sleep($delay);
+                sleep($delay);
             }
         }
     }
-
 }
