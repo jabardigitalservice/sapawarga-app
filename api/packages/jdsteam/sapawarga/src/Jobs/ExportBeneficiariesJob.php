@@ -20,6 +20,15 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
     public $userId;
 
+    public function getStatusLabel($status) {
+        if (isset(Beneficiary::STATUS_VERIFICATION_LABEL[$status])) {
+            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
+        } else {
+            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[Beneficiary::STATUS_PENDING];
+        }
+        return Yii::t('app', $localizationKey);
+    }
+
     public function execute($queue)
     {
         $this->jobHistoryClassName = 'app\models\BansosBeneficiariesDownloadHistory';
@@ -36,14 +45,6 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         $columnHeaders[count($columnHeaders)-1] = 'Status Verifikasi';
 
         Yii::$app->language = 'id-ID';
-        function getStatusLabel($status) {
-            if (isset(Beneficiary::STATUS_VERIFICATION_LABEL[$status])) {
-                $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
-            } else {
-                $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[Beneficiary::STATUS_PENDING];
-            }
-            return Yii::t('app', $localizationKey);
-        }
 
         $query = $jobHistory->getQuery();
         $row_numbers = $jobHistory->total_row;
@@ -81,7 +82,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         {
             $listBnba = array_map(function ($item) {
                 $item['keterangan'] = null;
-                $item['status_verifikasi'] = getStatusLabel($item['status_verifikasi']);
+                $item['status_verifikasi'] = $this->getStatusLabel($item['status_verifikasi']);
                 return $item;
             }, $listBnba);
 
@@ -106,7 +107,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
         // upload to S3 & send notification email
         $relativePath = "export-beneficiaries-list/$fileName";
-        Yii::$app->queue->priority(10)->push(new UploadS3Job([
+        $uploadJob = new UploadS3Job([
             'jobHistoryClassName' => $this->jobHistoryClassName,
             'relativePath' => $relativePath,
             'filePathTemp' => $filePathTemp,
@@ -116,7 +117,8 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
                 'template' => ['html' => 'email-result-export-list-beneficiaries'],
                 'subject' => 'Notifikasi dari Sapawarga: Hasil export Daftar Calon Penerima Bantuan sudah bisa diunduh!',
             ],
-        ]));
+        ]);
+        $uploadJob->execute(Yii::$app->queue);
 
     }
 

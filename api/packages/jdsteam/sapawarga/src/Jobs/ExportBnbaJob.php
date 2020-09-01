@@ -119,7 +119,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         // upload to S3 & send notification email
         $relativePath = "export-bnba-list/$fileName";
-        Yii::$app->queue->priority(10)->push(new UploadS3Job([
+        $uploadJob = new UploadS3Job([
             'jobHistoryClassName' => 'app\models\BansosBnbaDownloadHistory',
             'relativePath' => $relativePath,
             'filePathTemp' => $filePathTemp,
@@ -129,8 +129,8 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
                 'template' => ['html' => 'email-result-export-list-bnba'],
                 'subject' => 'Notifikasi dari Sapawarga: Hasil export daftar BNBA sudah bisa diunduh!',
             ],
-        ]));
-
+        ]);
+        $uploadJob->execute(Yii::$app->queue);
     }
 
     /**
