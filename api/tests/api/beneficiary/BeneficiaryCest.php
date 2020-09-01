@@ -8,7 +8,6 @@ class BeneficiaryCest
     private $kabkotaBandung = '3273';
     private $kecBandung = '3273230';
     private $kelBandung = '3273230006';
-    private $kelBandung2 = '3273230005';
     private $kelBekasi = '3275012003';
 
     protected function loadData(ApiTester $I)
