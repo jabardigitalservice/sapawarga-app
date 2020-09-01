@@ -294,37 +294,4 @@ class BeneficiaryCest
             'tahap_3_verval' => Beneficiary::STATUS_APPROVED_KEL,
         ]);
     }
-
-    /**
-     * @before loadDataByTahap
-     */
-    public function postStaffKelAutoAreaName(ApiTester $I)
-    {
-        $I->haveInDatabase('beneficiaries_current_tahap', [
-            'id' => 1,
-            'current_tahap_verval' => 3,
-            'current_tahap_bnba' => 2,
-        ]);
-
-        $I->amStaff('staffkel');
-
-        $data = [
-            'domicile_kel_bps_id' => $this->kelBandung2,
-        ];
-
-        $I->sendPUT("{$this->endpointBeneficiaries}/1", $data);
-        $I->canSeeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-
-        $I->seeResponseContainsJson([
-            'success' => true,
-            'status'  => 200,
-        ]);
-
-        $I->seeInDatabase('beneficiaries', [
-            'id' => 1,
-            'domicile_kel_bps_id' => $this->kelBandung2,
-            'domicile_kel_name' => 'SEKELOA'
-        ]);
-    }
 }
