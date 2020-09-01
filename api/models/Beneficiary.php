@@ -24,6 +24,9 @@ use Illuminate\Support\Collection;
  * @property string $domicile_kabkota_bps_id
  * @property string $domicile_kec_bps_id
  * @property string $domicile_kel_bps_id
+ * @property string $domicile_kabkota_name
+ * @property string $domicile_kec_name
+ * @property string $domicile_kel_name
  * @property string $domicile_rt
  * @property string $domicile_rw
  * @property string $domicile_address
@@ -296,9 +299,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'domicile_kabkota_bps_id',
             'domicile_kec_bps_id',
             'domicile_kel_bps_id',
-            'domicile_kabkota_name' => 'DomicileKabkotaField',
-            'domicile_kec_name' => 'DomicileKecField',
-            'domicile_kel_name' => 'DomicileKelField',
+            'domicile_kabkota_name',
+            'domicile_kec_name',
+            'domicile_kel_name',
             'domicile_rt',
             'domicile_rw',
             'domicile_address',
