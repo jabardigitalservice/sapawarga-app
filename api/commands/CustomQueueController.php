@@ -139,7 +139,7 @@ class CustomQueueController extends Controller
             $queueId =  $this->queue_id;
         } elseif (!empty($this->queue_details_id)) {
             $queue_details = (new Query())
-                ->select(['logs->"$.job_id" as job_id'])
+                ->select(['JSON_UNQUOTE(JSON_EXTRACT(logs, "$.job_id")) as job_id'])
                 ->from('queue_details')
                 ->where(['id' => $this->queue_details_id ])
                 ->one();
