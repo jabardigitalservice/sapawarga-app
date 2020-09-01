@@ -107,7 +107,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
         // upload to S3 & send notification email
         $relativePath = "export-beneficiaries-list/$fileName";
-        Yii::$app->queue->priority(10)->push(new UploadS3Job([
+        $uploadJob = new UploadS3Job([
             'jobHistoryClassName' => $this->jobHistoryClassName,
             'relativePath' => $relativePath,
             'filePathTemp' => $filePathTemp,
@@ -117,7 +117,8 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
                 'template' => ['html' => 'email-result-export-list-beneficiaries'],
                 'subject' => 'Notifikasi dari Sapawarga: Hasil export Daftar Calon Penerima Bantuan sudah bisa diunduh!',
             ],
-        ]));
+        ]);
+        $uploadJob->execute(Yii::$app->queue);
 
     }
 
