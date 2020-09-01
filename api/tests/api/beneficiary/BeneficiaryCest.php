@@ -8,6 +8,7 @@ class BeneficiaryCest
     private $kabkotaBandung = '3273';
     private $kecBandung = '3273230';
     private $kelBandung = '3273230006';
+    private $kelBandung2 = '3273230005';
     private $kelBekasi = '3275012003';
 
     protected function loadData(ApiTester $I)
@@ -291,6 +292,39 @@ class BeneficiaryCest
             'id' => 1,
             'status_verification' => Beneficiary::STATUS_APPROVED_KEL,
             'tahap_3_verval' => Beneficiary::STATUS_APPROVED_KEL,
+        ]);
+    }
+
+    /**
+     * @before loadDataByTahap
+     */
+    public function postStaffKelAutoAreaName(ApiTester $I)
+    {
+        $I->haveInDatabase('beneficiaries_current_tahap', [
+            'id' => 1,
+            'current_tahap_verval' => 3,
+            'current_tahap_bnba' => 2,
+        ]);
+
+        $I->amStaff('staffkel');
+
+        $data = [
+            'domicile_kel_bps_id' => $this->kelBandung2,
+        ];
+
+        $I->sendPUT("{$this->endpointBeneficiaries}/1", $data);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('beneficiaries', [
+            'id' => 1,
+            'domicile_kel_bps_id' => $this->kelBandung2,
+            'domicile_kel_name' => 'SEKELOA'
         ]);
     }
 }
