@@ -30,6 +30,16 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
         return 'beneficiaries_bnba_monitoring_uploads';
     }
 
+    public function rules()
+    {
+        return [
+            [
+                ['code_bps', 'kabkota_name', 'tahap_bantuan', 'is_dtks', 'last_updated'],
+                'trim'
+            ],
+        ];
+    }
+
     /** @inheritdoc */
     public function behaviors()
     {
