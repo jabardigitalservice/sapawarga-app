@@ -468,6 +468,12 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-bnba-monitoring-upload',
+        'pluralize' => true,
+    ],
+
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-complain',
         'pluralize' => false,
         'tokens' => [
