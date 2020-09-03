@@ -23,8 +23,6 @@ class BeneficiaryBnbaMonitoringUploadSearch extends BeneficiaryBnbaMonitoringUpl
         $query = BeneficiaryBnbaMonitoringUpload::find();
 
         // Filtering
-        // $query->where(['or', ['last_updated' => null], ['last_updated' => 0] ]);
-
         $query->andFilterWhere(['id' => $this->id]);
         $query->andFilterWhere(['code_bps' => Arr::get($params, 'code_bps')]);
         $query->andFilterWhere(['kabkota_name' => Arr::get($params, 'kabkota_name')]);
