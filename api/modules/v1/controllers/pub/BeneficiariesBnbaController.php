@@ -9,8 +9,11 @@ use Yii;
 use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\base\DynamicModel;
 use yii\web\NotFoundHttpException;
 use Illuminate\Support\Collection;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use app\modules\v1\controllers\ActiveController as ActiveController;
 
 /**
@@ -33,7 +36,7 @@ class BeneficiariesBnbaController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update'
+            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging'
         ];
 
         // setup access
@@ -43,7 +46,7 @@ class BeneficiariesBnbaController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update'],
+                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging'],
                     'roles' => ['?'],
                 ]
             ],
@@ -325,5 +328,41 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         return $rowsArea;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionFlagging()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $nik = Arr::get($params, 'nik');
+        $tahap = Arr::get($params, 'tahap');
+
+        $nikModel = new DynamicModel(['nik' => $nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+
+        if ($nikModel->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $nikModel->getErrors();
+        }
+
+        $client = new Client(['base_uri' => getenv('BANSOS_API_BASE_URL')]);
+        $response = $client->get('non_dtks/flagging/rts', [
+            'query' => [
+                'api_key' => getenv('BANSOS_API_KEY'),
+                'nik' => $nik,
+            ]
+        ]);
+
+        $response = json_decode($response->getBody(), true);
+
+        return $response['data'];
     }
 }

@@ -525,6 +525,8 @@ return [
             'OPTIONS statistics-by-area' => 'options',
             'GET statistics-update' => 'statistics-update',
             'OPTIONS statistics-update' => 'options',
+            'GET flagging' => 'flagging',
+            'OPTIONS flagging' => 'options',
         ]
     ],
     [
