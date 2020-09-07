@@ -28,11 +28,11 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'download'],
+            'only' => ['index', 'update-data'],
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index'],
+                    'actions' => ['index', 'update-data'],
                     'roles' => ['admin', 'staffProv'],
                 ],
             ],
@@ -62,4 +62,11 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
 
         return $search->search($params);
     }
+
+    public function actionUpdateData()
+    {
+        BeneficiaryBnbaMonitoringUpload::updateData();
+        return 'success';
+    }
+
 }

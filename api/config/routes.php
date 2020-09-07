@@ -470,6 +470,9 @@ return [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-bnba-monitoring-upload',
         'pluralize' => true,
+        'extraPatterns' => [
+            'GET update-data' => 'update-data',
+        ],
     ],
 
     [
