@@ -7,6 +7,7 @@ use app\models\BansosBnbaUploadHistory;
 use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
+use app\models\BeneficiaryBnbaMonitoringUpload;
 use Yii;
 use yii\db\Query;
 use yii\base\DynamicModel;
@@ -401,6 +402,19 @@ SQL;
             $finalRows = array_filter($finalRows, function ($item) use ($bansosType) {
                 return in_array($item['type'], $bansosType);
             });
+        }
+
+        // store to cache
+        foreach ($finalRows as $row) {
+            BeneficiaryBnbaMonitoringUpload::updateAll(
+                //set
+                ['last_updated' => $row['last_update'] ],
+                //where
+                [
+                    'code_bps' => $row['code_bps'],
+                    'is_dtks' => ($row['type'] == 'dtks'),
+                ]
+            );
         }
 
         $pageLimit = Arr::get($params, 'limit', 10);
