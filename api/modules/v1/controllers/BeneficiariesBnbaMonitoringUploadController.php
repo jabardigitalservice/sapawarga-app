@@ -25,6 +25,10 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
 
     protected function behaviorAccess($behaviors)
     {
+        $behaviors['authenticator']['except'] = [
+            'update-data'
+        ];
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
@@ -32,9 +36,14 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'update-data'],
+                    'actions' => ['index'],
                     'roles' => ['admin', 'staffProv'],
                 ],
+                [
+                    'allow' => true,
+                    'actions' => ['update-data'],
+                    'roles' => ['?'],
+                ]
             ],
         ];
 
