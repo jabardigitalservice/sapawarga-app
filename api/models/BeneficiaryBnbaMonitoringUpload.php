@@ -85,7 +85,9 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
                 AND tahap_bantuan = :tahap_bantuan
               GROUP BY is_dtks_final, kode_kab
               ) as monitoring_list
-            LEFT JOIN areas ON areas.code_bps = kode_kab
+            LEFT JOIN areas ON 
+              areas.code_bps = kode_kab
+              AND areas.depth = 2 # only kabkota level
             ;
 SQL;
         $query = Yii::$app->db
