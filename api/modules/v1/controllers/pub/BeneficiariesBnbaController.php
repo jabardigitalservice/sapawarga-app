@@ -358,6 +358,7 @@ class BeneficiariesBnbaController extends ActiveController
             'query' => [
                 'api_key' => getenv('BANSOS_API_KEY'),
                 'nik' => $nik,
+                'tahap' => $tahap,
             ]
         ]);
 
