@@ -54,17 +54,8 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
         ];
     }
 
-    static function updateData()
+    static function updateData($tahapBantuan=null, $kode_kab = null)
     {
-        $tahapBantuan = null;
-        $data = (new \yii\db\Query())
-            ->from('beneficiaries_current_tahap')
-            ->all();
-
-        if (count($data)) {
-            $tahapBantuan = $data[0]['current_tahap_bnba'];
-        }
-
         $rawQuery = <<<SQL
             SELECT
               areas.name,
@@ -83,6 +74,7 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
               WHERE
                 (is_deleted <> 1 OR is_deleted IS NULL)
                 AND tahap_bantuan = :tahap_bantuan
+                %s #additional query to be inserted if required
               GROUP BY is_dtks_final, kode_kab
               ) as monitoring_list
             LEFT JOIN areas ON 
@@ -90,8 +82,29 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
               AND areas.depth = 2 # only kabkota level
             ;
 SQL;
+
+        if ($tahapBantuan == null) {
+            $data = (new \yii\db\Query())
+                ->from('beneficiaries_current_tahap')
+                ->all();
+
+            if (count($data)) {
+                $tahapBantuan = $data[0]['current_tahap_bnba'];
+            }
+        }
+
+        $queryParams = [':tahap_bantuan' => $tahapBantuan];
+        $aditionalWhere = '';
+
+        if ($kode_kab != null) {
+            $aditionalWhere = 'AND kode_kab = :kode_kab';
+            $queryParams[':kode_kab'] = $kode_kab;
+        }
+
+        $rawQuery = sprintf($rawQuery, $aditionalWhere);
+
         $query = Yii::$app->db
-            ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan]);
+            ->createCommand($rawQuery, $queryParams);
 
         $rows = $query->queryAll();
 
