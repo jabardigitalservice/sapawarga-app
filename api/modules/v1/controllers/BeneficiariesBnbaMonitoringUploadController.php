@@ -76,8 +76,8 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
 
-        $tahap_bantuan = (isset($params['tahap_bantuan'])) ? $params['tahap_bantuan'] : null;
-        $kode_kab = (isset($params['kode_kab'])) ? $params['kode_kab'] : null;
+        $tahap_bantuan = $params['tahap_bantuan'] ?? null;
+        $kode_kab = $params['kode_kab'] ?? null;
 
         BeneficiaryBnbaMonitoringUpload::updateData($tahap_bantuan, $kode_kab);
         return 'success';
