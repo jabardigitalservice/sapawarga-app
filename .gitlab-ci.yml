@@ -216,7 +216,6 @@ deploy_staging_jabarcloud:
 
      # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment-staging.yaml
-    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment-staging.yaml
      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
      # version queue jobs import #
