@@ -25,16 +25,25 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
 
     protected function behaviorAccess($behaviors)
     {
+        $behaviors['authenticator']['except'] = [
+            'update-data'
+        ];
+
         // setup access
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['index', 'download'],
+            'only' => ['index', 'update-data'],
             'rules' => [
                 [
                     'allow' => true,
                     'actions' => ['index'],
                     'roles' => ['admin', 'staffProv'],
                 ],
+                [
+                    'allow' => true,
+                    'actions' => ['update-data'],
+                    'roles' => ['?'],
+                ]
             ],
         ];
 
@@ -62,4 +71,16 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
 
         return $search->search($params);
     }
+
+    public function actionUpdateData()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $tahap_bantuan = $params['tahap_bantuan'] ?? null;
+        $kode_kab = $params['kode_kab'] ?? null;
+
+        BeneficiaryBnbaMonitoringUpload::updateData($tahap_bantuan, $kode_kab);
+        return 'success';
+    }
+
 }
