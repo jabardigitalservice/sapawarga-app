@@ -44,22 +44,6 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: COOKIE_VALIDATION_KEY
-            - name: CACHE_USE_MEMCACHED
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_USE_MEMCACHED
-            - name: CACHE_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_SERVERS
-            - name: CACHE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: sapawarga-backend-config-env
-                  key: CACHE_PORT
-
             - name: APP_STORAGE_S3_KEY
               valueFrom:
                 secretKeyRef:
@@ -126,7 +110,7 @@ spec:
                 configMapKeyRef:
                   name: sapawarga-backend-config-env
                   key: MAILER_FROM_NAME
-                  
+
             - name: MAILER_USER
               valueFrom:
                 secretKeyRef:
@@ -144,9 +128,7 @@ spec:
                 secretKeyRef:
                   name: sapawarga-backend-secret
                   key: MAILER_ENCRYPTION
-            
 
-            
       imagePullSecrets:
         - name: regcred
       restartPolicy: OnFailure

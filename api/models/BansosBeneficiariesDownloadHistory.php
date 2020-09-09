@@ -2,9 +2,11 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Json;
 use yii\db\Query;
+use Jdsteam\Sapawarga\Jobs\ExportBeneficiariesJob;
 
 /**
  * This is the model class for table "bansos_bnba_download_histories".
@@ -13,6 +15,8 @@ use yii\db\Query;
  */
 class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
 {
+    const TYPE_VERVAL = 'verval'; // original ExportBnba job type
+
     public $columns = [
         'id' => 'beneficiaries.id',
         'kode_kab' => 'beneficiaries.domicile_kabkota_bps_id',
@@ -37,14 +41,6 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
         'status_verifikasi' => 'beneficiaries.status_verification',
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'bansos_verval_download_histories';
-    }
-
     /** Count affected rows in this queue job
      *
      * @return int Number of affected rows
@@ -57,7 +53,8 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
           ->leftJoin('areas a', 'beneficiaries.domicile_kabkota_bps_id = a.code_bps')
           ->leftJoin('areas a2', 'beneficiaries.domicile_kec_bps_id = a2.code_bps')
           ->leftJoin('areas a3', 'beneficiaries.domicile_kel_bps_id = a3.code_bps')
-          ->where($this->params)
+          ->where(['beneficiaries.status' => Beneficiary::STATUS_ACTIVE])
+          ->andWhere($this->params)
           ;
     }
 
@@ -67,7 +64,25 @@ class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
     public function countAffectedRows()
     {
         return Beneficiary::find()
-          ->where($this->params)
+          ->where(['status' => Beneficiary::STATUS_ACTIVE])
+          ->andWhere($this->params)
           ->count();
+    }
+
+    /** Start Export Verval Job according to type
+     *
+     * @return None
+     */
+    public function startJob()
+    {
+        $job_id = Yii::$app->queue->push(new ExportBeneficiariesJob([
+            'userId' => $this->user_id,
+            'historyId' => $this->id,
+        ]));
+
+        $logs = ($this->logs) ?: [];
+        $logs['job_id'] = $job_id;
+        $this->logs = $logs;
+        $this->save();
     }
 }

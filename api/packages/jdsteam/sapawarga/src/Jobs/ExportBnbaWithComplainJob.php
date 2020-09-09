@@ -19,52 +19,9 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
     use HasJobHistory;
 
     public $userId;
-
-    public function execute($queue)
+    static function getColumns()
     {
-        \Yii::$app->language = 'id-ID';
-
-        $this->jobHistoryClassName = 'app\models\BansosBnbaDownloadHistory';
-        $jobHistory = $this->jobHistory;
-        $jobHistory->start_at = time();
-        $jobHistory->save();
-
-        // size of query batch size used during database retrieval
-        $batchSize = 1000;
-        echo "Params: ";
-        print_r($jobHistory->params);
-
-        // #### QUERY CONSTRUCTION
-        $subquery = $jobHistory->getQuery();
-
-        $joinedQuery = (new \yii\db\Query())
-            ->select([
-                'bnba.*',
-                'sapawarga_rw' => "GROUP_CONCAT(DISTINCT (IF(bnba_com.nik='1' ,bnba_com.notes_reason,NULL)))",
-                'solidaritas' => "GROUP_CONCAT(DISTINCT IF(bnba_com.nik<>'1' ,bnba_com.notes_reason,NULL))",
-            ])
-            ->from(['bnba' => $subquery])
-            ->leftJoin(['bnba_com' => 'beneficiaries_complain'], 'bnba_com.beneficiaries_id = bnba.id')
-            ->groupBy(['bnba.id'])
-            ;
-
-        $rowNumbers = $jobHistory->row_count;
-        echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
-
-        echo "Starting generating BNBA list with complain columns export\n" ;
-
-        /* Generate export file using box/spout library.
-         * ref: https://opensource.box.com/spout/getting-started/#writer */
-        $writer = WriterEntityFactory::createXLSXWriter();
-
-        // Initial varieble location, filename, path
-        $now_date = date('Y-m-d-H-i-s');
-        $fileName = "export-bnba-with-complain-$now_date.xlsx";
-        $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
-
-        $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
-
-        $columns = [
+        return [
             'id',
             'kode_kab',
             'kode_kec',
@@ -86,10 +43,52 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
             'penghasilan_setelah_covid',
             'keterangan',
         ];
-        $column_headers = array_merge($columns, ['Pintu Bantuan', 'Aduan RW', 'Aduan Solidaritas', 'Layak Dapat Bantuan']);
+    }
+
+    static function getColumnHeaders()
+    {
+        return array_merge(self::getColumns(), [
+            'Pintu Bantuan',
+            'Aduan RW',
+            'Aduan Solidaritas',
+            'Layak Dapat Bantuan',
+        ]);
+    }
+
+    public function execute($queue)
+    {
+        \Yii::$app->language = 'id-ID';
+
+        $this->jobHistoryClassName = 'app\models\BansosBnbaDownloadHistory';
+        $jobHistory = $this->jobHistory;
+        $jobHistory->setStart();
+
+        // size of query batch size used during database retrieval
+        $batchSize = 1000;
+        echo "Params: ";
+        print_r($jobHistory->params);
+
+        // #### QUERY CONSTRUCTION
+        $query = $jobHistory->getQuery();
+
+        $rowNumbers = $jobHistory->total_row;
+        echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
+
+        echo "Starting generating BNBA list with complain columns export\n" ;
+
+        /* Generate export file using box/spout library.
+         * ref: https://opensource.box.com/spout/getting-started/#writer */
+        $writer = WriterEntityFactory::createXLSXWriter();
+
+        // Initial varieble location, filename, path
+        $now_date = date('Y-m-d-H-i-s');
+        $fileName = "export-bnba-with-complain-$now_date.xlsx";
+        $filePathTemp = Yii::getAlias('@app/web') . '/storage/' . $fileName;
+
+        $writer->openToFile($filePathTemp); // write data to a file or to a PHP stream
 
         /** Shortcut: add a row from an array of values */
-        $rowFromValues = WriterEntityFactory::createRowFromArray($column_headers);
+        $rowFromValues = WriterEntityFactory::createRowFromArray(self::getColumnHeaders());
         $writer->addRow($rowFromValues);
 
         // create unbuffered database connection to avoid MySQL batching limitation
@@ -105,18 +104,18 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $numProcessed = 0;
         $dummyBnbaModel = new BeneficiaryBnbaTahapSatu();
-        foreach ($joinedQuery->batch($batchSize, $unbufferedDb) as $listBnba)
+        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba)
         {
             foreach ($listBnba as $row) {
                 $result = [];
                 $dummyBnbaModel->id_tipe_bansos = $row['id_tipe_bansos'];
 
-                foreach ($columns as $key) {
+                foreach (self::getColumns() as $key) {
                     $result[$key] = $row[$key];
                 }
                 $result['bansostype'] = $dummyBnbaModel->bansostype;
-                $result['sapawarga_rw'] = $row['sapawarga_rw'];
-                $result['solidaritas'] = $row['solidaritas'];
+                $result['sapawarga_rw'] = '';
+                $result['solidaritas'] = '';
                 $result['layak_bantuan'] = 'Ya';
 
                 $rowFromValues = WriterEntityFactory::createRowFromArray($result);
@@ -126,16 +125,14 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
             $numProcessed += count($listBnba);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
 
-            $jobHistory->row_processed = $numProcessed;
+            $jobHistory->processed_row = $numProcessed;
             $jobHistory->save();
         }
 
         $writer->close();
         $unbufferedDb->close();
 
-        $jobHistory->row_processed = $jobHistory->row_count;
-        $jobHistory->done_at = time();
-        $jobHistory->save();
+        $jobHistory->setFinish();
 
         echo "Finished generating export file" . PHP_EOL;
 

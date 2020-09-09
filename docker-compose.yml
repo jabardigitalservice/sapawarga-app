@@ -25,7 +25,7 @@ services:
 
 
   redis:
-    image: redis:6.0.5-alpine 
+    image: redis:6.0.5-alpine
     restart: on-failure
     networks:
       - jds-dev-network
@@ -36,7 +36,7 @@ services:
          limits:
            cpus: '0.1'
            memory: 128M
-    
+
   database:
     build:
       context: ./database
@@ -54,16 +54,6 @@ services:
          limits:
            cpus: '0.25'
            memory: 256M
-
-  memcached:
-    image: memcached:latest
-    networks:
-      -  jds-dev-network
-    deploy:
-       resources:
-         limits:
-           cpus: '0.1'
-           memory: 64M
 
 networks:
   jds-dev-network:

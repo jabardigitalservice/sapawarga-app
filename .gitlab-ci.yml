@@ -223,23 +223,15 @@ deploy_staging_eks:
      # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
         -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
         -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
     - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
@@ -290,7 +282,7 @@ deploy_prod_eks:
     - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
 
-    
+
 
     # mysql replica production #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
@@ -336,23 +328,15 @@ deploy_prod_eks:
     # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
         -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
         -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
     - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
