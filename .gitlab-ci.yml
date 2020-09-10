@@ -132,9 +132,9 @@ deploy_staging_aws:
     - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
 
 
-deploy_staging_eks:
+deploy_staging_jabarcloud:
   stage: deploy_staging
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.3.1
   environment:
     name: staging
   only:
@@ -143,12 +143,11 @@ deploy_staging_eks:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
-    - kubectl config set-cluster k8s --server="${EKS_SERVER_V2}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA_V2}
-    - kubectl config set-credentials gitlab-eks-admin-development --token="${EKS_TOKEN_V2}"
-    - kubectl config set-context default --cluster=k8s --user=gitlab-eks-admin-development
-    - kubectl config use-context default
-    - kubectl cluster-info
+    - echo $kube_config | base64 -d > kubeconfig
+    - export KUBECONFIG=./kubeconfig
+    - echo $cert_key | base64 -d > client.key
+    - kubectl config set-credentials gitlab --client-key=client.key --embed-certs=true
+    - kubectl config set-cluster $cluster_name --insecure-skip-tls-verify=true
   script:
     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
@@ -216,26 +215,21 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
      # version deployment #
-    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
-    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment-staging.yaml
      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
      # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-variables.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
     - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
-    - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
     - kubectl apply -f kubernetes/backend-queue-import-job.yaml
 
