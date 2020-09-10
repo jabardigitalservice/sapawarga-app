@@ -196,6 +196,10 @@ deploy_staging_jabarcloud:
     - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
 
+    # Bansos API STAGING
+    - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
+
     # Mailer STAGING #
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
@@ -276,6 +280,9 @@ deploy_prod_eks:
     - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
 
+    # Bansos API Production
+    - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
 
 
     # mysql replica production #
