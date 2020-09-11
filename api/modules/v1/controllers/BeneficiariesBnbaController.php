@@ -16,7 +16,8 @@ use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use Illuminate\Support\Arr;
-use Jdsteam\Sapawarga\Jobs\ExportBnbaJob;
+use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
  * BeneficiariesBnbaTahapSatuController implements the CRUD actions for BeneficiaryBnbaTahapSatu model.
@@ -122,19 +123,39 @@ class BeneficiariesBnbaController extends ActiveController
         $filesystem = Yii::$app->fs;
         $kabkotaId  = $user->identity->kabkota_id;
         $file = UploadedFile::getInstanceByName('file');
+        $uploadStatus = BansosBnbaUploadHistory::STATUS_SUCCESS;
 
+        // VALIDATIONS
         $model = new DynamicModel(['file' => $file]);
 
         $model->addRule('file', 'required');
         $model->addRule('file', 'file', ['extensions' => 'xlsx, xls', 'checkExtensionByMimeType' => false]);
-
         if ($model->validate() === false) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(422);
-
             return $model->getErrors();
         }
 
+        // validate file's header row
+        $reader = ReaderEntityFactory::createXLSXReader();
+        $reader->open($file->tempName);
+
+        foreach ($reader->getSheetIterator() as $sheet) {
+            // only read data from first sheet
+            foreach ($sheet->getRowIterator() as $row) {
+                // read header row
+                $row_array = $row->toArray();
+                if ($row_array != ExportBnbaWithComplainJob::getColumnHeaders()) {
+                    $uploadStatus = BansosBnbaUploadHistory::STATUS_TEMPLATE_MISMATCH;
+                }
+                break;
+            }
+            break; // no need to read more sheets
+        }
+
+        $reader->close();
+
+        // upload and store file
         $kabkota   = Area::findOne(['id' => $kabkotaId]);
         $code      = $kabkota->code_bps;
         $ext          = $file->getExtension();
@@ -152,7 +173,7 @@ class BeneficiariesBnbaController extends ActiveController
             'original_filename' => $file->name,
             'final_url' => $publicUrl,
             'timestamp' => time(),
-            'status' => 1,
+            'status' => $uploadStatus,
         ];
 
         $history = new BansosBnbaUploadHistory();
@@ -162,10 +183,37 @@ class BeneficiariesBnbaController extends ActiveController
         return $historyData;
     }
 
-    public function actionUploadHistories() {
+    public function actionUploadHistories()
+    {
+        $user = Yii::$app->user;
         $params = Yii::$app->request->getQueryParams();
 
         $query = BansosBnbaUploadHistory::find();
+        $tableName = BansosBnbaUploadHistory::tableName();
+
+        if ($user->can('staffProv')) {
+            $subquery = (new \yii\db\Query())
+                      ->select([
+                          'kabkota_name as kabkota',
+                          'MAX([[timestamp]]) AS last_update', // get last update
+                      ])
+                      ->from("{{{$tableName}}}")
+                      ->groupBy('kabkota_name')
+                      ;
+            $query = $query
+              ->rightJoin(
+                  [ 'r' => $subquery ],
+                  "{{{$tableName}}}.kabkota_name = r.kabkota " .
+                  "AND {{{$tableName}}}.`timestamp` = r.last_update"
+              )
+              ;
+        } else {
+            $query = $query->where([ 'user_id' => $user->id ]);
+        }
+
+        if (isset($params['kabkota_name'])) {
+            $query = $query->where([ 'kabkota_name' => $params['kabkota_name'] ]);
+        }
 
         $provider = new ActiveDataProvider([
             'query' => $query,
@@ -182,64 +230,76 @@ class BeneficiariesBnbaController extends ActiveController
         return $provider;
     }
 
+    public function actionAnomalyDownload()
+    {
+        $authUserModel  = Yii::$app->user->identity;
+        $publicBaseUrl  = Yii::$app->params['storagePublicBaseUrl'];
+        $kabkota        = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+        $code           = $kabkota->code_bps;
+        $final_url      = "$publicBaseUrl/bnba-anomaly/data-anomaly-$code.pdf";
+        return [
+            'url' => $final_url,
+        ];
+    }
+
     public function actionDownload()
     {
         $params = Yii::$app->request->getQueryParams();
-        $query_params = [];
+        $queryParams = [];
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
 
+        $exportType = (isset($params['export_type']) && array_key_exists($params['export_type'], BansosBnbaDownloadHistory::AVAILABLE_TYPES)) ?
+          $params['export_type'] :
+          BansosBnbaDownloadHistory::TYPE_BNBA_ORIGINAL;
+
         if (isset($params['tahap_bantuan'])) {
-            $query_params['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
+            $queryParams['tahap_bantuan'] = explode(',', $params['tahap_bantuan']);
         } else {
             $data = (new \yii\db\Query())
                 ->from('beneficiaries_current_tahap')
                 ->all();
 
             if (count($data)) {
-                $query_params['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
+                $queryParams['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
             }
         }
         if ($user->can('staffKabkota')) {
-            $parent_area = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
-            $query_params['kode_kab'] = $parent_area->code_bps;
+            $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $queryParams['kode_kab'] = $parentArea->code_bps;
         } elseif ($user->can('staffProv') || $user->can('admin')) {
             if (isset($params['kode_kab'])) {
-                $query_params['kode_kab'] = explode(',', $params['kode_kab']);
+                $queryParams['kode_kab'] = explode(',', $params['kode_kab']);
             }
             if (isset($params['bansos_type'])) {
-                $bansos_type = explode(',', $params['bansos_type']);
-                $is_dtks = [];
-                if (in_array('dtks', $bansos_type)) {
-                    $is_dtks[] = 1;
+                $bansosType = explode(',', $params['bansos_type']);
+                $isDtks = [];
+                if (in_array('dtks', $bansosType)) {
+                    $isDtks[] = 1;
                 }
-                if (in_array('non-dtks', $bansos_type)) {
-                    array_push($is_dtks, 0, null);
+                if (in_array('non-dtks', $bansosType)) {
+                    array_push($isDtks, 0, null);
                 }
-                $query_params['is_dtks'] = $is_dtks;
+                $queryParams['is_dtks'] = $isDtks;
             }
         } else {
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
-        $job_history = new BansosBnbaDownloadHistory;
-        $job_history->user_id = $user->id;
-        $job_history->params = $query_params;
-        $job_history->row_count = $job_history->countAffectedRows();
-        $job_history->save();
+        $jobHistory = new BansosBnbaDownloadHistory;
+        $jobHistory->user_id = $user->id;
+        $jobHistory->job_type = $exportType;
+        $jobHistory->params = $queryParams;
+        $jobHistory->created_at = time();
+        $jobHistory->total_row = $jobHistory->countAffectedRows();
+        $jobHistory->save();
 
         // export bnba
-        $id = Yii::$app->queue->push(new ExportBnbaJob([
-            'userId' => $user->id,
-            'historyId' => $job_history->id,
-        ]));
-
-        $job_history->job_id = $id;
-        $job_history->save();
+        $jobHistory->startJob();
 
         return [
-            'history_id' => $job_history->id,
+            'history_id' => $jobHistory->id,
         ];
     }
 
@@ -256,8 +316,13 @@ class BeneficiariesBnbaController extends ActiveController
             $user = Yii::$app->user;
             $params = Yii::$app->request->getQueryParams();
 
+            $exportType = (isset($params['export_type']) && array_key_exists($params['export_type'], BansosBnbaDownloadHistory::AVAILABLE_TYPES)) ?
+              $params['export_type'] :
+              BansosBnbaDownloadHistory::TYPE_BNBA_ORIGINAL;
+
             $query = BansosBnbaDownloadHistory::find()->where([
                 'user_id' => $user->id,
+                'job_type' => $exportType,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;
@@ -332,9 +397,9 @@ SQL;
             });
         }
         if (isset($params['bansos_type']) && !empty($params['bansos_type'])) {
-            $bansos_type = explode(',', $params['bansos_type']);
-            $finalRows = array_filter($finalRows, function ($item) use ($bansos_type) {
-                return in_array($item['type'], $bansos_type);
+            $bansosType = explode(',', $params['bansos_type']);
+            $finalRows = array_filter($finalRows, function ($item) use ($bansosType) {
+                return in_array($item['type'], $bansosType);
             });
         }
 

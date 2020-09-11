@@ -15,7 +15,7 @@ use Jdsteam\Sapawarga\Jobs\Concerns\HasJobHistory;
  * @property string $filePathTemp
  * @property string $userId
  * @property string $emailNotifParam      parameter to be passed to GenericEmailJob for success notifcation
- * @property string $jobHistoryClassName  class name for job history log 
+ * @property string $jobHistoryClassName  class name for job history log
  * @property string $historyId            id for the ascociated job history log
  */
 class UploadS3Job extends BaseObject implements RetryableJobInterface
@@ -37,7 +37,7 @@ class UploadS3Job extends BaseObject implements RetryableJobInterface
         $publicBaseUrl = Yii::$app->params['storagePublicBaseUrl'];
 
         $filesystem->writeStream($this->relativePath, $stream);
-        // if S3 account does not provide cloudfront for publicly accessing file, 
+        // if S3 account does not provide cloudfront for publicly accessing file,
         // we must manually set public ACL. in that case, use below code instead of above
         //$filesystem->writeStream($relativePath, $stream, [
             //'visibility' => AdapterInterface::VISIBILITY_PUBLIC
@@ -53,13 +53,15 @@ class UploadS3Job extends BaseObject implements RetryableJobInterface
 
         echo "Upload finished. Final url: $final_url" . PHP_EOL;
         $jobHistory = $this->jobHistory;
-        $jobHistory->final_url = $final_url;
+        $results = $jobHistory->results;
+        $results['final_url'] = $final_url;
+        $jobHistory->results = $results;
         $jobHistory->save();
 
         // send result notification to user
         echo "Sending notification email" . PHP_EOL;
         Yii::$app->queue->priority(1000)->push(new GenericEmailJob(array_merge(
-            $this->emailNotifParam, 
+            $this->emailNotifParam,
             [
                 'jobHistoryClassName' => $this->jobHistoryClassName,
                 'historyId' => $this->historyId,

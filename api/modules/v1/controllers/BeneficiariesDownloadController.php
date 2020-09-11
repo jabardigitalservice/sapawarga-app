@@ -10,7 +10,6 @@ use yii\db\Query;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
-use Jdsteam\Sapawarga\Jobs\ExportBeneficiariesJob;
 use Illuminate\Support\Arr;
 
 /**
@@ -62,7 +61,7 @@ class BeneficiariesDownloadController extends ActiveController
     {
         $params = Yii::$app->request->getQueryParams();
         $queryParams = [];
-        $finalParams = [ 'and' ];
+        $finalParams = ['and'];
 
         $user = Yii::$app->user;
         $authUserModel = $user->identity;
@@ -77,8 +76,8 @@ class BeneficiariesDownloadController extends ActiveController
             }
         } else {
             $data = (new \yii\db\Query())
-            ->from('beneficiaries_current_tahap')
-            ->all();
+                ->from('beneficiaries_current_tahap')
+                ->all();
 
             if (count($data)) {
                 $colName = sprintf($colFormat, $data[0]['current_tahap_verval']);
@@ -122,9 +121,15 @@ class BeneficiariesDownloadController extends ActiveController
             $parentArea = Area::findOne($authUserModel->kabkota_id);
             $queryParams['domicile_kabkota_bps_id'] = $parentArea->code_bps;
         } elseif ($user->can('staffKec')) {
+            $parentArea = Area::findOne($authUserModel->kabkota_id);
+            $queryParams['domicile_kabkota_bps_id'] = $parentArea->code_bps;
             $parentArea = Area::findOne($authUserModel->kec_id);
             $queryParams['domicile_kec_bps_id'] = $parentArea->code_bps;
         } elseif ($user->can('staffKel')) {
+            $parentArea = Area::findOne($authUserModel->kabkota_id);
+            $queryParams['domicile_kabkota_bps_id'] = $parentArea->code_bps;
+            $parentArea = Area::findOne($authUserModel->kec_id);
+            $queryParams['domicile_kec_bps_id'] = $parentArea->code_bps;
             $parentArea = Area::findOne($authUserModel->kel_id);
             $queryParams['domicile_kel_bps_id'] = $parentArea->code_bps;
         }
@@ -141,23 +146,22 @@ class BeneficiariesDownloadController extends ActiveController
 
         // generate final query parameters
         foreach ($queryParams as $col => $val) {
-            $finalParams[] = [ $col => $val ];
+            $finalParams[] = [$col => $val];
         }
 
         $jobHistory = new BansosBeneficiariesDownloadHistory;
         $jobHistory->user_id = $user->id;
-        $jobHistory->params = $finalParams;
-        $jobHistory->row_count = $jobHistory->countAffectedRows();
+        $jobHistory->job_type = BansosBeneficiariesDownloadHistory::TYPE_VERVAL;
+        $jobHistory->params = $queryParams;
+        $jobHistory->created_at = time();
+        $jobHistory->total_row = $jobHistory->countAffectedRows();
         $jobHistory->save();
 
         // export bnba
-        $id = Yii::$app->queue->push(new ExportBeneficiariesJob([
-            'userId' => $user->id,
-            'historyId' => $jobHistory->id,
-        ]));
+        $jobHistory->startJob();
 
         return [
-          'historyId' => $jobHistory->id,
+            'historyId' => $jobHistory->id,
         ];
     }
 
@@ -176,6 +180,7 @@ class BeneficiariesDownloadController extends ActiveController
 
             $query = BansosBeneficiariesDownloadHistory::find()->where([
                 'user_id' => $user->id,
+                'job_type' => BansosBeneficiariesDownloadHistory::TYPE_VERVAL,
             ]);
 
             $sortOrder = (Arr::get($params, 'order', null) == 'asc') ? SORT_ASC : SORT_DESC;

@@ -459,12 +459,22 @@ return [
             'OPTIONS summary' => 'options',
             'POST upload' => 'upload',
             'GET upload-histories' => 'upload-histories',
+            'GET anomaly-download' => 'anomaly-download',
             'GET download' => 'download',
             'GET monitoring' => 'monitoring',
             'GET download-status' => 'download-status',
             'GET download-status/<history_id:\d+>' => 'download-status',
         ]
     ],
+    [
+        'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-bnba-monitoring-upload',
+        'pluralize' => true,
+        'extraPatterns' => [
+            'GET update-data' => 'update-data',
+        ],
+    ],
+
     [
         'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-complain',
@@ -518,6 +528,8 @@ return [
             'OPTIONS statistics-by-area' => 'options',
             'GET statistics-update' => 'statistics-update',
             'OPTIONS statistics-update' => 'options',
+            'GET flagging' => 'flagging',
+            'OPTIONS flagging' => 'options',
         ]
     ],
     [

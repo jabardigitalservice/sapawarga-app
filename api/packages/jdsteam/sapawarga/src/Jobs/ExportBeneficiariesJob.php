@@ -20,12 +20,20 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
     public $userId;
 
+    public function getStatusLabel($status) {
+        if (isset(Beneficiary::STATUS_VERIFICATION_LABEL[$status])) {
+            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
+        } else {
+            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[Beneficiary::STATUS_PENDING];
+        }
+        return Yii::t('app', $localizationKey);
+    }
+
     public function execute($queue)
     {
         $this->jobHistoryClassName = 'app\models\BansosBeneficiariesDownloadHistory';
         $jobHistory = $this->jobHistory;
-        $jobHistory->start_at = time();
-        $jobHistory->save();
+        $jobHistory->setStart();
 
         // size of query batch size used during database retrieval
         $batch_size = 1000;
@@ -37,13 +45,9 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         $columnHeaders[count($columnHeaders)-1] = 'Status Verifikasi';
 
         Yii::$app->language = 'id-ID';
-        function getStatusLabel($status) {
-            $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
-            return Yii::t('app', $localizationKey);
-        }
 
         $query = $jobHistory->getQuery();
-        $row_numbers = $jobHistory->row_count;
+        $row_numbers = $jobHistory->total_row;
         echo "Number of rows to be processed : $row_numbers" . PHP_EOL;
 
         echo "Starting generating BNBA list export\n" ;
@@ -51,7 +55,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         /* Generate export file using box/spout library.
          * ref: https://opensource.box.com/spout/getting-started/#writer */
         $writer = WriterEntityFactory::createXLSXWriter();
-        
+
         // Initial varieble location, filename, path
         $now_date = date('Y-m-d-H-i-s');
         $fileName = "export-calon-penerima-bantuan-$now_date.xlsx";
@@ -78,7 +82,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         {
             $listBnba = array_map(function ($item) {
                 $item['keterangan'] = null;
-                $item['status_verifikasi'] = getStatusLabel($item['status_verifikasi']);
+                $item['status_verifikasi'] = $this->getStatusLabel($item['status_verifikasi']);
                 return $item;
             }, $listBnba);
 
@@ -90,22 +94,20 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
             $num_processed += count($listBnba);
             echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
 
-            $jobHistory->row_processed = $num_processed;
+            $jobHistory->processed_row = $num_processed;
             $jobHistory->save();
         }
 
         $writer->close();
         $unbefferedDb->close();
 
-        $jobHistory->row_processed = $jobHistory->row_count;
-        $jobHistory->done_at = time();
-        $jobHistory->save();
+        $jobHistory->setFinish();
 
         echo "Finished generating export file" . PHP_EOL;
 
         // upload to S3 & send notification email
         $relativePath = "export-beneficiaries-list/$fileName";
-        Yii::$app->queue->priority(10)->push(new UploadS3Job([
+        $uploadJob = new UploadS3Job([
             'jobHistoryClassName' => $this->jobHistoryClassName,
             'relativePath' => $relativePath,
             'filePathTemp' => $filePathTemp,
@@ -115,7 +117,8 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
                 'template' => ['html' => 'email-result-export-list-beneficiaries'],
                 'subject' => 'Notifikasi dari Sapawarga: Hasil export Daftar Calon Penerima Bantuan sudah bisa diunduh!',
             ],
-        ]));
+        ]);
+        $uploadJob->execute(Yii::$app->queue);
 
     }
 

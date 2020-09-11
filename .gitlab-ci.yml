@@ -111,30 +111,30 @@ build_image:
 #     - sed -i "s|/srv|$(pwd)/api|g" clover.xml
 #     - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
-deploy_staging_aws:
-  image: docker:stable
-  stage: deploy_staging
-  only:
-    - develop
-  dependencies:
-    - versioning
-  before_script:
-    - export VERSION=$(cat ./version)
-    - 'which ssh-agent || ( apk update && apk add openssh-client )'
-    - mkdir -p ~/.ssh
-    - eval $(ssh-agent -s)
-    - chmod 400 $SSH_STAGING_KEY_PRIVATE_AWS
-    - ssh-add $SSH_STAGING_KEY_PRIVATE_AWS
-  script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "export VERSION=${VERSION} && cd /home/ubuntu/projects/sapawarga-app && sudo git pull && sudo docker image prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose up -d"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
+#deploy_staging_aws:
+#  image: docker:stable
+#  stage: deploy_staging
+#  only:
+#    - develop
+#  dependencies:
+#    - versioning
+#  before_script:
+#    - export VERSION=$(cat ./version)
+#    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+#    - mkdir -p ~/.ssh
+#    - eval $(ssh-agent -s)
+#    - chmod 400 $SSH_STAGING_KEY_PRIVATE_AWS
+#    - ssh-add $SSH_STAGING_KEY_PRIVATE_AWS
+#  script:
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "export VERSION=${VERSION} && cd /home/ubuntu/projects/sapawarga-app && sudo git pull && sudo docker image prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose --compatibility up -d"
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
 
 
-deploy_staging_eks:
+deploy_staging_jabarcloud:
   stage: deploy_staging
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.3.1
   environment:
     name: staging
   only:
@@ -143,12 +143,11 @@ deploy_staging_eks:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
-    - kubectl config set-cluster k8s --server="${EKS_SERVER_V2}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA_V2}
-    - kubectl config set-credentials gitlab-eks-admin-development --token="${EKS_TOKEN_V2}"
-    - kubectl config set-context default --cluster=k8s --user=gitlab-eks-admin-development
-    - kubectl config use-context default
-    - kubectl cluster-info
+    - echo $kube_config | base64 -d > kubeconfig
+    - export KUBECONFIG=./kubeconfig
+    - echo $cert_key | base64 -d > client.key
+    - kubectl config set-credentials gitlab --client-key=client.key --embed-certs=true
+    - kubectl config set-cluster $cluster_name --insecure-skip-tls-verify=true
   script:
     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
@@ -163,6 +162,9 @@ deploy_staging_eks:
 
     # Redis Staging #
     - sed -i "s/%REDIS_HOST%/${REDIS_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+
 
     # mysql replica staging #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
@@ -194,6 +196,10 @@ deploy_staging_eks:
     - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
 
+    # Bansos API STAGING
+    - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
+
     # Mailer STAGING #
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
@@ -213,34 +219,21 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
      # version deployment #
-    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
-    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment-staging.yaml
      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
      # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
-        -f kubernetes/backend-api-deployment.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-variables.yaml
+        -f kubernetes/backend-api-deployment-staging.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
-        -f kubernetes/backend-api-deployment.yaml
+        -f kubernetes/backend-api-deployment-staging.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
-    - kubectl delete -f kubernetes/backend-queue-job.yaml
-    - kubectl delete -f kubernetes/backend-queue-import-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
+    - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
     - kubectl apply -f kubernetes/backend-queue-import-job.yaml
 
@@ -284,6 +277,13 @@ deploy_prod_eks:
 
      # Redis Production #
     - sed -i "s/%REDIS_HOST%/${REDIS_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+
+    # Bansos API Production
+    - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
+
 
     # mysql replica production #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
@@ -329,25 +329,17 @@ deploy_prod_eks:
     # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
         -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-pv-claim.yaml
         -f kubernetes/backend-mysql-deployment.yaml
         -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-pv-claim.yaml
         -f kubernetes/backend-api-deployment.yaml
         -f kubernetes/backend-api-service.yaml
-        -f kubernetes/backend-memcached-deployment.yaml
-        -f kubernetes/backend-memcached-service.yaml
-    - kubectl delete -f kubernetes/backend-queue-job.yaml
-    - kubectl delete -f kubernetes/backend-queue-import-job.yaml
+    - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
+    - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml

@@ -170,8 +170,6 @@ class BeneficiaryCest
         ]);
     }
 
-
-
     /**
      * @before loadData
      */

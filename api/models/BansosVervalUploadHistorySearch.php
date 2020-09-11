@@ -23,7 +23,9 @@ class BansosVervalUploadHistorySearch extends BansosVervalUploadHistory
         $query = BansosVervalUploadHistory::find();
 
         $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'original_filename', Arr::get($params, 'original_filename')]);
+        if (Arr::get($params, 'original_filename')) {
+            $query->andFilterWhere(['like', 'original_filename', Arr::get($params, 'original_filename') . '%', false]);
+        }
         $query->andFilterWhere(['=', 'created_by', Arr::get($params, 'user_id')]);
 
         return $this->getQueryAll($query, $params);

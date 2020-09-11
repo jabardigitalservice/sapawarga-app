@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sapawarga-api
@@ -6,12 +6,15 @@ metadata:
   labels:
     app: sapawarga-api
 spec:
-  replicas: %REPLICAS%
+  selector:
+    matchLabels:
+      app: sapawarga-api
   template:
     metadata:
       labels:
         app: sapawarga-api
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: api
           image: registry.gitlab.com/jdsteam/sapa-warga/sapawarga-app/sapawarga-backend-api:%VERSION%
@@ -47,16 +50,15 @@ spec:
           - weight: 1
             preference:
               matchExpressions:
-              - key: failure-domain.beta.kubernetes.io/zone
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - ap-southeast-1a
-                - ap-southeast-1b
-                - ap-southeast-1c
+                - staging-worker-sw01
+                - staging-worker-sw02
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: alpha.eksctl.io/nodegroup-name
+              - key: beta.kubernetes.io/os
                 operator: In
                 values:
-                - node-sapawarga-api-autoscale
+                - linux
