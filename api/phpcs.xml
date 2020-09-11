@@ -9,9 +9,6 @@
     <file>migrations</file>
     <file>models</file>
     <file>modules</file>
-    <file>views</file>
-    <file>tests/functional</file>
-    <file>tests/unit</file>
     <file>web</file>
 
 
@@ -30,6 +27,8 @@
         <!-- CASE keyword must be indented 4 spaces from SWITCH keyword. -->
         <exclude name="PSR2.ControlStructures.SwitchDeclaration"/>
     </rule>
+
+    <rule ref="Generic.Arrays.ArrayIndent" />
 
     <!-- Property declaration rules. -->
     <!-- TODO: -->
@@ -74,20 +73,13 @@
         <exclude-pattern>m\d{6}_\d{6}_.+\.php$</exclude-pattern>
     </rule>
 
-    <!-- Ignore for tests. -->
-    <!-- Ignore method name prefixed with underscore to indicate visibility -->
-    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
-        <exclude-pattern>tests?/*(Cest|Test).php$</exclude-pattern>
-    </rule>
-    <!-- Ignore declare new symbols and execute logic with side effects same file -->
-    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
-        <exclude-pattern>/tests?*/_bootstrap.php$</exclude-pattern>
-        <exclude-pattern>/web/(index|index-test).php$</exclude-pattern>
-    </rule>
-
+    <!-- Ignore all rules  -->
     <exclude-pattern>*/i18n/data/*</exclude-pattern>
-    <exclude-pattern>*/views/errorHandler/*</exclude-pattern>
     <exclude-pattern>*/requirements/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/views/*</exclude-pattern>
+    <exclude-pattern>/web/(index|index-test).php$</exclude-pattern>
 
+    <exclude-pattern>*html.php$</exclude-pattern>
     <exclude-pattern>ProfileTarget.php</exclude-pattern>
 </ruleset>
