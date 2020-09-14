@@ -1,5 +1,6 @@
 stages:
   - versioning
+  # - code_style
   - code_quality
   - build
   # - test
@@ -20,6 +21,16 @@ versioning:
   artifacts:
     paths:
       - version
+
+# code_style:
+#   image: docker:stable
+#   stage: code_style
+#   only:
+#     - branches
+#   services:
+#     - docker:stable-dind
+#   script:
+#     - docker run --rm -v $(pwd):/data cytopia/phpcs --standard=api/phpcs.xml --extensions=php api/
 
 code_quality:
   image: docker:stable
@@ -104,7 +115,6 @@ build_image:
 #     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
 #     - sleep 60
 #     - docker ps
-#     - docker-compose exec -T api composer sniff
 #     - docker-compose exec -T api php yii seeder
 #     - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
 #     - mv ./api/tests/_output/coverage.xml ./clover.xml
