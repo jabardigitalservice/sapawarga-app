@@ -1,6 +1,6 @@
 stages:
   - versioning
-  - code_style
+  # - code_style
   - code_quality
   - build
   # - test
