@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use yii\console\Exception;
 use yii\queue\db\Queue as BaseDbQueue;
 
 /**
