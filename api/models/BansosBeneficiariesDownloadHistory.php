@@ -15,7 +15,7 @@ use Jdsteam\Sapawarga\Jobs\ExportBeneficiariesJob;
  */
 class BansosBeneficiariesDownloadHistory extends BaseDownloadHistory
 {
-    const TYPE_VERVAL = 'verval'; // original ExportBnba job type
+    public const TYPE_VERVAL = 'verval'; // original ExportBnba job type
 
     public $columns = [
         'id' => 'id',

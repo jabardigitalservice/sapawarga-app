@@ -45,7 +45,8 @@ use Illuminate\Support\Collection;
 
 class BeneficiaryAllocation extends ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasActiveStatus;
+    use HasArea;
+    use HasActiveStatus;
 
     /**
      * {@inheritdoc}
@@ -77,7 +78,8 @@ class BeneficiaryAllocation extends ActiveRecord implements ActiveStatus
             ],
             [['rw', 'rt'], 'filter', 'filter' => function ($value) {
                 return ltrim($value, '0');
-            }],
+            }
+            ],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
     }

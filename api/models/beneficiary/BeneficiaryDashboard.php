@@ -15,8 +15,8 @@ use Yii;
  */
 class BeneficiaryDashboard extends Beneficiary
 {
-    const CACHE_KEY_SUMMARY = 'verval-dashboardsummary-';
-    const CACHE_KEY_LIST = 'verval-dashboardlist-';
+    public const CACHE_KEY_SUMMARY = 'verval-dashboardsummary-';
+    public const CACHE_KEY_LIST = 'verval-dashboardlist-';
 
     public $tahap;
     public $statusVerificationColumn = 'status_verification';

@@ -11,7 +11,7 @@ class m200411_080000_create_table_beneficiaries_bnba_tahap_1 extends CustomMigra
      */
     public function safeUp()
     {
-        $query=<<<SQL
+        $query = <<<SQL
             CREATE TABLE  IF NOT EXISTS `beneficiaries_bnba_tahap_1` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
               `is_dtks` tinyint(1) DEFAULT NULL,

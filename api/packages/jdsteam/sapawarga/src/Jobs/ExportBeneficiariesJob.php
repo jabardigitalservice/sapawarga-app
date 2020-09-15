@@ -20,7 +20,8 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
     public $userId;
 
-    public function getStatusLabel($status) {
+    public function getStatusLabel($status)
+    {
         if (isset(Beneficiary::STATUS_VERIFICATION_LABEL[$status])) {
             $localizationKey = Beneficiary::STATUS_VERIFICATION_LABEL[$status];
         } else {
@@ -38,11 +39,11 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         // size of query batch size used during database retrieval
         $batch_size = 1000;
 
-        echo "Params:". PHP_EOL;
+        echo 'Params:' . PHP_EOL;
         print_r($jobHistory->params);
 
         $columnHeaders = array_keys($jobHistory->columns);
-        $columnHeaders[count($columnHeaders)-1] = 'Status Verifikasi';
+        $columnHeaders[count($columnHeaders) - 1] = 'Status Verifikasi';
 
         Yii::$app->language = 'id-ID';
 
@@ -78,8 +79,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
         $unbefferedDb->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $num_processed = 0;
-        foreach ($query->batch($batch_size, $unbefferedDb) as $listBnba)
-        {
+        foreach ($query->batch($batch_size, $unbefferedDb) as $listBnba) {
             $listBnba = array_map(function ($item) {
                 $item['keterangan'] = null;
                 $item['status_verifikasi'] = $this->getStatusLabel($item['status_verifikasi']);
@@ -92,7 +92,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
             }
 
             $num_processed += count($listBnba);
-            echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed*100/$row_numbers));
+            echo sprintf("Processed : %d/%d (%.2f%%)\n", $num_processed, $row_numbers, ($num_processed * 100 / $row_numbers));
 
             $jobHistory->processed_row = $num_processed;
             $jobHistory->save();
@@ -103,7 +103,7 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
 
         $jobHistory->setFinish();
 
-        echo "Finished generating export file" . PHP_EOL;
+        echo 'Finished generating export file' . PHP_EOL;
 
         // upload to S3 & send notification email
         $relativePath = "export-beneficiaries-list/$fileName";
@@ -119,7 +119,6 @@ class ExportBeneficiariesJob extends BaseObject implements RetryableJobInterface
             ],
         ]);
         $uploadJob->execute(Yii::$app->queue);
-
     }
 
     /**

@@ -31,16 +31,17 @@ use yii\db\ActiveRecord;
  */
 class Survey extends ActiveRecord
 {
-    use HasArea, HasCategory;
+    use HasArea;
+    use HasCategory;
 
-    const STATUS_DELETED = -1;
-    const STATUS_DRAFT = 0;
-    const STATUS_DISABLED = 1;
-    const STATUS_PUBLISHED = 10;
-    const STATUS_STARTED = 15;
-    const STATUS_ENDED = 20;
+    public const STATUS_DELETED = -1;
+    public const STATUS_DRAFT = 0;
+    public const STATUS_DISABLED = 1;
+    public const STATUS_PUBLISHED = 10;
+    public const STATUS_STARTED = 15;
+    public const STATUS_ENDED = 20;
 
-    const CATEGORY_TYPE = 'survey';
+    public const CATEGORY_TYPE = 'survey';
 
     /**
      * {@inheritdoc}

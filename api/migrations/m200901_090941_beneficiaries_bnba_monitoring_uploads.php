@@ -40,7 +40,7 @@ class m200901_090941_beneficiaries_bnba_monitoring_uploads extends CustomMigrati
             ->all();
 
         // total insert data = $totalTahap x $rows x $dtksType
-        for ($i=1; $i <= $totalTahap; $i++) {
+        for ($i = 1; $i <= $totalTahap; $i++) {
             foreach ($rows as $key => $row) {
                 foreach ($dtksType as $dtks) {
                     $data = new BeneficiaryBnbaMonitoringUpload();

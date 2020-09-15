@@ -46,12 +46,13 @@ use yii\db\ActiveRecord;
 
 class Beneficiary extends ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasActiveStatus;
+    use HasArea;
+    use HasActiveStatus;
 
-    const STATUS_PUBLISHED = 10;
-    const STATUS_PENDING = 1;
-    const STATUS_REJECT = 2;
-    const STATUS_VERIFIED = 3;
+    public const STATUS_PUBLISHED = 10;
+    public const STATUS_PENDING = 1;
+    public const STATUS_REJECT = 2;
+    public const STATUS_VERIFIED = 3;
 
     /**
      * {@inheritdoc}

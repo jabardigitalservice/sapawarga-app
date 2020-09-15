@@ -12,8 +12,8 @@ use yii\helpers\Json;
  */
 class BansosBnbaUploadHistory extends ActiveRecord
 {
-    const STATUS_SUCCESS = 1;
-    const STATUS_TEMPLATE_MISMATCH = 21;
+    public const STATUS_SUCCESS = 1;
+    public const STATUS_TEMPLATE_MISMATCH = 21;
 
     /**
      * {@inheritdoc}
@@ -36,7 +36,8 @@ class BansosBnbaUploadHistory extends ActiveRecord
                 'final_url',
                 'timestamp',
                 'status',
-            ], 'safe'],
+            ], 'safe'
+            ],
         ];
     }
 }

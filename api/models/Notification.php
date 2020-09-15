@@ -27,27 +27,28 @@ use app\components\ModelHelper;
  */
 class Notification extends \yii\db\ActiveRecord
 {
-    use HasArea, HasCategory;
+    use HasArea;
+    use HasCategory;
 
-    const STATUS_DELETED = -1;
-    const STATUS_DRAFT = 0;
-    const STATUS_PUBLISHED = 10;
+    public const STATUS_DELETED = -1;
+    public const STATUS_DRAFT = 0;
+    public const STATUS_PUBLISHED = 10;
 
-    const CATEGORY_TYPE = 'notification';
+    public const CATEGORY_TYPE = 'notification';
 
-    const CATEGORY_LABEL_SURVEY = 'Survey Terbaru';
-    const CATEGORY_LABEL_POLLING = 'Polling Terbaru';
-    const CATEGORY_LABEL_NEWS = 'Berita Terbaru';
-    const CATEGORY_LABEL_NEWSHOAX = 'Berita Counter Hoaks Terbaru';
-    const CATEGORY_LABEL_VIDEO = 'Video Terbaru';
-    const CATEGORY_LABEL_NEWS_IMPORTANT = 'Info Penting Terbaru';
-    const CATEGORY_LABEL_ASPIRASI_STATUS = 'Perubahan Status Usulan';
-    const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
-    const CATEGORY_LABEL_USER_POST = 'Kegiatan RW';
+    public const CATEGORY_LABEL_SURVEY = 'Survey Terbaru';
+    public const CATEGORY_LABEL_POLLING = 'Polling Terbaru';
+    public const CATEGORY_LABEL_NEWS = 'Berita Terbaru';
+    public const CATEGORY_LABEL_NEWSHOAX = 'Berita Counter Hoaks Terbaru';
+    public const CATEGORY_LABEL_VIDEO = 'Video Terbaru';
+    public const CATEGORY_LABEL_NEWS_IMPORTANT = 'Info Penting Terbaru';
+    public const CATEGORY_LABEL_ASPIRASI_STATUS = 'Perubahan Status Usulan';
+    public const CATEGORY_LABEL_UPDATE = 'Update Aplikasi';
+    public const CATEGORY_LABEL_USER_POST = 'Kegiatan RW';
 
 
     // Memetakan category name dengan target name
-    const TARGET_MAP = [
+    public const TARGET_MAP = [
         self::CATEGORY_LABEL_SURVEY             => 'notifikasi',
         self::CATEGORY_LABEL_POLLING            => 'notifikasi',
         self::CATEGORY_LABEL_NEWS               => 'notifikasi',
@@ -60,7 +61,7 @@ class Notification extends \yii\db\ActiveRecord
     ];
 
     // Memetakan category name dengan default meta
-    const DEFAULT_META_MAP = [
+    public const DEFAULT_META_MAP = [
         self::CATEGORY_LABEL_SURVEY             => [ 'target'   => 'survey', ],
         self::CATEGORY_LABEL_POLLING            => [ 'target'   => 'polling', ],
         self::CATEGORY_LABEL_NEWS               => [ 'target'   => 'news', ],
@@ -75,10 +76,10 @@ class Notification extends \yii\db\ActiveRecord
         ],
     ];
 
-    const URL_STORE_ANDROID = 'https://play.google.com/store/apps/details?id=com.sapawarga.jds';
+    public const URL_STORE_ANDROID = 'https://play.google.com/store/apps/details?id=com.sapawarga.jds';
 
     // Default topic untuk semua user
-    const TOPIC_DEFAULT = 'kabkota';
+    public const TOPIC_DEFAULT = 'kabkota';
 
     /** @var  array push notification metadata */
     public $data;

@@ -30,7 +30,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         // size of query batch size used during database retrieval
         $batchSize = 1000;
-        echo "Params: ";
+        echo 'Params: ';
         print_r($jobHistory->params);
 
         $query = $jobHistory->getQuery();
@@ -92,8 +92,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
         $unbufferedDb->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $numProcessed = 0;
-        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba)
-        {
+        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba) {
             $data = ArrayHelper::toArray($listBnba, [
                 'app\models\BeneficiaryBnbaTahapSatu' => $columnValues,
             ]);
@@ -104,7 +103,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
             }
 
             $numProcessed += count($data);
-            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
+            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed * 100 / $rowNumbers));
 
             $jobHistory->processed_row = $numProcessed;
             $jobHistory->save();
@@ -115,7 +114,7 @@ class ExportBnbaJob extends BaseObject implements RetryableJobInterface
 
         $jobHistory->setFinish();
 
-        echo "Finished generating export file" . PHP_EOL;
+        echo 'Finished generating export file' . PHP_EOL;
 
         // upload to S3 & send notification email
         $relativePath = "export-bnba-list/$fileName";

@@ -25,7 +25,8 @@ use yii\web\ServerErrorHttpException;
 
 class StaffController extends ActiveController
 {
-    use UserTrait, UserPhotoUpload;
+    use UserTrait;
+    use UserPhotoUpload;
 
     public $modelClass = 'app\models\User';
 

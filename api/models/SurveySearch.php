@@ -18,7 +18,7 @@ class SurveySearch extends Survey
      */
     public $user;
 
-    const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_USER = 'list-user';
 
     /**
      * Creates data provider instance with search query applied
@@ -41,10 +41,11 @@ class SurveySearch extends Survey
         if ($allLocation == true) {
             $query->andWhere(
                 ['and',
-                ['is', 'kabkota_id', null],
-                ['is', 'kec_id', null],
-                ['is', 'kel_id', null],
-                ['is', 'rw', null]]
+                    ['is', 'kabkota_id', null],
+                    ['is', 'kec_id', null],
+                    ['is', 'kel_id', null],
+                    ['is', 'rw', null]
+                ]
             );
         }
 
@@ -73,10 +74,12 @@ class SurveySearch extends Survey
 
     protected function filterByArea(&$query, $params)
     {
-        if (Arr::has($params, 'kabkota_id')
+        if (
+            Arr::has($params, 'kabkota_id')
             || Arr::has($params, 'kec_id')
             || Arr::has($params, 'kel_id')
-            || Arr::has($params, 'rw')) {
+            || Arr::has($params, 'rw')
+        ) {
             ModelHelper::filterByAreaTopDown($query, $params);
         } elseif (Yii::$app->user->can('staffKabkota')) {
             $areaParams = ['kabkota_id' => $this->user->kabkota_id ?? null];
@@ -124,7 +127,7 @@ class SurveySearch extends Survey
 
         $provider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort' => ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],

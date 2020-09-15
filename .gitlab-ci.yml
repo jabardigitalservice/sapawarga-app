@@ -1,6 +1,6 @@
 stages:
   - versioning
-  # - code_style
+  - code_style
   - code_quality
   - build
   # - test
@@ -22,15 +22,15 @@ versioning:
     paths:
       - version
 
-# code_style:
-#   image: docker:stable
-#   stage: code_style
-#   only:
-#     - branches
-#   services:
-#     - docker:stable-dind
-#   script:
-#     - docker run --rm -v $(pwd):/data cytopia/phpcs --standard=api/phpcs.xml --extensions=php api/
+code_style:
+  image: docker:stable
+  stage: code_style
+  only:
+    - branches
+  services:
+    - docker:stable-dind
+  script:
+    - docker run --rm -v $(pwd):/data cytopia/phpcs --standard=api/phpcs.xml --extensions=php api/
 
 code_quality:
   image: docker:stable

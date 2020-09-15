@@ -19,7 +19,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
     use HasJobHistory;
 
     public $userId;
-    static function getColumns()
+    public static function getColumns()
     {
         return [
             'id',
@@ -45,7 +45,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         ];
     }
 
-    static function getColumnHeaders()
+    public static function getColumnHeaders()
     {
         return array_merge(self::getColumns(), [
             'Pintu Bantuan',
@@ -65,7 +65,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         // size of query batch size used during database retrieval
         $batchSize = 1000;
-        echo "Params: ";
+        echo 'Params: ';
         print_r($jobHistory->params);
 
         // #### QUERY CONSTRUCTION
@@ -115,8 +115,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $numProcessed = 0;
         $dummyBnbaModel = new BeneficiaryBnbaTahapSatu();
-        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba)
-        {
+        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba) {
             foreach ($listBnba as $row) {
                 $result = [];
                 $dummyBnbaModel->id_tipe_bansos = $row['id_tipe_bansos'];
@@ -134,7 +133,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
             }
 
             $numProcessed += count($listBnba);
-            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
+            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed * 100 / $rowNumbers));
 
             $jobHistory->processed_row = $numProcessed;
             $jobHistory->save();
@@ -145,7 +144,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $jobHistory->setFinish();
 
-        echo "Finished generating export file" . PHP_EOL;
+        echo 'Finished generating export file' . PHP_EOL;
 
         // upload to S3 & send notification email
         $relativePath = "export-bnba-list/$fileName";

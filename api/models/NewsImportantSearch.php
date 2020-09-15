@@ -12,8 +12,8 @@ use yii\data\ActiveDataProvider;
  */
 class NewsImportantSearch extends NewsImportant
 {
-    const SCENARIO_LIST_STAFF = 'list-staff';
-    const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_USER = 'list-user';
 
     /**
      * Creates data provider instance with search query applied
@@ -100,7 +100,8 @@ class NewsImportantSearch extends NewsImportant
             $authUser = User::findIdentity(Yii::$app->user->getId());
             $query->andWhere(['or',
                 ['kabkota_id' => $authUser->kabkota_id],
-                ['kabkota_id' => null]]);
+                ['kabkota_id' => null]
+            ]);
         } elseif ($this->scenario === self::SCENARIO_LIST_STAFF) {
             $kabkotaId = Arr::get($params, 'kabkota_id');
             if ($kabkotaId) {

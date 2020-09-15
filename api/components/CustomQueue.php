@@ -75,12 +75,14 @@ class CustomQueue extends BaseDbQueue
     public function runSingle($query)
     {
         if ($payload = $this->reserveSingle($query)) {
-            if ($this->handleMessage(
-                $payload['id'],
-                $payload['job'],
-                $payload['ttr'],
-                $payload['attempt']
-            )) {
+            if (
+                $this->handleMessage(
+                    $payload['id'],
+                    $payload['job'],
+                    $payload['ttr'],
+                    $payload['attempt']
+                )
+            ) {
                 $this->release($payload);
             }
         }

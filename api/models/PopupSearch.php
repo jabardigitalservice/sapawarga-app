@@ -12,9 +12,9 @@ use yii\data\ActiveDataProvider;
  */
 class PopupSearch extends Popup
 {
-    const SCENARIO_LIST_STAFF = 'list-staff';
-    const SCENARIO_LIST_USER = 'list-user';
-    const LIMIT_LIST_USER = 1;
+    public const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_USER = 'list-user';
+    public const LIMIT_LIST_USER = 1;
 
     /**
      * Creates data provider instance with search query applied
@@ -55,10 +55,10 @@ class PopupSearch extends Popup
         $todayDateTime = new Carbon();
 
         $query->andFilterWhere([
-                    'and',
-                    ['<=', 'start_date', $todayDateTime],
-                    ['>=', 'end_date', $todayDateTime],
-                ]);
+            'and',
+            ['<=', 'start_date', $todayDateTime],
+            ['>=', 'end_date', $todayDateTime],
+        ]);
 
         return $this->getQueryAll($query, $params);
     }

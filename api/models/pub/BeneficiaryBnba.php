@@ -26,14 +26,14 @@ class BeneficiaryBnba extends ActiveRecord
 {
     use HasArea;
 
-    const TYPE_PKH = 1;
-    const TYPE_BPNT = 2;
-    const TYPE_BANSOS = 3;
-    const TYPE_BANSOS_TUNAI = 4;
-    const TYPE_BANSOS_PRESIDEN_SEMBAKO = 5;
-    const TYPE_BANSOS_PROVINSI = 6;
-    const TYPE_DANA_DESA = 7;
-    const TYPE_BANSOS_KABKOTA = 8;
+    public const TYPE_PKH = 1;
+    public const TYPE_BPNT = 2;
+    public const TYPE_BANSOS = 3;
+    public const TYPE_BANSOS_TUNAI = 4;
+    public const TYPE_BANSOS_PRESIDEN_SEMBAKO = 5;
+    public const TYPE_BANSOS_PROVINSI = 6;
+    public const TYPE_DANA_DESA = 7;
+    public const TYPE_BANSOS_KABKOTA = 8;
 
     /**
      * {@inheritdoc}
