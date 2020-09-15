@@ -131,8 +131,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function findIdentity($id)
     {
         $user = static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
-        if ($user !== null &&
-            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)) {
+        if (
+            $user !== null &&
+            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)
+        ) {
             return null;
         }
         return $user;
@@ -166,8 +168,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function findByUsername($username)
     {
         $user = static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
-        if ($user !== null &&
-            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)) {
+        if (
+            $user !== null &&
+            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)
+        ) {
             return null;
         }
 
@@ -188,8 +192,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'BINARY(`username`)' => $username,
         ])->andWhere(['in', 'role', $roles])->one();
 
-        if ($user !== null &&
-            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)) {
+        if (
+            $user !== null &&
+            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)
+        ) {
             return null;
         }
 
@@ -296,8 +302,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 'access_token_expired_at',
                 new Expression('UNIX_TIMESTAMP()')
             ])->one();
-        if ($user !== null &&
-            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)) {
+        if (
+            $user !== null &&
+            ($user->getIsBlocked() == true || $user->getIsConfirmed() == false)
+        ) {
             return null;
         }
         return $user;
@@ -667,9 +675,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $this->last_login_at = new Expression('UNIX_TIMESTAMP()');
 
         // check time is expired or not
-        if ($forceRegenerate == true
+        if (
+            $forceRegenerate == true
             || $this->access_token_expired_at == null
-            || (time() > $this->access_token_expired_at)) {
+            || (time() > $this->access_token_expired_at)
+        ) {
             // generate access token
             $this->generateAccessToken();
         }

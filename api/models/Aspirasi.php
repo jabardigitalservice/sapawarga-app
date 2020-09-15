@@ -210,13 +210,14 @@ class Aspirasi extends ActiveRecord
 
     protected function getStatusLabel()
     {
-        if (in_array($this->status, [
-            self::STATUS_DRAFT,
-            self::STATUS_PUBLISHED,
-            self::STATUS_UNPUBLISHED,
-            self::STATUS_APPROVAL_PENDING,
-            self::STATUS_APPROVAL_REJECTED
-        ])
+        if (
+            in_array($this->status, [
+                self::STATUS_DRAFT,
+                self::STATUS_PUBLISHED,
+                self::STATUS_UNPUBLISHED,
+                self::STATUS_APPROVAL_PENDING,
+                self::STATUS_APPROVAL_REJECTED
+            ])
         ) {
             return $this->getStatusAspirasi();
         }

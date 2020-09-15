@@ -158,8 +158,10 @@ class AspirasiSearch extends Aspirasi
         }
 
         // Filter status untuk role Admin hingga staffKel
-        if (Yii::$app->user->can('aspirasiWebadminManage')
-            || Yii::$app->user->can('aspirasiWebadminView')) {
+        if (
+            Yii::$app->user->can('aspirasiWebadminManage')
+            || Yii::$app->user->can('aspirasiWebadminView')
+        ) {
             if (Arr::has($params, 'status')) {
                 $filterStatusList = [ $params['status'] ];
             } else {
