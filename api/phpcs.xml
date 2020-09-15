@@ -12,9 +12,7 @@
     <file>web</file>
 
     <!-- Using PSR-12 as standard https://www.php-fig.org/psr/psr-12/ -->
-	<rule ref="PSR12"/>
-
-    <rule ref="PSR2">
+    <rule ref="PSR12">
         <!-- Property names MUST start with an initial underscore if they are private. -->
         <exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
 
