@@ -116,10 +116,13 @@ test_api:
     - sleep 60
     - docker ps
     - docker-compose exec -T api php yii seeder
-    - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
-    - mv ./api/tests/_output/coverage.xml ./clover.xml
-    - sed -i "s|/srv|$(pwd)/api|g" clover.xml
-    - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
+    - docker-compose exec -T api php vendor/bin/codecept run
+
+    # disable code coverage since xdebug is not installed. TBA technical considerations
+    # - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
+    # - mv ./api/tests/_output/coverage.xml ./clover.xml
+    # - sed -i "s|/srv|$(pwd)/api|g" clover.xml
+    # - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
 
 #deploy_staging_aws:
 #  image: docker:stable
