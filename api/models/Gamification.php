@@ -59,13 +59,19 @@ class Gamification extends ActiveRecord implements ActiveStatus
             ['title', InputCleanValidator::class],
 
             [['title','title_badge','image_badge_path','description','object_type','object_event',
-                'total_hit','status','start_date','end_date'], 'trim'],
+                'total_hit','status','start_date','end_date'
+            ], 'trim'
+            ],
 
             [['title','title_badge','image_badge_path','description','object_type','object_event',
-                'total_hit','status','start_date','end_date'], 'safe'],
+                'total_hit','status','start_date','end_date'
+            ], 'safe'
+            ],
 
             [['title','title_badge','image_badge_path','description','object_type','object_event',
-                'total_hit','status','start_date','end_date'], 'required'],
+                'total_hit','status','start_date','end_date'
+            ], 'required'
+            ],
 
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             ['end_date','validateEndDate'],

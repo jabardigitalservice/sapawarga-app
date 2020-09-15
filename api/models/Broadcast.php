@@ -37,7 +37,8 @@ use yii\db\ActiveRecord;
  */
 class Broadcast extends ActiveRecord
 {
-    use HasArea, HasCategory;
+    use HasArea;
+    use HasCategory;
 
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;
@@ -90,7 +91,8 @@ class Broadcast extends ActiveRecord
             ['scheduled_datetime', 'default'],
             ['scheduled_datetime', 'required', 'when' => function ($model) {
                 return $model->is_scheduled === true;
-            }],
+            }
+            ],
             ['scheduled_datetime', 'datetime', 'timestampAttribute' => 'scheduled_datetime'],
             ['scheduled_datetime', 'validateScheduledDateTime'],
 

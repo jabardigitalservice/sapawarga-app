@@ -62,9 +62,10 @@ class PollingSearch extends Polling
         if ($allLocation == true) {
             $query->andWhere(
                 ['and',
-                ['is', 'kabkota_id', null],
-                ['is', 'kec_id', null],
-                ['is', 'kel_id', null]]
+                    ['is', 'kabkota_id', null],
+                    ['is', 'kec_id', null],
+                    ['is', 'kel_id', null]
+                ]
             );
         }
 

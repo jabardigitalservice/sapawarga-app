@@ -114,7 +114,8 @@ class VideoSearch extends Video
         if (Arr::has($params, 'kabkota_id')) {
             $query->andWhere(['or',
                 ['kabkota_id' => $params['kabkota_id']],
-                ['kabkota_id' => null]]);
+                ['kabkota_id' => null]
+            ]);
         }
 
         return $query;

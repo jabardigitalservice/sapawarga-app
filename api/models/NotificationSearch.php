@@ -119,7 +119,7 @@ class NotificationSearch extends Notification
 
         return new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort' => ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],

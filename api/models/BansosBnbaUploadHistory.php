@@ -36,7 +36,8 @@ class BansosBnbaUploadHistory extends ActiveRecord
                 'final_url',
                 'timestamp',
                 'status',
-            ], 'safe'],
+            ], 'safe'
+            ],
         ];
     }
 }

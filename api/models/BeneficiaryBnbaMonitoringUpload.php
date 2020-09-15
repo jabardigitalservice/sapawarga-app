@@ -54,7 +54,7 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
         ];
     }
 
-    static function updateData($tahapBantuan=null, $kode_kab = null)
+    static function updateData($tahapBantuan = null, $kode_kab = null)
     {
         $rawQuery = <<<SQL
             SELECT
@@ -121,5 +121,4 @@ SQL;
             );
         }
     }
-
 }

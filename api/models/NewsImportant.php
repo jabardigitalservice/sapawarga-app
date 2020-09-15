@@ -36,7 +36,8 @@ use yii\db\ActiveRecord;
 
 class NewsImportant extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus, HasCategory;
+    use HasActiveStatus;
+    use HasCategory;
 
     const CATEGORY_TYPE = 'news_important';
     const STATUS_PUBLISHED = 10;

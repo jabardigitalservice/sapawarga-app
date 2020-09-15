@@ -181,7 +181,7 @@ class UserSearch extends Model
 
         return new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$this->sort_by => $this->sort_order]],
+            'sort' => ['defaultOrder' => [$this->sort_by => $this->sort_order]],
             'pagination' => [
                 'pageSize' => $this->limit,
             ],

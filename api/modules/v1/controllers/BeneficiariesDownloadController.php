@@ -149,7 +149,7 @@ class BeneficiariesDownloadController extends ActiveController
             $finalParams[] = [$col => $val];
         }
 
-        $jobHistory = new BansosBeneficiariesDownloadHistory;
+        $jobHistory = new BansosBeneficiariesDownloadHistory();
         $jobHistory->user_id = $user->id;
         $jobHistory->job_type = BansosBeneficiariesDownloadHistory::TYPE_VERVAL;
         $jobHistory->params = $queryParams;

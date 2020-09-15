@@ -27,7 +27,8 @@ use app\components\ModelHelper;
  */
 class Notification extends \yii\db\ActiveRecord
 {
-    use HasArea, HasCategory;
+    use HasArea;
+    use HasCategory;
 
     const STATUS_DELETED = -1;
     const STATUS_DRAFT = 0;

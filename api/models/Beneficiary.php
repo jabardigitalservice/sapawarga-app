@@ -54,7 +54,8 @@ use Illuminate\Support\Collection;
 
 class Beneficiary extends ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasActiveStatus;
+    use HasArea;
+    use HasActiveStatus;
 
     // Status ids for verification
     const STATUS_PENDING = 1;
@@ -195,7 +196,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             [['rw', 'rt', 'domicile_rw', 'domicile_rt'], 'filter', 'filter' => function ($value) {
                 $trimmed = ltrim($value, '0');
                 return $trimmed ? $trimmed : null;
-            }],
+            }
+            ],
             [
                 [
                     'status_verification', 'status', 'job_type_id', 'job_status_id',
@@ -217,7 +219,8 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
                 self::STATUS_APPROVED_KEC,
                 self::STATUS_REJECTED_KABKOTA,
                 self::STATUS_APPROVED_KABKOTA,
-            ]],
+            ]
+            ],
             ['status', 'in', 'range' => [-1, 0, 10]],
         ];
 
@@ -265,7 +268,7 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     {
         return [
             [
-                'name', 'unique', 'targetAttribute'=> ['name', 'domicile_address'],
+                'name', 'unique', 'targetAttribute' => ['name', 'domicile_address'],
                 'filter' => function ($query) {
                     $query->andWhere(['!=', 'status', Beneficiary::STATUS_DELETED])
                           ->andFilterWhere(['!=', 'id', $this->id]);

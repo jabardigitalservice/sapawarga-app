@@ -55,10 +55,10 @@ class PopupSearch extends Popup
         $todayDateTime = new Carbon();
 
         $query->andFilterWhere([
-                    'and',
-                    ['<=', 'start_date', $todayDateTime],
-                    ['>=', 'end_date', $todayDateTime],
-                ]);
+            'and',
+            ['<=', 'start_date', $todayDateTime],
+            ['>=', 'end_date', $todayDateTime],
+        ]);
 
         return $this->getQueryAll($query, $params);
     }

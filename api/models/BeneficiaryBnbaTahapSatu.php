@@ -57,7 +57,8 @@ use Illuminate\Support\Collection;
 
 class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasActiveStatus;
+    use HasArea;
+    use HasActiveStatus;
 
     const STATUS_PENDING = 1;
     const STATUS_REJECT = 2;

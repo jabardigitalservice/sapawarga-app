@@ -174,7 +174,7 @@ class BansosUploadController extends ActiveController implements ActiveStatus
         ->all();
 
         if (count($current_tahap) <= 0) {
-            throw new \yii\base\InvalidValueException;
+            throw new \yii\base\InvalidValueException();
         }
 
         $record = [
