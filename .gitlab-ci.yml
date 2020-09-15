@@ -94,10 +94,10 @@ test_api:
     - apk add git
     - export VERSION=$(cat ./version)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --update curl && rm -rf /var/cache/apk/*
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-    - chmod +x ./cc-test-reporter
-    - ./cc-test-reporter before-build
+    # - apk add --update curl && rm -rf /var/cache/apk/*
+    # - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    # - chmod +x ./cc-test-reporter
+    # - ./cc-test-reporter before-build
   script:
     - cp .env-template .env
     - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
@@ -116,7 +116,7 @@ test_api:
     - sleep 60
     - docker ps
     - docker-compose exec -T api php yii seeder
-    - docker-compose exec -T api php vendor/bin/codecept run
+    - docker-compose exec -T api php vendor/bin/codecept run unit
 
     # disable code coverage since xdebug is not installed. TBA technical considerations
     # - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
