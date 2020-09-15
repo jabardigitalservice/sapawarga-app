@@ -516,16 +516,20 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ['phone', 'trim'],
             ['kabkota_id', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
                 return $model->role <= self::ROLE_STAFF_KABKOTA;
-            }],
+            }
+            ],
             ['kec_id', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
                 return $model->role <= self::ROLE_STAFF_KEC;
-            }],
+            }
+            ],
             ['kel_id', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
                 return $model->role <= self::ROLE_STAFF_KEL;
-            }],
+            }
+            ],
             ['rw', 'required', 'on' => self::SCENARIO_REGISTER, 'when' => function ($model) {
                 return $model->role <= self::ROLE_STAFF_RW;
-            }],
+            }
+            ],
             [
                 [
                     'name', 'phone', 'address',

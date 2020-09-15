@@ -41,10 +41,11 @@ class SurveySearch extends Survey
         if ($allLocation == true) {
             $query->andWhere(
                 ['and',
-                ['is', 'kabkota_id', null],
-                ['is', 'kec_id', null],
-                ['is', 'kel_id', null],
-                ['is', 'rw', null]]
+                    ['is', 'kabkota_id', null],
+                    ['is', 'kec_id', null],
+                    ['is', 'kel_id', null],
+                    ['is', 'rw', null]
+                ]
             );
         }
 
@@ -124,7 +125,7 @@ class SurveySearch extends Survey
 
         $provider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort' => ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],

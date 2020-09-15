@@ -54,7 +54,7 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
         ];
     }
 
-    static function updateData($tahapBantuan = null, $kode_kab = null)
+    public static function updateData($tahapBantuan = null, $kode_kab = null)
     {
         $rawQuery = <<<SQL
             SELECT
@@ -77,7 +77,7 @@ class BeneficiaryBnbaMonitoringUpload extends ActiveRecord
                 %s #additional query to be inserted if required
               GROUP BY is_dtks_final, kode_kab
               ) as monitoring_list
-            LEFT JOIN areas ON 
+            LEFT JOIN areas ON
               areas.code_bps = kode_kab
               AND areas.depth = 2 # only kabkota level
             ;

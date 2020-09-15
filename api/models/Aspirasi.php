@@ -34,7 +34,9 @@ use yii\db\ActiveRecord;
  */
 class Aspirasi extends ActiveRecord
 {
-    use HasArea, HasCategory, HasAttachments;
+    use HasArea;
+    use HasCategory;
+    use HasAttachments;
 
     public const STATUS_DELETED = -1;
     public const STATUS_DRAFT = 0;
@@ -213,7 +215,8 @@ class Aspirasi extends ActiveRecord
             self::STATUS_PUBLISHED,
             self::STATUS_UNPUBLISHED,
             self::STATUS_APPROVAL_PENDING,
-            self::STATUS_APPROVAL_REJECTED])
+            self::STATUS_APPROVAL_REJECTED
+        ])
         ) {
             return $this->getStatusAspirasi();
         }
