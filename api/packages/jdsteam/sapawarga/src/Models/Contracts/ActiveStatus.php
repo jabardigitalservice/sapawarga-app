@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Jdsteam\Sapawarga\Models\Contracts;
 
 interface ActiveStatus

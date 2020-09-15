@@ -14,8 +14,8 @@ use Jdsteam\Sapawarga\Jobs\Concerns\HasJobHistory;
  * @property string $destination
  * @property string $template
  * @property string $content
- * @property string $subject 
- * @property string $jobHistoryClassName  class name for job history log 
+ * @property string $subject
+ * @property string $jobHistoryClassName  class name for job history log
  * @property string $historyId            id for the ascociated job history log
  */
 class GenericEmailJob extends BaseObject implements RetryableJobInterface
