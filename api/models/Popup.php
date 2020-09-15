@@ -29,12 +29,12 @@ use yii\db\ActiveRecord;
 
 class Popup extends ActiveRecord
 {
-    const STATUS_DELETED = -1;
-    const STATUS_ACTIVE = 10;
-    const STATUS_STARTED = 15;
+    public const STATUS_DELETED = -1;
+    public const STATUS_ACTIVE = 10;
+    public const STATUS_STARTED = 15;
 
-    const SCENARIO_CREATE = 'create';
-    const SCENARIO_UPDATE = 'update';
+    public const SCENARIO_CREATE = 'create';
+    public const SCENARIO_UPDATE = 'update';
 
     /**
      * {@inheritdoc}

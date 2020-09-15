@@ -21,8 +21,8 @@ use app\modules\v1\controllers\ActiveController as ActiveController;
  */
 class BeneficiariesBnbaController extends ActiveController
 {
-    const REDIS_KEY_BNBA_TYPE = 'bnba-statisticsbytype-';
-    const REDIS_KEY_BNBA_AREA = 'bnba-statisticsbyarea-';
+    public const REDIS_KEY_BNBA_TYPE = 'bnba-statisticsbytype-';
+    public const REDIS_KEY_BNBA_AREA = 'bnba-statisticsbyarea-';
 
     public $modelClass = BeneficiaryBnba::class;
 

@@ -36,21 +36,21 @@ class Aspirasi extends ActiveRecord
 {
     use HasArea, HasCategory, HasAttachments;
 
-    const STATUS_DELETED = -1;
-    const STATUS_DRAFT = 0;
+    public const STATUS_DELETED = -1;
+    public const STATUS_DRAFT = 0;
 
-    const STATUS_APPROVAL_REJECTED = 3;
-    const STATUS_APPROVAL_PENDING = 5;
-    const STATUS_UNPUBLISHED = 7;
-    const STATUS_PUBLISHED = 10;
+    public const STATUS_APPROVAL_REJECTED = 3;
+    public const STATUS_APPROVAL_PENDING = 5;
+    public const STATUS_UNPUBLISHED = 7;
+    public const STATUS_PUBLISHED = 10;
 
-    const ACTION_APPROVE = 'APPROVE';
-    const ACTION_REJECT = 'REJECT';
+    public const ACTION_APPROVE = 'APPROVE';
+    public const ACTION_REJECT = 'REJECT';
 
-    const CATEGORY_TYPE = 'aspirasi';
+    public const CATEGORY_TYPE = 'aspirasi';
 
-    const SCENARIO_USER_CREATE = 'user-create';
-    const SCENARIO_USER_UPDATE = 'user-update';
+    public const SCENARIO_USER_CREATE = 'user-create';
+    public const SCENARIO_USER_UPDATE = 'user-update';
 
     public function __construct($config = [])
     {

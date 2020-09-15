@@ -39,8 +39,8 @@ class NewsImportant extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
     use HasCategory;
 
-    const CATEGORY_TYPE = 'news_important';
-    const STATUS_PUBLISHED = 10;
+    public const CATEGORY_TYPE = 'news_important';
+    public const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}

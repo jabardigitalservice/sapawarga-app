@@ -36,8 +36,8 @@ class NewsHoax extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
     use HasCategory;
 
-    const CATEGORY_TYPE = 'newsHoax';
-    const STATUS_PUBLISHED = 10;
+    public const CATEGORY_TYPE = 'newsHoax';
+    public const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}

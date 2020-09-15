@@ -40,17 +40,17 @@ class Broadcast extends ActiveRecord
     use HasArea;
     use HasCategory;
 
-    const STATUS_DELETED = -1;
-    const STATUS_DRAFT = 0;
-    const STATUS_CANCELED = 1;
-    const STATUS_SCHEDULED = 5;
-    const STATUS_PUBLISHED = 10;
+    public const STATUS_DELETED = -1;
+    public const STATUS_DRAFT = 0;
+    public const STATUS_CANCELED = 1;
+    public const STATUS_SCHEDULED = 5;
+    public const STATUS_PUBLISHED = 10;
 
     // Category type for message user, see MessageJob on insertUserMessages()
-    const CATEGORY_TYPE = 'broadcast';
+    public const CATEGORY_TYPE = 'broadcast';
 
     // Default topic untuk semua user
-    const TOPIC_DEFAULT = 'kabkota';
+    public const TOPIC_DEFAULT = 'kabkota';
 
     /**
      * {@inheritdoc}

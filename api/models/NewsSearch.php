@@ -11,7 +11,7 @@ use yii\data\ActiveDataProvider;
  */
 class NewsSearch extends News
 {
-    const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_USER = 'list-user';
 
     public $userRole;
 

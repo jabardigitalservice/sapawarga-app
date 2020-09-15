@@ -59,30 +59,30 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     use HasArea;
 
-    const MAX_LENGTH = 255;
+    public const MAX_LENGTH = 255;
 
     // Constants for User's role and status
-    const ROLE_USER = 10;
-    const ROLE_TRAINER = 49;
-    const ROLE_STAFF_RW = 50;
-    const ROLE_STAFF_KEL = 60;
-    const ROLE_STAFF_KEC = 70;
-    const ROLE_STAFF_KABKOTA = 80;
-    const ROLE_STAFF_OPD = 88;
-    const ROLE_STAFF_SABERHOAX = 89;
-    const ROLE_STAFF_PROV = 90;
-    const ROLE_PIMPINAN = 91;
-    const ROLE_ADMIN = 99;
-    const ROLE_SERVICE_ACCOUNT = 100; // for third-party app need access (ex: dashboard command center)
+    public const ROLE_USER = 10;
+    public const ROLE_TRAINER = 49;
+    public const ROLE_STAFF_RW = 50;
+    public const ROLE_STAFF_KEL = 60;
+    public const ROLE_STAFF_KEC = 70;
+    public const ROLE_STAFF_KABKOTA = 80;
+    public const ROLE_STAFF_OPD = 88;
+    public const ROLE_STAFF_SABERHOAX = 89;
+    public const ROLE_STAFF_PROV = 90;
+    public const ROLE_PIMPINAN = 91;
+    public const ROLE_ADMIN = 99;
+    public const ROLE_SERVICE_ACCOUNT = 100; // for third-party app need access (ex: dashboard command center)
 
-    const STATUS_DELETED = -1;
-    const STATUS_DISABLED = 0;
-    const STATUS_PENDING = 1;
-    const STATUS_ACTIVE = 10;
-    const MAX_ROWS_EXPORT_ALLOWED = 50000;
+    public const STATUS_DELETED = -1;
+    public const STATUS_DISABLED = 0;
+    public const STATUS_PENDING = 1;
+    public const STATUS_ACTIVE = 10;
+    public const MAX_ROWS_EXPORT_ALLOWED = 50000;
 
     // Mapping User role's id type (string to integer)
-    const ROLE_MAP = [
+    public const ROLE_MAP = [
         'admin' => self::ROLE_ADMIN,
         'pimpinan' => self::ROLE_PIMPINAN,
         'staffProv' => self::ROLE_STAFF_PROV,
@@ -98,8 +98,8 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     ];
 
     // Constants for Scenario names
-    const SCENARIO_REGISTER = 'register';
-    const SCENARIO_UPDATE = 'update';
+    public const SCENARIO_REGISTER = 'register';
+    public const SCENARIO_UPDATE = 'update';
     /**
      * Store JWT token header items.
      * @var array

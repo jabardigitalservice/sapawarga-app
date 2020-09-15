@@ -35,7 +35,7 @@ class News extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    const STATUS_PUBLISHED = 10;
+    public const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}

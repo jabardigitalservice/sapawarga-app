@@ -17,10 +17,10 @@ use Jdsteam\Sapawarga\Jobs\ExportBnbaWithComplainJob;
  */
 class BansosBnbaDownloadHistory extends BaseDownloadHistory
 {
-    const TYPE_BNBA_ORIGINAL = 'bnba'; // original ExportBnba job type
-    const TYPE_BNBA_WITH_COMPLAIN = 'bnbawithcomplain'; // export type which include joined data from `beneficiaries_complain` table
+    public const TYPE_BNBA_ORIGINAL = 'bnba'; // original ExportBnba job type
+    public const TYPE_BNBA_WITH_COMPLAIN = 'bnbawithcomplain'; // export type which include joined data from `beneficiaries_complain` table
 
-    const AVAILABLE_TYPES = [
+    public const AVAILABLE_TYPES = [
         self::TYPE_BNBA_ORIGINAL => 'Original Template',
         self::TYPE_BNBA_WITH_COMPLAIN => 'Template With Complain Notes',
     ];

@@ -36,8 +36,8 @@ class Gamification extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    const SCENARIO_CREATE = 'create';
-    const SCENARIO_UPDATE = 'update';
+    public const SCENARIO_CREATE = 'create';
+    public const SCENARIO_UPDATE = 'update';
 
     /**
      * {@inheritdoc}

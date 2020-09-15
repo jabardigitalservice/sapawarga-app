@@ -20,7 +20,7 @@ use GuzzleHttp\Exception\RequestException;
  */
 class BansosUploadController extends ActiveController implements ActiveStatus
 {
-    const STATUS_INVALID = 20;
+    public const STATUS_INVALID = 20;
 
     public $modelClass = DynamicModel::class;
 

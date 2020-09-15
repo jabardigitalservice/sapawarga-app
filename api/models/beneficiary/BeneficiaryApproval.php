@@ -18,7 +18,7 @@ use app\models\Beneficiary;
 class BeneficiaryApproval extends Beneficiary
 {
     // Determines statuses shown for each type of dashboard
-    const APPROVAL_MAP = [
+    public const APPROVAL_MAP = [
         Beneficiary::TYPE_PROVINSI => [
             'pending' => Beneficiary::STATUS_APPROVED_KEC,
             'rejected' => Beneficiary::STATUS_REJECTED_KABKOTA,

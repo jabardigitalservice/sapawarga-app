@@ -38,8 +38,8 @@ class Video extends ActiveRecord implements ActiveStatus
     use HasCategory;
     use HasActiveStatus;
 
-    const CATEGORY_TYPE = 'video';
-    const STATUS_PUBLISHED = 10;
+    public const CATEGORY_TYPE = 'video';
+    public const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}

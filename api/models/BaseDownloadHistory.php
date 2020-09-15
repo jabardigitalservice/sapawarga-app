@@ -22,10 +22,10 @@ use app\models\BeneficiaryBnbaTahapSatu;
  */
 class BaseDownloadHistory extends ActiveRecord
 {
-    const STATUS_START = 1;
-    const STATUS_SUCCESS = 10;
-    const STATUS_ERROR = 20;
-    const STATUS_VALIDATION_ERROR = 21;
+    public const STATUS_START = 1;
+    public const STATUS_SUCCESS = 10;
+    public const STATUS_ERROR = 20;
+    public const STATUS_VALIDATION_ERROR = 21;
 
     private $_job_details;
 

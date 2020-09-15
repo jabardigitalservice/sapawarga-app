@@ -35,7 +35,7 @@ class PhoneBook extends \yii\db\ActiveRecord implements ActiveStatus
     use HasArea;
     use HasCategory;
 
-    const CATEGORY_TYPE = 'phonebook';
+    public const CATEGORY_TYPE = 'phonebook';
 
     /**
      * {@inheritdoc}

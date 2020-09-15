@@ -58,31 +58,31 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
 
     // Status ids for verification
-    const STATUS_PENDING = 1;
-    const STATUS_REJECT = 2;
-    const STATUS_VERIFIED = 3;
+    public const STATUS_PENDING = 1;
+    public const STATUS_REJECT = 2;
+    public const STATUS_VERIFIED = 3;
 
     // Status ids for approval
-    const STATUS_REJECTED_KEL = 4;
-    const STATUS_APPROVED_KEL = 5;
-    const STATUS_REJECTED_KEC = 6;
-    const STATUS_APPROVED_KEC = 7;
-    const STATUS_REJECTED_KABKOTA = 8;
-    const STATUS_APPROVED_KABKOTA = 9;
+    public const STATUS_REJECTED_KEL = 4;
+    public const STATUS_APPROVED_KEL = 5;
+    public const STATUS_REJECTED_KEC = 6;
+    public const STATUS_APPROVED_KEC = 7;
+    public const STATUS_REJECTED_KABKOTA = 8;
+    public const STATUS_APPROVED_KABKOTA = 9;
 
     // Action names for approval
-    const ACTION_APPROVE = 'APPROVE';
-    const ACTION_REJECT = 'REJECT';
+    public const ACTION_APPROVE = 'APPROVE';
+    public const ACTION_REJECT = 'REJECT';
 
     // Types used on Dashboards
-    const TYPE_PROVINSI = 'provinsi';
-    const TYPE_KABKOTA = 'kabkota';
-    const TYPE_KEC = 'kec';
-    const TYPE_KEL = 'kel';
-    const TYPE_RW = 'rw';
+    public const TYPE_PROVINSI = 'provinsi';
+    public const TYPE_KABKOTA = 'kabkota';
+    public const TYPE_KEC = 'kec';
+    public const TYPE_KEL = 'kel';
+    public const TYPE_RW = 'rw';
 
     // Label for status_verification
-    const STATUS_VERIFICATION_LABEL = [
+    public const STATUS_VERIFICATION_LABEL = [
         self::STATUS_PENDING => 'status.beneficiary.pending',
         self::STATUS_REJECT => 'status.beneficiary.reject',
         self::STATUS_VERIFIED => 'status.beneficiary.verified',
@@ -95,9 +95,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
     ];
 
     // Constants for Scenario names
-    const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
-    const SCENARIO_VALIDATE_KK = 'validate-kk';
-    const SCENARIO_VALIDATE_NIK = 'validate-nik';
+    public const SCENARIO_VALIDATE_ADDRESS = 'validate-address';
+    public const SCENARIO_VALIDATE_KK = 'validate-kk';
+    public const SCENARIO_VALIDATE_NIK = 'validate-nik';
 
     /**
      * {@inheritdoc}

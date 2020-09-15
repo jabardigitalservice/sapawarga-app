@@ -12,8 +12,8 @@ use yii\data\ActiveDataProvider;
  */
 class NewsImportantSearch extends NewsImportant
 {
-    const SCENARIO_LIST_STAFF = 'list-staff';
-    const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_USER = 'list-user';
 
     /**
      * Creates data provider instance with search query applied
