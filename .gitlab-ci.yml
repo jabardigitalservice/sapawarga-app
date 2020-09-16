@@ -81,6 +81,7 @@ unit_test:
   stage: test
   image: docker/compose:latest
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
     - changes:
       - "**/*.{php,sql,yml}"
   services:
