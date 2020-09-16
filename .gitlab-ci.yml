@@ -77,7 +77,7 @@ build_image:
     - docker images
     - docker-compose push
 
-test_api:
+unit_test:
   stage: test
   image: docker/compose:latest
   rules:
