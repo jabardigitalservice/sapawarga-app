@@ -7,7 +7,6 @@ use app\models\NewsImportant;
 use app\models\NewsImportantSearch;
 use app\models\NewsImportantAttachment;
 use app\modules\v1\repositories\LikeRepository;
-use Jdsteam\Sapawarga\Filters\RecordLastActivity;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
@@ -25,10 +24,6 @@ class NewsImportantController extends ActiveController
         $behaviors = parent::behaviors();
 
         array_push($behaviors['verbs']['actions'], ['likes' => ['post']]);
-
-        $behaviors['recordLastActivity'] = [
-            'class' => RecordLastActivity::class,
-        ];
 
         return $this->behaviorCors($behaviors);
     }
