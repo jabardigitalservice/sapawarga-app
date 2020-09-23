@@ -17,7 +17,7 @@ class BroadcastSearch extends Model
 {
     public $user_id;
 
-    const SCENARIO_LIST_STAFF_DEFAULT = 'list-staff-default';
+    public const SCENARIO_LIST_STAFF_DEFAULT = 'list-staff-default';
 
     /**
      * Creates data provider instance with search query applied

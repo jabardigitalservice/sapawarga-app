@@ -61,130 +61,35 @@ trait HasArea
         ];
     }
 
-    // Get name by code_bps NIK
-    public function getKelurahanNikBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'kel_bps_id']);
-    }
-
-    public function getKecamatanNikBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'kec_bps_id']);
-    }
-
-    public function getKabkotaNikBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'kabkota_bps_id']);
-    }
-
-    public function getProvinceNikBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'province_bps_id']);
-    }
-
     protected function getKabkotaBpsField()
     {
-        if (empty($this->kabkotaNikBps)) {
-            return null;
-        }
-
         return [
-            'id' => $this->kabkotaNikBps->id,
-            'code_bps' => $this->kabkotaNikBps->code_bps,
-            'name' => $this->kabkotaNikBps->name,
+            'code_bps' => $this->domicile_kabkota_bps_id,
+            'name' => $this->domicile_kabkota_name,
         ];
     }
 
     protected function getKecBpsField()
     {
-        if (empty($this->kecamatanNikBps)) {
-            return null;
-        }
-
         return [
-            'id' => $this->kecamatanNikBps->id,
-            'code_bps' => $this->kecamatanNikBps->code_bps,
-            'name' => $this->kecamatanNikBps->name,
+            'code_bps' => $this->domicile_kec_bps_id,
+            'name' => $this->domicile_kec_name,
         ];
     }
 
     protected function getKelBpsField()
     {
-        if (empty($this->kelurahanNikBps)) {
-            return null;
-        }
-
         return [
-            'id' => $this->kelurahanNikBps->id,
-            'code_bps' => $this->kelurahanNikBps->code_bps,
-            'name' => $this->kelurahanNikBps->name,
+            'code_bps' => $this->domicile_kel_bps_id,
+            'name' => $this->domicile_kel_name,
         ];
     }
 
     protected function getProvBpsField()
     {
-        if (empty($this->provinceNikBps)) {
-            return null;
-        }
-
         return [
-            'id' => $this->provinceNikBps->id,
-            'code_bps' => $this->provinceNikBps->code_bps,
-            'name' => $this->provinceNikBps->name,
-        ];
-    }
-
-
-    // Get name by code_bps domicile
-    public function getKelurahanBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kel_bps_id']);
-    }
-
-    public function getKecamatanBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kec_bps_id']);
-    }
-
-    public function getKabkotaBps()
-    {
-        return $this->hasOne(Area::className(), ['code_bps' => 'domicile_kabkota_bps_id']);
-    }
-
-
-    protected function getDomicileKabkotaField()
-    {
-        if (empty($this->kabkotaBps)) {
-            return null;
-        }
-
-        return [
-            'code_bps' => $this->kabkotaBps->code_bps,
-            'name' => $this->kabkotaBps->name,
-        ];
-    }
-
-    protected function getDomicileKecField()
-    {
-        if (empty($this->kecamatanBps)) {
-            return null;
-        }
-
-        return [
-            'code_bps' => $this->kecamatanBps->code_bps,
-            'name' => $this->kecamatanBps->name,
-        ];
-    }
-
-    protected function getDomicileKelField()
-    {
-        if (empty($this->kelurahanBps)) {
-            return null;
-        }
-
-        return [
-            'code_bps' => $this->kelurahanBps->code_bps,
-            'name' => $this->kelurahanBps->name,
+            'code_bps' => $this->domicile_province_bps_id,
+            'name' => 'JAWA BARAT',
         ];
     }
 

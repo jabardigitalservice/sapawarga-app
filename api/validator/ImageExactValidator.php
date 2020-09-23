@@ -49,14 +49,16 @@ class ImageExactValidator extends ImageValidator
             return [$this->notImage, ['file' => $image->name]];
         }
 
-        if ($this->exactWidth !== $width &&
+        if (
+            $this->exactWidth !== $width &&
             $this->exactHeight !== $height
         ) {
             return [$this->dimensionNotValid, [
                 'file'   => $image->name,
                 'width'  => $this->exactWidth,
                 'height' => $this->exactHeight
-            ]];
+            ]
+            ];
         }
 
         return null;

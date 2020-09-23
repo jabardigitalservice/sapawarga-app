@@ -27,7 +27,7 @@ class m191029_084447_create_table_news_important extends CustomMigration
 
         $this->createTable('news_important_attachment', [
             'id' => $this->primaryKey(),
-            'news_important_id' =>$this->integer()->notNull(),
+            'news_important_id' => $this->integer()->notNull(),
             'file_path' => $this->string()->notNull(),
         ]);
 

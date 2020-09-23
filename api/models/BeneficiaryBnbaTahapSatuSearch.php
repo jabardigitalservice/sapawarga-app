@@ -40,17 +40,12 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
             $query->andFilterWhere(['id_tipe_bansos' => ltrim(Arr::get($params, 'id_tipe_bansos'), '0')]);
         }
 
-        if (empty(Arr::get($params, 'tahap_bantuan'))) {
-            $query->andFilterWhere(['or', ['tahap_bantuan' => 1], ['tahap_bantuan' => 2] ]);
-        } else {
-            $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
-        }
-
+        $query->andFilterWhere(['tahap_bantuan' => Arr::get($params, 'tahap')]);
         $query->andFilterWhere(['kode_kab' => Arr::get($params, 'kode_kab')]);
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kode_kec')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kode_kel')]);
         $query->andFilterWhere(['`rw` * 1' => ltrim(Arr::get($params, 'rw'), '0')]);
-        $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
+        $query->andFilterWhere(['`rt` * 1' => ltrim(Arr::get($params, 'rt'), '0')]);
 
         return $this->getQueryAll($query, $params);
     }

@@ -19,7 +19,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
     use HasJobHistory;
 
     public $userId;
-    static function getColumns()
+    public static function getColumns()
     {
         return [
             'id',
@@ -45,7 +45,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
         ];
     }
 
-    static function getColumnHeaders()
+    public static function getColumnHeaders()
     {
         return array_merge(self::getColumns(), [
             'Pintu Bantuan',
@@ -65,11 +65,22 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         // size of query batch size used during database retrieval
         $batchSize = 1000;
-        echo "Params: ";
+        echo 'Params: ';
         print_r($jobHistory->params);
 
         // #### QUERY CONSTRUCTION
-        $query = $jobHistory->getQuery();
+        $subquery = $jobHistory->getQuery();
+
+        $query = (new \yii\db\Query())
+            ->select([
+                'bnba.*',
+                'sapawarga_rw' => "GROUP_CONCAT(DISTINCT (IF(bnba_com.nik='1' ,bnba_com.notes_reason,NULL)))",
+                'solidaritas' => "GROUP_CONCAT(DISTINCT IF(bnba_com.nik<>'1' ,bnba_com.notes_reason,NULL))",
+            ])
+            ->from(['bnba' => $subquery])
+            ->leftJoin(['bnba_com' => 'beneficiaries_complain'], 'bnba_com.beneficiaries_id = bnba.id')
+            ->groupBy(['bnba.id'])
+            ;
 
         $rowNumbers = $jobHistory->total_row;
         echo "Number of rows to be processed : $rowNumbers" . PHP_EOL;
@@ -104,8 +115,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $numProcessed = 0;
         $dummyBnbaModel = new BeneficiaryBnbaTahapSatu();
-        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba)
-        {
+        foreach ($query->batch($batchSize, $unbufferedDb) as $listBnba) {
             foreach ($listBnba as $row) {
                 $result = [];
                 $dummyBnbaModel->id_tipe_bansos = $row['id_tipe_bansos'];
@@ -114,8 +124,8 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
                     $result[$key] = $row[$key];
                 }
                 $result['bansostype'] = $dummyBnbaModel->bansostype;
-                $result['sapawarga_rw'] = '';
-                $result['solidaritas'] = '';
+                $result['sapawarga_rw'] = $row['sapawarga_rw'];
+                $result['solidaritas'] = $row['solidaritas'];
                 $result['layak_bantuan'] = 'Ya';
 
                 $rowFromValues = WriterEntityFactory::createRowFromArray($result);
@@ -123,7 +133,7 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
             }
 
             $numProcessed += count($listBnba);
-            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed*100/$rowNumbers));
+            echo sprintf("Processed : %d/%d (%.2f%%)\n", $numProcessed, $rowNumbers, ($numProcessed * 100 / $rowNumbers));
 
             $jobHistory->processed_row = $numProcessed;
             $jobHistory->save();
@@ -134,11 +144,11 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
 
         $jobHistory->setFinish();
 
-        echo "Finished generating export file" . PHP_EOL;
+        echo 'Finished generating export file' . PHP_EOL;
 
         // upload to S3 & send notification email
         $relativePath = "export-bnba-list/$fileName";
-        Yii::$app->queue->priority(10)->push(new UploadS3Job([
+        $uploadJob = new UploadS3Job([
             'jobHistoryClassName' => 'app\models\BansosBnbaDownloadHistory',
             'relativePath' => $relativePath,
             'filePathTemp' => $filePathTemp,
@@ -148,8 +158,8 @@ class ExportBnbaWithComplainJob extends BaseObject implements RetryableJobInterf
                 'template' => ['html' => 'email-result-export-list-bnba'],
                 'subject' => 'Notifikasi dari Sapawarga: Hasil export daftar BNBA sudah bisa diunduh!',
             ],
-        ]));
-
+        ]);
+        $uploadJob->execute(Yii::$app->queue);
     }
 
     /**

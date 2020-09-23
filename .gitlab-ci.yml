@@ -1,8 +1,9 @@
 stages:
   - versioning
+  - code_style
   - code_quality
   - build
-  # - test
+  - test
   - deploy_staging
   - deploy_prod
 
@@ -20,6 +21,16 @@ versioning:
   artifacts:
     paths:
       - version
+
+code_style:
+  image: docker:stable
+  stage: code_style
+  only:
+    - branches
+  services:
+    - docker:stable-dind
+  script:
+    - docker run --rm -v $(pwd):/data cytopia/phpcs --standard=api/phpcs.xml --extensions=php api/
 
 code_quality:
   image: docker:stable
@@ -66,75 +77,79 @@ build_image:
     - docker images
     - docker-compose push
 
-# test_api:
-#   stage: test
-#   image: docker/compose:latest
-#   rules:
-#     - changes:
-#       - "**/*.{php,sql,yml}"
-#   services:
-#     - docker:stable-dind
-#   variables:
-#     GIT_COMMIT_SHA: $CI_COMMIT_SHA
-#     GIT_BRANCH: $CI_COMMIT_REF_NAME
-#   dependencies:
-#     - versioning
-#   before_script:
-#     - apk add git
-#     - export VERSION=$(cat ./version)
-#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-#     - apk add --update curl && rm -rf /var/cache/apk/*
-#     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-#     - chmod +x ./cc-test-reporter
-#     - ./cc-test-reporter before-build
-#   script:
-#     - cp .env-template .env
-#     - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
-#     - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
-#     - sed -i "s/%MYSQL_HOST%/database/g" .env
-#     - sed -i "s/%MYSQL_PORT%/3306/g" .env
-#     - sed -i "s/%MYSQL_DATABASE%/sapawarga_test/g" .env
-#     - sed -i "s/%MYSQL_USER%/sapawarga/g" .env
-#     - sed -i "s/%MYSQL_PASSWORD%/secret/g" .env
-#     - sed -i "s/%MYSQL_ROOT_PASSWORD%/secret/g" .env
-#     - sed -i "s/%ERROR_REPORT%/false/g" .env
-#     - cat .env
-#     - docker-compose pull
-#     - docker images
-#     - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
-#     - sleep 60
-#     - docker ps
-#     - docker-compose exec -T api composer sniff
-#     - docker-compose exec -T api php yii seeder
-#     - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
-#     - mv ./api/tests/_output/coverage.xml ./clover.xml
-#     - sed -i "s|/srv|$(pwd)/api|g" clover.xml
-#     - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
-
-deploy_staging_aws:
-  image: docker:stable
-  stage: deploy_staging
-  only:
-    - develop
+unit_test:
+  stage: test
+  image: docker/compose:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - changes:
+      - "**/*.{php,sql,yml}"
+  services:
+    - docker:stable-dind
+  variables:
+    GIT_COMMIT_SHA: $CI_COMMIT_SHA
+    GIT_BRANCH: $CI_COMMIT_REF_NAME
   dependencies:
     - versioning
   before_script:
+    - apk add git
     - export VERSION=$(cat ./version)
-    - 'which ssh-agent || ( apk update && apk add openssh-client )'
-    - mkdir -p ~/.ssh
-    - eval $(ssh-agent -s)
-    - chmod 400 $SSH_STAGING_KEY_PRIVATE_AWS
-    - ssh-add $SSH_STAGING_KEY_PRIVATE_AWS
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    # - apk add --update curl && rm -rf /var/cache/apk/*
+    # - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    # - chmod +x ./cc-test-reporter
+    # - ./cc-test-reporter before-build
   script:
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "export VERSION=${VERSION} && cd /home/ubuntu/projects/sapawarga-app && sudo git pull && sudo docker image prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose --compatibility up -d"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
-    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
+    - cp .env-template .env
+    - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
+    - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
+    - sed -i "s/%MYSQL_HOST%/database/g" .env
+    - sed -i "s/%MYSQL_PORT%/3306/g" .env
+    - sed -i "s/%MYSQL_DATABASE%/sapawarga_test/g" .env
+    - sed -i "s/%MYSQL_USER%/sapawarga/g" .env
+    - sed -i "s/%MYSQL_PASSWORD%/secret/g" .env
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/secret/g" .env
+    - sed -i "s/%ERROR_REPORT%/false/g" .env
+    - cat .env
+    - docker-compose pull
+    - docker images
+    - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
+    - sleep 60
+    - docker ps
+    - docker-compose exec -T api php yii seeder
+    - docker-compose exec -T api php vendor/bin/codecept run unit
+
+    # disable code coverage since xdebug is not installed. TBA technical considerations
+    # - docker-compose exec -T api php vendor/bin/codecept run --coverage --coverage-xml
+    # - mv ./api/tests/_output/coverage.xml ./clover.xml
+    # - sed -i "s|/srv|$(pwd)/api|g" clover.xml
+    # - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
+
+#deploy_staging_aws:
+#  image: docker:stable
+#  stage: deploy_staging
+#  only:
+#    - develop
+#  dependencies:
+#    - versioning
+#  before_script:
+#    - export VERSION=$(cat ./version)
+#    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+#    - mkdir -p ~/.ssh
+#    - eval $(ssh-agent -s)
+#    - chmod 400 $SSH_STAGING_KEY_PRIVATE_AWS
+#    - ssh-add $SSH_STAGING_KEY_PRIVATE_AWS
+#  script:
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "export VERSION=${VERSION} && cd /home/ubuntu/projects/sapawarga-app && sudo git pull && sudo docker image prune -f && sudo -E docker-compose pull && sudo -E docker-compose down && sudo -E docker-compose --compatibility up -d"
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker ps"
+#    - ssh -o StrictHostKeyChecking=no ${SSH_STAGING_USERNAME_AWS}@${STAGING_HOST_AWS} "sudo docker image prune -a -f"
 
 
-deploy_staging_eks:
+deploy_staging_jabarcloud:
   stage: deploy_staging
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.3.1
   environment:
     name: staging
   only:
@@ -143,12 +158,11 @@ deploy_staging_eks:
     - versioning
   before_script:
     - export VERSION=$(cat ./version)
-    - kubectl config set-cluster k8s --server="${EKS_SERVER_V2}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${EKS_CA_V2}
-    - kubectl config set-credentials gitlab-eks-admin-development --token="${EKS_TOKEN_V2}"
-    - kubectl config set-context default --cluster=k8s --user=gitlab-eks-admin-development
-    - kubectl config use-context default
-    - kubectl cluster-info
+    - echo $kube_config | base64 -d > kubeconfig
+    - export KUBECONFIG=./kubeconfig
+    - echo $cert_key | base64 -d > client.key
+    - kubectl config set-credentials gitlab --client-key=client.key --embed-certs=true
+    - kubectl config set-cluster $cluster_name --insecure-skip-tls-verify=true
   script:
     - cp kubernetes/backend-variables-sample.yaml kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_LOCAL_URL%/${APP_STORAGE_LOCAL_URL}/g" kubernetes/backend-variables.yaml
@@ -197,6 +211,10 @@ deploy_staging_eks:
     - sed -i "s/%KEPENDUDUKAN_API_BASE_URL%/${KEPENDUDUKAN_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%KEPENDUDUKAN_API_KEY%/${KEPENDUDUKAN_API_KEY}/g" kubernetes/backend-variables.yaml
 
+    # Bansos API STAGING
+    - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
+
     # Mailer STAGING #
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MAILER_HOST%/${MAILER_HOST}/g" kubernetes/backend-variables.yaml
@@ -216,26 +234,21 @@ deploy_staging_eks:
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
      # version deployment #
-    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
-    - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
+    - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment-staging.yaml
      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
      # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-deployment.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-variables.yaml
+        -f kubernetes/backend-api-deployment-staging.yaml
         -f kubernetes/backend-api-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-mysql-deployment.yaml
-        -f kubernetes/backend-mysql-service.yaml
-        -f kubernetes/backend-api-deployment.yaml
+        -f kubernetes/backend-api-deployment-staging.yaml
         -f kubernetes/backend-api-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
     - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
-    - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
-    - kubectl create --dry-run --validate -f kubernetes/backend-queue-import-job.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-job.yaml
+    - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
     - kubectl apply -f kubernetes/backend-queue-import-job.yaml
 
@@ -282,6 +295,9 @@ deploy_prod_eks:
     - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
 
+    # Bansos API Production
+    - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
 
 
     # mysql replica production #

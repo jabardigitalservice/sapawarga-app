@@ -30,10 +30,10 @@ class m200803_114800_create_table_queue_details extends Migration
         ]);
 
         // migrate data from old bansos download histories tables
-        foreach ((new yii\db\Query)->from('bansos_verval_download_histories')->each() as $row) {
+        foreach ((new yii\db\Query())->from('bansos_verval_download_histories')->each() as $row) {
             $this->insertQueueDetail($row);
         }
-        foreach ((new yii\db\Query)->from('bansos_bnba_download_histories')->each() as $row) {
+        foreach ((new yii\db\Query())->from('bansos_bnba_download_histories')->each() as $row) {
             $this->insertQueueDetail($row);
         }
 
@@ -77,7 +77,7 @@ class m200803_114800_create_table_queue_details extends Migration
         ]);
 
         // re-insert both table with data from queue_details
-        foreach ((new yii\db\Query)->from('queue_details')->each() as $row) {
+        foreach ((new yii\db\Query())->from('queue_details')->each() as $row) {
             $results = json_decode($row['results'], true);
             $logs = json_decode($row['logs'], true);
             $params = json_decode($row['params'], true);
@@ -124,8 +124,8 @@ class m200803_114800_create_table_queue_details extends Migration
         $notes = null;
         $results = [];
         $logs = [
-          'job_id' => $row['job_id'],
-          'errors' => json_decode($row['errors']),
+            'job_id' => $row['job_id'],
+            'errors' => json_decode($row['errors']),
         ];
         $results = [ 'final_url' => $row['final_url'] ];
 

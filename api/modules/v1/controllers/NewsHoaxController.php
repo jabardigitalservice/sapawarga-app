@@ -86,8 +86,10 @@ class NewsHoaxController extends ActiveController
             ->andWhere(['!=', 'status', NewsHoax::STATUS_DELETED]);
 
         $user = Yii::$app->user;
-        if ($user->can('newsSaberHoaxList')
-            && $user->can('newsSaberhoaxManage') === false) {
+        if (
+            $user->can('newsSaberHoaxList')
+            && $user->can('newsSaberhoaxManage') === false
+        ) {
             $query = $query->andWhere(['!=', 'status', NewsHoax::STATUS_DISABLED]);
         }
 
@@ -107,8 +109,10 @@ class NewsHoaxController extends ActiveController
         $user   = Yii::$app->user;
         $search = new NewsHoaxSearch();
 
-        if ($user->can('newsSaberHoaxList')
-            && $user->can('newsSaberhoaxManage') === false) {
+        if (
+            $user->can('newsSaberHoaxList')
+            && $user->can('newsSaberhoaxManage') === false
+        ) {
             $search->scenario = NewsHoaxSearch::SCENARIO_LIST_USER;
         }
 

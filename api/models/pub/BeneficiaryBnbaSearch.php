@@ -48,7 +48,7 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             $query->andFilterWhere(['`rw` * 1' => str_replace('RW ', '', Arr::get($params, 'rw'))]);
         }
 
-        $query->andFilterWhere(['rt' => Arr::get($params, 'rt')]);
+        $query->andFilterWhere(['`rt` * 1' => Arr::get($params, 'rt')]);
 
         if (Arr::get($params, 'nama_krt')) {
             $query->andFilterWhere(['like', 'nama_krt', Arr::get($params, 'nama_krt') . '%', false]);
