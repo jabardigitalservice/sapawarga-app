@@ -468,6 +468,15 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => 'v1/beneficiaries-bnba-monitoring-upload',
+        'pluralize' => true,
+        'extraPatterns' => [
+            'GET update-data' => 'update-data',
+        ],
+    ],
+
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => 'v1/beneficiaries-complain',
         'pluralize' => false,
         'tokens' => [
@@ -519,6 +528,8 @@ return [
             'OPTIONS statistics-by-area' => 'options',
             'GET statistics-update' => 'statistics-update',
             'OPTIONS statistics-update' => 'options',
+            'GET flagging' => 'flagging',
+            'OPTIONS flagging' => 'options',
         ]
     ],
     [

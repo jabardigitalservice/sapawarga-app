@@ -122,7 +122,7 @@ class AttachmentController extends ActiveController
         ];
 
         if (Arr::has($types, $type)) {
-            return new $types[$type];
+            return new $types[$type]();
         }
 
         return null;

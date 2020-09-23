@@ -11,35 +11,35 @@ class UserExport extends Model
 {
     public function getUserExport($params)
     {
-        $query = new Query;
+        $query = new Query();
         $query->select([
-                    'user.id',
-                    'username',
-                    'email',
-                    'user.role',
-                    'unconfirmed_email',
-                    'registration_ip',
-                    'last_login_ip',
-                    'user.status',
-                    'user.name',
-                    'phone',
-                    'address',
-                    'rt',
-                    'rw',
-                    'kel.name AS kel_name',
-                    'kec.name AS kec_name',
-                    'kabkota.name AS kabkota_name',
-                    'facebook',
-                    'twitter',
-                    'instagram',
-                    'DATE_FORMAT(FROM_UNIXTIME(confirmed_at),"%d-%m-%Y") AS confirmed_at',
-                    'DATE_FORMAT(FROM_UNIXTIME(last_login_at),"%d-%m-%Y") AS last_login_at',
-                    'DATE_FORMAT(FROM_UNIXTIME(user.created_at), "%d-%m-%Y") AS created_at',
-                    'DATE_FORMAT(FROM_UNIXTIME(user.updated_at), "%d-%m-%Y") AS updated_at',
-                    'DATE_FORMAT(FROM_UNIXTIME(password_updated_at), "%d-%m-%Y") AS password_updated_at',
-                    'DATE_FORMAT(FROM_UNIXTIME(profile_updated_at), "%d-%m-%Y") AS profile_updated_at',
-                    'DATE_FORMAT(last_access_at, "%d-%m-%Y") AS last_access_at',
-            ])
+            'user.id',
+            'username',
+            'email',
+            'user.role',
+            'unconfirmed_email',
+            'registration_ip',
+            'last_login_ip',
+            'user.status',
+            'user.name',
+            'phone',
+            'address',
+            'rt',
+            'rw',
+            'kel.name AS kel_name',
+            'kec.name AS kec_name',
+            'kabkota.name AS kabkota_name',
+            'facebook',
+            'twitter',
+            'instagram',
+            'DATE_FORMAT(FROM_UNIXTIME(confirmed_at),"%d-%m-%Y") AS confirmed_at',
+            'DATE_FORMAT(FROM_UNIXTIME(last_login_at),"%d-%m-%Y") AS last_login_at',
+            'DATE_FORMAT(FROM_UNIXTIME(user.created_at), "%d-%m-%Y") AS created_at',
+            'DATE_FORMAT(FROM_UNIXTIME(user.updated_at), "%d-%m-%Y") AS updated_at',
+            'DATE_FORMAT(FROM_UNIXTIME(password_updated_at), "%d-%m-%Y") AS password_updated_at',
+            'DATE_FORMAT(FROM_UNIXTIME(profile_updated_at), "%d-%m-%Y") AS profile_updated_at',
+            'DATE_FORMAT(last_access_at, "%d-%m-%Y") AS last_access_at',
+        ])
             ->from('user')
             ->leftJoin('areas kabkota', '`kabkota`.`id` = `user`.`kabkota_id`')
             ->leftJoin('areas kec', '`kec`.`id` = `user`.`kec_id`')

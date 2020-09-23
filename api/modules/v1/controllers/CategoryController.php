@@ -175,8 +175,10 @@ class CategoryController extends ActiveController
                 }
                 break;
             case 'update':
-                if (in_array($model->type, Category::EXCLUDED_TYPES)
-                    || in_array(Arr::get($params, 'type'), Category::EXCLUDED_TYPES)) {
+                if (
+                    in_array($model->type, Category::EXCLUDED_TYPES)
+                    || in_array(Arr::get($params, 'type'), Category::EXCLUDED_TYPES)
+                ) {
                     throw new ForbiddenHttpException(Yii::t('app', 'error.role.permission'));
                 }
                 break;

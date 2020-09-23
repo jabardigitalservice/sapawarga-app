@@ -3,6 +3,7 @@
 /**
 * Translation map for id-ID, app category
 */
+
 return [
     'app.username' => 'Username',
     'app.email' => 'Email',

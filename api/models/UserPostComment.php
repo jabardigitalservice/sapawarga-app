@@ -22,7 +22,8 @@ use app\components\ModelHelper;
  */
 class UserPostComment extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus, HasComment;
+    use HasActiveStatus;
+    use HasComment;
 
     /**
      * {@inheritdoc}

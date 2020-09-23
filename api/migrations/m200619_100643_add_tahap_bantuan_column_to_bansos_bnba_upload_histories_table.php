@@ -16,7 +16,7 @@ class m200619_100643_add_tahap_bantuan_column_to_bansos_bnba_upload_histories_ta
          $this->addColumn('bansos_bnba_upload_histories', 'tahap_bantuan', $this->integer());
 
         // set all existing tahap_bantuan in bansos_bnba_upload_histories to 2
-        foreach ((new Query)->from('bansos_bnba_upload_histories')->each() as $row) {
+        foreach ((new Query())->from('bansos_bnba_upload_histories')->each() as $row) {
             $this->update('bansos_bnba_upload_histories', ['tahap_bantuan' => 2], ['id' => $row['id']]);
         }
     }

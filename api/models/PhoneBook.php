@@ -31,9 +31,11 @@ use yii\behaviors\TimestampBehavior;
  */
 class PhoneBook extends \yii\db\ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus, HasArea, HasCategory;
+    use HasActiveStatus;
+    use HasArea;
+    use HasCategory;
 
-    const CATEGORY_TYPE = 'phonebook';
+    public const CATEGORY_TYPE = 'phonebook';
 
     /**
      * {@inheritdoc}

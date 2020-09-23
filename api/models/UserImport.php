@@ -40,22 +40,26 @@ class UserImport extends Model
 
             ['kabkota_id', 'required', 'when' => function ($model) {
                 return $model->role <= User::ROLE_STAFF_KABKOTA;
-            }, 'message' => 'Nama Kabupaten/Kota tidak diisi atau tidak ditemukan.'],
+            }, 'message' => 'Nama Kabupaten/Kota tidak diisi atau tidak ditemukan.'
+            ],
             ['kabkota_id', 'validateKabkota'],
 
             ['kec_id', 'required', 'when' => function ($model) {
                 return $model->role <= User::ROLE_STAFF_KEC;
-            }, 'message' => 'Nama Kecamatan tidak diisi atau tidak ditemukan.'],
+            }, 'message' => 'Nama Kecamatan tidak diisi atau tidak ditemukan.'
+            ],
             ['kec_id', 'validateKecamatan'],
 
             ['kel_id', 'required', 'when' => function ($model) {
                 return $model->role <= User::ROLE_STAFF_KEL;
-            }, 'message' => 'Nama Kelurahan tidak diisi atau tidak ditemukan.'],
+            }, 'message' => 'Nama Kelurahan tidak diisi atau tidak ditemukan.'
+            ],
             ['kel_id', 'validateKelurahan'],
 
             ['rw', 'required', 'when' => function ($model) {
                 return $model->role <= User::ROLE_STAFF_RW;
-            }],
+            }
+            ],
         ];
 
         return array_merge($rules, $this->rulesUsername(), $this->rulesEmail());

@@ -34,10 +34,12 @@ use app\components\ModelHelper;
 
 class Video extends ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasCategory, HasActiveStatus;
+    use HasArea;
+    use HasCategory;
+    use HasActiveStatus;
 
-    const CATEGORY_TYPE = 'video';
-    const STATUS_PUBLISHED = 10;
+    public const CATEGORY_TYPE = 'video';
+    public const STATUS_PUBLISHED = 10;
 
     /**
      * {@inheritdoc}
@@ -64,7 +66,7 @@ class Video extends ActiveRecord implements ActiveStatus
             ],
             [
                 ['category_id', 'kabkota_id', 'status','seq'],
-                 'integer'
+                'integer'
             ],
             ['video_url', 'match', 'pattern' => '/^(https:\/\/www.youtube.com)\/.+$/'],
             ['source', 'in', 'range' => ['youtube']],

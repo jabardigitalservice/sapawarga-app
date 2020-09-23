@@ -40,9 +40,9 @@ class VideoStatistics extends Video
         return new SqlDataProvider([
             'sql' => $query,
             'params' => [
-                            ':status_deleted' => Video::STATUS_DELETED,
-                            ':video_type' => Video::CATEGORY_TYPE
-                        ],
+                ':status_deleted' => Video::STATUS_DELETED,
+                ':video_type' => Video::CATEGORY_TYPE
+            ],
             'sort' => [
                 'defaultOrder' => [$sortBy => $sortOrder],
                 'attributes' => [

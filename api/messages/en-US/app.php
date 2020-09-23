@@ -3,6 +3,7 @@
 /**
 * Translation map for en-US, app category
 */
+
 return [
     'app.username' => 'Username',
     'app.email' => 'Email',

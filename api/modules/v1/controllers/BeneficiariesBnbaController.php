@@ -287,7 +287,7 @@ class BeneficiariesBnbaController extends ActiveController
             return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
-        $jobHistory = new BansosBnbaDownloadHistory;
+        $jobHistory = new BansosBnbaDownloadHistory();
         $jobHistory->user_id = $user->id;
         $jobHistory->job_type = $exportType;
         $jobHistory->params = $queryParams;

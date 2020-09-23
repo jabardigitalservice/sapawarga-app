@@ -13,8 +13,8 @@ use yii\db\Expression;
  */
 class VideoSearch extends Video
 {
-    const SCENARIO_LIST_USER = 'list-user';
-    const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_STAFF = 'list-staff';
 
     public static function tableName()
     {
@@ -114,7 +114,8 @@ class VideoSearch extends Video
         if (Arr::has($params, 'kabkota_id')) {
             $query->andWhere(['or',
                 ['kabkota_id' => $params['kabkota_id']],
-                ['kabkota_id' => null]]);
+                ['kabkota_id' => null]
+            ]);
         }
 
         return $query;

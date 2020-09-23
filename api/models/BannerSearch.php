@@ -11,9 +11,9 @@ use yii\data\ActiveDataProvider;
  */
 class BannerSearch extends Banner
 {
-    const SCENARIO_LIST_STAFF = 'list-staff';
-    const SCENARIO_LIST_USER = 'list-user';
-    const LIMIT_LIST_USER = 10;
+    public const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_USER = 'list-user';
+    public const LIMIT_LIST_USER = 10;
 
     /**
      * Creates data provider instance with search query applied

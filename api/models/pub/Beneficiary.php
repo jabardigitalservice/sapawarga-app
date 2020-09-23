@@ -46,12 +46,13 @@ use yii\db\ActiveRecord;
 
 class Beneficiary extends ActiveRecord implements ActiveStatus
 {
-    use HasArea, HasActiveStatus;
+    use HasArea;
+    use HasActiveStatus;
 
-    const STATUS_PUBLISHED = 10;
-    const STATUS_PENDING = 1;
-    const STATUS_REJECT = 2;
-    const STATUS_VERIFIED = 3;
+    public const STATUS_PUBLISHED = 10;
+    public const STATUS_PENDING = 1;
+    public const STATUS_REJECT = 2;
+    public const STATUS_VERIFIED = 3;
 
     /**
      * {@inheritdoc}
@@ -98,9 +99,9 @@ class Beneficiary extends ActiveRecord implements ActiveStatus
             'domicile_kabkota_bps_id',
             'domicile_kec_bps_id',
             'domicile_kel_bps_id',
-            'domicile_kabkota_name' => 'DomicileKabkotaField',
-            'domicile_kec_name' => 'DomicileKecField',
-            'domicile_kel_name' => 'DomicileKelField',
+            'domicile_kabkota_name',
+            'domicile_kec_name',
+            'domicile_kel_name',
             'domicile_rt',
             'domicile_rw',
 

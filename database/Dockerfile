@@ -15,4 +15,4 @@ EXPOSE 3306
 CMD ["--character-set-server=utf8mb4", \
      "--collation-server=utf8mb4_unicode_ci", \
      "--max_allowed_packet=128M", \
-     "--max_execution_time=30000"]
+     "--max_execution_time=300000"]

@@ -76,13 +76,13 @@ class ModelHelper
         $notifModel = new Notification();
         $notifModel->setAttributes([
             'category_id' => $category_id,
-            'title'=> $payload['title'],
-            'description'=> $payload['description'],
-            'kabkota_id'=> Arr::get($payload['target'], 'kabkota_id', null),
-            'kec_id'=> Arr::get($payload['target'], 'kec_id', null),
-            'kel_id'=> Arr::get($payload['target'], 'kel_id', null),
-            'rw'=> Arr::get($payload['target'], 'rw', null),
-            'status'=> Notification::STATUS_PUBLISHED,
+            'title' => $payload['title'],
+            'description' => $payload['description'],
+            'kabkota_id' => Arr::get($payload['target'], 'kabkota_id', null),
+            'kec_id' => Arr::get($payload['target'], 'kec_id', null),
+            'kel_id' => Arr::get($payload['target'], 'kel_id', null),
+            'rw' => Arr::get($payload['target'], 'rw', null),
+            'status' => Notification::STATUS_PUBLISHED,
             'meta' => $payload['meta'],
         ]);
         $notifModel->push_token = Arr::get($payload['target'], 'push_token', null);
@@ -100,25 +100,29 @@ class ModelHelper
         if (Arr::has($params, 'kabkota_id')) {
             $query->andWhere(['or',
                 ['kabkota_id' => $params['kabkota_id']],
-                ['kabkota_id' => null]]);
+                ['kabkota_id' => null]
+            ]);
         }
 
         if (Arr::has($params, 'kec_id')) {
             $query->andWhere(['or',
                 ['kec_id' => $params['kec_id']],
-                ['kec_id' => null]]);
+                ['kec_id' => null]
+            ]);
         }
 
         if (Arr::has($params, 'kel_id')) {
             $query->andWhere(['or',
                 ['kel_id' => $params['kel_id']],
-                ['kel_id' => null]]);
+                ['kel_id' => null]
+            ]);
         }
 
         if (Arr::has($params, 'rw')) {
             $query->andWhere(['or',
                 ['rw' => $params['rw']],
-                ['rw' => null]]);
+                ['rw' => null]
+            ]);
         }
 
         return $query;
@@ -188,7 +192,8 @@ class ModelHelper
         }
     }
 
-    public static function getLoggedInUserId() {
+    public static function getLoggedInUserId()
+    {
         return Yii::$app->user->getId();
     }
 
