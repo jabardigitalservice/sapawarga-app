@@ -1,6 +1,6 @@
 <?php
 
-namespace app\components;
+namespace Jdsteam\Sapawarga\Components;
 
 use yii\console\Exception;
 use yii\queue\db\Queue as BaseDbQueue;
