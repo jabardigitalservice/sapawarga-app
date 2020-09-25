@@ -4,6 +4,7 @@ namespace app\modules\v1\controllers\pub;
 
 use app\models\pub\BeneficiaryBnba;
 use app\models\pub\BeneficiaryBnbaSearch;
+use app\components\BeneficiaryHelper;
 use Illuminate\Support\Arr;
 use Yii;
 use yii\db\Query;
@@ -363,6 +364,14 @@ class BeneficiariesBnbaController extends ActiveController
         ]);
 
         $response = json_decode($response->getBody(), true);
+
+        // Masking some data
+        if (count($response['data'])) {
+            foreach ($response['data'] as $key => $value) {
+                $response['data'][$key]['nik'] = BeneficiaryHelper::getNikMasking($value['nik']);
+                $response['data'][$key]['nama_krt'] = BeneficiaryHelper::getNameMasking($value['nama_krt']);
+            }
+        }
 
         return $response['data'];
     }

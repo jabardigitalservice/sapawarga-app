@@ -3,6 +3,7 @@
 namespace app\models\pub;
 
 use app\components\ModelHelper;
+use app\components\BeneficiaryHelper;
 use app\validator\InputCleanValidator;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Yii;
@@ -116,52 +117,17 @@ class BeneficiaryBnba extends ActiveRecord
 
     protected function getNikMasking()
     {
-        if (empty($this->nik)) {
-            return $this->nik;
-        }
-
-        // Show the 10 first characters, mask the remainder
-        $maskMultiplier = max((strlen($this->nik) - 10), 0);
-        $maskedNIK = substr($this->nik, 0, 10) . str_repeat('*', $maskMultiplier);
-        // Add separator every 4 characters
-        return implode('-', str_split($maskedNIK, 4));
+        return BeneficiaryHelper::getNikMasking($this->nik);
     }
 
     protected function getNameMasking()
     {
-        if (strlen($this->nama_krt) <= 1) {
-            return $this->nama_krt;
-        }
-
-        $explodeWords = explode(' ', $this->nama_krt);
-
-        $nameMasking = '';
-        foreach ($explodeWords as $key => $word) {
-            if (strlen($word) <= 3) {
-                $nameMasking .= $word . ' ';
-            } else {
-                $nameMasking .= substr($word, 0, 4) . str_repeat('*', strlen($word) - 4) . ' ';
-            }
-        }
-
-        return rtrim($nameMasking);
+        return BeneficiaryHelper::getNameMasking($this->nama_krt);
     }
 
     protected function getAddressMasking()
     {
-        if (str_word_count($this->alamat) <= 3) {
-            return preg_replace('/[0-9]+/', '', $this->alamat);
-        }
-
-        $someWords = implode(' ', array_slice(explode(' ', $this->alamat), 0, 3));
-        $explodeWords = explode(' ', $someWords);
-
-        $addressMasking = '';
-        foreach ($explodeWords as $key => $word) {
-            $addressMasking .= preg_replace('/[0-9]+/', '', $word) . ' ';
-        }
-
-        return rtrim($addressMasking);
+        return BeneficiaryHelper::getNameMasking($this->alamat);
     }
 
     protected function getBansosType()
