@@ -108,5 +108,4 @@ class BeneficiaryHelper
 
         return rtrim($addressMasking);
     }
-
 }
