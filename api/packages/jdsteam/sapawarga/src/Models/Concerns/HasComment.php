@@ -34,7 +34,7 @@ trait HasComment
 
     protected function fieldsComment()
     {
-       return [
+        return [
             'id',
             'text',
             'user' => 'AuthorField',

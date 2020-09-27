@@ -21,7 +21,8 @@ use yii\db\ActiveRecord;
  */
 class NewsImportantComment extends ActiveRecord implements ActiveStatus
 {
-    use HasActiveStatus, HasComment;
+    use HasActiveStatus;
+    use HasComment;
 
     /**
      * {@inheritdoc}

@@ -11,7 +11,7 @@ use yii\data\ActiveDataProvider;
  */
 class NewsSearch extends News
 {
-    const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_USER = 'list-user';
 
     public $userRole;
 
@@ -112,7 +112,8 @@ class NewsSearch extends News
                 // staffKabkota dapat melihat berita Jabar dan berita wilayahnya
                 $query->andWhere(['or',
                     ['kabkota_id' => $kabkotaId],
-                    ['kabkota_id' => null]]);
+                    ['kabkota_id' => null]
+                ]);
             } else {
                 $query->andFilterWhere(['kabkota_id' => $kabkotaId]);
             }

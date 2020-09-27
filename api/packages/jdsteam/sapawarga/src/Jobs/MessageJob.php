@@ -86,7 +86,7 @@ class MessageJob extends BaseObject implements JobInterface
             }
         }
 
-        Yii::info(sprintf('Total jobs = %s, finished.', $index+1));
+        Yii::info(sprintf('Total jobs = %s, finished.', $index + 1));
     }
 
     public function sendPushNotification()

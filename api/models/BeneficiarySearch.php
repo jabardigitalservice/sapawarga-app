@@ -13,9 +13,9 @@ use yii\data\ActiveDataProvider;
  */
 class BeneficiarySearch extends Beneficiary
 {
-    const SCENARIO_LIST_USER = 'list-user';
-    const SCENARIO_LIST_STAFF = 'list-staff';
-    const SCENARIO_LIST_APPROVAL = 'list-approval';
+    public const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_APPROVAL = 'list-approval';
 
     public $userRole;
     public $tahap;

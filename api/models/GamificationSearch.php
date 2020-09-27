@@ -13,8 +13,8 @@ use yii\db\Expression;
  */
 class GamificationSearch extends Gamification
 {
-    const SCENARIO_LIST_USER = 'list-user';
-    const SCENARIO_LIST_STAFF = 'list-staff';
+    public const SCENARIO_LIST_USER = 'list-user';
+    public const SCENARIO_LIST_STAFF = 'list-staff';
 
     /**
      * Creates data provider instance with search query applied

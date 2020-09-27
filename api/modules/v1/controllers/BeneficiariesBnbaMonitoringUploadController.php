@@ -82,5 +82,4 @@ class BeneficiariesBnbaMonitoringUploadController extends ActiveController
         BeneficiaryBnbaMonitoringUpload::updateData($tahap_bantuan, $kode_kab);
         return 'success';
     }
-
 }

@@ -45,7 +45,7 @@ class BeneficiaryBnbaTahapSatuSearch extends Beneficiary
         $query->andFilterWhere(['kode_kec' => Arr::get($params, 'kode_kec')]);
         $query->andFilterWhere(['kode_kel' => Arr::get($params, 'kode_kel')]);
         $query->andFilterWhere(['`rw` * 1' => ltrim(Arr::get($params, 'rw'), '0')]);
-        $query->andFilterWhere(['rt' => ltrim(Arr::get($params, 'rt'), '0')]);
+        $query->andFilterWhere(['`rt` * 1' => ltrim(Arr::get($params, 'rt'), '0')]);
 
         return $this->getQueryAll($query, $params);
     }

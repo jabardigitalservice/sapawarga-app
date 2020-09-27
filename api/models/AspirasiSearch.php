@@ -110,7 +110,7 @@ class AspirasiSearch extends Aspirasi
 
         return new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => [$sortBy => $sortOrder]],
+            'sort' => ['defaultOrder' => [$sortBy => $sortOrder]],
             'pagination' => [
                 'pageSize' => $pageLimit,
             ],
@@ -130,7 +130,7 @@ class AspirasiSearch extends Aspirasi
 
         $provider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> [
+            'sort' => [
                 'defaultOrder' => [$sortBy => $sortOrder],
             ],
             'pagination' => [
@@ -158,8 +158,10 @@ class AspirasiSearch extends Aspirasi
         }
 
         // Filter status untuk role Admin hingga staffKel
-        if (Yii::$app->user->can('aspirasiWebadminManage')
-            || Yii::$app->user->can('aspirasiWebadminView')) {
+        if (
+            Yii::$app->user->can('aspirasiWebadminManage')
+            || Yii::$app->user->can('aspirasiWebadminView')
+        ) {
             if (Arr::has($params, 'status')) {
                 $filterStatusList = [ $params['status'] ];
             } else {
@@ -185,9 +187,9 @@ class AspirasiSearch extends Aspirasi
             // Jika Staf Kab/Kota, Staf Kec, dan Staf Kel, default filter berdasarkan area Staf tersebut
             if (Yii::$app->user->can('aspirasiWebadminView') === true) {
                 $areaParams = [
-                'kabkota_id' => $this->user->kabkota_id ?? null,
-                'kec_id' => $this->user->kec_id ?? null,
-                'kel_id' => $this->user->kel_id ?? null,
+                    'kabkota_id' => $this->user->kabkota_id ?? null,
+                    'kec_id' => $this->user->kec_id ?? null,
+                    'kel_id' => $this->user->kel_id ?? null,
                 ];
                 ModelHelper::filterByAreaTopDown($query, $areaParams);
             }

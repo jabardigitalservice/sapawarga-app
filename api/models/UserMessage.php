@@ -25,8 +25,8 @@ class UserMessage extends ActiveRecord
 {
     use HasHashedId;
 
-    const STATUS_DELETED = -1;
-    const STATUS_ACTIVE = 10;
+    public const STATUS_DELETED = -1;
+    public const STATUS_ACTIVE = 10;
 
     /**
      * {@inheritdoc}

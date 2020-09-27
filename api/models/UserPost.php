@@ -27,7 +27,7 @@ class UserPost extends ActiveRecord implements ActiveStatus
 {
     use HasActiveStatus;
 
-    const CATEGORY_TYPE = 'user_post';
+    public const CATEGORY_TYPE = 'user_post';
 
     /**
      * {@inheritdoc}

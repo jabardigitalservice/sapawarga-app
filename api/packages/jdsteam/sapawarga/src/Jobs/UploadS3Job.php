@@ -29,7 +29,7 @@ class UploadS3Job extends BaseObject implements RetryableJobInterface
 
     public function execute($queue)
     {
-        echo "Uploading to S3 storage" . PHP_EOL;
+        echo 'Uploading to S3 storage' . PHP_EOL;
         $filesystem = Yii::$app->fs;
         $user = User::findOne($this->userId);
 
@@ -59,7 +59,7 @@ class UploadS3Job extends BaseObject implements RetryableJobInterface
         $jobHistory->save();
 
         // send result notification to user
-        echo "Sending notification email" . PHP_EOL;
+        echo 'Sending notification email' . PHP_EOL;
         Yii::$app->queue->priority(1000)->push(new GenericEmailJob(array_merge(
             $this->emailNotifParam,
             [

@@ -23,7 +23,7 @@ class Category extends ActiveRecord implements ActiveStatus
     use HasActiveStatus;
 
     // Memetakan category type id ke category type name
-    const TYPE_MAP = [
+    public const TYPE_MAP = [
         Aspirasi::CATEGORY_TYPE      => 'Usulan Masyarakat',
         Broadcast::CATEGORY_TYPE     => 'Pesan',
         Notification::CATEGORY_TYPE  => 'Notifikasi',
@@ -37,13 +37,13 @@ class Category extends ActiveRecord implements ActiveStatus
     ];
 
     // Daftar category type yang tidak bisa diedit oleh staff
-    const EXCLUDED_TYPES = [
+    public const EXCLUDED_TYPES = [
         Notification::CATEGORY_TYPE,
         NewsHoax::CATEGORY_TYPE,
         UserPost::CATEGORY_TYPE,
     ];
 
-    const DEFAULT_CATEGORY_NAME = 'Lainnya';
+    public const DEFAULT_CATEGORY_NAME = 'Lainnya';
 
     /**
      * {@inheritdoc}

@@ -16,11 +16,11 @@ use yii\base\Model;
 class LoginForm extends Model
 {
     // Constants for Scenario names
-    const SCENARIO_LOGIN = 'login';
+    public const SCENARIO_LOGIN = 'login';
 
-    const LOGIN_DURATION_USER = 3600 * 24 * 30 * 6; // 6 months
-    const LOGIN_DURATION_STAFF = 3600 * 24 * 30; // 1 month
-    const USER_ROLES = [
+    public const LOGIN_DURATION_USER = 3600 * 24 * 30 * 6; // 6 months
+    public const LOGIN_DURATION_STAFF = 3600 * 24 * 30; // 1 month
+    public const USER_ROLES = [
         User::ROLE_STAFF_RW,
         User::ROLE_TRAINER,
         User::ROLE_USER,
