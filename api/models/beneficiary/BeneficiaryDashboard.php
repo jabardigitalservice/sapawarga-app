@@ -239,8 +239,8 @@ class BeneficiaryDashboard extends Beneficiary
         return $counts;
     }
 
-    protected function groupNonLinearData($counts) {
-
+    protected function groupNonLinearData($counts)
+    {
         // group non-linear data
         $nonLinear = $counts->reject(function ($value, $key) {
             return substr($key, 0, 7) == '3273040';
