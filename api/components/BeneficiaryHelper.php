@@ -61,6 +61,25 @@ class BeneficiaryHelper
     }
 
     /**
+     * Masking KK (Kartu Keluarga)
+     *
+     * @param integer $noKk
+     * @return string
+     */
+    public static function getKkMasking($noKk)
+    {
+        if (empty($noKk)) {
+            return $noKk;
+        }
+
+        // Show the 10 first characters, mask the remainder
+        $maskMultiplier = max((strlen($noKk) - 10), 0);
+        $maskedKk = substr($noKk, 0, 10) . str_repeat('*', $maskMultiplier);
+
+        return $maskedKk;
+    }
+
+    /**
      * Masking name
      *
      * @param integer $name
