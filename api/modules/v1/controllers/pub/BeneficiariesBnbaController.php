@@ -369,6 +369,7 @@ class BeneficiariesBnbaController extends ActiveController
         if (count($response['data'])) {
             foreach ($response['data'] as $key => $value) {
                 $response['data'][$key]['nik'] = BeneficiaryHelper::getNikMasking($value['nik']);
+                $response['data'][$key]['no_kk'] = BeneficiaryHelper::getKkMasking($value['no_kk']);
                 $response['data'][$key]['nama_krt'] = BeneficiaryHelper::getNameMasking($value['nama_krt']);
             }
         }
