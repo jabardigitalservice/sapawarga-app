@@ -19,7 +19,6 @@ use Yii;
 use yii\db\Query;
 use yii\console\Controller;
 use yii\console\Exception;
-use Jdsteam\Sapawarga\Components\CustomQueue;
 
 class CustomQueueController extends Controller
 {
