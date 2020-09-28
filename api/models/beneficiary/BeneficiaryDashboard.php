@@ -125,10 +125,8 @@ class BeneficiaryDashboard extends Beneficiary
             $query = $query->andWhere($conditional);
         }
         $query = $query->groupBy([$statusVerificationColumn])
-            ->createCommand()->getRawSql();
-            // ->queryAll();
-
-        \yii\helpers\VarDumper::dump($query);
+            ->createCommand()
+            ->queryAll();
         return $query;
     }
 
@@ -197,10 +195,8 @@ class BeneficiaryDashboard extends Beneficiary
             $query = $query->orderBy($orderBy);
         }
         // execute query
-        $query = $query->createCommand()->getRawSql();
-            // ->queryAll();
-
-        \yii\helpers\VarDumper::dump($query);
+        $query = $query->createCommand()
+            ->queryAll();
 
         return $query;
     }
@@ -237,9 +233,37 @@ class BeneficiaryDashboard extends Beneficiary
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
+        $counts = $this->groupNonLinearData($counts);
         $counts->transform($transformCount);
 
         return $counts;
+    }
+
+    protected function groupNonLinearData($counts) {
+
+        // group non-linear data
+        $nonLinear = $counts->reject(function ($value, $key) {
+            return substr($key, 0, 7) == '3273040';
+        });
+        $nonLinear = $nonLinear->flatten(1)->groupBy('tahap_1_verval');
+        $nonLinear->transform(function ($item, $key) {
+            return [
+                'domicile_kel_bps_id' => 'non-linear',
+                'tahap_1_verval' => $key,
+                'jumlah' => $item->sum('jumlah'),
+            ];
+        });
+
+        // get linear data
+        $result = $counts->filter(function ($value, $key) {
+            return substr($key, 0, 7) == '3273040';
+        });
+
+        //merge linear and non-linear data
+        $result[''] = $nonLinear;
+        // \yii\helpers\VarDumper::dump($result->toArray());
+
+        return $result;
     }
 
     /**
