@@ -233,35 +233,52 @@ class BeneficiaryDashboard extends Beneficiary
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
-        $counts = $this->groupNonLinearData($counts);
+        if ($this->type !== 'rw') {
+            $counts = $this->groupNonLinearData($counts, $areaColumn, $statusVerificationColumn);
+        }
         $counts->transform($transformCount);
 
         return $counts;
     }
 
-    protected function groupNonLinearData($counts)
+    /**
+     * Groups non-linear data as one category
+     */
+    protected function groupNonLinearData($counts, $areaColumn, $statusVerificationColumn)
     {
-        // group non-linear data
-        $nonLinear = $counts->reject(function ($value, $key) {
-            return substr($key, 0, 7) == '3273040';
-        });
-        $nonLinear = $nonLinear->flatten(1)->groupBy('tahap_1_verval');
-        $nonLinear->transform(function ($item, $key) {
+        $lastIndex = null;
+        switch ($this->type) {
+            case 'provinsi':
+                $lastIndex = 2;
+                break;
+            case 'kabkota':
+                $lastIndex = 4;
+                break;
+            case 'kec':
+                $lastIndex = 7;
+                break;
+        }
+
+        $getLinearData = function ($value, $key) use ($lastIndex) {
+            return substr($key, 0, $lastIndex) == $this->codeBps;
+        };
+
+        // get non-linear data
+        $nonLinear = $counts->reject($getLinearData);
+        $nonLinear = $nonLinear->flatten(1)->groupBy($statusVerificationColumn);
+        $nonLinear->transform(function ($item, $key) use ($areaColumn, $statusVerificationColumn) {
             return [
-                'domicile_kel_bps_id' => 'non-linear',
-                'tahap_1_verval' => $key,
+                $areaColumn => '',
+                $statusVerificationColumn => $key,
                 'jumlah' => $item->sum('jumlah'),
             ];
         });
 
         // get linear data
-        $result = $counts->filter(function ($value, $key) {
-            return substr($key, 0, 7) == '3273040';
-        });
+        $result = $counts->filter($getLinearData);
 
         //merge linear and non-linear data
         $result[''] = $nonLinear;
-        // \yii\helpers\VarDumper::dump($result->toArray());
 
         return $result;
     }
