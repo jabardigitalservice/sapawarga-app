@@ -139,11 +139,11 @@ class BeneficiaryDashboard extends Beneficiary
 
         $cache = Yii::$app->cache;
         $key = self::CACHE_KEY_SUMMARY . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
-        // $counts = $cache->get($key);
-        // if (!$counts) {
+        $counts = $cache->get($key);
+        if (!$counts) {
             $counts = $this->getDashboardSummaryQuery($this->getConditionals($isNew));
-            // $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
-        // }
+            $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
+        }
 
         $counts = new Collection($counts);
         $counts = $this->transformCount($counts, $statusVerificationColumn);
@@ -193,8 +193,7 @@ class BeneficiaryDashboard extends Beneficiary
             $query = $query->orderBy($orderBy);
         }
         // execute query
-        $query = $query->createCommand()
-            ->queryAll();
+        $query = $query->createCommand()->queryAll();
 
         return $query;
     }
@@ -218,15 +217,15 @@ class BeneficiaryDashboard extends Beneficiary
 
         $cache = Yii::$app->cache;
         $key = self::CACHE_KEY_LIST . $this->tahap . $this->type . $this->codeBps . $this->rw . $isNew;
-        // $counts = $cache->get($key);
-        // if (!$counts) {
+        $counts = $cache->get($key);
+        if (!$counts) {
             $counts = $this->getDashboardListQuery(
                 $areaColumn,
                 $this->getConditionals($isNew),
                 $orderBy
             );
-        //     $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
-        // }
+            $cache->set($key, $counts, Yii::$app->params['cacheDuration']);
+        }
 
         // group by Collection keys
         $counts = new Collection($counts);
