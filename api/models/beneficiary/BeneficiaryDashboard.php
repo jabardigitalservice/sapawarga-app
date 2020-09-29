@@ -2,10 +2,8 @@
 
 namespace app\models\beneficiary;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use app\components\BeneficiaryHelper;
-use app\models\Area;
 use app\models\Beneficiary;
 use Yii;
 
@@ -246,21 +244,17 @@ class BeneficiaryDashboard extends Beneficiary
      */
     protected function groupNonLinearData($counts, $areaColumn, $statusVerificationColumn)
     {
-        $lastIndex = null;
-        switch ($this->type) {
-            case 'provinsi':
-                $lastIndex = 2;
-                break;
-            case 'kabkota':
-                $lastIndex = 4;
-                break;
-            case 'kec':
-                $lastIndex = 7;
-                break;
-        }
+        $childAreas = (new \yii\db\Query())
+            ->select('code_bps')
+            ->from('areas')
+            ->where(['=', 'code_bps_parent', $this->codeBps])
+            ->orderBy('code_bps')
+            ->createCommand()
+            ->queryAll();
+        $childAreas = new Collection($childAreas);
 
-        $getLinearData = function ($value, $key) use ($lastIndex) {
-            return substr($key, 0, $lastIndex) == $this->codeBps;
+        $getLinearData = function ($value, $key) use ($childAreas) {
+            return $childAreas->contains('code_bps', $key);
         };
 
         // get non-linear data
