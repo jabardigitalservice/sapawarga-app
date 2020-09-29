@@ -230,7 +230,7 @@ class BeneficiaryDashboard extends Beneficiary
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
-        if ($this->type !== 'rw') {
+        if ($this->type !== 'kel' && $this->type !== 'rw') {
             $counts = $this->groupNonLinearData($counts, $areaColumn, $statusVerificationColumn);
         }
         $counts->transform($transformCount);
@@ -372,6 +372,7 @@ class BeneficiaryDashboard extends Beneficiary
             case 'kel':
                 $areas = new Collection([]);
                 $counts = $this->getDashboardListData('domicile_rw', false, 'cast(domicile_rw as unsigned) asc');
+                // \yii\helpers\VarDumper::dump($counts);
                 $countsNew = $this->getDashboardListData('domicile_rw', true, 'cast(domicile_rw as unsigned) asc');
                 foreach ($counts as $rw => $count) {
                     if ($rw !== null && $rw !== '') {
