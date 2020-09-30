@@ -372,7 +372,6 @@ class BeneficiaryDashboard extends Beneficiary
             case 'kel':
                 $areas = new Collection([]);
                 $counts = $this->getDashboardListData('domicile_rw', false, 'cast(domicile_rw as unsigned) asc');
-                // \yii\helpers\VarDumper::dump($counts);
                 $countsNew = $this->getDashboardListData('domicile_rw', true, 'cast(domicile_rw as unsigned) asc');
                 foreach ($counts as $rw => $count) {
                     if ($rw !== null && $rw !== '') {
