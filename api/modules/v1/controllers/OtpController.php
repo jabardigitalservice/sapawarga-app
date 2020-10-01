@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 
 class OtpController extends RestController
 {
-    const TIMEOUT = 30.0;
+    public const TIMEOUT = 30.0;
 
     public function behaviors()
     {
@@ -69,7 +69,8 @@ class OtpController extends RestController
             'datapacket' => [[
                 'number' => trim($phone),
                 'message' => $message,
-            ]],
+            ]
+            ],
         ];
 
         $response = $this->createPostRequest(
