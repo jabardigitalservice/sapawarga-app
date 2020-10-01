@@ -150,7 +150,7 @@ class BeneficiaryBnba extends ActiveRecord
             'image_ktp' => 'Foto KTP',
             'image_kk' => 'Foto KK',
             'status_verification' => 'Status Vefifikasi',
-            'status' => 'Status',
+            'status' => '',
             'notes' => 'Catatan',
         ];
     }
