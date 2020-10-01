@@ -4,6 +4,7 @@ namespace app\components;
 
 use Yii;
 use app\models\Beneficiary;
+use app\models\BeneficiaryBnbaTahapSatu;
 
 class BeneficiaryHelper
 {
@@ -126,5 +127,31 @@ class BeneficiaryHelper
         }
 
         return rtrim($addressMasking);
+    }
+
+    /**
+     * Get Bansos Type List and Detail
+     *
+     * @param integer $bansosTypeId
+     * @return array / string
+     */
+    public static function getBansosTypeList($bansosTypeId = null)
+    {
+        $bansosType = [
+            BeneficiaryBnbaTahapSatu::TYPE_PKH => Yii::t('app', 'type.beneficiaries.pkh'),
+            BeneficiaryBnbaTahapSatu::TYPE_BNPT => Yii::t('app', 'type.beneficiaries.bnpt'),
+            BeneficiaryBnbaTahapSatu::TYPE_BANSOS => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
+            BeneficiaryBnbaTahapSatu::TYPE_BANSOS_TUNAI => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
+            BeneficiaryBnbaTahapSatu::TYPE_BANSOS_PRESIDEN_SEMBAKO => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
+            BeneficiaryBnbaTahapSatu::TYPE_BANSOS_PROVINSI => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
+            BeneficiaryBnbaTahapSatu::TYPE_DANA_DESA => Yii::t('app', 'type.beneficiaries.dana_desa'),
+            BeneficiaryBnbaTahapSatu::TYPE_BANSOS_KABKOTA => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
+        ];
+
+        if ($bansosTypeId != null) {
+            $bansosType = isset($bansosType[$bansosTypeId]) ? $bansosType[$bansosTypeId] : '';
+        }
+
+        return $bansosType;
     }
 }

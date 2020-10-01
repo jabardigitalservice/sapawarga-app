@@ -7,6 +7,7 @@ use app\models\BansosBnbaUploadHistory;
 use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
+use app\components\BeneficiaryHelper;
 use Yii;
 use yii\db\Query;
 use yii\base\DynamicModel;
@@ -91,21 +92,8 @@ class BeneficiariesBnbaController extends ActiveController
             $search = $search->getSummaryByType($params);
         }
 
-        // Reformat result
-        $beneficiaryTypes = [
-            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
-            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
-            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
-            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
-            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
-            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
-            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
-            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
-        ];
-
         $data = [];
-
-        foreach ($beneficiaryTypes as $key => $val) {
+        foreach (BeneficiaryHelper::getBansosTypeList() as $key => $val) {
             $data[$val] = 0;
             foreach ($search as $value) {
                 if ($key == $value['id_tipe_bansos']) {

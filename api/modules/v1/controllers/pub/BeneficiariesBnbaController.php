@@ -116,19 +116,8 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         // Reformat result
-        $beneficiaryTypes = [
-            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
-            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
-            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
-            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
-            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
-            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
-            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
-            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
-        ];
-
         $data = [];
-        foreach ($beneficiaryTypes as $key => $val) {
+        foreach (BeneficiaryHelper::getBansosTypeList() as $key => $val) {
             $data[$val]['source'] = $this->setSourceBeneficiaries($key);
             $data[$val]['non-dtks'] = 0;
             $data[$val]['dtks'] = 0;
