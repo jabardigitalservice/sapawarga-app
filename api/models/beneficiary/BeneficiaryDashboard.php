@@ -2,10 +2,8 @@
 
 namespace app\models\beneficiary;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use app\components\BeneficiaryHelper;
-use app\models\Area;
 use app\models\Beneficiary;
 use Yii;
 
@@ -127,7 +125,6 @@ class BeneficiaryDashboard extends Beneficiary
         $query = $query->groupBy([$statusVerificationColumn])
             ->createCommand()
             ->queryAll();
-
         return $query;
     }
 
@@ -233,9 +230,50 @@ class BeneficiaryDashboard extends Beneficiary
         // group by Collection keys
         $counts = new Collection($counts);
         $counts = $counts->groupBy($areaColumn);
+        if ($this->type !== 'kel' && $this->type !== 'rw') {
+            $counts = $this->groupNonLinearData($counts, $areaColumn, $statusVerificationColumn);
+        }
         $counts->transform($transformCount);
 
         return $counts;
+    }
+
+    /**
+     * Groups non-linear data as one category
+     */
+    protected function groupNonLinearData($counts, $areaColumn, $statusVerificationColumn)
+    {
+        $childAreas = (new \yii\db\Query())
+            ->select('code_bps')
+            ->from('areas')
+            ->where(['=', 'code_bps_parent', $this->codeBps])
+            ->orderBy('code_bps')
+            ->createCommand()
+            ->queryAll();
+        $childAreas = new Collection($childAreas);
+
+        $getLinearData = function ($value, $key) use ($childAreas) {
+            return $childAreas->contains('code_bps', $key);
+        };
+
+        // get non-linear data
+        $nonLinear = $counts->reject($getLinearData);
+        $nonLinear = $nonLinear->flatten(1)->groupBy($statusVerificationColumn);
+        $nonLinear->transform(function ($item, $key) use ($areaColumn, $statusVerificationColumn) {
+            return [
+                $areaColumn => '',
+                $statusVerificationColumn => $key,
+                'jumlah' => $item->sum('jumlah'),
+            ];
+        });
+
+        // get linear data
+        $result = $counts->filter($getLinearData);
+
+        //merge linear and non-linear data
+        $result[''] = $nonLinear;
+
+        return $result;
     }
 
     /**
