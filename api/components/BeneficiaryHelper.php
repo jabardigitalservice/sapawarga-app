@@ -149,7 +149,7 @@ class BeneficiaryHelper
         ];
 
         if ($bansosTypeId != null) {
-            $bansosType = isset($bansosType[$bansosTypeId]) ? $bansosType[$bansosTypeId] : '';
+            $bansosType = $bansosType[$bansosTypeId] ?? '';
         }
 
         return $bansosType;
