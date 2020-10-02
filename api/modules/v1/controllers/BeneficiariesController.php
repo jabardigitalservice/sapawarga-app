@@ -344,7 +344,7 @@ class BeneficiariesController extends ActiveController
         return 'ok';
     }
 
-    public function actionDashboardSummary()
+    private function getDashboardModel()
     {
         $params = Yii::$app->request->getQueryParams();
         $model = new BeneficiaryDashboard();
@@ -353,18 +353,18 @@ class BeneficiariesController extends ActiveController
         $model->codeBps = Arr::get($params, 'code_bps');
         $model->rw = Arr::get($params, 'rw');
 
+        return $model;
+    }
+
+    public function actionDashboardSummary()
+    {
+        $model = $this->getDashboardModel();
         return $model->getDashboardSummary();
     }
 
     public function actionDashboardList()
     {
-        $params = Yii::$app->request->getQueryParams();
-        $model = new BeneficiaryDashboard();
-        $model->tahap = Arr::get($params, 'tahap');
-        $model->type = Arr::get($params, 'type');
-        $model->codeBps = Arr::get($params, 'code_bps');
-        $model->rw = Arr::get($params, 'rw');
-
+        $model = $this->getDashboardModel();
         return $model->getDashboardList();
     }
 

@@ -461,7 +461,6 @@ return [
             'GET upload-histories' => 'upload-histories',
             'GET anomaly-download' => 'anomaly-download',
             'GET download' => 'download',
-            'GET monitoring' => 'monitoring',
             'GET download-status' => 'download-status',
             'GET download-status/<history_id:\d+>' => 'download-status',
         ]
