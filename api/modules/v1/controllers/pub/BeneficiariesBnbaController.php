@@ -389,7 +389,16 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         $client = new Client(['base_uri' => getenv('BANSOS_API_BASE_URL')]);
-        $response = $client->get('tracking/' . $nik, ['headers' => ['x-api-key' => getenv('BANSOS_TRACKING_API_KEY'),]]);
+
+        try {
+            $response = $client->get('trackings/' . $nik, ['headers' => ['x-api-key' => getenv('BANSOS_TRACKING_API_KEY'),]]);
+        } catch (RequestException $e) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(503);
+
+            return 'Error Private API';
+        }
+
         $response = json_decode($response->getBody(), true);
 
         return $response['data'];
