@@ -391,7 +391,7 @@ class BeneficiariesBnbaController extends ActiveController
         $client = new Client(['base_uri' => getenv('BANSOS_API_BASE_URL')]);
 
         try {
-            $response = $client->get('trackings/' . $nik, ['headers' => ['x-api-key' => getenv('BANSOS_TRACKING_API_KEY'),]]);
+            $response = $client->get('tracking/' . $nik, ['headers' => ['x-api-key' => getenv('BANSOS_TRACKING_API_KEY'),]]);
         } catch (RequestException $e) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(503);
