@@ -37,7 +37,7 @@ class BeneficiariesBnbaController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging'
+            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging', 'tracking'
         ];
 
         // setup access
@@ -47,7 +47,7 @@ class BeneficiariesBnbaController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging'],
+                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging', 'tracking'],
                     'roles' => ['?'],
                 ]
             ],
@@ -363,6 +363,34 @@ class BeneficiariesBnbaController extends ActiveController
                 $response['data'][$key]['nama_krt'] = BeneficiaryHelper::getNameMasking($value['nama_krt']);
             }
         }
+
+        return $response['data'];
+    }
+
+    /**
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionTracking()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $nik = Arr::get($params, 'nik');
+
+        $nikModel = new DynamicModel(['nik' => $nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+
+        if ($nikModel->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $nikModel->getErrors();
+        }
+
+        $client = new Client(['base_uri' => getenv('BANSOS_API_BASE_URL')]);
+        $response = $client->get('tracking/' . $nik, ['headers' => ['x-api-key' => getenv('BANSOS_TRACKING_API_KEY'),]]);
+        $response = json_decode($response->getBody(), true);
 
         return $response['data'];
     }

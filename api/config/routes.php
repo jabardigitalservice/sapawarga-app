@@ -529,6 +529,8 @@ return [
             'OPTIONS statistics-update' => 'options',
             'GET flagging' => 'flagging',
             'OPTIONS flagging' => 'options',
+            'GET tracking' => 'tracking',
+            'OPTIONS tracking' => 'options',
         ]
     ],
     [
