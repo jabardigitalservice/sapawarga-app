@@ -5,6 +5,7 @@ namespace app\models;
 use Jdsteam\Sapawarga\Models\Concerns\HasActiveStatus;
 use Jdsteam\Sapawarga\Models\Concerns\HasArea;
 use Jdsteam\Sapawarga\Models\Contracts\ActiveStatus;
+use app\components\BeneficiaryHelper;
 use Yii;
 use app\validator\NikValidator;
 use yii\base\DynamicModel;
@@ -159,36 +160,7 @@ class BeneficiaryBnbaTahapSatu extends ActiveRecord implements ActiveStatus
 
     protected function getBansosType()
     {
-        $bansosType = '';
-
-        switch ($this->id_tipe_bansos) {
-            case self::TYPE_PKH;
-                $bansosType = Yii::t('app', 'type.beneficiaries.pkh');
-                break;
-            case self::TYPE_BNPT;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bnpt');
-                break;
-            case self::TYPE_BANSOS;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bnpt_perluasan');
-                break;
-            case self::TYPE_BANSOS_TUNAI;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_tunai');
-                break;
-            case self::TYPE_BANSOS_PRESIDEN_SEMBAKO;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako');
-                break;
-            case self::TYPE_BANSOS_PROVINSI;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_provinsi');
-                break;
-            case self::TYPE_DANA_DESA;
-                $bansosType = Yii::t('app', 'type.beneficiaries.dana_desa');
-                break;
-            case self::TYPE_BANSOS_KABKOTA;
-                $bansosType = Yii::t('app', 'type.beneficiaries.bansos_kabkota');
-                break;
-        }
-
-        return $bansosType;
+        return BeneficiaryHelper::getBansosTypeList($this->id_tipe_bansos);
     }
 
     protected function getIsNIKValidField()
