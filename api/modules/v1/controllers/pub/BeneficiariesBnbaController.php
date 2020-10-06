@@ -98,22 +98,10 @@ class BeneficiariesBnbaController extends ActiveController
         $type = Arr::get($params, 'type');
         $tahap = Arr::get($params, 'tahap', 1);
 
-        // $type is empty means API call from homepage
-        if (empty($type)) {
-            $search = (new \yii\db\Query())
-                    ->from('beneficiaries_bnba_statistic_type')
-                    ->where(['tahap_bantuan' => $tahap])
-                    ->all();
-        } else {
-            $cache = Yii::$app->cache;
-            $key = self::REDIS_KEY_BNBA_TYPE . implode($params);
-            $search = $cache->get($key);
-            if (! $search) {
-                $search = new BeneficiaryBnbaSearch();
-                $search = $search->getStatisticsByType($params);
-                $cache->set($key, $search);
-            }
-        }
+        $search = (new \yii\db\Query())
+                ->from('beneficiaries_bnba_statistic_type')
+                ->where(['tahap_bantuan' => $tahap])
+                ->all();
 
         // Reformat result
         $data = [];
