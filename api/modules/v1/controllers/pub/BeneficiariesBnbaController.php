@@ -355,6 +355,7 @@ class BeneficiariesBnbaController extends ActiveController
                 $response['data'][$key]['nik'] = ($from == 'mobile') ? $value['nik'] : BeneficiaryHelper::getNikMasking($value['nik']);
                 $response['data'][$key]['no_kk'] = BeneficiaryHelper::getKkMasking($value['no_kk']);
                 $response['data'][$key]['nama_krt'] = BeneficiaryHelper::getNameMasking($value['nama_krt']);
+                $response['data'][$key]['alamat'] = BeneficiaryHelper::getAddressMasking($value['alamat']);
             }
         }
 
