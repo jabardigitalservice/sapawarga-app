@@ -214,6 +214,7 @@ deploy_staging_jabarcloud:
     # Bansos API STAGING
     - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_TRACKING_API_KEY%/${BANSOS_TRACKING_API_KEY}/g" kubernetes/backend-variables.yaml
 
     # Mailer STAGING #
     - sed -i "s/%MAILER_TRANSPORT_FILE%/${MAILER_TRANSPORT_FILE}/g" kubernetes/backend-variables.yaml
@@ -298,6 +299,7 @@ deploy_prod_eks:
     # Bansos API Production
     - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%BANSOS_TRACKING_API_KEY%/${BANSOS_TRACKING_API_KEY}/g" kubernetes/backend-variables.yaml
 
 
     # mysql replica production #
