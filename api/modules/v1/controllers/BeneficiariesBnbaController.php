@@ -256,6 +256,9 @@ class BeneficiariesBnbaController extends ActiveController
         if ($user->can('staffKabkota')) {
             $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $queryParams['kode_kab'] = $parentArea->code_bps;
+        } elseif ($user->can('staffKel')) {
+            $parentArea = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+            $queryParams['kode_kel'] = $parentArea->code_bps;
         } elseif ($user->can('staffProv') || $user->can('admin')) {
             if (isset($params['kode_kab'])) {
                 $queryParams['kode_kab'] = explode(',', $params['kode_kab']);
