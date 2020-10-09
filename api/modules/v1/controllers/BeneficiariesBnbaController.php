@@ -253,9 +253,21 @@ class BeneficiariesBnbaController extends ActiveController
                 $queryParams['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
             }
         }
+        if (isset($params['kode_kel'])) {
+            $queryParams['kode_kec'] = explode(',', $params['kode_kel']);
+        }
+        if (isset($params['kode_kec'])) {
+            $queryParams['kode_kec'] = explode(',', $params['kode_kec']);
+        }
+        if (isset($params['kode_kab'])) {
+            $queryParams['kode_kab'] = explode(',', $params['kode_kab']);
+        }
         if ($user->can('staffKabkota')) {
             $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $queryParams['kode_kab'] = $parentArea->code_bps;
+        } elseif ($user->can('staffKec')) {
+            $parentArea = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $queryParams['kode_kec'] = $parentArea->code_bps;
         } elseif ($user->can('staffKel')) {
             $parentArea = Area::find()->where(['id' => $authUserModel->kel_id])->one();
             $queryParams['kode_kel'] = $parentArea->code_bps;
