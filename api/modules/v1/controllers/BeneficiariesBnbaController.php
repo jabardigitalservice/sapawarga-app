@@ -48,8 +48,13 @@ class BeneficiariesBnbaController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'download', 'download-status', 'summary', 'upload', 'upload-histories'],
+                    'actions' => ['index', 'view', 'download-status', 'summary', 'upload', 'upload-histories'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['download'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel' ],
                 ],
             ],
         ];
@@ -253,8 +258,19 @@ class BeneficiariesBnbaController extends ActiveController
                 $queryParams['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
             }
         }
+        if (isset($params['bansos_type'])) {
+            $bansosType = explode(',', $params['bansos_type']);
+            $isDtks = [];
+            if (in_array('dtks', $bansosType)) {
+                $isDtks[] = 1;
+            }
+            if (in_array('non-dtks', $bansosType)) {
+                array_push($isDtks, 0, null);
+            }
+            $queryParams['is_dtks'] = $isDtks;
+        }
         if (isset($params['kode_kel'])) {
-            $queryParams['kode_kec'] = explode(',', $params['kode_kel']);
+            $queryParams['kode_kel'] = explode(',', $params['kode_kel']);
         }
         if (isset($params['kode_kec'])) {
             $queryParams['kode_kec'] = explode(',', $params['kode_kec']);
@@ -266,28 +282,17 @@ class BeneficiariesBnbaController extends ActiveController
             $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $queryParams['kode_kab'] = $parentArea->code_bps;
         } elseif ($user->can('staffKec')) {
+            $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $queryParams['kode_kab'] = $parentArea->code_bps;
             $parentArea = Area::find()->where(['id' => $authUserModel->kec_id])->one();
             $queryParams['kode_kec'] = $parentArea->code_bps;
         } elseif ($user->can('staffKel')) {
+            $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $queryParams['kode_kab'] = $parentArea->code_bps;
+            $parentArea = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $queryParams['kode_kec'] = $parentArea->code_bps;
             $parentArea = Area::find()->where(['id' => $authUserModel->kel_id])->one();
             $queryParams['kode_kel'] = $parentArea->code_bps;
-        } elseif ($user->can('staffProv') || $user->can('admin')) {
-            if (isset($params['kode_kab'])) {
-                $queryParams['kode_kab'] = explode(',', $params['kode_kab']);
-            }
-            if (isset($params['bansos_type'])) {
-                $bansosType = explode(',', $params['bansos_type']);
-                $isDtks = [];
-                if (in_array('dtks', $bansosType)) {
-                    $isDtks[] = 1;
-                }
-                if (in_array('non-dtks', $bansosType)) {
-                    array_push($isDtks, 0, null);
-                }
-                $queryParams['is_dtks'] = $isDtks;
-            }
-        } else {
-            return 'Fitur download data BNBA tidak tersedia untuk user ini';
         }
 
         $jobHistory = new BansosBnbaDownloadHistory();
