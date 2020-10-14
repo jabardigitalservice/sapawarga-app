@@ -105,8 +105,14 @@ class BeneficiariesBnbaController extends ActiveController
                     ->where(['tahap_bantuan' => $tahap])
                     ->all();
         } else {
-            $search = new BeneficiaryBnbaSearch();
-            $search = $search->getStatisticsByType($params);
+            $cache = Yii::$app->cache;
+            $key = self::REDIS_KEY_BNBA_TYPE . implode($params);
+            $search = $cache->get($key);
+            if (! $search) {
+                $search = new BeneficiaryBnbaSearch();
+                $search = $search->getStatisticsByType($params);
+                $cache->set($key, $search);
+            }
         }
 
         // Reformat result
