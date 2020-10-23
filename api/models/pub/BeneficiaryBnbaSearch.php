@@ -17,10 +17,11 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
     {
         // hotfix: hide from kab bekasi
         $query->andWhere(['not', [
-          'tahap_bantuan' => 3, 
-          'id_tipe_bansos' => 8, //bantuan kabkota
-          'kode_kab' => '3211', //kab bekasi
-        ]]);
+            'tahap_bantuan' => 3,
+            'id_tipe_bansos' => 8, //bantuan kabkota
+            'kode_kab' => '3211', //kab bekasi
+        ]
+        ]);
     }
 
     /**
