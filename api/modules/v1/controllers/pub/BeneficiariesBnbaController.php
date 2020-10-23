@@ -311,7 +311,7 @@ class BeneficiariesBnbaController extends ActiveController
         if (count($rowsArea) > 0) {
             Yii::$app->db->createCommand()->delete('beneficiaries_bnba_statistic_area', ['tahap_bantuan' => $tahap])->execute();
             Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_area', [
-                'kode_kab',
+                'kabkota_bps_id',
                 'total',
                 'tahap_bantuan',
             ], $rowsArea)->execute();
@@ -365,6 +365,14 @@ class BeneficiariesBnbaController extends ActiveController
             }
         }
 
+        // hotfix: hide data from kab bekasi
+        $response['data'] = array_values(array_filter($response['data'], function($item) {
+            return $item['kode_kab_pengusul'] != '3216' ||
+                   $item['tahap_bantuan'] != 3 ||
+                   !$item['is_bankabkot'] ;
+
+        }));
+
         return $response['data'];
     }
 
@@ -401,6 +409,14 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         $response = json_decode($response->getBody(), true);
+
+        // hotfix: hide data from kab bekasi
+        $response['data'] = array_values(array_filter($response['data'], function($item) {
+            return $item['kode_kab'] != '3216' ||
+                   $item['tahap_bantuan'] != 3 ||
+                   $item['id_tipe_bansos'] != 8 ;
+
+        }));
 
         return $response['data'];
     }
