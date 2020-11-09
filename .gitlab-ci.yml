@@ -4,6 +4,7 @@ stages:
   - code_quality
   - build
   - test
+  - migration_staging
   - deploy_staging
   - deploy_prod
 
@@ -125,6 +126,64 @@ unit_test:
     # - mv ./api/tests/_output/coverage.xml ./clover.xml
     # - sed -i "s|/srv|$(pwd)/api|g" clover.xml
     # - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID
+    
+# modified from unit_test stage
+migration_staging:
+  stage: migration_staging
+  image: docker/compose:latest
+  when: manual
+  environment:
+    name: staging
+  only:
+    - develop
+  services:
+    - docker:stable-dind
+  variables:
+    GIT_COMMIT_SHA: $CI_COMMIT_SHA
+    GIT_BRANCH: $CI_COMMIT_REF_NAME
+  dependencies:
+    - versioning
+  before_script:
+    - apk add git
+    - export VERSION=$(cat ./version)
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - cp .env-template .env
+    - sed -i "s/%COOKIE_VALIDATION_KEY%/cookiekey/g" .env
+    - sed -i "s/%APP_VERSION%/${VERSION}/g" .env
+    # Mysql STAGING #
+    - sed -i "s/%MYSQL_HOST%/${MYSQL_HOST_STAGING}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_DATABASE%/${MYSQL_DATABASE}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_ROOT_PASSWORD%/${MYSQL_ROOT_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+    # Redis Staging #
+    - sed -i "s/%REDIS_HOST%/${REDIS_HOST}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+
+    # mysql replica staging #
+    - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_2%/${MYSQL_HOST_SLAVE_2}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_HOST_SLAVE_3%/${MYSQL_HOST_SLAVE_3}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_USER_SLAVE%/${MYSQL_USER}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%MYSQL_PASSWORD_SLAVE%/${MYSQL_PASSWORD}/g" kubernetes/backend-variables.yaml
+
+    # Sentry STAGING
+    - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
+    - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
+
+    - sed -i "s/%ERROR_REPORT%/false/g" .env
+    - cat .env
+    - docker-compose pull
+    - docker images
+    - COMPOSE_HTTP_TIMEOUT=500 docker-compose up -d
+    - sleep 60
+    - docker ps
+    - docker-compose exec -T api php yii migrate --migrationPath=@yii/rbac/migrations --interactive=0
+    - docker-compose exec -T api php yii migrate/up --interactive=0
 
 #deploy_staging_aws:
 #  image: docker:stable
