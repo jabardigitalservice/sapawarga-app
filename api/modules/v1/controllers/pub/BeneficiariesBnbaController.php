@@ -311,7 +311,7 @@ class BeneficiariesBnbaController extends ActiveController
         if (count($rowsArea) > 0) {
             Yii::$app->db->createCommand()->delete('beneficiaries_bnba_statistic_area', ['tahap_bantuan' => $tahap])->execute();
             Yii::$app->db->createCommand()->batchInsert('beneficiaries_bnba_statistic_area', [
-                'kabkota_bps_id',
+                'kode_kab',
                 'total',
                 'tahap_bantuan',
             ], $rowsArea)->execute();
