@@ -38,7 +38,7 @@ class UserRepository
 
         return $descendantRoles;
     }
-    
+
     public function getUsersCountAllRolesByArea($selectedRoles, $kabKotaId, $kecId, $kelId): array
     {
         $roles = Yii::$app->authManager->getRoles();
