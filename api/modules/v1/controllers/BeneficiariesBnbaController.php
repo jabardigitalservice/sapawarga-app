@@ -7,6 +7,7 @@ use app\models\BansosBnbaUploadHistory;
 use app\models\BansosBnbaDownloadHistory;
 use app\models\BeneficiaryBnbaTahapSatu;
 use app\models\BeneficiaryBnbaTahapSatuSearch;
+use app\components\BeneficiaryHelper;
 use Yii;
 use yii\db\Query;
 use yii\base\DynamicModel;
@@ -47,8 +48,13 @@ class BeneficiariesBnbaController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'download', 'download-status', 'summary', 'upload', 'upload-histories'],
+                    'actions' => ['index', 'view', 'download-status', 'summary', 'upload', 'upload-histories'],
                     'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel', 'staffRW'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['download'],
+                    'roles' => ['admin', 'staffProv', 'staffKabkota', 'staffKec', 'staffKel' ],
                 ],
             ],
         ];
@@ -91,21 +97,8 @@ class BeneficiariesBnbaController extends ActiveController
             $search = $search->getSummaryByType($params);
         }
 
-        // Reformat result
-        $beneficiaryTypes = [
-            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
-            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
-            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
-            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
-            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
-            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
-            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
-            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
-        ];
-
         $data = [];
-
-        foreach ($beneficiaryTypes as $key => $val) {
+        foreach (BeneficiaryHelper::getBansosTypeList() as $key => $val) {
             $data[$val] = 0;
             foreach ($search as $value) {
                 if ($key == $value['id_tipe_bansos']) {
@@ -265,26 +258,41 @@ class BeneficiariesBnbaController extends ActiveController
                 $queryParams['tahap_bantuan'] = $data[0]['current_tahap_bnba'];
             }
         }
+        if (isset($params['bansos_type'])) {
+            $bansosType = explode(',', $params['bansos_type']);
+            $isDtks = [];
+            if (in_array('dtks', $bansosType)) {
+                $isDtks[] = 1;
+            }
+            if (in_array('non-dtks', $bansosType)) {
+                array_push($isDtks, 0, null);
+            }
+            $queryParams['is_dtks'] = $isDtks;
+        }
+        if (isset($params['kode_kel'])) {
+            $queryParams['kode_kel'] = explode(',', $params['kode_kel']);
+        }
+        if (isset($params['kode_kec'])) {
+            $queryParams['kode_kec'] = explode(',', $params['kode_kec']);
+        }
+        if (isset($params['kode_kab'])) {
+            $queryParams['kode_kab'] = explode(',', $params['kode_kab']);
+        }
         if ($user->can('staffKabkota')) {
             $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
             $queryParams['kode_kab'] = $parentArea->code_bps;
-        } elseif ($user->can('staffProv') || $user->can('admin')) {
-            if (isset($params['kode_kab'])) {
-                $queryParams['kode_kab'] = explode(',', $params['kode_kab']);
-            }
-            if (isset($params['bansos_type'])) {
-                $bansosType = explode(',', $params['bansos_type']);
-                $isDtks = [];
-                if (in_array('dtks', $bansosType)) {
-                    $isDtks[] = 1;
-                }
-                if (in_array('non-dtks', $bansosType)) {
-                    array_push($isDtks, 0, null);
-                }
-                $queryParams['is_dtks'] = $isDtks;
-            }
-        } else {
-            return 'Fitur download data BNBA tidak tersedia untuk user ini';
+        } elseif ($user->can('staffKec')) {
+            $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $queryParams['kode_kab'] = $parentArea->code_bps;
+            $parentArea = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $queryParams['kode_kec'] = $parentArea->code_bps;
+        } elseif ($user->can('staffKel')) {
+            $parentArea = Area::find()->where(['id' => $authUserModel->kabkota_id])->one();
+            $queryParams['kode_kab'] = $parentArea->code_bps;
+            $parentArea = Area::find()->where(['id' => $authUserModel->kec_id])->one();
+            $queryParams['kode_kec'] = $parentArea->code_bps;
+            $parentArea = Area::find()->where(['id' => $authUserModel->kel_id])->one();
+            $queryParams['kode_kel'] = $parentArea->code_bps;
         }
 
         $jobHistory = new BansosBnbaDownloadHistory();
@@ -338,80 +346,6 @@ class BeneficiariesBnbaController extends ActiveController
                 ],
             ]);
         }
-    }
-
-    public function actionMonitoring()
-    {
-        $user = Yii::$app->user;
-        $params = Yii::$app->request->getQueryParams();
-
-        $tahapBantuan = null;
-        if (isset($params['tahap_bantuan'])) {
-            $tahapBantuan = $params['tahap_bantuan'];
-        } else {
-            $data = (new \yii\db\Query())
-                ->from('beneficiaries_current_tahap')
-                ->all();
-
-            if (count($data)) {
-                $tahapBantuan = $data[0]['current_tahap_bnba'];
-            }
-        }
-
-        $rawQuery = <<<SQL
-            SELECT
-              areas.name,
-              kode_kab as code_bps,
-              is_dtks_final as type,
-              last_updated as last_update
-            FROM
-              (SELECT
-                  kode_kab,
-                  MAX(updated_time) as last_updated,
-                  CASE is_dtks
-                      WHEN 1 THEN 'dtks'
-                      ELSE 'non-dtks' # null dan nilai lainnya
-                  END is_dtks_final
-              FROM beneficiaries_bnba_tahap_1
-              WHERE
-                (is_deleted <> 1 OR is_deleted IS NULL)
-                AND tahap_bantuan = :tahap_bantuan
-              GROUP BY is_dtks_final, kode_kab
-              ) as monitoring_list
-            LEFT JOIN areas ON areas.code_bps = kode_kab
-            ;
-SQL;
-        $query = Yii::$app->db
-            ->createCommand($rawQuery, [':tahap_bantuan' => $tahapBantuan]);
-
-        $rows = $query->queryAll();
-        $finalRows = array_map(function ($item) {
-            $item['last_update'] = strtotime($item['last_update']);
-            return $item;
-        }, $rows);
-
-        if (isset($params['kode_kab'])) {
-            $codeBps = explode(',', $params['kode_kab']);
-            $finalRows = array_filter($finalRows, function ($item) use ($codeBps) {
-                return in_array($item['code_bps'], $codeBps);
-            });
-        }
-        if (isset($params['bansos_type']) && !empty($params['bansos_type'])) {
-            $bansosType = explode(',', $params['bansos_type']);
-            $finalRows = array_filter($finalRows, function ($item) use ($bansosType) {
-                return in_array($item['type'], $bansosType);
-            });
-        }
-
-        $pageLimit = Arr::get($params, 'limit', 10);
-        $provider = new ArrayDataProvider([
-            'allModels' => $finalRows,
-            'pagination' => [
-                'pageSize' => $pageLimit,
-            ],
-        ]);
-
-        return $provider;
     }
 
     public function prepareDataProvider()

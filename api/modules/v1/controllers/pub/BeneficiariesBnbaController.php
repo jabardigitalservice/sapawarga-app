@@ -37,7 +37,7 @@ class BeneficiariesBnbaController extends ActiveController
     protected function behaviorAccess($behaviors)
     {
         $behaviors['authenticator']['except'] = [
-            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging'
+            'index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging', 'tracking'
         ];
 
         // setup access
@@ -47,7 +47,7 @@ class BeneficiariesBnbaController extends ActiveController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging'],
+                    'actions' => ['index', 'view', 'statistics-by-type', 'statistics-by-area', 'statistics-update', 'flagging', 'tracking'],
                     'roles' => ['?'],
                 ]
             ],
@@ -98,8 +98,8 @@ class BeneficiariesBnbaController extends ActiveController
         $type = Arr::get($params, 'type');
         $tahap = Arr::get($params, 'tahap', 1);
 
-        // $type is empty means API call from homepage
-        if (empty($type)) {
+        // $type = provinsi means API call from homepage
+        if ($type == 'provinsi') {
             $search = (new \yii\db\Query())
                     ->from('beneficiaries_bnba_statistic_type')
                     ->where(['tahap_bantuan' => $tahap])
@@ -116,19 +116,8 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         // Reformat result
-        $beneficiaryTypes = [
-            '1' => Yii::t('app', 'type.beneficiaries.pkh'),
-            '2' => Yii::t('app', 'type.beneficiaries.bnpt'),
-            '3' => Yii::t('app', 'type.beneficiaries.bnpt_perluasan'),
-            '4' => Yii::t('app', 'type.beneficiaries.bansos_tunai'),
-            '5' => Yii::t('app', 'type.beneficiaries.bansos_presiden_sembako'),
-            '6' => Yii::t('app', 'type.beneficiaries.bansos_provinsi'),
-            '8' => Yii::t('app', 'type.beneficiaries.bansos_kabkota'),
-            '7' => Yii::t('app', 'type.beneficiaries.dana_desa'),
-        ];
-
         $data = [];
-        foreach ($beneficiaryTypes as $key => $val) {
+        foreach (BeneficiaryHelper::getBansosTypeList() as $key => $val) {
             $data[$val]['source'] = $this->setSourceBeneficiaries($key);
             $data[$val]['non-dtks'] = 0;
             $data[$val]['dtks'] = 0;
@@ -372,8 +361,46 @@ class BeneficiariesBnbaController extends ActiveController
                 $response['data'][$key]['nik'] = ($from == 'mobile') ? $value['nik'] : BeneficiaryHelper::getNikMasking($value['nik']);
                 $response['data'][$key]['no_kk'] = BeneficiaryHelper::getKkMasking($value['no_kk']);
                 $response['data'][$key]['nama_krt'] = BeneficiaryHelper::getNameMasking($value['nama_krt']);
+                $response['data'][$key]['alamat'] = BeneficiaryHelper::getNameMasking($value['alamat']);
             }
         }
+
+        return $response['data'];
+    }
+
+    /**
+     * @return mixed|\app\models\pub\Beneficieries
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionTracking()
+    {
+        $params = Yii::$app->request->getQueryParams();
+
+        $nik = Arr::get($params, 'nik');
+
+        $nikModel = new DynamicModel(['nik' => $nik]);
+        $nikModel->addRule('nik', 'trim');
+        $nikModel->addRule('nik', 'required');
+
+        if ($nikModel->validate() === false) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $nikModel->getErrors();
+        }
+
+        $client = new Client(['base_uri' => getenv('BANSOS_API_BASE_URL')]);
+
+        try {
+            $response = $client->get('tracking/' . $nik, ['headers' => ['x-api-key' => getenv('BANSOS_TRACKING_API_KEY'),]]);
+        } catch (RequestException $e) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(503);
+
+            return 'Error Private API';
+        }
+
+        $response = json_decode($response->getBody(), true);
 
         return $response['data'];
     }
