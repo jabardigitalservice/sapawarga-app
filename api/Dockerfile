@@ -19,12 +19,13 @@ COPY image-files/ /
 
 # Add GITHUB_API_TOKEN support for composer
 
+# Install composer from the official image
+COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer
+
 RUN chmod 700 \
         /usr/local/bin/docker-entrypoint.sh \
         /usr/local/bin/composer && \
     cd ~ && \ 
-    curl -sS https://getcomposer.org/installer -o composer-setup.php && \
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     composer global require --optimize-autoloader \
         "fxp/composer-asset-plugin:${VERSION_COMPOSER_ASSET_PLUGIN}" \
         "hirak/prestissimo:${VERSION_PRESTISSIMO_PLUGIN}" && \
