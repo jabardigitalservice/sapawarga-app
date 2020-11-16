@@ -78,7 +78,7 @@ class m190715_061621_insert_rbac_aspirasi extends CustomMigration
         $this->_auth->removeChild($this->_roleStaffKel, $aspirasiWebadminViewPermission);
         $this->_auth->removeChild($this->_roleStaffKec, $aspirasiWebadminViewPermission);
         $this->_auth->removeChild($this->_roleStaffKabkota, $aspirasiWebadminViewPermission);
-        
+
         $this->_auth->removeChild($this->_roleStaffProv, $aspirasiWebadminManagePermission);
         $this->_auth->removeChild($this->_roleAdmin, $aspirasiWebadminManagePermission);
 
