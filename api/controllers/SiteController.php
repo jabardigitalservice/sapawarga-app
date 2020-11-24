@@ -42,4 +42,9 @@ class SiteController extends Controller
 
         return $response;
     }
+
+    public function actionTestException()
+    {
+        throw new \Exception('test exception on purpose');
+    }
 }
