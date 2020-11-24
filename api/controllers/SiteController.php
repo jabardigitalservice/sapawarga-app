@@ -45,6 +45,6 @@ class SiteController extends Controller
 
     public function actionTestException()
     {
-      throw new \Exception('test exception on purpose');
+        throw new \Exception('test exception on purpose');
     }
 }
