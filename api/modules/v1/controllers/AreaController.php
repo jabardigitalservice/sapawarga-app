@@ -24,6 +24,13 @@ class AreaController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
+        $behaviors[] = [
+            'class' => 'yii\filters\HttpCache',
+            'etagSeed' => function ($action, $params) {
+                return 'abc'; //random dummy seed, 
+            },
+        ];
+
         return $this->behaviorCors($behaviors);
     }
 
