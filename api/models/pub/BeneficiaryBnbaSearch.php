@@ -12,6 +12,18 @@ use yii\data\SqlDataProvider;
  */
 class BeneficiaryBnbaSearch extends BeneficiaryBnba
 {
+
+    public function hotfixFilter($query)
+    {
+        // hotfix: hide from kab bekasi
+        $query->andWhere(['not', [
+            'tahap_bantuan' => 3,
+            'id_tipe_bansos' => 8, //bantuan kabkota
+            'kode_kab' => '3211', //kab bekasi
+        ]
+        ]);
+    }
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -22,6 +34,9 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
     public function search($params)
     {
         $query = BeneficiaryBnba::find()->andWhere(['or', ['is_deleted' => null], ['is_deleted' => 0]]);
+
+        // hotfix filter
+        $this->hotfixFilter($query);
 
         // Filtering
         $query->andFilterWhere(['nik' => Arr::get($params, 'nik')]);
@@ -65,6 +80,9 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
             ])
             ->groupBy(['id_tipe_bansos', 'is_dtks']);
 
+        // hotfix filter
+        $this->hotfixFilter($query);
+
         // Filtering Area
         if (empty(Arr::get($params, 'id_tipe_bansos'))) {
             $query->andFilterWhere(['and', ['>', 'id_tipe_bansos', 0], ['<', 'id_tipe_bansos', 9] ]);
@@ -98,6 +116,9 @@ class BeneficiaryBnbaSearch extends BeneficiaryBnba
                 ['is_deleted' => 0]
             ])
             ->groupBy("$groupBy");
+
+        // hotfix filter
+        $this->hotfixFilter($query);
 
         // Filtering Area
         if (empty(Arr::get($params, 'id_tipe_bansos'))) {

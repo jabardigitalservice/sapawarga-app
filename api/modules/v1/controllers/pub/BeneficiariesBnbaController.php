@@ -365,6 +365,13 @@ class BeneficiariesBnbaController extends ActiveController
             }
         }
 
+        // hotfix: hide data from kab bekasi
+        $response['data'] = array_values(array_filter($response['data'], function ($item) {
+            return $item['kode_kab_pengusul'] != '3216' ||
+                   $item['tahap_bantuan'] != 3 ||
+                   !$item['is_bankabkot'] ;
+        }));
+
         return $response['data'];
     }
 
@@ -401,6 +408,13 @@ class BeneficiariesBnbaController extends ActiveController
         }
 
         $response = json_decode($response->getBody(), true);
+
+        // hotfix: hide data from kab bekasi
+        $response['data'] = array_values(array_filter($response['data'], function ($item) {
+            return $item['kode_kab'] != '3216' ||
+                   $item['tahap_bantuan'] != 3 ||
+                   $item['id_tipe_bansos'] != 8 ;
+        }));
 
         return $response['data'];
     }
