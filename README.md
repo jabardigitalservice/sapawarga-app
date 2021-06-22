@@ -3,8 +3,13 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/bd503eca20b4d9ddad1e/maintainability)](https://codeclimate.com/github/jabardigitalservice/sapawarga-app/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/bd503eca20b4d9ddad1e/test_coverage)](https://codeclimate.com/github/jabardigitalservice/sapawarga-app/test_coverage)
 
+## Overview
+- The monolith backend used by [Sapawarga Web Admin](https://gitlab.com/jdsteam/sapa-warga/sapawarga-webadmin) and [Sapawarga Mobile (Flutter)](https://gitlab.com/jdsteam/sapa-warga/sapawarga-flutter).
+- Microservices version of Sapawarga is still being developed, [hosted on GitHub](https://github.com/sapawarga). Production is currently using the monolith version.
 
-- Program Specification on [GitBook](https://jabardigitalservice.gitbook.io/sapawarga)
+## Technical Documentation
+- Old Program Specification on [GitBook](https://jabardigitalservice.gitbook.io/sapawarga). Lists of modules, user and role permissions are still relevant, and have not been migrated to the new wiki.
+- Latest Program Specification on [JDS Wiki](https://wiki.digitalservice.id/doc/5-backendapi-BKlNpyzk96)
 
 ## How to use
 
@@ -12,7 +17,7 @@
   - Execute a single specifi queue job (known `queue.id` or `queue_details.id`):
 
     ```bash
-    yii custom-queue/run-single --queue_id=1234 
+    yii custom-queue/run-single --queue_id=1234
     # or
     yii custom-queue/run-single --queue_details_id=1234
     ```
