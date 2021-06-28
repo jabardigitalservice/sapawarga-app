@@ -53,7 +53,7 @@ use yii\web\Request as WebRequest;
  * @property string $last_access_at
  * @property string $account_confirmed_at
  * @property string $profile_updated_at
- * @property boolean $is_username_updated
+ * @property int $is_username_updated
  * @property int $username_update_popup_at
  *
  * @package app\models

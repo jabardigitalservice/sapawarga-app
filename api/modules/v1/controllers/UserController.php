@@ -68,6 +68,7 @@ class UserController extends ActiveController
                 'me-change-password' => ['post'],
                 'me-change-profile' => ['post'],
                 'me-change-username' => ['put'],
+                'me-delay-update-username' => ['post'],
             ],
         ];
 
@@ -110,7 +111,7 @@ class UserController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile', 'me-change-username'],
+                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile', 'me-change-username', 'me-delay-update-username'],
                     'roles' => ['user', 'staffRW']
                 ]
             ],
@@ -463,6 +464,26 @@ class UserController extends ActiveController
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
             $responseData = 'true';
+            return $responseData;
+        }
+
+        // Validation error
+        $response = \Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    public function actionMeDelayUpdateUsername()
+    {
+        $model = User::findOne(\Yii::$app->user->getId());
+        $model->is_username_updated = 0;
+        $model->username_update_popup_at = date('Y-m-d H:i:s', strtotime('+ 1 week'));
+
+        if ($model->save()) {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $responseData = $model;
             return $responseData;
         }
 

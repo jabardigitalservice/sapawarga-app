@@ -42,6 +42,8 @@ return [
             'POST me/change-profile' => 'me-change-profile',
             'OPTIONS me/change-profile' => 'options',
             'PUT me/change-username' => 'me-change-username',
+            'POST me/delay-update-username' => 'me-delay-update-username',
+            'OPTIONS me/delay-update-username' => 'options',
         ]
     ],
     [

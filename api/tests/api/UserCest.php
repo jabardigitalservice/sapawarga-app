@@ -490,6 +490,22 @@ class UserCest
         ]);
     }
 
+    public function userDelayUpdateUsernameSuccess(ApiTester $I)
+    {
+        $I->amUser('staffrw16');
+
+        $I->sendPOST('/v1/user/me/delay-update-username', []);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('user', [
+            'is_username_updated' => 0,
+        ]);
+    }
+
     public function userChangeProfileNoDataFail(ApiTester $I)
     {
         $I->amUser('staffrw16');
@@ -519,12 +535,9 @@ class UserCest
         ]);
 
         $I->seeInDatabase('user', [
-            'name' => 'name_edited',
-            'email' => 'email_updated@demo.com',
+            'username' => 'name_edited',
             'phone' => '11112222',
-            'address' => 'address_updated',
-            'job_type_id' => 1,
-            'education_level_id' => 1,
+            'is_username_updated' => 1,
         ]);
     }
 
