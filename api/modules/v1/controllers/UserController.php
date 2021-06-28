@@ -67,6 +67,7 @@ class UserController extends ActiveController
                 'me-photo' => ['get', 'post'],
                 'me-change-password' => ['post'],
                 'me-change-profile' => ['post'],
+                'me-change-username' => ['put'],
             ],
         ];
 
@@ -109,7 +110,7 @@ class UserController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile'],
+                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile', 'me-change-username'],
                     'roles' => ['user', 'staffRW']
                 ]
             ],

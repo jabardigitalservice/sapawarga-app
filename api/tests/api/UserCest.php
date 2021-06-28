@@ -502,6 +502,44 @@ class UserCest
             'status'  => 422,
         ]);
     }
+    
+
+    public function userChangeUsernameWhatsappSuccess(ApiTester $I)
+    {
+        $I->amUser('staffrw16');
+
+        $I->sendPOST('/v1/user/me/change-username', [
+            'username' => 'name_edited',
+            'phone' => '11112222',
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('user', [
+            'name' => 'name_edited',
+            'email' => 'email_updated@demo.com',
+            'phone' => '11112222',
+            'address' => 'address_updated',
+            'job_type_id' => 1,
+            'education_level_id' => 1,
+        ]);
+    }
+
+    public function userChangeUsernameWhatsappNoDataFail(ApiTester $I)
+    {
+        $I->amUser('staffrw16');
+
+        $I->sendPOST('/v1/user/me/change-username', []);
+
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
+        ]);
+    }
 
     public function userAdminCanSeeSaberHoax(ApiTester $I)
     {
