@@ -12,6 +12,7 @@ use app\models\SignupConfirmForm;
 use app\models\SignupForm;
 use app\models\User;
 use app\models\UserChangeProfileForm;
+use app\models\UserChangeUsernameForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Illuminate\Support\Arr;
@@ -456,6 +457,32 @@ class UserController extends ActiveController
         $model->education_level_id = Yii::$app->request->post('education_level_id');
 
         if ($model->validate() && $model->changeProfile()) {
+            $model->sendConfirmationEmail();
+
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $responseData = 'true';
+            return $responseData;
+        }
+
+        // Validation error
+        $response = \Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    public function actionMeChangeUsername()
+    {
+        $user = User::findIdentity(\Yii::$app->user->getId());
+
+        $model = new UserChangeUsernameForm();
+        $model->id = $user->id;
+        $model->username = Yii::$app->request->post('username');
+        $model->phone = Yii::$app->request->post('phone');
+        $model->is_username_updated = 1;
+
+        if ($model->validate() && $model->changeUsername()) {
             $model->sendConfirmationEmail();
 
             $response = \Yii::$app->getResponse();

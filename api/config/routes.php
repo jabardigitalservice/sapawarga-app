@@ -41,6 +41,7 @@ return [
             'OPTIONS me/change-password' => 'options',
             'POST me/change-profile' => 'me-change-profile',
             'OPTIONS me/change-profile' => 'options',
+            'PUT me/change-username' => 'me-change-username',
         ]
     ],
     [
