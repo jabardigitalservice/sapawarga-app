@@ -42,7 +42,7 @@ class UserChangeProfileForm extends Model
             ],
             // [['name', 'phone', 'address'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
-            ['phone', 'string', 'length' => [3, 13]],
+            ['phone', 'string', 'length' => [3, 15]],
             [['job_type_id', 'education_level_id'], 'integer'],
         ];
     }

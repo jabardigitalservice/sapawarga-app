@@ -41,7 +41,7 @@ class UserChangeUsernameForm extends Model
                     $query->andWhere(['!=', 'id', $this->id]);
                 }
             ],
-            ['phone', 'string', 'length' => [3, 13]]
+            ['phone', 'string', 'length' => [3, 15]]
         ];
     }
 
