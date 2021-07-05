@@ -72,6 +72,7 @@ class UserChangeUsernameForm extends Model
 
             if ($this->_user->save(false)) {
                 $this->_user->touch('profile_updated_at');
+                $this->_user->touch('password_updated_at');
                 return true;
             } else {
                 $this->addError('generic', Yii::t('app', 'The system could not update the information.'));
