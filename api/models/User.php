@@ -442,6 +442,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'updated_at',
             'username_update_popup_at' => 'UsernameUpdatePopUpAtField',
             'is_username_updated' => 'IsUsernameUpdatedField',
+            'username_updated_at',
         ];
 
         return $fields;
