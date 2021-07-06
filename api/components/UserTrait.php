@@ -70,7 +70,7 @@ trait UserTrait
                 'facebook', 'twitter', 'instagram', 'photo_url', 'last_login_at', 'last_access_at',
                 'password_updated_at', 'profile_updated_at',
                 'birth_date', 'job_type', 'job_type_id', 'education_level', 'education_level_id',
-                'is_username_updated', 'username_update_popup_at'
+                'is_username_updated', 'username_update_popup_at', 'username_updated_at'
             ]);
         } else {
             // Validation error

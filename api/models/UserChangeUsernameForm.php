@@ -41,7 +41,7 @@ class UserChangeUsernameForm extends Model
                     $query->andWhere(['!=', 'id', $this->id]);
                 }
             ],
-            ['phone', 'string', 'length' => [3, 13]]
+            ['phone', 'string', 'length' => [3, 15]]
         ];
     }
 
@@ -72,6 +72,7 @@ class UserChangeUsernameForm extends Model
 
             if ($this->_user->save(false)) {
                 $this->_user->touch('profile_updated_at');
+                $this->_user->touch('username_updated_at');
                 return true;
             } else {
                 $this->addError('generic', Yii::t('app', 'The system could not update the information.'));

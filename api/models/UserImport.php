@@ -32,7 +32,7 @@ class UserImport extends Model
         $rules = [
             ['password', 'string', 'length' => [5, User::MAX_LENGTH]],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
-            ['phone', 'string', 'length' => [3, 13]],
+            ['phone', 'string', 'length' => [3, 15]],
 
             [['username', 'name', 'email', 'password', 'role'], 'required'],
 

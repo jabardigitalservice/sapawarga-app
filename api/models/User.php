@@ -442,6 +442,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'updated_at',
             'username_update_popup_at' => 'UsernameUpdatePopUpAtField',
             'is_username_updated' => 'IsUsernameUpdatedField',
+            'username_updated_at',
         ];
 
         return $fields;
@@ -565,7 +566,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ],
             [['name', 'phone', 'address', 'rt', 'rw', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'trim'],
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
-            ['phone', 'string', 'length' => [3, 13]],
+            ['phone', 'string', 'length' => [3, 15]],
         ];
 
         return array_merge(
