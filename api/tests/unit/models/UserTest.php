@@ -152,7 +152,7 @@ class UserTest extends \Codeception\Test\Unit
         });
 
         // Tests for 'phone' field
-        $this->specify('phone must be between 3 and 13 characters', function () {
+        $this->specify('phone must be between 3 and 15 characters', function () {
             $user = new User();
 
             $user->phone = '08';
