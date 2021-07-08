@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\components\WhatsappTrait;
+use app\components\WhatsappHelper;
 use Yii;
 use yii\base\Model;
 
@@ -11,8 +11,6 @@ use yii\base\Model;
  */
 class UserChangeUsernameForm extends Model
 {
-    use WhatsappTrait;
-
     public $id;
     public $username;
     public $phone;
@@ -100,6 +98,6 @@ class UserChangeUsernameForm extends Model
     public function sendWhatsappInfo()
     {
         $message = \Yii::t('app', 'message.info_change_username_and_password_success');
-        return $this->pushQueue($this->phone, $message);
+        return WhatsappHelper::pushQueue($this->phone, $message);
     }
 }

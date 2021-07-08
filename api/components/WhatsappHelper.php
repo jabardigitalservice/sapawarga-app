@@ -6,9 +6,9 @@ use Aws\Exception\AwsException;
 use Aws\Sqs\SqsClient;
 use Yii;
 
-trait WhatsappTrait
+class WhatsappHelper
 {
-    public function getClient()
+    protected function getClient()
     {
         return new SqsClient([
             'credentials' => [
@@ -20,7 +20,7 @@ trait WhatsappTrait
         ]);
     }
 
-    public function pushQueue($phoneNumber, $message)
+    public static function pushQueue($phoneNumber, $message)
     {
         $messageRequest = [
             'QueueUrl'          => Yii::$app->sqsQueue->url,
@@ -28,22 +28,18 @@ trait WhatsappTrait
             'MessageAttributes' => [
                 'PhoneNumber'   => [
                     'DataType'    => 'String',
-                    'StringValue' => $this->cleanPhoneNumber($phoneNumber)
+                    'StringValue' => preg_replace('/^0{1}/', '62', $phoneNumber)
                 ]
             ],
             'MessageBody' => $message,
         ];
 
         try {
-            return $this->getClient()->sendMessage($messageRequest);
+            $sendMessage = new WhatsappHelper;
+            return $sendMessage->getClient()->sendMessage($messageRequest);
         } catch (AwsException $e) {
             // output error message if fails
             error_log($e->getMessage());
         }
-    }
-
-    public function cleanPhoneNumber($phoneNumber)
-    {
-        return preg_replace('/^0{1}/', '62', $phoneNumber);
     }
 }

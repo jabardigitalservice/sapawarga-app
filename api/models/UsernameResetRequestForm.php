@@ -2,10 +2,7 @@
 
 namespace app\models;
 
-use app\components\WhatsappTrait;
-use Aws\Exception\AwsException;
-use Aws\Sqs\SqsClient;
-use Jdsteam\Sapawarga\Jobs\WhatsappJob;
+use app\components\WhatsappHelper;
 use Yii;
 use yii\base\Model;
 
@@ -14,8 +11,6 @@ use yii\base\Model;
  */
 class UsernameResetRequestForm extends Model
 {
-    use WhatsappTrait;
-
     public $phone;
     public $reset_type;
     public $message;
@@ -62,7 +57,7 @@ class UsernameResetRequestForm extends Model
         if (!$user->save(false)) {
             return false;
         }
-        return $this->pushQueue($this->phone, $this->message);
+        return WhatsappHelper::pushQueue($this->phone, $this->message);
     }
 
     protected function resetUsernamePassword($user)
