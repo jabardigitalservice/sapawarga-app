@@ -8,7 +8,7 @@ use Yii;
 
 class WhatsappHelper
 {
-    protected function getClient()
+    protected static function getClient()
     {
         return new SqsClient([
             'credentials' => [
@@ -35,8 +35,7 @@ class WhatsappHelper
         ];
 
         try {
-            $sendMessage = new WhatsappHelper;
-            return $sendMessage->getClient()->sendMessage($messageRequest);
+            return self::getClient()->sendMessage($messageRequest);
         } catch (AwsException $e) {
             // output error message if fails
             error_log($e->getMessage());
