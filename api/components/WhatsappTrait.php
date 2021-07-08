@@ -33,7 +33,7 @@ trait WhatsappTrait
             ],
             'MessageBody' => $message,
         ];
-        
+
         try {
             return $this->getClient()->sendMessage($messageRequest);
         } catch (AwsException $e) {

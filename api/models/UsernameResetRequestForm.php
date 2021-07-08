@@ -15,7 +15,7 @@ use yii\base\Model;
 class UsernameResetRequestForm extends Model
 {
     use WhatsappTrait;
-    
+
     public $phone;
     public $reset_type;
     public $message;
@@ -68,11 +68,11 @@ class UsernameResetRequestForm extends Model
     protected function resetUsernamePassword($user)
     {
         // Generate Username and/or password but easier to read and remember
-        $user->username = 'user' . substr($this->phone, -4)  . rand(100, 999);
+        $user->username = 'user' . substr($this->phone, -4) . rand(100, 999);
         $this->message = \Yii::t('app', 'message.forgot_username_confirmation') . $user->username;
         if ($this->reset_type == User::RESET_USERNAME_AND_PASSWORD) {
             // Generate Pass
-            $newPassword = substr(str_shuffle('staffrw' . $this->phone  . rand(100, 999)), 0, 8);
+            $newPassword = substr(str_shuffle('staffrw' . $this->phone . rand(100, 999)), 0, 8);
             $user->setPassword($newPassword);
             $this->message .= \Yii::t('app', 'message.and_your_password_is') . $newPassword;
         }
