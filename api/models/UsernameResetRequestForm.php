@@ -65,7 +65,7 @@ class UsernameResetRequestForm extends Model
     protected function resetUsernamePassword($user)
     {
         // Generate Username and/or password but easier to read and remember
-        $user->username = 'staffrw' . $user->id;
+        $user->username = 'staffrw' . $this->phone  . rand(100, 999);
         $this->message = 'Sapawarga - WASPADA PENIPUAN! JANGAN MEMBERITAHUKAN ID PENGGUNA DAN KATA SANDI ANDA KE SIAPA PUN termasuk pihak Sapawarga. Berikut ID Pengguna Anda: ' . $user->username;
         if ($this->reset_type == User::RESET_USERNAME_AND_PASSWORD) {
             // Generate Pass
