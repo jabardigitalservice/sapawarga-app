@@ -69,7 +69,7 @@ class UsernameResetRequestForm extends Model
         $this->message = 'Sapawarga - WASPADA PENIPUAN! JANGAN MEMBERITAHUKAN ID PENGGUNA DAN KATA SANDI ANDA KE SIAPA PUN termasuk pihak Sapawarga. Berikut ID Pengguna Anda: ' . $user->username;
         if ($this->reset_type == User::RESET_USERNAME_AND_PASSWORD) {
             // Generate Pass
-            $newPassword = 'psw' . $user->id;
+            $newPassword = substr(str_shuffle('staffrw' . $this->phone  . rand(100, 999)), 0, 8);
             $user->setPassword($newPassword);
             $this->message .= ', dan Kata Sandi Anda: ' . $newPassword;
         }
