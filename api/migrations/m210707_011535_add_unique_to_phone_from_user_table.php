@@ -37,19 +37,4 @@ class m210707_011535_add_unique_to_phone_from_user_table extends CustomMigration
             true
         );
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m210707_011535_add_unique_to_phone_from_user_table cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }
