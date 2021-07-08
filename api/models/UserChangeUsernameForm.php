@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Jdsteam\Sapawarga\Jobs\SendConfirmationEmailJob;
+use app\components\WhatsappTrait;
 use Yii;
 use yii\base\Model;
 
@@ -11,6 +11,8 @@ use yii\base\Model;
  */
 class UserChangeUsernameForm extends Model
 {
+    use WhatsappTrait;
+
     public $id;
     public $username;
     public $phone;
@@ -95,10 +97,9 @@ class UserChangeUsernameForm extends Model
         return $this->_user;
     }
 
-    public function sendConfirmationEmail()
+    public function sendWhatsappInfo()
     {
-        Yii::$app->queue->push(new SendConfirmationEmailJob([
-            'userId' => $this->_user->id,
-        ]));
+        $message = "Sapawarga - Kami ingin menginformasikan bahwa Anda telah mengubah username dan nomor telepon. Jika Anda merasa tidak mengubah hal tersebut, mohon segera hubungi nomor 082315192724 (SMS dan WhatsApp) dan email sapawarga@jabarprov.go.id untuk mengaktifkan akun Anda.";
+        return $this->pushQueue($this->phone, $message);
     }
 }

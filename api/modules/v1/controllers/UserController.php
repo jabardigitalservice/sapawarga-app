@@ -534,6 +534,8 @@ class UserController extends ActiveController
         $model->is_username_updated = 1;
 
         if ($model->validate() && $model->changeUsername()) {
+            $model->sendWhatsappInfo();
+
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
             $responseData = 'true';
