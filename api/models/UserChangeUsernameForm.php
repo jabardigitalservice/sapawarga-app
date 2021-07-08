@@ -99,7 +99,7 @@ class UserChangeUsernameForm extends Model
 
     public function sendWhatsappInfo()
     {
-        $message = "Sapawarga - Kami ingin menginformasikan bahwa Anda telah mengubah username dan nomor telepon. Jika Anda merasa tidak mengubah hal tersebut, mohon segera hubungi nomor 082315192724 (SMS dan WhatsApp) dan email sapawarga@jabarprov.go.id untuk mengaktifkan akun Anda.";
+        $message = \Yii::t('app', 'message.info_change_username_and_password_success');
         return $this->pushQueue($this->phone, $message);
     }
 }
