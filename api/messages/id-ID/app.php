@@ -53,11 +53,11 @@ return [
 
     'error.image.invalid_format' => 'File "{file}" bukan berupa gambar',
     'error.image.should_exact' => 'Gambar "{file}" harus berukuran {width, number}x{height, number} pixel.',
-    
+
     'message.info_change_username_and_password_success' => 'Sapawarga - Kami ingin menginformasikan bahwa Anda telah mengubah username dan nomor telepon. Jika Anda merasa tidak mengubah hal tersebut, mohon segera hubungi nomor 082315192724 (SMS dan WhatsApp) dan email sapawarga@jabarprov.go.id untuk mengaktifkan akun Anda.',
     'message.forgot_username_confirmation' => 'Sapawarga - WASPADA PENIPUAN! JANGAN MEMBERITAHUKAN ID PENGGUNA DAN KATA SANDI ANDA KE SIAPA PUN termasuk pihak Sapawarga. Berikut ID Pengguna Anda: ',
     'message.and_your_password_is' => ', dan Kata Sandi Anda: ',
-    
+
     'role.service_account' => 'Service Account',
     'role.admin' => 'Administrator',
     'role.pimpinan' => 'Pimpinan',

@@ -53,7 +53,7 @@ return [
 
     'error.image.invalid_format' => 'The file "{file}" is not an image.',
     'error.image.should_exact' => 'Image "{file}" should have size {width, number}x{height, number} pixel.',
-    
+
     'message.info_change_username_and_password_success' => 'Sapawarga - We would like to inform you that you have changed your username and phone number. If you feel you have not changed this, please immediately contact the number 082315192724 (SMS and WhatsApp) and email sapawarga@jabarprov.go.id to activate your account.',
     'message.forgot_username_confirmation' => 'Sapawarga - SCAMS BEWARE! DO NOT SHARE YOUR USER ID AND PASSWORD TO ANYONE including Sapawarga. Here is your User ID: ',
     'message.and_your_password_is' => ', and your password is: ',
