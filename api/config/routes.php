@@ -27,6 +27,8 @@ return [
             'OPTIONS confirm' => 'options',
             'POST password-reset-request' => 'password-reset-request',
             'OPTIONS password-reset-request' => 'options',
+            'POST username-reset-request' => 'username-reset-request',
+            'OPTIONS username-reset-request' => 'options',
             'POST password-reset-token-verification' => 'password-reset-token-verification',
             'OPTIONS password-reset-token-verification' => 'options',
             'POST password-reset' => 'password-reset',

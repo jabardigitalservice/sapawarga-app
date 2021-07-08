@@ -13,6 +13,7 @@ use app\models\SignupForm;
 use app\models\User;
 use app\models\UserChangeProfileForm;
 use app\models\UserChangeUsernameForm;
+use app\models\UsernameResetRequestForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Illuminate\Support\Arr;
@@ -97,6 +98,7 @@ class UserController extends ActiveController
             'password-reset-request',
             'password-reset-token-verification',
             'password-reset',
+            'username-reset-request',
         ];
 
         // setup access
@@ -351,6 +353,33 @@ class UserController extends ActiveController
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
 
         if ($model->validate() && $model->sendPasswordResetEmail()) {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+
+            $responseData = 'true';
+
+            return $responseData;
+        } else {
+            // Validation error
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(422);
+
+            return $model->getErrors();
+        }
+    }
+
+    /**
+     * Process username and/or password reset request
+     *
+     * @return string
+     * @throws HttpException
+     */
+    public function actionUsernameResetRequest()
+    {
+        $model = new UsernameResetRequestForm();
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
+        if ($model->validate() && $model->sendUsernameResetWhatsappMessage()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
 
