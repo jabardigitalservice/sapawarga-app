@@ -84,9 +84,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public const STATUS_ACTIVE = 10;
     public const MAX_ROWS_EXPORT_ALLOWED = 50000;
 
-    public const RESET_USERNAME_ONLY = 1;
-    public const RESET_USERNAME_AND_PASSWORD = 2;
-
     // Mapping User role's id type (string to integer)
     public const ROLE_MAP = [
         'admin' => self::ROLE_ADMIN,
