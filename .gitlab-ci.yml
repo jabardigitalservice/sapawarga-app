@@ -45,12 +45,12 @@ code_quality:
     DOCKER_DRIVER: overlay2
   script:
     - docker run
-        --env SOURCE_CODE=$PWD
-        --env CONTAINER_TIMEOUT_SECONDS=3600
-        --env CODECLIMATE_DEBUG=1
-        --volume $PWD:/code
-        --volume /var/run/docker.sock:/var/run/docker.sock
-        "registry.gitlab.com/gitlab-org/security-products/codequality:11-8-stable" /code
+      --env SOURCE_CODE=$PWD
+      --env CONTAINER_TIMEOUT_SECONDS=3600
+      --env CODECLIMATE_DEBUG=1
+      --volume $PWD:/code
+      --volume /var/run/docker.sock:/var/run/docker.sock
+      "registry.gitlab.com/gitlab-org/security-products/codequality:11-8-stable" /code
   artifacts:
     paths: [gl-code-quality-report.json]
     reports:
@@ -84,7 +84,7 @@ unit_test:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     - changes:
-      - "**/*.{php,sql,yml}"
+        - "**/*.{php,sql,yml}"
   services:
     - docker:stable-dind
   variables:
@@ -159,7 +159,6 @@ deploy_staging_jabarcloud:
     - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
 
-
     # mysql replica staging #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%MYSQL_HOST_SLAVE_2%/${MYSQL_HOST_SLAVE_2}/g" kubernetes/backend-variables.yaml
@@ -213,25 +212,27 @@ deploy_staging_jabarcloud:
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
 
-     # version deployment #
+    # AWS SQS STAGING#
+    - sed -i "s/%AWS_WHATSAPP_URL%/${AWS_WHATSAPP_URL}/g" kubernetes/backend-variables.yaml
+
+    # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment-staging.yaml
-     # version queue jobs #
+      # version queue jobs #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-job.yaml
-     # version queue jobs import #
+      # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run=client --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-api-deployment-staging.yaml
-        -f kubernetes/backend-api-service.yaml
+      -f kubernetes/backend-api-deployment-staging.yaml
+      -f kubernetes/backend-api-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-api-deployment-staging.yaml
-        -f kubernetes/backend-api-service.yaml
+      -f kubernetes/backend-api-deployment-staging.yaml
+      -f kubernetes/backend-api-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
     - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
     - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-job.yaml
     - kubectl create --dry-run=client --validate -f kubernetes/backend-queue-import-job.yaml
     - kubectl apply -f kubernetes/backend-queue-job.yaml
     - kubectl apply -f kubernetes/backend-queue-import-job.yaml
-
 
 deploy_prod_eks:
   stage: deploy_prod
@@ -268,8 +269,7 @@ deploy_prod_eks:
     - sed -i "s/%ERROR_ENVIRONMENT%/${ERROR_ENVIRONMENT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%SENTRY_DSN%/${SENTRY_DSN}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%FRONTEND_URL%/${FRONTEND_URL}/g" kubernetes/backend-variables.yaml
-
-     # Redis Production #
+      # Redis Production #
     - sed -i "s/%REDIS_HOST%/${REDIS_HOST}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%REDIS_PORT%/${REDIS_PORT}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%REDIS_HOST_SLAVE_1%/${REDIS_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
@@ -278,7 +278,6 @@ deploy_prod_eks:
     - sed -i "s/%BANSOS_API_BASE_URL%/${BANSOS_API_BASE_URL}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%BANSOS_API_KEY%/${BANSOS_API_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%BANSOS_TRACKING_API_KEY%/${BANSOS_TRACKING_API_KEY}/g" kubernetes/backend-variables.yaml
-
 
     # mysql replica production #
     - sed -i "s/%MYSQL_HOST_SLAVE_1%/${MYSQL_HOST_SLAVE_1}/g" kubernetes/backend-variables.yaml
@@ -316,6 +315,10 @@ deploy_prod_eks:
     - sed -i "s/%APP_STORAGE_S3_BUCKET%/${APP_STORAGE_S3_BUCKET}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_KEY%/${APP_STORAGE_S3_KEY}/g" kubernetes/backend-variables.yaml
     - sed -i "s/%APP_STORAGE_S3_SECRET%/${APP_STORAGE_S3_SECRET}/g" kubernetes/backend-variables.yaml
+
+    # AWS SQS PRODUCTION#
+    - sed -i "s/%AWS_WHATSAPP_URL%/${AWS_WHATSAPP_URL}/g" kubernetes/backend-variables.yaml
+
     # version deployment #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-api-deployment.yaml
     - sed -i "s/%REPLICAS%/${REPLICAS}/g" kubernetes/backend-api-deployment.yaml
@@ -324,11 +327,11 @@ deploy_prod_eks:
     # version queue jobs import #
     - sed -i "s/%VERSION%/${VERSION}/g" kubernetes/backend-queue-import-job.yaml
     - kubectl create --dry-run --validate -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-api-deployment.yaml
-        -f kubernetes/backend-api-service.yaml
+      -f kubernetes/backend-api-deployment.yaml
+      -f kubernetes/backend-api-service.yaml
     - kubectl apply -f kubernetes/backend-variables.yaml
-        -f kubernetes/backend-api-deployment.yaml
-        -f kubernetes/backend-api-service.yaml
+      -f kubernetes/backend-api-deployment.yaml
+      -f kubernetes/backend-api-service.yaml
     - kubectl delete -f kubernetes/backend-queue-job.yaml --ignore-not-found
     - kubectl delete -f kubernetes/backend-queue-import-job.yaml --ignore-not-found
     - kubectl create --dry-run --validate -f kubernetes/backend-queue-job.yaml
