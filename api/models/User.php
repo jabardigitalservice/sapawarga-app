@@ -15,6 +15,7 @@ use yii\web\Request as WebRequest;
  * Class User
  *
  * @property integer $id
+ * @property string $unique_id
  * @property string $username
  * @property string $auth_key
  * @property integer $access_token_expired_at
@@ -52,6 +53,8 @@ use yii\web\Request as WebRequest;
  * @property string $last_access_at
  * @property string $account_confirmed_at
  * @property string $profile_updated_at
+ * @property int $is_username_updated
+ * @property int $username_update_popup_at
  *
  * @package app\models
  */
@@ -316,6 +319,16 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->last_access_at !== null ? (new Carbon($this->last_access_at))->timestamp : null;
     }
 
+    public function getUsernameUpdatePopUpAtField()
+    {
+        return $this->username_update_popup_at !== null ? (new Carbon($this->username_update_popup_at))->timestamp : null;
+    }
+
+    public function getIsUsernameUpdatedField()
+    {
+        return $this->is_username_updated == 1 ? true : false;
+    }
+
     public function getEducationLevelField()
     {
         $configParams = include __DIR__ . '/../config/references/education_level.php';
@@ -367,6 +380,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         $fields = [
             'id',
+            'unique_id',
             'username',
             'email',
             'role_id' => function () {
@@ -426,6 +440,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'profile_updated_at',
             'created_at',
             'updated_at',
+            'username_update_popup_at' => 'UsernameUpdatePopUpAtField',
+            'is_username_updated' => 'IsUsernameUpdatedField',
+            'username_updated_at',
         ];
 
         return $fields;
@@ -549,7 +566,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ],
             [['name', 'phone', 'address', 'rt', 'rw', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'trim'],
             [['name', 'address'], 'string', 'max' => self::MAX_LENGTH],
-            ['phone', 'string', 'length' => [3, 13]],
+            ['phone', 'string', 'length' => [3, 15]],
         ];
 
         return array_merge(

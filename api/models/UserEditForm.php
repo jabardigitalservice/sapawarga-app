@@ -92,7 +92,7 @@ class UserEditForm extends Model
             [['username', 'email', 'name', 'phone', 'address', 'rt', 'rw', 'kel_id', 'kec_id', 'kabkota_id', 'lat', 'lon', 'photo_url', 'facebook', 'twitter', 'instagram'], 'default'],
             [['birth_date', 'education_level_id', 'job_type_id'], 'default'],
             [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
-            ['phone', 'string', 'length' => [3, 13]],
+            ['phone', 'string', 'length' => [3, 15]],
 
             ['birth_date', 'date', 'format' => 'php:Y-m-d'],
             ['birth_date', DatePastValidator::class],

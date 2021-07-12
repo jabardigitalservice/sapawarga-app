@@ -9,16 +9,12 @@ use yii\base\Model;
 /**
  * User Edit form
  */
-class UserChangeProfileForm extends Model
+class UserChangeUsernameForm extends Model
 {
     public $id;
-    public $name;
-    public $email;
+    public $username;
     public $phone;
-    public $address;
-    public $job_type_id;
-    public $education_level_id;
-    /** @var User */
+    public $is_username_updated;
     private $_user = false;
 
     /**
@@ -27,23 +23,25 @@ class UserChangeProfileForm extends Model
     public function rules()
     {
         return [
-            [['name', 'email', 'phone', 'address'], 'required'],
-            [['name', 'email', 'phone', 'address'], 'trim'],
-            ['email', 'email'],
-            ['email', 'string', 'max' => User::MAX_LENGTH],
+            [['username', 'phone'], 'required'],
+            [['username', 'phone'], 'trim'],
+            ['username', 'string', 'length' => [4, 255]],
             [
-                'email',
+                'username',
+                'match',
+                'pattern' => '/^[a-z0-9_.]{4,255}$/',
+                'message' => Yii::t('app', 'error.username.pattern')
+            ],
+            [
+                'username',
                 'unique',
                 'targetClass' => '\app\models\User',
-                'message' => Yii::t('app', 'error.email.taken'),
+                'message' => Yii::t('app', 'error.username.taken'),
                 'filter' => function ($query) {
                     $query->andWhere(['!=', 'id', $this->id]);
                 }
             ],
-            // [['name', 'phone', 'address'], 'default'],
-            [['name', 'address'], 'string', 'max' => User::MAX_LENGTH],
-            ['phone', 'string', 'length' => [3, 15]],
-            [['job_type_id', 'education_level_id'], 'integer'],
+            ['phone', 'string', 'length' => [3, 15]]
         ];
     }
 
@@ -51,12 +49,8 @@ class UserChangeProfileForm extends Model
     public function attributeLabels()
     {
         return [
-            'name' => Yii::t('app', 'app.name'),
-            'email' => Yii::t('app', 'app.email'),
-            'phone' => Yii::t('app', 'app.phone'),
-            'address' => Yii::t('app', 'app.address'),
-            'job_type_id' => Yii::t('app', 'app.job_type_id'),
-            'education_level_id' => Yii::t('app', 'app.education_level_id'),
+            'username' => Yii::t('app', 'app.username'),
+            'phone' => Yii::t('app', 'app.phone')
         ];
     }
 
@@ -65,17 +59,10 @@ class UserChangeProfileForm extends Model
      *
      * @return boolean the saved model or null if saving fails
      */
-    public function changeProfile()
+    public function changeUsername()
     {
         if ($this->validate()) {
             $this->getUserByID();
-
-            if ($this->_user->email != $this->email) {
-                $this->_user->unconfirmed_email = $this->email;
-                $this->_user->email = $this->email;
-                $this->_user->confirmed_at = Yii::$app->formatter->asTimestamp(date('Y-m-d H:i:s'));
-                $this->_user->generateAuthKey();
-            }
 
             // Set all the other fields
             $attribute_names = $this->attributes();
@@ -85,6 +72,7 @@ class UserChangeProfileForm extends Model
 
             if ($this->_user->save(false)) {
                 $this->_user->touch('profile_updated_at');
+                $this->_user->touch('username_updated_at');
                 return true;
             } else {
                 $this->addError('generic', Yii::t('app', 'The system could not update the information.'));

@@ -12,6 +12,7 @@ use app\models\SignupConfirmForm;
 use app\models\SignupForm;
 use app\models\User;
 use app\models\UserChangeProfileForm;
+use app\models\UserChangeUsernameForm;
 use app\models\UserSearch;
 use app\modules\v1\controllers\Concerns\UserPhotoUpload;
 use Illuminate\Support\Arr;
@@ -66,6 +67,8 @@ class UserController extends ActiveController
                 'me-photo' => ['get', 'post'],
                 'me-change-password' => ['post'],
                 'me-change-profile' => ['post'],
+                'me-change-username' => ['put'],
+                'me-delay-update-username' => ['post'],
             ],
         ];
 
@@ -108,7 +111,7 @@ class UserController extends ActiveController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile'],
+                    'actions' => ['logout', 'me', 'me-photo', 'me-change-password', 'me-change-profile', 'me-change-username', 'me-delay-update-username'],
                     'roles' => ['user', 'staffRW']
                 ]
             ],
@@ -458,6 +461,50 @@ class UserController extends ActiveController
         if ($model->validate() && $model->changeProfile()) {
             $model->sendConfirmationEmail();
 
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $responseData = 'true';
+            return $responseData;
+        }
+
+        // Validation error
+        $response = \Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    public function actionMeDelayUpdateUsername()
+    {
+        $model = User::findOne(\Yii::$app->user->getId());
+        $model->is_username_updated = 0;
+        $model->username_update_popup_at = date('Y-m-d H:i:s', strtotime('+ 1 week'));
+
+        if ($model->save()) {
+            $response = \Yii::$app->getResponse();
+            $response->setStatusCode(200);
+            $responseData = $model;
+            return $responseData;
+        }
+
+        // Validation error
+        $response = \Yii::$app->getResponse();
+        $response->setStatusCode(422);
+
+        return $model->getErrors();
+    }
+
+    public function actionMeChangeUsername()
+    {
+        $user = User::findIdentity(\Yii::$app->user->getId());
+
+        $model = new UserChangeUsernameForm();
+        $model->id = $user->id;
+        $model->username = Yii::$app->request->post('username');
+        $model->phone = Yii::$app->request->post('phone');
+        $model->is_username_updated = 1;
+
+        if ($model->validate() && $model->changeUsername()) {
             $response = \Yii::$app->getResponse();
             $response->setStatusCode(200);
             $responseData = 'true';

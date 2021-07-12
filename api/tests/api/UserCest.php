@@ -490,11 +490,62 @@ class UserCest
         ]);
     }
 
+    public function userDelayUpdateUsernameSuccess(ApiTester $I)
+    {
+        $I->amUser('staffrw16');
+
+        $I->sendPOST('/v1/user/me/delay-update-username', []);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('user', [
+            'is_username_updated' => 0,
+        ]);
+    }
+
     public function userChangeProfileNoDataFail(ApiTester $I)
     {
         $I->amUser('staffrw16');
 
         $I->sendPOST('/v1/user/me/change-profile', []);
+
+        $I->canSeeResponseCodeIs(422);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'status'  => 422,
+        ]);
+    }
+    
+
+    public function userChangeUsernameWhatsappSuccess(ApiTester $I)
+    {
+        $I->amUser('staffrw16');
+
+        $I->sendPOST('/v1/user/me/change-username', [
+            'username' => 'name_edited',
+            'phone' => '11112222',
+        ]);
+        $I->canSeeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status'  => 200,
+        ]);
+
+        $I->seeInDatabase('user', [
+            'username' => 'name_edited',
+            'phone' => '11112222',
+            'is_username_updated' => 1,
+        ]);
+    }
+
+    public function userChangeUsernameWhatsappNoDataFail(ApiTester $I)
+    {
+        $I->amUser('staffrw16');
+
+        $I->sendPOST('/v1/user/me/change-username', []);
 
         $I->canSeeResponseCodeIs(422);
         $I->seeResponseContainsJson([
