@@ -42,6 +42,62 @@ class UserCest
         $I->amBearerAuthenticated($token);
     }
 
+    public function loginByUsername(ApiTester $I)
+    {
+        $I->sendPOST($this->endpointLogin, [
+            'LoginForm' => [
+                'username' => 'user',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status' => 200,
+        ]);
+
+        $I->seeResponseMatchesJsonType([
+            'id' => 'integer',
+            'access_token' => 'string',
+        ], '$.data');
+
+        $token = $I->grabDataFromResponseByJsonPath('$..data.access_token');
+        $token = $token[0];
+
+        $I->amBearerAuthenticated($token);
+    }
+
+    public function loginByPhone(ApiTester $I)
+    {
+        $I->sendPOST($this->endpointLogin, [
+            'LoginForm' => [
+                'username' => '08571234567',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status' => 200,
+        ]);
+
+        $I->seeResponseMatchesJsonType([
+            'id' => 'integer',
+            'access_token' => 'string',
+        ], '$.data');
+
+        $token = $I->grabDataFromResponseByJsonPath('$..data.access_token');
+        $token = $token[0];
+
+        $I->amBearerAuthenticated($token);
+    }
+
     public function userLoginInvalidFields(ApiTester $I)
     {
         $I->sendPOST($this->endpointLogin);
@@ -524,7 +580,7 @@ class UserCest
     {
         $I->amUser('staffrw16');
 
-        $I->sendPOST('/v1/user/me/change-username', [
+        $I->sendPUT('/v1/user/me/change-username', [
             'username' => 'name_edited',
             'phone' => '11112222',
         ]);
@@ -545,7 +601,7 @@ class UserCest
     {
         $I->amUser('staffrw16');
 
-        $I->sendPOST('/v1/user/me/change-username', []);
+        $I->sendPUT('/v1/user/me/change-username', []);
 
         $I->canSeeResponseCodeIs(422);
         $I->seeResponseContainsJson([

@@ -191,8 +191,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function findByUsernameWithRoles($username, $roles)
     {
         /** @var User $user */
-        $user = static::find()->where([
-            'BINARY(`username`)' => $username,
+        $user = static::find()->where(['or',
+            ['BINARY(`username`)' => $username],
+            ['phone' => $username]
         ])->andWhere(['in', 'role', $roles])->one();
 
         if (
