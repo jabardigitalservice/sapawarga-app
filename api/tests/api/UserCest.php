@@ -14,11 +14,39 @@ class UserCest
         Yii::$app->db->createCommand($sql)->execute();
     }
 
-    protected function login(ApiTester $I)
+    protected function loginByUsername(ApiTester $I)
     {
         $I->sendPOST($this->endpointLogin, [
             'LoginForm' => [
                 'username' => 'user',
+                'password' => '123456',
+            ]
+        ]);
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'status' => 200,
+        ]);
+
+        $I->seeResponseMatchesJsonType([
+            'id' => 'integer',
+            'access_token' => 'string',
+        ], '$.data');
+
+        $token = $I->grabDataFromResponseByJsonPath('$..data.access_token');
+        $token = $token[0];
+
+        $I->amBearerAuthenticated($token);
+    }
+
+    protected function loginByPhone(ApiTester $I)
+    {
+        $I->sendPOST($this->endpointLogin, [
+            'LoginForm' => [
+                'username' => '08571234567',
                 'password' => '123456',
             ]
         ]);
