@@ -21,19 +21,4 @@ class m210705_100046_add_username_updated_at_to_user_table extends CustomMigrati
     {
         $this->dropColumn('user', 'username_updated_at');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m210705_100046_add_username_updated_at_to_user_table cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

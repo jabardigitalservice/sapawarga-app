@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Jdsteam\Sapawarga\Jobs\SendConfirmationEmailJob;
+use app\components\WhatsappHelper;
 use Yii;
 use yii\base\Model;
 
@@ -95,10 +95,9 @@ class UserChangeUsernameForm extends Model
         return $this->_user;
     }
 
-    public function sendConfirmationEmail()
+    public function sendWhatsappInfo()
     {
-        Yii::$app->queue->push(new SendConfirmationEmailJob([
-            'userId' => $this->_user->id,
-        ]));
+        $message = \Yii::t('app', 'message.info_change_username_and_password_success');
+        return WhatsappHelper::pushQueue($this->phone, $message);
     }
 }
