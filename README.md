@@ -29,6 +29,12 @@
     ```bash
     docker-compose -f docker-compose.dev.yml down
     ```
+6. If you need to access shell of the Docker container (e.g. to run console commands), run
+    ```bash
+    docker-compose exec <docker_service_name> bash
+    # For example, to access shell of the main app, run
+    # docker-compose exec app bash
+    ```
 ## Testing
 We use [Codeception](https://codeception.com/for/yii) to write test cases. There are two kinds of tests:
 1. **Unit Test:** used to test validation rules of model classes. Can also be used to test independent helper functions that don't require database connection. Test cases for unit test are located in `api/test/unit` directory. To run unit test, run
