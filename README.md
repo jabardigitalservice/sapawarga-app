@@ -29,6 +29,27 @@
     ```bash
     docker-compose -f docker-compose.dev.yml down
     ```
+6. If you need to access shell of the Docker container (e.g. to run console commands), run
+    ```bash
+    docker-compose exec <docker_service_name> bash
+    # For example, to access shell of the main app, run
+    # docker-compose exec app bash
+    ```
+## Testing
+We use [Codeception](https://codeception.com/for/yii) to write test cases. There are two kinds of tests:
+1. **Unit Test:** used to test validation rules of model classes. Can also be used to test independent helper functions that don't require database connection. Test cases for unit test are located in `api/test/unit` directory. To run unit test, run
+
+    ```bash
+    docker-compose exec -T api composer run test:unit
+    ```
+
+2. **API Test:** used to test API endpoints. Test cases for API test are located in `api/test/api` directory. To run API test, run
+
+    ```bash
+    docker-compose exec -T api composer run test:api
+    ```
+
+Current CI/CD script only runs unit test because API test takes a long time to run.
 ## Running custom queue worker
   - Execute a single specific queue job (known `queue.id` or `queue_details.id`):
 
@@ -45,3 +66,6 @@
     ```
 
     notes: to make the worker run indefinitely, use limit = 0.
+
+## Credits
+Based on [chrisleekr's yii2-angular-boilerplate](https://github.com/chrisleekr/yii2-angular-boilerplate).
